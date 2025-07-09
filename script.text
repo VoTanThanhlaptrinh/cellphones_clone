@@ -1,0 +1,7 @@
+npm install -g npm@11.4.2 #install angular
+ng serve #run project
+ng g c [component_name] # create component
+ng g service [services/[service_name]] #create service
+
+npm install -D tailwindcss @tailwindcss/postcss postcss daisyui flowbite
+
