@@ -1,0 +1,6 @@
+@cellphones_backend_HostAddress = http://localhost:5252
+
+GET {{cellphones_backend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

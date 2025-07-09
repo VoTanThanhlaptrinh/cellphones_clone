@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "hSMZgDbWWm8=",
+  "success": true,
+  "projectFilePath": "E:\\docnet_workspace\\cellphones_backend\\cellphones_backend\\cellphones_backend.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\VO TAN THANH\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.6\\microsoft.aspnetcore.openapi.9.0.6.nupkg.sha512",
+    "C:\\Users\\VO TAN THANH\\.nuget\\packages\\microsoft.openapi\\1.6.17\\microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}
