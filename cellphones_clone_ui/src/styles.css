@@ -1,0 +1,170 @@
+@plugin "daisyui";
+@plugin "flowbite/plugin";
+@import "tailwindcss";
+@import "swiper/css";
+@import "swiper/css/navigation";
+@import "swiper/css/thumbs";
+
+app-root {
+  display: block;
+}
+
+.main-color {
+  background-color: #da152b;
+}
+.main-text-color {
+  color: #da152b;
+}
+.button-bg {
+  background-color: #e45464;
+  cursor: pointer;
+}
+.button-bg:hover {
+  background-color: #d02437;
+}
+.navbar-bg {
+  background-color: #e45464;
+}
+.navbar-bg:hover {
+  background-color: #d02437;
+}
+.marquee {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  box-sizing: border-box;
+  animation: marquee 20s linear infinite;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+span {
+  font-style: inherit;
+}
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: white;
+}
+
+html{
+  scroll-behavior: smooth !important;
+}
+
+.banner-bg-color {
+  background-color: #d7263a;
+}
+.slick-prev,
+.slick-next {
+  background: transparent !important;
+  z-index: 10 !important;
+  margin-left: 40px !important;
+  margin-right: 40px !important;
+}
+
+.slick-prev:before,
+.slick-next:before {
+  color: black !important;
+  font-size: 20px !important;
+}
+.recommend-text {
+  color: rgb(4, 41, 122);
+}
+.bg-recommend {
+  background: url("https://cdn2.cellphones.com.vn/x/media/wysiwyg/Vertex.jpg")
+    cover center center;
+}
+.percent {
+  background: url(https://cdn2.cellphones.com.vn/x/media/wysiwyg/discount-badge-ui-2025.png)
+    50% no-repeat;
+  background-size: cover;
+}
+.percent-pay {
+  background: url(https://cdn2.cellphones.com.vn/x/media/wysiwyg/zero-ins-badge-ui-2025.png)
+    50% no-repeat;
+  background-size: cover;
+}
+.sold-text {
+  background-color: #ffb9bf;
+}
+.bg-recommend-text {
+  color: #421d95;
+  background-color: #efe9fe;
+}
+.favorite-text {
+  color: #3b82f6;
+}
+.favorite-btn button {
+  border: none;
+}
+.favorite-btn button svg #like {
+  display: hidden;
+}
+.bg-text-experience {
+  background-color: #ebf3fe;
+}
+.text-experience {
+  color: #ebf3fe;
+}
+.font-input-file {
+  font-family: Inter, Inter Fallback, Roboto, Arial, sans-serif;
+}
+@layer components {
+  /* trạng thái bình thường của thumb */
+  swiper-container.thumbs .swiper-slide img {
+    @apply w-[75px] h-[75px] object-cover rounded-lg border border-gray-400 p-3;
+  }
+
+  /* thumb đang active -> đổi màu viền + ring */
+  swiper-container.thumbs .swiper-slide-thumb-active img {
+    @apply border-2 border-amber-500 ring-2 ring-amber-400;
+  }
+  swiper-container.thumbs .swiper-slide img {
+    transition: box-shadow 0.15s, border-color 0.15s;
+  }
+}
+.primary-bg {
+  background-color: #f2f7ff;
+}
+.discount-bg {
+  background: url("/assets/images/red-ribbon.png") 50% no-repeat;
+}
+.installment-bg {
+  background: url("/assets/images/blue-ribbon.png") 50% no-repeat;
+  color: #3b82f6;
+}
+swiper-container::part(button-prev) {
+  left: 8px;
+  top: 150px;
+  width: 12px;
+  height: 12px;
+  padding: 12px;
+  border-radius: 50%; /* tròn */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  background: white;
+  color: black;
+  font-weight: bold;
+}
+swiper-container::part(button-next) {
+  right: 0px;
+  top: 150px;
+  width: 12px;
+  height: 12px;
+  padding: 12px;
+  border-radius: 50%; /* tròn */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  background: white;
+  color: black;
+  font-weight: bold;
+}
+.modal-box {
+  padding: 0px !important;
+}

@@ -1,0 +1,8 @@
+@defer { @if(!isHideHeader){
+<app-header></app-header>
+} }
+<router-outlet></router-outlet>
+<app-back-to-top (scrollToTop)="onScrollToTop()"></app-back-to-top>
+@defer { @if (!isHideFooter) {
+<app-footer></app-footer>
+} }

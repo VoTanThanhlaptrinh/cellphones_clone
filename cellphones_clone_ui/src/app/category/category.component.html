@@ -1,0 +1,140 @@
+<main
+  class="container my-2 items-center w-full mx-auto lg:max-w-[1200px] gap-y-2"
+>
+  <div class="flex text-black text-[13px] gap-x-2 items-center font-normal">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g clip-path="url(#clip0_2841_7864)">
+        <path
+          d="M3.33333 8H2L8 2L14 8H12.6667"
+          stroke="#18181B"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        ></path>
+        <path
+          d="M3.3335 8V12.6667C3.3335 13.0203 3.47397 13.3594 3.72402 13.6095C3.97407 13.8595 4.31321 14 4.66683 14H11.3335C11.6871 14 12.0263 13.8595 12.2763 13.6095C12.5264 13.3594 12.6668 13.0203 12.6668 12.6667V8"
+          stroke="#18181B"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        ></path>
+        <path
+          d="M6 14V9.99996C6 9.64634 6.14048 9.3072 6.39052 9.05715C6.64057 8.8071 6.97971 8.66663 7.33333 8.66663H8.66667C9.02029 8.66663 9.35943 8.8071 9.60948 9.05715C9.85952 9.3072 10 9.64634 10 9.99996V14"
+          stroke="#18181B"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        ></path>
+      </g>
+      <defs>
+        <clipPath id="clip0_2841_7864">
+          <rect width="16" height="16" fill="white"></rect>
+        </clipPath>
+      </defs>
+    </svg>
+    <a href="/" class="font-medium">Trang chủ</a>
+    <span>/</span>
+    <a href="/" class="text-gray-500">Máy tính để bàn</a>
+  </div>
+  <div class="grid grid-cols-2 gap-x-2">
+    @if (isBrowser) {
+    <swiper-container
+      navigation="true"
+      thumbs-swiper=".thumbs"
+      pagination="true"
+      slides-per-view="1"
+      navigation-next-el=".custom-next-button"
+      navigation-prev-el=".custom-prev-button"
+    >
+      @for (src of slides1; track $index) {
+      <swiper-slide class="my-3">
+        <img class="rounded-lg shadow" alt="" loading="lazy" [src]="src" />
+      </swiper-slide>
+      }
+      <!-- Ẩn/hiện mũi tên khi hover (dùng ::part) -->
+      <div slot="container-end"></div>
+    </swiper-container>
+    <swiper-container
+      navigation="true"
+      thumbs-swiper=".thumbs"
+      pagination="true"
+      slides-per-view="1"
+      navigation-next-el=".custom-next-button"
+      navigation-prev-el=".custom-prev-button"
+    >
+      @for (src of slides2; track $index) {
+      <swiper-slide class="my-3">
+        <img class="rounded-lg shadow" alt="" loading="lazy" [src]="src" />
+      </swiper-slide>
+      }
+      <!-- Ẩn/hiện mũi tên khi hover (dùng ::part) -->
+      <div slot="container-end"></div>
+    </swiper-container>
+    }
+  </div>
+  <div class="flex flex-col gap-y-4 mt-2">
+    <p class="font-medium text-xl text-black">Điện thoại</p>
+    <div class="flex flex-wrap gap-2">
+      @for (item of category_list; track $index) {
+      <a href="#">
+        <img
+          class="w-27 h-10 border border-gray-200 rounded-sm px-1 py-2"
+          [src]="item.src"
+          loading="lazy"
+          [alt]="item.alt"
+        />
+      </a>
+      }
+    </div>
+  </div>
+  <div class="flex flex-col gap-y-2 mt-4">
+    <p class="font-medium text-xl text-black">Chọn theo nhu cầu</p>
+    <div class="flex flex-wrap gap-2">
+      @for (item of phoneCategories; track $index) {
+      <div
+        class="flex flex-col gap-y-1 items-center justify-center py-1 px-2 bg-gray-100 w-[125px] rounded-xl"
+      >
+        <a href="#">
+          <img
+            class="h-18 px-2 py-1"
+            [src]="item.src"
+            loading="lazy"
+            [alt]="item.alt"
+          />
+        </a>
+        <p class="text-center text-xs text-black font-medium">
+          {{ item.text }}
+        </p>
+      </div>
+      }
+    </div>
+  </div>
+  <div class="flex flex-col gap-y-2 mt-4">
+    <p class="font-medium text-xl text-black">Chọn theo nhu cầu</p>
+    <div class="flex flex-wrap gap-2">
+      @for (item of phoneCategories; track $index) {
+      <div
+        class="flex flex-col gap-y-1 items-center justify-center py-1 px-2 bg-gray-100 w-[125px] rounded-xl"
+      >
+        <a href="#">
+          <img
+            class="h-18 px-2 py-1"
+            [src]="item.src"
+            loading="lazy"
+            [alt]="item.alt"
+          />
+        </a>
+        <p class="text-center text-xs text-black font-medium">
+          {{ item.text }}
+        </p>
+      </div>
+      }
+    </div>
+  </div>
+</main>

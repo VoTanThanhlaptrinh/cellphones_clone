@@ -1,0 +1,21 @@
+@cellPhoneS_backend_HostAddress = http://localhost:5169
+
+GET  {{cellPhoneS_backend_HostAddress}}/api/auth/ok
+Accept: application/json
+
+###
+
+GET  {{cellPhoneS_backend_HostAddress}}/api/auth/ok
+Accept: application/json
+
+###
+GET  {{cellPhoneS_backend_HostAddress}}/api/auth/ok
+Accept: application/json
+
+###
+GET  {{cellPhoneS_backend_HostAddress}}/api/auth/ok
+Accept: application/json
+
+###
+GET  {{cellPhoneS_backend_HostAddress}}/api/auth/ok
+Accept: application/json

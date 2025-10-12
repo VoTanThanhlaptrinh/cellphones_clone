@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+
+  <!-- ===== Messages (Vietnamese) ===== -->
+  <data name="PhoneRequired" xml:space="preserve"><value>Số điện thoại là bắt buộc.</value><comment/></data>
+  <data name="PasswordRequired" xml:space="preserve"><value>Mật khẩu là bắt buộc.</value><comment/></data>
+  <data name="BirthDayRequired" xml:space="preserve"><value>Ngày sinh là bắt buộc.</value><comment/></data>
+  <data name="FullNameRequired" xml:space="preserve"><value>Họ và tên là bắt buộc.</value><comment/></data>
+  <data name="MaxName" xml:space="preserve"><value>Tên không được vượt quá độ dài tối đa.</value><comment/></data>
+  <data name="Phone10Digit" xml:space="preserve"><value>Số điện thoại phải có 10 chữ số.</value><comment/></data>
+  <data name="ConfirmPasswordRequired" xml:space="preserve"><value>Xác nhận mật khẩu là bắt buộc.</value><comment/></data>
+  <data name="MinPassword" xml:space="preserve"><value>Mật khẩu phải đạt độ dài tối thiểu.</value><comment/></data>
+  <data name="PasswordNotMatchRequired" xml:space="preserve"><value>Mật khẩu và Xác nhận mật khẩu không khớp.</value><comment/></data>
+
+  <data name="TypeUserRequired" xml:space="preserve"><value>Vui lòng chọn loại người dùng.</value><comment/></data>
+  <data name="TypeSchoolRequired" xml:space="preserve"><value>Vui lòng chọn loại trường học.</value><comment/></data>
+  <data name="NameSchoolRequired" xml:space="preserve"><value>Tên trường học là bắt buộc.</value><comment/></data>
+  <data name="IdStudentRequired" xml:space="preserve"><value>Mã sinh viên là bắt buộc.</value><comment/></data>
+  <data name="IdStudentRequired" xml:space="preserve"><value>Mã giáo viên là bắt buộc.</value><comment/></data>
+  <data name="NameInCardRequired" xml:space="preserve"><value>Tên in trên thẻ là bắt buộc.</value><comment/></data>
+  <data name="ExpiredDateCardRequired" xml:space="preserve"><value>Ngày hết hạn của thẻ là bắt buộc.</value><comment/></data>
+  <data name="ExpiredDateMustBeTodayOrFuture" xml:space="preserve"><value>Ngày hết hạn của thẻ phải là hôm nay hoặc trong tương lai.</value><comment/></data>
+
+  <data name="EmailRequired" xml:space="preserve"><value>Email là bắt buộc.</value><comment/></data>
+  <data name="EmailInvalid" xml:space="preserve"><value>Email không đúng định dạng.</value><comment/></data>
+  <data name="EmailSchoolInvalid" xml:space="preserve"><value>Email trường phải thuộc tên miền .edu (ví dụ: .edu, .edu.vn).</value><comment/></data>
+
+  <data name="FrontFaceCardRequired" xml:space="preserve"><value>Vui lòng tải ảnh mặt trước của thẻ.</value><comment/></data>
+  <data name="BehindFaceCardRequired" xml:space="preserve"><value>Vui lòng tải ảnh mặt sau của thẻ.</value><comment/></data>
+  <data name="FileExceed2Mb" xml:space="preserve"><value>Kích thước tệp không được vượt quá 2 MB.</value><comment/></data>
+</root>

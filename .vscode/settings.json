@@ -1,0 +1,4 @@
+{
+    "dotnet.defaultSolution": "cell_phones_backend.slnx",
+    "tailwindCSS.lint.invalidConfigPath": "ignore"
+}

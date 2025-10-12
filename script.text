@@ -1,0 +1,17 @@
+npm install -g npm@11.4.2 #install angular
+ng serve #run project
+ng g c [component_name] # create component
+ng g service [services/[service_name]] #create service
+
+npm install -D tailwindcss @tailwindcss/postcss postcss daisyui flowbite
+
+install extension: Tailwind CSS IntelliSense, PostCSS Language Support
+
+# link: https://www.npmjs.com/package/ngx-slick-carousel
+npm install jquery @types/jquery --save
+npm install slick-carousel @types/slick-carousel --save
+npm install ngx-slick-carousel --save
+
+npm install -g sass-migrator
+
+https://www.angulararchitects.io/blog/how-to-disable-the-angular-v19s-sass-compiler-deprecation-warnings/
