@@ -10,12 +10,12 @@
 using System;
 using System.Reflection;
 
-[assembly: System.Reflection.AssemblyCompanyAttribute("cellPhoneS_backend")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("cellphones_backend")]
 [assembly: System.Reflection.AssemblyCopyrightAttribute(" ")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+dc871c7ac643abf5a953833db1af853b9ea93816")]
-[assembly: System.Reflection.AssemblyProductAttribute("cellPhoneS_backend")]
-[assembly: System.Reflection.AssemblyTitleAttribute("cellPhoneS_backend")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5e9c6d7ef0a1c256a038b6ce521e0c99c7b9820a")]
+[assembly: System.Reflection.AssemblyProductAttribute("cellphones_backend")]
+[assembly: System.Reflection.AssemblyTitleAttribute("cellphones_backend")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
 [assembly: System.Reflection.AssemblyCultureAttribute("vi")]
 
