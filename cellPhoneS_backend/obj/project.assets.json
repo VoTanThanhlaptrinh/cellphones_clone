@@ -5480,11 +5480,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\docnet_workspace\\cellPhoneS_backend\\cellPhoneS_backend.csproj",
-      "projectName": "cellPhoneS_backend",
-      "projectPath": "D:\\docnet_workspace\\cellPhoneS_backend\\cellPhoneS_backend.csproj",
+      "projectUniqueName": "D:\\IT\\docnet_workspace\\cellphones_backend\\cellphones_backend.csproj",
+      "projectName": "cellphones_backend",
+      "projectPath": "D:\\IT\\docnet_workspace\\cellphones_backend\\cellphones_backend.csproj",
       "packagesPath": "C:\\Users\\DELL\\.nuget\\packages\\",
-      "outputPath": "D:\\docnet_workspace\\cellPhoneS_backend\\obj\\",
+      "outputPath": "D:\\IT\\docnet_workspace\\cellphones_backend\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\DELL\\AppData\\Roaming\\NuGet\\NuGet.Config"

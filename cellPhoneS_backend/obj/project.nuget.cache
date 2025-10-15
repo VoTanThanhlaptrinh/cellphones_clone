@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "h0e1kKNgWbY=",
+  "dgSpecHash": "QlDVmaLr/Xw=",
   "success": true,
-  "projectFilePath": "D:\\docnet_workspace\\cellphones_backend\\cellphones_backend.csproj",
+  "projectFilePath": "D:\\IT\\docnet_workspace\\cellphones_backend\\cellphones_backend.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\DELL\\.nuget\\packages\\automapper\\15.0.1\\automapper.15.0.1.nupkg.sha512",
     "C:\\Users\\DELL\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
