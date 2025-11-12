@@ -17,10 +17,273 @@ namespace cellPhoneS_backend.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.9")
+                .HasAnnotation("ProductVersion", "9.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("RoleId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("cellPhoneS_backend.Models.CategoryProduct", b =>
+                {
+                    b.Property<long>("CategoryId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CreateBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UpdateBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("CategoryId", "ProductId");
+
+                    b.HasIndex("CreateBy");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("UpdateBy");
+
+                    b.ToTable("CategoryProducts");
+                });
+
+            modelBuilder.Entity("cellPhoneS_backend.Models.Demand", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CategoryId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CreateBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UpdateBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("CreateBy");
+
+                    b.HasIndex("UpdateBy");
+
+                    b.ToTable("Demands");
+                });
+
+            modelBuilder.Entity("cellPhoneS_backend.Models.DemandImage", b =>
+                {
+                    b.Property<long>("DemandId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ImageId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CreateBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UpdateBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("DemandId", "ImageId");
+
+                    b.HasIndex("CreateBy");
+
+                    b.HasIndex("ImageId");
+
+                    b.HasIndex("UpdateBy");
+
+                    b.ToTable("DemandImages");
+                });
+
+            modelBuilder.Entity("cellPhoneS_backend.Models.ProductImage", b =>
+                {
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ImageId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CreateBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UpdateBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ProductId", "ImageId");
+
+                    b.HasIndex("CreateBy");
+
+                    b.HasIndex("ImageId");
+
+                    b.HasIndex("UpdateBy");
+
+                    b.ToTable("ProductImages");
+                });
 
             modelBuilder.Entity("cellphones_backend.Models.Brand", b =>
                 {
@@ -35,14 +298,13 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("CreateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<long?>("ImageId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -54,21 +316,20 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("UpdateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdateUserId")
-                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("CreateUserId");
+                    b.HasIndex("CreateBy");
 
-                    b.HasIndex("UpdateUserId");
+                    b.HasIndex("ImageId");
+
+                    b.HasIndex("UpdateBy");
 
                     b.ToTable("Brands");
                 });
@@ -94,21 +355,17 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("UpdateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CreateBy")
                         .IsUnique();
 
-                    b.HasIndex("UpdateUserId");
+                    b.HasIndex("UpdateBy");
 
                     b.ToTable("Carts");
                 });
@@ -126,14 +383,10 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("CreateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<long>("ProductCartDetailId")
                         .HasColumnType("bigint");
@@ -146,23 +399,20 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("UpdateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdateUserId")
-                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CartId");
 
-                    b.HasIndex("CreateUserId");
+                    b.HasIndex("CreateBy");
 
                     b.HasIndex("ProductCartDetailId");
 
-                    b.HasIndex("UpdateUserId");
+                    b.HasIndex("UpdateBy");
 
                     b.ToTable("CartDetails");
                 });
@@ -175,19 +425,12 @@ namespace cellPhoneS_backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long?>("Category")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("CreateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -201,21 +444,18 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("UpdateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UpdateUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("Category");
+                    b.HasIndex("CreateBy");
 
-                    b.HasIndex("CreateUserId");
+                    b.HasIndex("ParentCategoryId");
 
-                    b.HasIndex("UpdateUserId");
+                    b.HasIndex("UpdateBy");
 
                     b.ToTable("Categories");
                 });
@@ -230,97 +470,38 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("CreateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<long>("ImageId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("ProductId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UpdateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UpdateUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateUserId");
-
-                    b.HasIndex("ProductId");
-
-                    b.HasIndex("UpdateUserId");
-
-                    b.ToTable("Colors");
-                });
-
-            modelBuilder.Entity("cellphones_backend.Models.ColorImage", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("ColorId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("CreateBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<long>("ImageId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UpdateBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdateDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdateUserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ColorId");
-
-                    b.HasIndex("CreateUserId");
+                    b.HasIndex("CreateBy");
 
                     b.HasIndex("ImageId");
 
-                    b.HasIndex("UpdateUserId");
+                    b.HasIndex("UpdateBy");
 
-                    b.ToTable("ColorImages");
+                    b.ToTable("Colors");
                 });
 
             modelBuilder.Entity("cellphones_backend.Models.Commitment", b =>
@@ -337,14 +518,10 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("CreateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<long>("ProductCommitmentId")
                         .HasColumnType("bigint");
@@ -355,21 +532,18 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("UpdateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UpdateUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateUserId");
+                    b.HasIndex("CreateBy");
 
                     b.HasIndex("ProductCommitmentId");
 
-                    b.HasIndex("UpdateUserId");
+                    b.HasIndex("UpdateBy");
 
                     b.ToTable("Commitments");
                 });
@@ -387,14 +561,10 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("CreateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -406,21 +576,18 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("UpdateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdateUserId")
-                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("CreateUserId");
+                    b.HasIndex("CreateBy");
 
-                    b.HasIndex("UpdateUserId");
+                    b.HasIndex("UpdateBy");
 
                     b.ToTable("Criteria");
                 });
@@ -435,14 +602,10 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("CreateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<long>("CriterionId")
                         .HasColumnType("bigint");
@@ -457,13 +620,10 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("UpdateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdateUserId")
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Value")
                         .IsRequired()
@@ -471,11 +631,11 @@ namespace cellPhoneS_backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateUserId");
+                    b.HasIndex("CreateBy");
 
                     b.HasIndex("CriterionId");
 
-                    b.HasIndex("UpdateUserId");
+                    b.HasIndex("UpdateBy");
 
                     b.ToTable("CriterionDetails");
                 });
@@ -485,8 +645,8 @@ namespace cellPhoneS_backend.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
+                    b.Property<string>("RoleId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("CreateBy")
                         .IsRequired()
@@ -532,20 +692,16 @@ namespace cellPhoneS_backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("CreateBy")
+                    b.Property<string>("BlobUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreateUserId")
+                    b.Property<string>("CreateBy")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<byte[]>("Data")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("MimeType")
                         .IsRequired()
@@ -555,25 +711,26 @@ namespace cellPhoneS_backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("OriginUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UpdateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UpdateUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateUserId");
+                    b.HasIndex("CreateBy");
 
-                    b.HasIndex("UpdateUserId");
+                    b.HasIndex("UpdateBy");
 
                     b.ToTable("Images");
                 });
@@ -599,21 +756,17 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("UpdateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CreateBy")
                         .IsUnique();
 
-                    b.HasIndex("UpdateUserId");
+                    b.HasIndex("UpdateBy");
 
                     b.ToTable("Infos");
                 });
@@ -628,14 +781,10 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("CreateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -646,19 +795,16 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("UpdateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UpdateUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateUserId");
+                    b.HasIndex("CreateBy");
 
-                    b.HasIndex("UpdateUserId");
+                    b.HasIndex("UpdateBy");
 
                     b.ToTable("Oauth2s");
                 });
@@ -673,14 +819,10 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("CreateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -688,19 +830,16 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("UpdateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UpdateUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateUserId");
+                    b.HasIndex("CreateBy");
 
-                    b.HasIndex("UpdateUserId");
+                    b.HasIndex("UpdateBy");
 
                     b.ToTable("Orders");
                 });
@@ -715,14 +854,10 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("CreateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<long?>("OrderId")
                         .HasColumnType("bigint");
@@ -742,23 +877,20 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("UpdateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UpdateUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateUserId");
+                    b.HasIndex("CreateBy");
 
                     b.HasIndex("OrderId");
 
                     b.HasIndex("ProductOrderDetailId");
 
-                    b.HasIndex("UpdateUserId");
+                    b.HasIndex("UpdateBy");
 
                     b.ToTable("OrderDetails");
                 });
@@ -771,88 +903,46 @@ namespace cellPhoneS_backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<double>("BasePrice")
+                        .HasColumnType("float");
+
                     b.Property<string>("CreateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double>("Price")
+                    b.Property<double>("SalePrice")
                         .HasColumnType("float");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UpdateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UpdateUserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("Version")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateUserId");
+                    b.HasIndex("CreateBy");
 
-                    b.HasIndex("UpdateUserId");
+                    b.HasIndex("UpdateBy");
 
                     b.ToTable("Products");
-                });
-
-            modelBuilder.Entity("cellphones_backend.Models.ProductImage", b =>
-                {
-                    b.Property<long>("ProductId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("ImageId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("CreateBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<long>("Id")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UpdateBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdateDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdateUserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("ProductId", "ImageId");
-
-                    b.HasIndex("CreateUserId");
-
-                    b.HasIndex("ImageId");
-
-                    b.HasIndex("UpdateUserId");
-
-                    b.ToTable("ProductImages");
                 });
 
             modelBuilder.Entity("cellphones_backend.Models.ProductSpecification", b =>
@@ -865,17 +955,10 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("CreateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<long>("Id")
-                        .HasColumnType("bigint");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -883,39 +966,41 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("UpdateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UpdateUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("ProductId", "SpecificationId");
 
-                    b.HasIndex("CreateUserId");
+                    b.HasIndex("CreateBy");
 
                     b.HasIndex("SpecificationId");
 
-                    b.HasIndex("UpdateUserId");
+                    b.HasIndex("UpdateBy");
 
                     b.ToTable("ProductSpecifications");
                 });
 
             modelBuilder.Entity("cellphones_backend.Models.Role", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -926,7 +1011,12 @@ namespace cellPhoneS_backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex")
+                        .HasFilter("[NormalizedName] IS NOT NULL");
+
+                    b.ToTable("AspNetRoles", (string)null);
                 });
 
             modelBuilder.Entity("cellphones_backend.Models.Series", b =>
@@ -942,14 +1032,10 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("CreateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -960,21 +1046,18 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("UpdateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdateUserId")
-                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("BrandId");
 
-                    b.HasIndex("CreateUserId");
+                    b.HasIndex("CreateBy");
 
-                    b.HasIndex("UpdateUserId");
+                    b.HasIndex("UpdateBy");
 
                     b.ToTable("Series");
                 });
@@ -989,14 +1072,10 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("CreateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1007,19 +1086,16 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("UpdateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UpdateUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateUserId");
+                    b.HasIndex("CreateBy");
 
-                    b.HasIndex("UpdateUserId");
+                    b.HasIndex("UpdateBy");
 
                     b.ToTable("Specifications");
                 });
@@ -1034,14 +1110,10 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("CreateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1056,13 +1128,10 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("UpdateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdateUserId")
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Value")
                         .IsRequired()
@@ -1070,36 +1139,32 @@ namespace cellPhoneS_backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateUserId");
+                    b.HasIndex("CreateBy");
 
                     b.HasIndex("SpecificationId");
 
-                    b.HasIndex("UpdateUserId");
+                    b.HasIndex("UpdateBy");
 
                     b.ToTable("SpecificationDetails");
                 });
 
             modelBuilder.Entity("cellphones_backend.Models.Store", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<long>("StoreHouseId")
                         .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("CreateBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<long>("ColorId")
+                        .HasColumnType("bigint");
 
                     b.Property<long>("ProductId")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("CreateBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -1107,28 +1172,22 @@ namespace cellPhoneS_backend.Migrations
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("StoreHouseId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("UpdateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UpdateUserId")
-                        .HasColumnType("nvarchar(450)");
+                    b.HasKey("StoreHouseId", "ColorId", "ProductId");
 
-                    b.HasKey("Id");
+                    b.HasIndex("ColorId");
 
-                    b.HasIndex("CreateUserId");
+                    b.HasIndex("CreateBy");
 
                     b.HasIndex("ProductId");
 
-                    b.HasIndex("StoreHouseId");
-
-                    b.HasIndex("UpdateUserId");
+                    b.HasIndex("UpdateBy");
 
                     b.ToTable("Stores");
                 });
@@ -1147,14 +1206,10 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("CreateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("District")
                         .IsRequired()
@@ -1170,19 +1225,16 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("UpdateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UpdateUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateUserId");
+                    b.HasIndex("CreateBy");
 
-                    b.HasIndex("UpdateUserId");
+                    b.HasIndex("UpdateBy");
 
                     b.ToTable("StoreHouses");
                 });
@@ -1200,14 +1252,10 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("CreateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("EmailSchool")
                         .IsRequired()
@@ -1245,21 +1293,18 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("UpdateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UpdateUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateUserId");
+                    b.HasIndex("CreateBy");
 
                     b.HasIndex("InfoId");
 
-                    b.HasIndex("UpdateUserId");
+                    b.HasIndex("UpdateBy");
 
                     b.ToTable("Students");
                 });
@@ -1278,14 +1323,10 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("CreateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("CreateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("EmailSchool")
                         .IsRequired()
@@ -1320,21 +1361,18 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<string>("UpdateBy")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UpdateUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("CreateUserId");
+                    b.HasIndex("CreateBy");
 
                     b.HasIndex("InfoId");
 
-                    b.HasIndex("UpdateUserId");
+                    b.HasIndex("UpdateBy");
 
                     b.ToTable("Teachers");
                 });
@@ -1351,13 +1389,15 @@ namespace cellPhoneS_backend.Migrations
                         .HasColumnType("date");
 
                     b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
@@ -1373,10 +1413,12 @@ namespace cellPhoneS_backend.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("NormalizedEmail")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("NormalizedUserName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
@@ -1398,24 +1440,211 @@ namespace cellPhoneS_backend.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("UpdateBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UpdateUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("UserName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UpdateUserId");
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
 
-                    b.ToTable("Users");
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.HasIndex("UpdateBy");
+
+                    b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.HasOne("cellphones_backend.Models.Role", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.HasOne("cellphones_backend.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.HasOne("cellphones_backend.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.HasOne("cellphones_backend.Models.Role", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("cellphones_backend.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.HasOne("cellphones_backend.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("cellPhoneS_backend.Models.CategoryProduct", b =>
+                {
+                    b.HasOne("cellphones_backend.Models.Category", "Category")
+                        .WithMany("CategoryProducts")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("cellphones_backend.Models.User", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("cellphones_backend.Models.Product", "Product")
+                        .WithMany("CategoryProducts")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("cellphones_backend.Models.User", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("UpdateUser");
+                });
+
+            modelBuilder.Entity("cellPhoneS_backend.Models.Demand", b =>
+                {
+                    b.HasOne("cellphones_backend.Models.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("cellphones_backend.Models.User", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("cellphones_backend.Models.User", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("UpdateUser");
+                });
+
+            modelBuilder.Entity("cellPhoneS_backend.Models.DemandImage", b =>
+                {
+                    b.HasOne("cellphones_backend.Models.User", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("cellPhoneS_backend.Models.Demand", "Demand")
+                        .WithMany()
+                        .HasForeignKey("DemandId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("cellphones_backend.Models.Image", "Image")
+                        .WithMany()
+                        .HasForeignKey("ImageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("cellphones_backend.Models.User", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("Demand");
+
+                    b.Navigation("Image");
+
+                    b.Navigation("UpdateUser");
+                });
+
+            modelBuilder.Entity("cellPhoneS_backend.Models.ProductImage", b =>
+                {
+                    b.HasOne("cellphones_backend.Models.User", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("cellphones_backend.Models.Image", "Image")
+                        .WithMany("Images")
+                        .HasForeignKey("ImageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("cellphones_backend.Models.Product", "Product")
+                        .WithMany("ProductImages")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("cellphones_backend.Models.User", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("Image");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("UpdateUser");
                 });
 
             modelBuilder.Entity("cellphones_backend.Models.Brand", b =>
@@ -1428,18 +1657,26 @@ namespace cellPhoneS_backend.Migrations
 
                     b.HasOne("cellphones_backend.Models.User", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
+                        .HasForeignKey("CreateBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("cellphones_backend.Models.Image", "Image")
+                        .WithMany()
+                        .HasForeignKey("ImageId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("cellphones_backend.Models.User", "UpdateUser")
                         .WithMany()
-                        .HasForeignKey("UpdateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("UpdateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Category");
 
                     b.Navigation("CreateUser");
+
+                    b.Navigation("Image");
 
                     b.Navigation("UpdateUser");
                 });
@@ -1454,7 +1691,7 @@ namespace cellPhoneS_backend.Migrations
 
                     b.HasOne("cellphones_backend.Models.User", "UpdateUser")
                         .WithMany()
-                        .HasForeignKey("UpdateUserId")
+                        .HasForeignKey("UpdateBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1473,7 +1710,7 @@ namespace cellPhoneS_backend.Migrations
 
                     b.HasOne("cellphones_backend.Models.User", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
+                        .HasForeignKey("CreateBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1485,8 +1722,9 @@ namespace cellPhoneS_backend.Migrations
 
                     b.HasOne("cellphones_backend.Models.User", "UpdateUser")
                         .WithMany()
-                        .HasForeignKey("UpdateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("UpdateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Cart");
 
@@ -1499,20 +1737,21 @@ namespace cellPhoneS_backend.Migrations
 
             modelBuilder.Entity("cellphones_backend.Models.Category", b =>
                 {
-                    b.HasOne("cellphones_backend.Models.Category", "ParentCategory")
-                        .WithMany("Children")
-                        .HasForeignKey("Category");
-
                     b.HasOne("cellphones_backend.Models.User", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
+                        .HasForeignKey("CreateBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("cellphones_backend.Models.Category", "ParentCategory")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentCategoryId");
+
                     b.HasOne("cellphones_backend.Models.User", "UpdateUser")
                         .WithMany()
-                        .HasForeignKey("UpdateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("UpdateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("CreateUser");
 
@@ -1525,35 +1764,7 @@ namespace cellPhoneS_backend.Migrations
                 {
                     b.HasOne("cellphones_backend.Models.User", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("cellphones_backend.Models.Product", null)
-                        .WithMany("Colors")
-                        .HasForeignKey("ProductId");
-
-                    b.HasOne("cellphones_backend.Models.User", "UpdateUser")
-                        .WithMany()
-                        .HasForeignKey("UpdateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("CreateUser");
-
-                    b.Navigation("UpdateUser");
-                });
-
-            modelBuilder.Entity("cellphones_backend.Models.ColorImage", b =>
-                {
-                    b.HasOne("cellphones_backend.Models.Color", "Color")
-                        .WithMany()
-                        .HasForeignKey("ColorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("cellphones_backend.Models.User", "CreateUser")
-                        .WithMany()
-                        .HasForeignKey("CreateUserId")
+                        .HasForeignKey("CreateBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1565,10 +1776,9 @@ namespace cellPhoneS_backend.Migrations
 
                     b.HasOne("cellphones_backend.Models.User", "UpdateUser")
                         .WithMany()
-                        .HasForeignKey("UpdateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Color");
+                        .HasForeignKey("UpdateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("CreateUser");
 
@@ -1581,7 +1791,7 @@ namespace cellPhoneS_backend.Migrations
                 {
                     b.HasOne("cellphones_backend.Models.User", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
+                        .HasForeignKey("CreateBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1593,8 +1803,9 @@ namespace cellPhoneS_backend.Migrations
 
                     b.HasOne("cellphones_backend.Models.User", "UpdateUser")
                         .WithMany()
-                        .HasForeignKey("UpdateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("UpdateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("CreateUser");
 
@@ -1613,14 +1824,15 @@ namespace cellPhoneS_backend.Migrations
 
                     b.HasOne("cellphones_backend.Models.User", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
+                        .HasForeignKey("CreateBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("cellphones_backend.Models.User", "UpdateUser")
                         .WithMany()
-                        .HasForeignKey("UpdateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("UpdateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Category");
 
@@ -1633,7 +1845,7 @@ namespace cellPhoneS_backend.Migrations
                 {
                     b.HasOne("cellphones_backend.Models.User", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
+                        .HasForeignKey("CreateBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1645,8 +1857,9 @@ namespace cellPhoneS_backend.Migrations
 
                     b.HasOne("cellphones_backend.Models.User", "UpdateUser")
                         .WithMany()
-                        .HasForeignKey("UpdateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("UpdateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("CreateUser");
 
@@ -1694,14 +1907,15 @@ namespace cellPhoneS_backend.Migrations
                 {
                     b.HasOne("cellphones_backend.Models.User", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
+                        .HasForeignKey("CreateBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("cellphones_backend.Models.User", "UpdateUser")
                         .WithMany()
-                        .HasForeignKey("UpdateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("UpdateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("CreateUser");
 
@@ -1718,7 +1932,7 @@ namespace cellPhoneS_backend.Migrations
 
                     b.HasOne("cellphones_backend.Models.User", "UpdateUser")
                         .WithMany()
-                        .HasForeignKey("UpdateUserId")
+                        .HasForeignKey("UpdateBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1731,14 +1945,15 @@ namespace cellPhoneS_backend.Migrations
                 {
                     b.HasOne("cellphones_backend.Models.User", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
+                        .HasForeignKey("CreateBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("cellphones_backend.Models.User", "UpdateUser")
                         .WithMany()
-                        .HasForeignKey("UpdateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("UpdateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("CreateUser");
 
@@ -1749,14 +1964,15 @@ namespace cellPhoneS_backend.Migrations
                 {
                     b.HasOne("cellphones_backend.Models.User", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
+                        .HasForeignKey("CreateBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("cellphones_backend.Models.User", "UpdateUser")
                         .WithMany()
-                        .HasForeignKey("UpdateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("UpdateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("CreateUser");
 
@@ -1767,7 +1983,7 @@ namespace cellPhoneS_backend.Migrations
                 {
                     b.HasOne("cellphones_backend.Models.User", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
+                        .HasForeignKey("CreateBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1783,8 +1999,9 @@ namespace cellPhoneS_backend.Migrations
 
                     b.HasOne("cellphones_backend.Models.User", "UpdateUser")
                         .WithMany()
-                        .HasForeignKey("UpdateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("UpdateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("CreateUser");
 
@@ -1797,50 +2014,17 @@ namespace cellPhoneS_backend.Migrations
                 {
                     b.HasOne("cellphones_backend.Models.User", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
+                        .HasForeignKey("CreateBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("cellphones_backend.Models.User", "UpdateUser")
                         .WithMany()
-                        .HasForeignKey("UpdateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("CreateUser");
-
-                    b.Navigation("UpdateUser");
-                });
-
-            modelBuilder.Entity("cellphones_backend.Models.ProductImage", b =>
-                {
-                    b.HasOne("cellphones_backend.Models.User", "CreateUser")
-                        .WithMany()
-                        .HasForeignKey("CreateUserId")
+                        .HasForeignKey("UpdateBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("cellphones_backend.Models.Image", "Image")
-                        .WithMany()
-                        .HasForeignKey("ImageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("cellphones_backend.Models.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("cellphones_backend.Models.User", "UpdateUser")
-                        .WithMany()
-                        .HasForeignKey("UpdateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.Navigation("CreateUser");
-
-                    b.Navigation("Image");
-
-                    b.Navigation("Product");
 
                     b.Navigation("UpdateUser");
                 });
@@ -1849,12 +2033,12 @@ namespace cellPhoneS_backend.Migrations
                 {
                     b.HasOne("cellphones_backend.Models.User", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
+                        .HasForeignKey("CreateBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("cellphones_backend.Models.Product", "Product")
-                        .WithMany()
+                        .WithMany("ProductSpecification")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1867,8 +2051,9 @@ namespace cellPhoneS_backend.Migrations
 
                     b.HasOne("cellphones_backend.Models.User", "UpdateUser")
                         .WithMany()
-                        .HasForeignKey("UpdateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("UpdateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("CreateUser");
 
@@ -1889,14 +2074,15 @@ namespace cellPhoneS_backend.Migrations
 
                     b.HasOne("cellphones_backend.Models.User", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
+                        .HasForeignKey("CreateBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("cellphones_backend.Models.User", "UpdateUser")
                         .WithMany()
-                        .HasForeignKey("UpdateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("UpdateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Brand");
 
@@ -1909,14 +2095,15 @@ namespace cellPhoneS_backend.Migrations
                 {
                     b.HasOne("cellphones_backend.Models.User", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
+                        .HasForeignKey("CreateBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("cellphones_backend.Models.User", "UpdateUser")
                         .WithMany()
-                        .HasForeignKey("UpdateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("UpdateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("CreateUser");
 
@@ -1927,7 +2114,7 @@ namespace cellPhoneS_backend.Migrations
                 {
                     b.HasOne("cellphones_backend.Models.User", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
+                        .HasForeignKey("CreateBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1939,8 +2126,9 @@ namespace cellPhoneS_backend.Migrations
 
                     b.HasOne("cellphones_backend.Models.User", "UpdateUser")
                         .WithMany()
-                        .HasForeignKey("UpdateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("UpdateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("CreateUser");
 
@@ -1951,14 +2139,20 @@ namespace cellPhoneS_backend.Migrations
 
             modelBuilder.Entity("cellphones_backend.Models.Store", b =>
                 {
+                    b.HasOne("cellphones_backend.Models.Color", "ColorImage")
+                        .WithMany()
+                        .HasForeignKey("ColorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("cellphones_backend.Models.User", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
+                        .HasForeignKey("CreateBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("cellphones_backend.Models.Product", "Product")
-                        .WithMany()
+                        .WithMany("stores")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1971,8 +2165,11 @@ namespace cellPhoneS_backend.Migrations
 
                     b.HasOne("cellphones_backend.Models.User", "UpdateUser")
                         .WithMany()
-                        .HasForeignKey("UpdateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("UpdateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ColorImage");
 
                     b.Navigation("CreateUser");
 
@@ -1987,14 +2184,15 @@ namespace cellPhoneS_backend.Migrations
                 {
                     b.HasOne("cellphones_backend.Models.User", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
+                        .HasForeignKey("CreateBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("cellphones_backend.Models.User", "UpdateUser")
                         .WithMany()
-                        .HasForeignKey("UpdateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("UpdateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("CreateUser");
 
@@ -2005,7 +2203,7 @@ namespace cellPhoneS_backend.Migrations
                 {
                     b.HasOne("cellphones_backend.Models.User", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
+                        .HasForeignKey("CreateBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -2017,8 +2215,9 @@ namespace cellPhoneS_backend.Migrations
 
                     b.HasOne("cellphones_backend.Models.User", "UpdateUser")
                         .WithMany()
-                        .HasForeignKey("UpdateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("UpdateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("CreateUser");
 
@@ -2031,7 +2230,7 @@ namespace cellPhoneS_backend.Migrations
                 {
                     b.HasOne("cellphones_backend.Models.User", "CreateUser")
                         .WithMany()
-                        .HasForeignKey("CreateUserId")
+                        .HasForeignKey("CreateBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -2043,8 +2242,9 @@ namespace cellPhoneS_backend.Migrations
 
                     b.HasOne("cellphones_backend.Models.User", "UpdateUser")
                         .WithMany()
-                        .HasForeignKey("UpdateUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("UpdateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("CreateUser");
 
@@ -2057,9 +2257,8 @@ namespace cellPhoneS_backend.Migrations
                 {
                     b.HasOne("cellphones_backend.Models.User", "UpdateUser")
                         .WithMany()
-                        .HasForeignKey("UpdateUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("UpdateBy")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("UpdateUser");
                 });
@@ -2078,6 +2277,8 @@ namespace cellPhoneS_backend.Migrations
                 {
                     b.Navigation("Brands");
 
+                    b.Navigation("CategoryProducts");
+
                     b.Navigation("Children");
 
                     b.Navigation("Criteria");
@@ -2088,6 +2289,11 @@ namespace cellPhoneS_backend.Migrations
                     b.Navigation("CriterionDetail");
                 });
 
+            modelBuilder.Entity("cellphones_backend.Models.Image", b =>
+                {
+                    b.Navigation("Images");
+                });
+
             modelBuilder.Entity("cellphones_backend.Models.Order", b =>
                 {
                     b.Navigation("OrderDetails");
@@ -2095,7 +2301,13 @@ namespace cellPhoneS_backend.Migrations
 
             modelBuilder.Entity("cellphones_backend.Models.Product", b =>
                 {
-                    b.Navigation("Colors");
+                    b.Navigation("CategoryProducts");
+
+                    b.Navigation("ProductImages");
+
+                    b.Navigation("ProductSpecification");
+
+                    b.Navigation("stores");
                 });
 
             modelBuilder.Entity("cellphones_backend.Models.Specification", b =>

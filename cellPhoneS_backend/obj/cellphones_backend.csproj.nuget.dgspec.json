@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\IT\\docnet_workspace\\cellphones_backend\\cellphones_backend.csproj": {}
+    "D:\\IT\\docnet_workspace\\cellPhoneS_backend\\cellPhoneS_backend.csproj": {}
   },
   "projects": {
-    "D:\\IT\\docnet_workspace\\cellphones_backend\\cellphones_backend.csproj": {
+    "D:\\IT\\docnet_workspace\\cellPhoneS_backend\\cellPhoneS_backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\IT\\docnet_workspace\\cellphones_backend\\cellphones_backend.csproj",
-        "projectName": "cellphones_backend",
-        "projectPath": "D:\\IT\\docnet_workspace\\cellphones_backend\\cellphones_backend.csproj",
+        "projectUniqueName": "D:\\IT\\docnet_workspace\\cellPhoneS_backend\\cellPhoneS_backend.csproj",
+        "projectName": "cellPhoneS_backend",
+        "projectPath": "D:\\IT\\docnet_workspace\\cellPhoneS_backend\\cellPhoneS_backend.csproj",
         "packagesPath": "C:\\Users\\DELL\\.nuget\\packages\\",
-        "outputPath": "D:\\IT\\docnet_workspace\\cellphones_backend\\obj\\",
+        "outputPath": "D:\\IT\\docnet_workspace\\cellPhoneS_backend\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\DELL\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -48,6 +48,10 @@
               "target": "Package",
               "version": "[15.0.1, )"
             },
+            "Azure.Storage.Blobs": {
+              "target": "Package",
+              "version": "[12.26.0, )"
+            },
             "Dapper": {
               "target": "Package",
               "version": "[2.1.66, )"
@@ -56,37 +60,77 @@
               "target": "Package",
               "version": "[12.0.0, )"
             },
+            "Microsoft.AspNetCore.Authentication.Google": {
+              "target": "Package",
+              "version": "[9.0.10, )"
+            },
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[9.0.10, )"
+            },
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.0.10, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
-              "version": "[9.0.9, )"
+              "version": "[9.0.10, )"
+            },
+            "Microsoft.CodeAnalysis.CSharp.Features": {
+              "target": "Package",
+              "version": "[4.14.0, )"
+            },
+            "Microsoft.CodeAnalysis.CSharp.Workspaces": {
+              "target": "Package",
+              "version": "[4.14.0, )"
+            },
+            "Microsoft.CodeAnalysis.Common": {
+              "target": "Package",
+              "version": "[4.14.0, )"
+            },
+            "Microsoft.CodeAnalysis.Features": {
+              "target": "Package",
+              "version": "[4.14.0, )"
+            },
+            "Microsoft.CodeAnalysis.Scripting.Common": {
+              "target": "Package",
+              "version": "[4.14.0, )"
+            },
+            "Microsoft.CodeAnalysis.Workspaces.MSBuild": {
+              "target": "Package",
+              "version": "[4.14.0, )"
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[9.0.9, )"
+              "version": "[9.0.10, )"
             },
             "Microsoft.EntityFrameworkCore.Design": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[9.0.9, )"
+              "version": "[9.0.10, )"
             },
             "Microsoft.EntityFrameworkCore.Relational": {
               "target": "Package",
-              "version": "[9.0.9, )"
+              "version": "[9.0.10, )"
             },
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
-              "version": "[9.0.9, )"
+              "version": "[9.0.10, )"
             },
             "Microsoft.EntityFrameworkCore.Tools": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[9.0.9, )"
+              "version": "[9.0.10, )"
             },
-            "NSwag.AspNetCore": {
+            "Microsoft.Extensions.Azure": {
               "target": "Package",
-              "version": "[14.6.1, )"
+              "version": "[1.13.0, )"
+            },
+            "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
+              "target": "Package",
+              "version": "[9.0.0, )"
             },
             "Newtonsoft.Json": {
               "target": "Package",
@@ -94,11 +138,7 @@
             },
             "Serilog": {
               "target": "Package",
-              "version": "[4.3.1-dev-02387, )"
-            },
-            "Swashbuckle.AspNetCore": {
-              "target": "Package",
-              "version": "[9.0.6, )"
+              "version": "[4.0.0, )"
             }
           },
           "imports": [

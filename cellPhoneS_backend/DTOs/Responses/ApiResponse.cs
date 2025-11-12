@@ -1,8 +1,8 @@
 namespace cellphones_backend.DTOs.Responses;
 
-public record class ApiResponse
+public record class ApiResponse<T>
 (
     string Message,
-    Object Data,
+    T Data,
     int Status
 );

@@ -17,5 +17,6 @@ GET  {{cellPhoneS_backend_HostAddress}}/api/auth/ok
 Accept: application/json
 
 ###
-GET  {{cellPhoneS_backend_HostAddress}}/api/auth/ok
+GET  {{cellPhoneS_backend_HostAddress}}/api/home
 Accept: application/json
+

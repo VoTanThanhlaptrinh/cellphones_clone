@@ -1,0 +1,6 @@
+getDetails Product: lấy thông tin chi tiết của Product
+addToCart(Product p): thêm vào giỏ hàng
+buyProduct(List<CartDetails> cd): mua danh sách hàng
+Login - register:
+Search
+Admin:

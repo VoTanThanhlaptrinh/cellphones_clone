@@ -17,13 +17,13 @@ public class StoreHouse
     public string Status { get; set; } = null!;
     public DateTime CreateDate { get; set; }
     public DateTime UpdateDate { get; set; }
-    [ForeignKey(nameof(User))]
     public string CreateBy { get; set; } = default!;
     [Required]
+    [ForeignKey(nameof(CreateBy))]
     [DeleteBehavior(DeleteBehavior.Restrict)]
-    public User CreateUser { get; set; } = default!;
-    [ForeignKey(nameof(User))]
+    public User? CreateUser { get; set; } = default!;
     public string UpdateBy { get; set; } = default!;
     [DeleteBehavior(DeleteBehavior.Restrict)]
-    public User UpdateUser { get; set; } = default!;
+    [ForeignKey(nameof(UpdateBy))]
+    public User? UpdateUser { get; set; } = default!;
 }

@@ -18,8 +18,8 @@ public class User : IdentityUser
     [Required]
     public DateTime CreateDate { get; set; }  // ngày tạo
     public DateTime UpdateDate { get; set; }  // ngày cập nhật
-    [ForeignKey(nameof(User))]
-    public string UpdateBy { get; set; } = default!;
+    public string? UpdateBy { get; set; } = default!;
     [DeleteBehavior(DeleteBehavior.Restrict)]
-    public User UpdateUser { get; set; } = default!;
+    [ForeignKey(nameof(UpdateBy))]
+    public User? UpdateUser { get; set; } = default!;
 }
