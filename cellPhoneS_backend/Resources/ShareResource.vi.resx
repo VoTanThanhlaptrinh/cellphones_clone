@@ -67,7 +67,7 @@
   <data name="TypeSchoolRequired" xml:space="preserve"><value>Vui lòng chọn loại trường học.</value><comment/></data>
   <data name="NameSchoolRequired" xml:space="preserve"><value>Tên trường học là bắt buộc.</value><comment/></data>
   <data name="IdStudentRequired" xml:space="preserve"><value>Mã sinh viên là bắt buộc.</value><comment/></data>
-  <data name="IdStudentRequired" xml:space="preserve"><value>Mã giáo viên là bắt buộc.</value><comment/></data>
+  <data name="IdTeacherRequired" xml:space="preserve"><value>Mã giáo viên là bắt buộc.</value><comment/></data>
   <data name="NameInCardRequired" xml:space="preserve"><value>Tên in trên thẻ là bắt buộc.</value><comment/></data>
   <data name="ExpiredDateCardRequired" xml:space="preserve"><value>Ngày hết hạn của thẻ là bắt buộc.</value><comment/></data>
   <data name="ExpiredDateMustBeTodayOrFuture" xml:space="preserve"><value>Ngày hết hạn của thẻ phải là hôm nay hoặc trong tương lai.</value><comment/></data>

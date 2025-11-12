@@ -1,13 +1,11 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 
 namespace cellphones_backend.Models;
 
-public class Role
+public class Role : IdentityRole
 {
-    public int Id { get; set; }
-    [Required]
-    public string Name { get; set; } = null!;
     [Required]
     public string Status { get; set; } = "active";        // trạng thái (active/inactive/deleted...)
     [Required]

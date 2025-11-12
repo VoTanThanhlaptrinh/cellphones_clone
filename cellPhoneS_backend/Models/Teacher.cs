@@ -8,10 +8,10 @@ namespace cellphones_backend.Models;
 public class Teacher
 {
     public long Id { get; set; }
-    [ForeignKey(nameof(Info))]
     // FK tới Info
     public long InfoId { get; set; }
     [Required]
+    [ForeignKey(nameof(InfoId))]
     public Info? Info { get; set; }
     // Theo validator
     [Required]
@@ -36,13 +36,13 @@ public class Teacher
     public DateTime CreateDate { get; set; }  // ngày tạo
     public DateTime UpdateDate { get; set; }  // ngày cập nhật
     
-    [ForeignKey(nameof(User))]
     public string CreateBy { get; set; } = default!;
     [Required]
+    [ForeignKey(nameof(CreateBy))]
     [DeleteBehavior(DeleteBehavior.Restrict)]
-    public User CreateUser { get; set; } = default!;
-    [ForeignKey(nameof(User))]
+    public User? CreateUser { get; set; } = default!;
     public string UpdateBy { get; set; } = default!;
     [DeleteBehavior(DeleteBehavior.Restrict)]
-    public User UpdateUser { get; set; } = default!;
+    [ForeignKey(nameof(UpdateBy))]
+    public User? UpdateUser { get; set; } = default!;
 }
