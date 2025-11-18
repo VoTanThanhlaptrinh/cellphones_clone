@@ -63,17 +63,11 @@ internal class Program
         builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
         builder.Services.AddScoped<IResourceLocalizer, ResourceLocalizer>();
         builder.Services.AddControllers();
-        builder.Services.AddScoped<AuthService, AuthServiceImpl>();
-        builder.Services.AddScoped<UserService, UserServiceImpl>();
-        builder.Services.AddScoped<AzuriteService, AzuriteServiceImpl>();
-        builder.Services.AddScoped<ImageDownloaderService, ImageDownloaderServiceImpl>();
-        builder.Services.AddScoped<CloneService, CloneServiceImpl>();
-        builder.Services.AddScoped<JwtTokenService, JwtTokenServiceImpl>();
-        builder.Services.AddScoped<InitService, InitServiceImpl>();
-        builder.Services.AddScoped<ProductService, ProductServiceImpl>();
+        builder.Services.AddCustomServices();
         builder.Services.AddHttpClient();
     // Register all repositories
-    builder.Services.AddRepositories();
+        builder.Services.AddRepositories();
+
         var supportedCultures = new[] { "vi", "en" }; // start với vi, sau thêm en
         builder.Services.Configure<RequestLocalizationOptions>(opts =>
         {

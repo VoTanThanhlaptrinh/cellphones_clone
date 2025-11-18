@@ -9,7 +9,7 @@ public class Cart
 {
     public long Id { get; set; }
     // Audit fields
-    public string Status { get; set; } = null!;
+    public string Status { get; set; } = "active";
     [Required]
     public DateTime CreateDate { get; set; }  // ngày tạo
     public DateTime UpdateDate { get; set; }  // ngày cập nhật

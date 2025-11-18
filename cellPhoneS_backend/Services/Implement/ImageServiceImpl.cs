@@ -1,26 +1,27 @@
 using System;
 using cellphones_backend.DTOs.Responses;
+using cellPhoneS_backend.Services;
 
 namespace cellphones_backend.Services.Implement;
 
 public class ImageServiceImpl : ImageService
 {
-    public ApiResponse<bool> DeleteImage(long imageId)
+    public Task<ServiceResult<bool>> DeleteImage(long imageId)
     {
         throw new NotImplementedException();
     }
 
-    public ApiResponse<byte[]> GetImage(long imageId)
+    public Task<ServiceResult<byte[]>> GetImage(long imageId)
     {
         throw new NotImplementedException();
     }
 
-    public ApiResponse<string> UpdateImage(long imageId)
+    public Task<ServiceResult<string>> UpdateImage(long imageId)
     {
         throw new NotImplementedException();
     }
 
-    public ApiResponse<string> UploadImage()
+    public Task<ServiceResult<string>> UploadImage()
     {
         throw new NotImplementedException();
     }

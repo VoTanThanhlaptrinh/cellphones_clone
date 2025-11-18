@@ -6,8 +6,6 @@ namespace cellPhoneS_backend.Services;
 
 public interface JwtTokenService
 {
-    public string GenerateJwtToken(User user);
-
-    public string ExtractUserId(string token);
-
+    string GenerateJwtToken(User user);
+    string ExtractUserId(string token);
 }

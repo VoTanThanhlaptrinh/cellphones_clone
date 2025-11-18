@@ -46,14 +46,18 @@ public class BaseRepository<T> : IRepository<T> where T : class
     }
 
     public virtual Task RemoveAsync(T entity, CancellationToken cancellationToken = default)
-    {
-        _dbSet.Remove(entity);
-        return Task.CompletedTask;
+    {   
+        return UpdateAsync(entity, cancellationToken);
     }
 
     public virtual Task RemoveRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default)
     {
-        _dbSet.RemoveRange(entities);
+        _dbSet.UpdateRange(entities);
         return Task.CompletedTask;
+    }
+
+    public Task SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        return _context.SaveChangesAsync(cancellationToken);
     }
 }

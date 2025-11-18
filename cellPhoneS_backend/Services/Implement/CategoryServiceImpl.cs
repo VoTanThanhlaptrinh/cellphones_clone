@@ -8,22 +8,22 @@ namespace cellPhoneS_backend.Services.Implement;
 public class CategoryServiceImpl : CategoryService
 {
     
-    public ApiResponse<string> AddCategory(CategoryRequest categoryRequest)
+    public Task<ServiceResult<string>> AddCategory(CategoryRequest categoryRequest)
     {
         throw new NotImplementedException();
     }
 
-    public ApiResponse<string> DeleteCategory(long categoryId)
+    public Task<ServiceResult<string>> DeleteCategory(long categoryId)
     {
         throw new NotImplementedException();
     }
 
-    public ApiResponse<List<ProductView>> GetProductOfCategory(long categoryId, int size, int page)
+    public Task<ServiceResult<List<ProductView>>> GetProductOfCategory(long categoryId, int size, int page)
     {
         throw new NotImplementedException();
     }
 
-    public ApiResponse<string> UpdateCategory(CategoryRequest categoryRequest)
+    public Task<ServiceResult<string>> UpdateCategory(CategoryRequest categoryRequest)
     {
         throw new NotImplementedException();
     }

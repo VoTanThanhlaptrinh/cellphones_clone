@@ -11,11 +11,11 @@ public class ImageDownloaderServiceImpl : ImageDownloaderService
         _httpClientFactory = httpClientFactory;
     }
 
-    public async Task<byte[]> DownloadImageFromUrl(string url)
-    {
-        var client = _httpClientFactory.CreateClient();
-        return await GetByteFromStream(client.GetStreamAsync(url));
-    }
+        public async Task<byte[]> DownloadImageFromUrl(string url)
+        {
+            var client = _httpClientFactory.CreateClient();
+            return await GetByteFromStream(client.GetStreamAsync(url));
+        }
 
     private async Task<byte[]> GetByteFromStream(Task<Stream> streamTask)
     {
