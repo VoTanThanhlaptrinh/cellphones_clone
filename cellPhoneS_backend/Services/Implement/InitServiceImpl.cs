@@ -24,7 +24,7 @@ public class InitServiceImpl : InitService
         this._dbContext = dbContext;
     }
 
-    public Task<ApiResponse<HomeViewModel>> InitHomePage()
+    public Task<ServiceResult<HomeViewModel>> InitHomePage()
     {
         var categoriesWithNewestProducts = _dbContext.Categories
         .Where(c => categories!.Contains(c.Name!))
@@ -43,9 +43,8 @@ public class InitServiceImpl : InitService
                     product.SalePrice
                 ))
                 .Take(pageSize)
-            // (KHÔNG CÓ .ToList() Ở ĐÂY)
         })
         .ToDictionary(result => result.CategoryName, result => result.NewestProducts);
-        return Task.FromResult(new ApiResponse<HomeViewModel>("success", new HomeViewModel(categoriesWithNewestProducts), 200));
+        return Task.FromResult(ServiceResult<HomeViewModel>.Success(new HomeViewModel(categoriesWithNewestProducts), "success"));
     }
 }

@@ -4,5 +4,5 @@ namespace cellPhoneS_backend.Services;
 
 public interface AzuriteService
 {
-    public Task<string> UploadImageThenGetUrl(byte[] imageBytes, string imageName);
+    Task<string> UploadImageThenGetUrl(byte[] imageBytes, string imageName);
 }

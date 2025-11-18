@@ -16,10 +16,8 @@ public class AzuriteServiceImpl : AzuriteService
         _blobServiceClient = blobServiceClient;
         _containerName = "images";
         _blobContainerClient = _blobServiceClient.GetBlobContainerClient(_containerName);
-        // Allow full access to images 
-        // _blobContainerClient.CreateIfNotExists(PublicAccessType.Blob);
+        // _blobContainerClient.CreateIfNotExists(PublicAccessType.Blob); // optional public access
     }
-    // Upload Image into Azurite and get the url after finish
     public async Task<string> UploadImageThenGetUrl(byte[] imageBytes, string imageName)
     {
         string fullBlobName = $"{_folderPrefix}/{imageName}";
@@ -28,18 +26,10 @@ public class AzuriteServiceImpl : AzuriteService
         {
             var uploadOptions = new BlobUploadOptions
             {
-                // 2. Thiết lập HttpHeaders
-                HttpHeaders = new BlobHttpHeaders
-                {
-                    // 3. Đặt ContentType!
-                    // (Chúng ta biết link gốc là file .png, nên ta sẽ đặt là "image/png")
-                    ContentType = "image/png"
-                },
-
+                HttpHeaders = new BlobHttpHeaders { ContentType = "image/png" }
             };
             await blobClient.UploadAsync(stream, uploadOptions);
         }
-
         return blobClient.Uri.ToString();
     }
 }

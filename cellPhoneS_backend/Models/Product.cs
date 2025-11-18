@@ -22,8 +22,8 @@ public class Product
     public ICollection<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
     public ICollection<ProductSpecification> ProductSpecification { get; set; } = new List<ProductSpecification>();
     public ICollection<CategoryProduct> CategoryProducts { get; set; } = new List<CategoryProduct>();
-    public ICollection<Commitment> commitments { get; set; } = new List<Commitment>();
-    public ICollection<Store> stores { get;  set; } = new List<Store>();
+    public ICollection<Commitment> Commitments { get; set; } = new List<Commitment>();
+    public ICollection<Store> Stores { get; set; } = new List<Store>();
     [Required]
     public DateTime CreateDate { get; set; }  // ngày tạo
     public DateTime UpdateDate { get; set; }  // ngày cập nhật

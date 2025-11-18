@@ -2,6 +2,7 @@ using cellphones_backend.Data;
 using cellphones_backend.DTOs.Responses;
 using cellphones_backend.Models;
 using cellPhoneS_backend.DTOs.Account;
+using cellPhoneS_backend.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,34 +21,40 @@ public class UserServiceImpl : UserService
         _applicationDbContext = applicationDbContext;
     }
 
-    public ApiResponse<string> DeleteUser(string id)
+    public async Task<ServiceResult<string>> DeleteUser(string id)
     {
-        throw new NotImplementedException();
-    }
-
-    public ApiResponse<User> GetDetails(string id)
-    {
-        var res = _userManager.FindByIdAsync(id).Result;
+        var res = await _userManager.FindByIdAsync(id);
         if (res == null)
-            return new ApiResponse<User>("khong tim thay user", null!, 404);
-        return new ApiResponse<User>("Thanh cong", res, 200);
+            return ServiceResult<string>.Fail("khong tim thay user", ServiceErrorType.NotFound);
+        res.Status = "deleted";
+        var result = await _userManager.UpdateAsync(res);
+        return ServiceResult<string>.Success("User deleted successfully", "");
     }
 
-    public IList<string> GetRole(User user)
+    public async Task<ServiceResult<User>> GetDetails(string id)
     {
-        return _userManager.GetRolesAsync(user).Result;
+        var res = await _userManager.FindByIdAsync(id);
+        if (res == null)
+            return ServiceResult<User>.Fail("khong tim thay user", ServiceErrorType.NotFound);
+        return ServiceResult<User>.Success(res, "Thanh cong");
     }
 
-    public async Task<ApiResponse<List<UserResponse>>> GetUsers(int page, int pageSize)
+    public async Task<ServiceResult<IList<string>>> GetRole(User user)
+    {
+        var roles = await _userManager.GetRolesAsync(user);
+        return ServiceResult<IList<string>>.Success(roles, "success");
+    }
+
+    public async Task<ServiceResult<List<UserResponse>>> GetUsers(int page, int pageSize)
     {
         var res = await _userManager.Users.Skip(page * pageSize).Take(pageSize)
                     .Select(x => new UserResponse(x.Fullname!, x.PhoneNumber!)).ToListAsync();
-        if (res.Count == 0) // Check for list not null
-            return new ApiResponse<List<UserResponse>>("Index out of range", new List<UserResponse>(), 400);
-        return new ApiResponse<List<UserResponse>>("thanh cong", res, 200); // return success list
+        if (res.Count == 0)
+            return ServiceResult<List<UserResponse>>.Fail("Index out of range", ServiceErrorType.BadRequest);
+        return ServiceResult<List<UserResponse>>.Success(res, "success");
     }
 
-    public ApiResponse<User> UpdateUser(string id, User updatedUser)
+    public Task<ServiceResult<User>> UpdateUser(string id, User updatedUser)
     {
         throw new NotImplementedException();
     }

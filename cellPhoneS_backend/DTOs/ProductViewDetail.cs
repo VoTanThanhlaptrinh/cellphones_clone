@@ -14,7 +14,7 @@ public record ProductViewDetail(
     string? ImageUrl,
     ICollection<ProductImage> ProductImages,
     ICollection<ProductSpecification> ProductSpecification,
-    ICollection<CategoryProduct> CategoryProducts,
+    ICollection<CategoryProduct> categoryProducts,
     ICollection<Commitment> Commitments,
     int Quantity,
     string? Street,

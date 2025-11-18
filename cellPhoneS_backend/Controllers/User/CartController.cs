@@ -1,4 +1,5 @@
 using cellphones_backend.DTOs.Responses;
+using cellPhoneS_backend.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,13 +9,18 @@ namespace cellphones_backend.Controllers
     [ApiController]
     public class CartController : ControllerBase
     {
-        [HttpGet("all")]
-        public Task<ApiResponse<string>> ListCart()
+        private readonly CartService _cartService;
+        public CartController(CartService cartService)
         {
-            return null!;
+            _cartService = cartService;
         }
+        // [HttpGet("")]
+        // public Task<ApiResponse<string>> ListCart()
+        // {
+        //     return null!;
+        // }
         [HttpGet("{productId}")]
-        public Task<ActionResult<ApiResponse<string>>> AddProductTocard(long productId)
+        public Task<ActionResult<ApiResponse<string>>> AddProductToCart(long productId)
         {
             return null!;
         }

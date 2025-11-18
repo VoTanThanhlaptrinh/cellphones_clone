@@ -1,6 +1,7 @@
 using cellphones_backend.DTOs.Responses;
 using cellphones_backend.Models;
 using cellphones_backend.Services;
+using cellPhoneS_backend.Controllers;
 using cellPhoneS_backend.DTOs.Account;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +10,7 @@ namespace cellphones_backend.Controllers
 {
     [Route("api/user")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UserController : BaseController
     {
         private readonly UserService _userService;
         public UserController(UserService userService)
@@ -18,24 +19,24 @@ namespace cellphones_backend.Controllers
         }
         
         [HttpGet("list/{page}/{pageSize}")]
-        public Task<ApiResponse<List<UserResponse>>> GetUsers(int page, int pageSize)
+        public async Task<ActionResult<ApiResponse<List<UserResponse>>>> GetUsers(int page, int pageSize)
         {
-            return _userService.GetUsers(page, pageSize);
+            return HandleResult(await _userService.GetUsers(page, pageSize));
         }
-        [HttpGet()]
-        public IActionResult GetDetails()
+        [HttpGet("{userId}")]
+        public async Task<ActionResult<ApiResponse<User>>> GetDetails(string userId)
         {
-            return Ok("Users endpoint is working.");
+            return HandleResult(await _userService.GetDetails(userId));
         }
         [HttpPut()]
-        public IActionResult UpdateUser()
+        public async Task<ActionResult<ApiResponse<UserResponse>>> UpdateUser()
         {
-            return Ok("Users endpoint is working.");
+            return null!;
         }
-        [HttpDelete()]
-        public IActionResult DeleteUser()
+        [HttpDelete("{userId}")]
+        public async Task<ActionResult<ApiResponse<string>>> DeleteUser(string userId)
         {
-            return Ok("Users endpoint is working.");
+            return HandleResult(await _userService.DeleteUser(userId));
         }
     }
 }

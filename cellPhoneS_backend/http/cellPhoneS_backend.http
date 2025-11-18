@@ -1,22 +1,99 @@
 @cellPhoneS_backend_HostAddress = http://localhost:5169
-
-GET  {{cellPhoneS_backend_HostAddress}}/api/auth/ok
+@token = REPLACE_JWT_TOKEN_HERE
+@userId = 98a4fdb1-44a7-49d1-b9a0-03f9ff71e3c9
+### AUTH REGISTER
+POST {{cellPhoneS_backend_HostAddress}}/api/auth/register
+Content-Type: application/json
 Accept: application/json
 
-###
+{
+    "fullname": "Test User",
+    "birthDay": "1990-01-01",
+	"phone": "0123456789",
+	"email": "test.user@example.com",
+	"password": "Password@123",
+    "confPassword": "Password@123"
+}
 
-GET  {{cellPhoneS_backend_HostAddress}}/api/auth/ok
+### AUTH LOGIN
+POST {{cellPhoneS_backend_HostAddress}}/api/auth/login
+Content-Type: application/json
 Accept: application/json
 
-###
-GET  {{cellPhoneS_backend_HostAddress}}/api/auth/ok
+{
+	"email": "test.user@example.com",
+	"password": "Password@123"
+}
+
+### GOOGLE OAUTH2 (Redirect) 
+GET {{cellPhoneS_backend_HostAddress}}/api/auth/Oauth2-google
 Accept: application/json
 
-###
-GET  {{cellPhoneS_backend_HostAddress}}/api/auth/ok
+### REFRESH TOKEN (Placeholder - implementation pending)
+GET {{cellPhoneS_backend_HostAddress}}/api/auth/refreshToken
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### HOME INIT (Get homepage data)
+GET {{cellPhoneS_backend_HostAddress}}/api/home
 Accept: application/json
 
-###
-GET  {{cellPhoneS_backend_HostAddress}}/api/home
+### PRODUCT LIST (Paged)
+GET {{cellPhoneS_backend_HostAddress}}/api/products/list/0/10
 Accept: application/json
+
+### PRODUCT DETAILS
+GET {{cellPhoneS_backend_HostAddress}}/api/products/700
+Accept: application/json
+
+### PRODUCT DELETE (Requires auth if enforced later)
+DELETE {{cellPhoneS_backend_HostAddress}}/api/products/1
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### USER LIST (Paged)
+GET {{cellPhoneS_backend_HostAddress}}/api/user/list/0/10
+Accept: application/json
+# Authorization: Bearer {{token}}
+
+### USER DETAILS
+GET {{cellPhoneS_backend_HostAddress}}/api/user/{{userId}}
+Accept: application/json
+# Authorization: Bearer {{token}}
+
+### USER DELETE
+DELETE {{cellPhoneS_backend_HostAddress}}/api/user/{{userId}}
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### CART LIST (Placeholder - not implemented)
+GET {{cellPhoneS_backend_HostAddress}}/api/carts/all
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### ADD PRODUCT TO CART (Placeholder - not implemented)
+GET {{cellPhoneS_backend_HostAddress}}/api/carts/1
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### CART DETAIL BY CART ID (Placeholder)
+GET {{cellPhoneS_backend_HostAddress}}/api/cartdetail/1
+Accept: application/json
+Authorization: Bearer {{token}}
+
+### IMAGE GET (Not implemented logic yet)
+GET {{cellPhoneS_backend_HostAddress}}/api/img/1
+Accept: application/json
+
+### IMAGE UPLOAD (Needs real multipart logic later)
+POST {{cellPhoneS_backend_HostAddress}}/api/img/upload
+Content-Type: multipart/form-data; boundary=BOUNDARY
+
+--BOUNDARY
+Content-Disposition: form-data; name="file"; filename="sample.png"
+Content-Type: image/png
+
+< ./sample.png
+--BOUNDARY--
+
 

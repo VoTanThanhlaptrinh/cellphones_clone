@@ -8,7 +8,7 @@ namespace cellPhoneS_backend.Controllers
 {
     [Route("api/home")]
     [ApiController]
-    public class HomeController : ControllerBase
+    public class HomeController : BaseController
     {
         private readonly InitService _initService;
 
@@ -17,9 +17,9 @@ namespace cellPhoneS_backend.Controllers
             this._initService = initService;
         }
         [HttpGet()]
-        public Task<ApiResponse<HomeViewModel>> InitHome()
+        public async Task<ActionResult<ApiResponse<HomeViewModel>>> InitHome()
         {
-            return this._initService.InitHomePage();
+            return HandleResult(await _initService.InitHomePage()); ;
         }
 
     }
