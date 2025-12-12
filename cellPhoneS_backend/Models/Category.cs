@@ -19,6 +19,7 @@ public class Category
     public ICollection<Category> Children { get; set; } = new List<Category>();
 
     // Navigations
+    public ICollection<Demand> Demands { get; set; } = new List<Demand>();
     public ICollection<Brand> Brands { get; set; } = new List<Brand>();
     public ICollection<Criterion> Criteria { get; set; } = new List<Criterion>();
     public ICollection<CategoryProduct> CategoryProducts { get; set; } = new List<CategoryProduct>();

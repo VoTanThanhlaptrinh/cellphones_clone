@@ -2,6 +2,7 @@ using System;
 using cellphones_backend.Services;
 using cellphones_backend.Services.Implement;
 using cellPhoneS_backend.Services.Implement;
+using cellPhoneS_backend.Services.Interface;
 
 namespace cellPhoneS_backend.Services;
 
@@ -17,6 +18,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<JwtTokenService, JwtTokenServiceImpl>();
         services.AddScoped<InitService, InitServiceImpl>();
         services.AddScoped<ProductService, ProductServiceImpl>();
+        services.AddScoped<ShippingFeeService, ShippingFeeServiceImpl>();
         return services;
     }
 }

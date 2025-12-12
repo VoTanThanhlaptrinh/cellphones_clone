@@ -11,6 +11,7 @@
           "AutoMapper": "15.0.1",
           "Azure.Storage.Blobs": "12.26.0",
           "Dapper": "2.1.66",
+          "Elastic.Clients.Elasticsearch": "8.12.0",
           "FluentValidation": "12.0.0",
           "Microsoft.AspNetCore.Authentication.Google": "9.0.10",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "9.0.10",
@@ -109,6 +110,25 @@
           "lib/net8.0/Dapper.dll": {
             "assemblyVersion": "2.0.0.0",
             "fileVersion": "2.1.66.48463"
+          }
+        }
+      },
+      "Elastic.Clients.Elasticsearch/8.12.0": {
+        "dependencies": {
+          "Elastic.Transport": "0.4.17"
+        },
+        "runtime": {
+          "lib/net6.0/Elastic.Clients.Elasticsearch.dll": {
+            "assemblyVersion": "8.0.0.0",
+            "fileVersion": "8.12.0.0"
+          }
+        }
+      },
+      "Elastic.Transport/0.4.17": {
+        "runtime": {
+          "lib/net6.0/Elastic.Transport.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.4.17.0"
           }
         }
       },
@@ -2456,6 +2476,20 @@
       "sha512": "sha512-/q77jUgDOS+bzkmk3Vy9SiWMaetTw+NOoPAV0xPBsGVAyljd5S6P+4RUW7R3ZUGGr9lDRyPKgAMj2UAOwvqZYw==",
       "path": "dapper/2.1.66",
       "hashPath": "dapper.2.1.66.nupkg.sha512"
+    },
+    "Elastic.Clients.Elasticsearch/8.12.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-AvKEIOGmM6RhH0qdU+SLu6FquA4VF0Tty3C7us2527PUwFB08Y/lZKIxmi4Xj0GiFD0T83g8A0bTstdbHSjQdQ==",
+      "path": "elastic.clients.elasticsearch/8.12.0",
+      "hashPath": "elastic.clients.elasticsearch.8.12.0.nupkg.sha512"
+    },
+    "Elastic.Transport/0.4.17": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-T8QGwTt3E+5b3YCkctyp+aUzJRZKiKZbbngCvell9tqhqfN4Po+Fbsw2ilX5Qm0JFnoIUzpIFJyTK6mCVf4rkg==",
+      "path": "elastic.transport/0.4.17",
+      "hashPath": "elastic.transport.0.4.17.nupkg.sha512"
     },
     "FluentValidation/12.0.0": {
       "type": "package",

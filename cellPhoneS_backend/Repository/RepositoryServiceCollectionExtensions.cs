@@ -34,6 +34,7 @@ public static class RepositoryServiceCollectionExtensions
         services.AddScoped<IDemandImageRepository, DemandImageRepository>();
         services.AddScoped<ICategoryProductRepository, CategoryProductRepository>();
         services.AddScoped<IProductImageRepository, ProductImageRepository>();
+        services.AddScoped<IPaymentRepository, PaymentRepository>();
         return services;
     }
 }

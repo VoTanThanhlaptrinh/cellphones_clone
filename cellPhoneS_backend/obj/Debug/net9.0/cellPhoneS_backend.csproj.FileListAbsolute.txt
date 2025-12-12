@@ -351,3 +351,5 @@ D:\IT\docnet_workspace\cellPhoneS_backend\obj\Debug\net9.0\refint\cellPhoneS_bac
 D:\IT\docnet_workspace\cellPhoneS_backend\obj\Debug\net9.0\cellPhoneS_backend.pdb
 D:\IT\docnet_workspace\cellPhoneS_backend\obj\Debug\net9.0\cellPhoneS_backend.genruntimeconfig.cache
 D:\IT\docnet_workspace\cellPhoneS_backend\obj\Debug\net9.0\ref\cellPhoneS_backend.dll
+D:\IT\docnet_workspace\cellPhoneS_backend\bin\Debug\net9.0\Elastic.Clients.Elasticsearch.dll
+D:\IT\docnet_workspace\cellPhoneS_backend\bin\Debug\net9.0\Elastic.Transport.dll

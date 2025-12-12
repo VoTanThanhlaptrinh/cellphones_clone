@@ -103,6 +103,35 @@
           }
         }
       },
+      "Elastic.Clients.Elasticsearch/8.12.0": {
+        "type": "package",
+        "dependencies": {
+          "Elastic.Transport": "0.4.17"
+        },
+        "compile": {
+          "lib/net6.0/Elastic.Clients.Elasticsearch.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/Elastic.Clients.Elasticsearch.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "Elastic.Transport/0.4.17": {
+        "type": "package",
+        "compile": {
+          "lib/net6.0/Elastic.Transport.dll": {
+            "related": ".pdb;.xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/Elastic.Transport.dll": {
+            "related": ".pdb;.xml"
+          }
+        }
+      },
       "FluentValidation/12.0.0": {
         "type": "package",
         "compile": {
@@ -3706,6 +3735,57 @@
         "lib/netstandard2.0/Dapper.dll",
         "lib/netstandard2.0/Dapper.xml",
         "readme.md"
+      ]
+    },
+    "Elastic.Clients.Elasticsearch/8.12.0": {
+      "sha512": "AvKEIOGmM6RhH0qdU+SLu6FquA4VF0Tty3C7us2527PUwFB08Y/lZKIxmi4Xj0GiFD0T83g8A0bTstdbHSjQdQ==",
+      "type": "package",
+      "path": "elastic.clients.elasticsearch/8.12.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.txt",
+        "README.md",
+        "elastic.clients.elasticsearch.8.12.0.nupkg.sha512",
+        "elastic.clients.elasticsearch.nuspec",
+        "lib/net461/Elastic.Clients.Elasticsearch.dll",
+        "lib/net461/Elastic.Clients.Elasticsearch.xml",
+        "lib/net5.0/Elastic.Clients.Elasticsearch.dll",
+        "lib/net5.0/Elastic.Clients.Elasticsearch.xml",
+        "lib/net6.0/Elastic.Clients.Elasticsearch.dll",
+        "lib/net6.0/Elastic.Clients.Elasticsearch.xml",
+        "lib/netcoreapp3.1/Elastic.Clients.Elasticsearch.dll",
+        "lib/netcoreapp3.1/Elastic.Clients.Elasticsearch.xml",
+        "lib/netstandard2.0/Elastic.Clients.Elasticsearch.dll",
+        "lib/netstandard2.0/Elastic.Clients.Elasticsearch.xml",
+        "lib/netstandard2.1/Elastic.Clients.Elasticsearch.dll",
+        "lib/netstandard2.1/Elastic.Clients.Elasticsearch.xml",
+        "nuget-icon.png"
+      ]
+    },
+    "Elastic.Transport/0.4.17": {
+      "sha512": "T8QGwTt3E+5b3YCkctyp+aUzJRZKiKZbbngCvell9tqhqfN4Po+Fbsw2ilX5Qm0JFnoIUzpIFJyTK6mCVf4rkg==",
+      "type": "package",
+      "path": "elastic.transport/0.4.17",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "elastic.transport.0.4.17.nupkg.sha512",
+        "elastic.transport.nuspec",
+        "lib/net462/Elastic.Transport.dll",
+        "lib/net462/Elastic.Transport.pdb",
+        "lib/net462/Elastic.Transport.xml",
+        "lib/net6.0/Elastic.Transport.dll",
+        "lib/net6.0/Elastic.Transport.pdb",
+        "lib/net6.0/Elastic.Transport.xml",
+        "lib/netstandard2.0/Elastic.Transport.dll",
+        "lib/netstandard2.0/Elastic.Transport.pdb",
+        "lib/netstandard2.0/Elastic.Transport.xml",
+        "lib/netstandard2.1/Elastic.Transport.dll",
+        "lib/netstandard2.1/Elastic.Transport.pdb",
+        "lib/netstandard2.1/Elastic.Transport.xml",
+        "license.txt",
+        "nuget-icon.png"
       ]
     },
     "FluentValidation/12.0.0": {
@@ -8947,6 +9027,7 @@
       "AutoMapper >= 15.0.1",
       "Azure.Storage.Blobs >= 12.26.0",
       "Dapper >= 2.1.66",
+      "Elastic.Clients.Elasticsearch >= 8.11.1",
       "FluentValidation >= 12.0.0",
       "Microsoft.AspNetCore.Authentication.Google >= 9.0.10",
       "Microsoft.AspNetCore.Authentication.JwtBearer >= 9.0.10",
@@ -9023,6 +9104,10 @@
           "Dapper": {
             "target": "Package",
             "version": "[2.1.66, )"
+          },
+          "Elastic.Clients.Elasticsearch": {
+            "target": "Package",
+            "version": "[8.11.1, )"
           },
           "FluentValidation": {
             "target": "Package",
@@ -9131,5 +9216,17 @@
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1603",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "cellPhoneS_backend depends on Elastic.Clients.Elasticsearch (>= 8.11.1) but Elastic.Clients.Elasticsearch 8.11.1 was not found. Elastic.Clients.Elasticsearch 8.12.0 was resolved instead.",
+      "libraryId": "Elastic.Clients.Elasticsearch",
+      "targetGraphs": [
+        "net9.0"
+      ]
+    }
+  ]
 }
