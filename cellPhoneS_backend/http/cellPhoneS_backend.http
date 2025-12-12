@@ -29,6 +29,7 @@ Accept: application/json
 GET {{cellPhoneS_backend_HostAddress}}/api/auth/Oauth2-google
 Accept: application/json
 
+
 ### REFRESH TOKEN (Placeholder - implementation pending)
 GET {{cellPhoneS_backend_HostAddress}}/api/auth/refreshToken
 Accept: application/json
@@ -38,12 +39,16 @@ Authorization: Bearer {{token}}
 GET {{cellPhoneS_backend_HostAddress}}/api/home
 Accept: application/json
 
+### Migration ElasticSearch (Get homepage data)
+POST   {{cellPhoneS_backend_HostAddress}}/api/migrate-data
+Accept: application/json
+
 ### PRODUCT LIST (Paged)
 GET {{cellPhoneS_backend_HostAddress}}/api/products/list/0/10
 Accept: application/json
 
 ### PRODUCT DETAILS
-GET {{cellPhoneS_backend_HostAddress}}/api/products/700
+GET {{cellPhoneS_backend_HostAddress}}/api/products/1356
 Accept: application/json
 
 ### PRODUCT DELETE (Requires auth if enforced later)
@@ -88,6 +93,10 @@ Accept: application/json
 ### IMAGE UPLOAD (Needs real multipart logic later)
 POST {{cellPhoneS_backend_HostAddress}}/api/img/upload
 Content-Type: multipart/form-data; boundary=BOUNDARY
+
+### Search PRODUCTS) 
+GET {{cellPhoneS_backend_HostAddress}}/api/search?keyword=iph
+Accept: application/json
 
 --BOUNDARY
 Content-Disposition: form-data; name="file"; filename="sample.png"

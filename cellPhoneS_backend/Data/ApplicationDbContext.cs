@@ -39,6 +39,7 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, string>
     public DbSet<DemandImage> DemandImages { get; set; }
     public DbSet<CategoryProduct> CategoryProducts { get; set; }
     public DbSet<ProductImage> ProductImages { get; set; }
+    public DbSet<Payment> Payments { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

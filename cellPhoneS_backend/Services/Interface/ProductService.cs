@@ -16,5 +16,4 @@ public interface ProductService
     Task<ServiceResult<List<ProductView>>> GetProductsByCategory(long categoryId, int page, int pageSize);
     Task<ServiceResult<List<ProductView>>> GetProductsBySeries(long seriesId, int page, int pageSize);
     Task<ServiceResult<List<ProductView>>> GetProductsByBrand(long brandId, int page, int pageSize);
-    Task<ServiceResult<List<ProductView>>> SearchProducts(string keyword, int page, int pageSize);
 }

@@ -79,4 +79,128 @@
   <data name="FrontFaceCardRequired" xml:space="preserve"><value>Vui lòng tải ảnh mặt trước của thẻ.</value><comment/></data>
   <data name="BehindFaceCardRequired" xml:space="preserve"><value>Vui lòng tải ảnh mặt sau của thẻ.</value><comment/></data>
   <data name="FileExceed2Mb" xml:space="preserve"><value>Kích thước tệp không được vượt quá 2 MB.</value><comment/></data>
+  <!-- AddProductRequest -->
+<data name="ProductNameRequired" xml:space="preserve">
+  <value>Tên sản phẩm là bắt buộc.</value>
+  <comment/>
+</data>
+<data name="ProductNameMaxLength" xml:space="preserve">
+  <value>Tên sản phẩm không được vượt quá 255 ký tự.</value>
+  <comment/>
+</data>
+
+<data name="BasePriceMustBeGreaterOrEqualZero" xml:space="preserve">
+  <value>Giá gốc phải lớn hơn hoặc bằng 0.</value>
+  <comment/>
+</data>
+<data name="SalePriceMustBeGreaterOrEqualZero" xml:space="preserve">
+  <value>Giá khuyến mãi phải lớn hơn hoặc bằng 0.</value>
+  <comment/>
+</data>
+
+<data name="VersionMaxLength" xml:space="preserve">
+  <value>Phiên bản không được vượt quá 255 ký tự.</value>
+  <comment/>
+</data>
+<data name="StatusMaxLength" xml:space="preserve">
+  <value>Trạng thái không được vượt quá 50 ký tự.</value>
+  <comment/>
+</data>
+
+<data name="CategoryIdMustBeGreaterThanZero" xml:space="preserve">
+  <value>Category ID phải lớn hơn 0.</value>
+  <comment/>
+</data>
+<data name="BrandIdMustBeGreaterThanZero" xml:space="preserve">
+  <value>Brand ID phải lớn hơn 0.</value>
+  <comment/>
+</data>
+
+<data name="CommitmentNotEmpty" xml:space="preserve">
+  <value>Cam kết không được để trống.</value>
+  <comment/>
+</data>
+<data name="CommitmentNotWhiteSpace" xml:space="preserve">
+  <value>Cam kết không được chỉ chứa khoảng trắng.</value>
+  <comment/>
+</data>
+
+<!-- SpecificationDTO -->
+<data name="SpecificationNameRequired" xml:space="preserve">
+  <value>Tên thông số là bắt buộc.</value>
+  <comment/>
+</data>
+<data name="SpecificationNameMaxLength" xml:space="preserve">
+  <value>Tên thông số không được vượt quá 255 ký tự.</value>
+  <comment/>
+</data>
+
+<data name="SpecificationDetailsRequired" xml:space="preserve">
+  <value>Danh sách chi tiết thông số là bắt buộc.</value>
+  <comment/>
+</data>
+<data name="SpecificationDetailsMustHaveAtLeastOne" xml:space="preserve">
+  <value>Phải có ít nhất một chi tiết thông số.</value>
+  <comment/>
+</data>
+
+<!-- SpecificationDetailDTO -->
+<data name="SpecificationDetailNameRequired" xml:space="preserve">
+  <value>Tên chi tiết thông số là bắt buộc.</value>
+  <comment/>
+</data>
+<data name="SpecificationDetailNameMaxLength" xml:space="preserve">
+  <value>Tên chi tiết thông số không được vượt quá 255 ký tự.</value>
+  <comment/>
+</data>
+
+<data name="SpecificationDetailValueRequired" xml:space="preserve">
+  <value>Giá trị chi tiết thông số là bắt buộc.</value>
+  <comment/>
+</data>
+<data name="SpecificationDetailValueMaxLength" xml:space="preserve">
+  <value>Giá trị chi tiết thông số không được vượt quá 1000 ký tự.</value>
+  <comment/>
+</data>
+
+<!-- ImageDTO -->
+<data name="ImageOriginUrlRequired" xml:space="preserve">
+  <value>Đường dẫn hình ảnh là bắt buộc.</value>
+  <comment/>
+</data>
+<data name="ImageOriginUrlMaxLength" xml:space="preserve">
+  <value>Đường dẫn hình ảnh không được vượt quá 1000 ký tự.</value>
+  <comment/>
+</data>
+<data name="ImageOriginUrlInvalid" xml:space="preserve">
+  <value>Định dạng đường dẫn hình ảnh không hợp lệ.</value>
+  <comment/>
+</data>
+
+<data name="ImageMimeTypeRequired" xml:space="preserve">
+  <value>Kiểu MIME của hình ảnh là bắt buộc.</value>
+  <comment/>
+</data>
+<data name="ImageMimeTypeMaxLength" xml:space="preserve">
+  <value>Kiểu MIME của hình ảnh không được vượt quá 100 ký tự.</value>
+  <comment/>
+</data>
+
+<data name="ImageNameRequired" xml:space="preserve">
+  <value>Tên hình ảnh là bắt buộc.</value>
+  <comment/>
+</data>
+<data name="ImageNameMaxLength" xml:space="preserve">
+  <value>Tên hình ảnh không được vượt quá 255 ký tự.</value>
+  <comment/>
+</data>
+
+<data name="ImageAltRequired" xml:space="preserve">
+  <value>Văn bản mô tả (alt) của hình ảnh là bắt buộc.</value>
+  <comment/>
+</data>
+<data name="ImageAltMaxLength" xml:space="preserve">
+  <value>Văn bản mô tả (alt) của hình ảnh không được vượt quá 255 ký tự.</value>
+  <comment/>
+</data>
 </root>

@@ -23,7 +23,7 @@ public class ProductServiceImpl : ProductService
 
     public async Task<ServiceResult<string>> DeleteProduct(long id)
     {
-        var product = await _productDBcontext.GetProductDetails(id);
+        var product = await _productDBcontext.GetByIdAsync(id);
         if (product == null)
         {
             return ServiceResult<string>.Fail("Product not found", ServiceErrorType.NotFound);
@@ -40,26 +40,7 @@ public class ProductServiceImpl : ProductService
         {
             return ServiceResult<ProductViewDetail>.Fail("Product not found", ServiceErrorType.NotFound);
         }
-
-        var productViewDetail = new ProductViewDetail
-        (
-            product.Id,
-            product.Name,
-            product.BasePrice,
-            product.SalePrice,
-            product.ImageUrl,
-            product.Version,
-            product.ProductImages,
-            product.ProductSpecification,
-            product.CategoryProducts,
-            product.Commitments,
-            product.Stores.FirstOrDefault()?.Quantity ?? 0,
-            product.Stores.FirstOrDefault()?.StoreHouse?.Street,
-            product.Stores.FirstOrDefault()?.StoreHouse?.District,
-            product.Stores.FirstOrDefault()?.StoreHouse?.City
-        );
-
-        return ServiceResult<ProductViewDetail>.Success(productViewDetail,"success");
+        return ServiceResult<ProductViewDetail>.Success(product,"success");
     }
 
     public async Task<ServiceResult<List<ProductView>>> GetProducts(int page, int pageSize)

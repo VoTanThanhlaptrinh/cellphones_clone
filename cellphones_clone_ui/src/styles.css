@@ -141,25 +141,16 @@ html{
   background: url("/assets/images/blue-ribbon.png") 50% no-repeat;
   color: #3b82f6;
 }
-swiper-container::part(button-prev) {
-  left: 8px;
-  top: 150px;
-  width: 12px;
-  height: 12px;
-  padding: 12px;
-  border-radius: 50%; /* tròn */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-  background: white;
-  color: black;
-  font-weight: bold;
-}
+swiper-container::part(button-prev),
 swiper-container::part(button-next) {
-  right: 0px;
-  top: 150px;
-  width: 12px;
-  height: 12px;
-  padding: 12px;
-  border-radius: 50%; /* tròn */
+  top: 50%; /* Đẩy nút xuống 50% chiều cao cha */
+  transform: translateY(-50%); /* Kéo ngược nút lên 50% chiều cao của chính nó để chính giữa tuyệt đối */
+  margin-top: 0; /* Reset margin mặc định của Swiper nếu có */
+  /* Style giao diện của bạn */
+  width: 20px;
+  height: 20px;
+  padding: 20px;
+  border-radius: 100%;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   background: white;
   color: black;

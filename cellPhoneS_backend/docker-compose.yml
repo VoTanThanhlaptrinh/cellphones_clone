@@ -1,0 +1,43 @@
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.1
+    container_name: es-node
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+    deploy:
+      resources:
+        limits:
+          memory: 1G  # Tổng RAM tối đa ES được lấy (Heap + Non-heap)
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.1
+    container_name: kibana-ui
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - elastic
+    # THÊM PHẦN NÀY: Kibana rất ngốn RAM nếu không chặn lại
+    deploy:
+      resources:
+        limits:
+          memory: 512M # Chỉ cho Kibana dùng tối đa 512MB
+# KHAI BÁO VOLUME Ở ĐÂY
+volumes:
+  es-data:
+    driver: local
+
+networks:
+  elastic:
+    driver: bridge

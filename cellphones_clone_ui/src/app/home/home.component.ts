@@ -9,13 +9,9 @@ import {
 import { MatTabsModule } from '@angular/material/tabs';
 import { SlickCarouselModule } from 'ngx-slick-carousel';
 import { Router, RouterLink, RouterModule } from '@angular/router';
-export interface Device {
-  signature: string;
-  typeName: string;
-  type: number;
-  brandName: string[];
-  navigation?: any;
-}
+import { ProductService } from '../services/product.service';
+import { HomeView } from '../core/models/home_view.model';
+import { ProductCardComponent } from "../product-card/product-card.component";
 @Component({
   selector: 'app-home',
   imports: [
@@ -23,148 +19,21 @@ export interface Device {
     SlickCarouselModule,
     CommonModule,
     RouterModule,
-  ],
+    ProductCardComponent
+],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   isBrowser: boolean;
+  home_view: HomeView | null = null;
   protected show = false
   protected i = 0;
-  list_device: Device[] = new Array<Device>();
-  constructor(@Inject(PLATFORM_ID) platformId: Object, private router: Router) {
+  constructor(@Inject(PLATFORM_ID) platformId: Object, private router: Router, private productService: ProductService) {
     this.isBrowser = isPlatformBrowser(platformId);
-    this.list_device = [
-      {
-        signature: 'Điện thoại nổi bật',
-        typeName: 'mobile',
-        type: 1,
-        brandName: [
-          'Apple',
-          'Samsung',
-          'Xiaomi',
-          'OPPO',
-          'Vivo',
-          'Realme',
-          'Nokia',
-          'Motorola',
-          'Lenovo',
-        ],
-        navigation: {
-          nextEl: '.swiper-mobile-next',
-          prevEl: '.swiper-mobile-prev',
-        },
-      },
-      {
-        signature: 'Laptop nổi bật',
-        typeName: 'laptop',
-        type: 1,
-        brandName: [
-          'Apple',
-          'Dell',
-          'HP',
-          'Lenovo',
-          'ASUS',
-          'MSI',
-          'Acer',
-          'Microsoft',
-          'Razer',
-          'LG',
-          'Samsung',
-          'Huawei',
-        ],
-      },
-      {
-        signature: 'Tablet nổi bật',
-        typeName: 'tablet',
-        type: 1,
-        brandName: [
-          'Apple',
-          'Samsung',
-          'Lenovo',
-          'Microsoft',
-          'Huawei',
-          'Amazon',
-          'ASUS',
-          'Alldocube',
-          'Xiaomi',
-        ],
-      },
-      {
-        signature: 'Đồng hồ nổi bật',
-        typeName: 'watch',
-        type: 1,
-        brandName: [
-          'Apple',
-          'Samsung',
-          'Xiaomi',
-          'Garmin',
-          'Fitbit',
-          'Amazfit',
-          'Huawei',
-          'Realme',
-          'Mobvoi',
-          'Suunto',
-        ],
-      },
-      {
-        signature: 'Âm thanh nổi bật',
-        typeName: 'audio',
-        type: 1,
-        brandName: [
-          'Apple',
-          'Samsung',
-          'Sony',
-          'Bose',
-          'JBL',
-          'Sennheiser',
-          'Anker',
-          'Beats',
-          'Xiaomi',
-          'Marshall',
-          'Skullcandy',
-          'Audio-Technica',
-        ],
-      },
-      {
-        signature: 'PC nổi bật',
-        typeName: 'pc',
-        type: 1,
-        brandName: [
-          'Dell',
-          'HP',
-          'Lenovo',
-          'ASUS',
-          'Acer',
-          'MSI',
-          'Apple',
-          'Corsair',
-          'CyberPowerPC',
-          'iBUYPOWER',
-          'SkyTech',
-          'NZXT',
-        ],
-      },
-      {
-        signature: 'TV nổi bật',
-        typeName: 'tv',
-        type: 1,
-        brandName: [
-          'Samsung',
-          'LG',
-          'Sony',
-          'TCL',
-          'Panasonic',
-          'Hisense',
-          'Philips',
-          'Vizio',
-          'Sharp',
-          'Xiaomi',
-        ],
-      },
-    ];
   }
+
 
   slides = [
     {
@@ -197,7 +66,7 @@ export class HomeComponent {
   ];
   breakpoints1 = {
     0: {
-      slidesPerView: 2,
+      slidesPerView: 1,
       grid: { rows: 2, fill: 'row' },
     },
     425: {
@@ -205,11 +74,12 @@ export class HomeComponent {
       grid: { rows: 2, fill: 'row' },
     },
     768: {
-      slidesPerView: 2,
+      slidesPerView: 3,
       grid: { rows: 2, fill: 'row' },
     },
     1024: {
-      slidesPerView: 5,
+      slidesPerView: 4,
+      grid: { rows: 2, fill: 'row' },
     },
   };
   breakpoints = {
@@ -218,13 +88,22 @@ export class HomeComponent {
     },
     425: {
       slidesPerView: 2,
+      spaceBetween: 10
     },
     768: {
-      slidesPerView: 2,
+      slidesPerView: 4,
+      spaceBetween: 10
     },
     1024: {
-      slidesPerView: 5,
+      slidesPerView: 6,
+      spaceBetween: 15
     },
+  };
+  breakpoints2 = {
+    0: {
+      slidesPerView: 'auto',
+      spaceBetween: 10,
+    }
   };
   slideConfig = {
     mobileFirst: true,
@@ -1278,7 +1157,11 @@ export class HomeComponent {
       ],
     },
   ];
-  goProductDetail(){
-    this.router.navigate(['/product',1])
+  ngOnInit(): void {
+    this.productService.HomeInit().subscribe((res) => {
+      this.home_view = res;
+    }
+    );
   }
+
 }
