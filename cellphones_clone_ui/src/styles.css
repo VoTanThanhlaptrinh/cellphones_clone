@@ -55,7 +55,7 @@ body {
   background-color: white;
 }
 
-html{
+html {
   scroll-behavior: smooth !important;
 }
 
@@ -144,7 +144,9 @@ html{
 swiper-container::part(button-prev),
 swiper-container::part(button-next) {
   top: 50%; /* Đẩy nút xuống 50% chiều cao cha */
-  transform: translateY(-50%); /* Kéo ngược nút lên 50% chiều cao của chính nó để chính giữa tuyệt đối */
+  transform: translateY(
+    -50%
+  ); /* Kéo ngược nút lên 50% chiều cao của chính nó để chính giữa tuyệt đối */
   margin-top: 0; /* Reset margin mặc định của Swiper nếu có */
   /* Style giao diện của bạn */
   width: 20px;
@@ -158,4 +160,66 @@ swiper-container::part(button-next) {
 }
 .modal-box {
   padding: 0px !important;
+}
+
+.skeleton {
+  background: #f6f7f8;
+  background-image: linear-gradient(
+    to right,
+    #f6f7f8 0%,
+    #edeef1 20%,
+    #f6f7f8 40%,
+    #f6f7f8 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 800px 104px;
+  display: inline-block;
+  position: relative;
+  animation-duration: 1s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+  animation-name: shimmer;
+  animation-timing-function: linear;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
+
+/* Các class hình dáng */
+.skeleton-text {
+  width: 100%;
+  height: 20px;
+  border-radius: 4px;
+}
+.skeleton-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.cls-1,
+.cls-2,
+.cls-3 {
+  fill: none;
+  stroke: #fff;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.cls-1 {
+  stroke-width: 1.66px;
+}
+
+.cls-2 {
+  stroke-width: 1.66px;
+}
+
+.cls-3 {
+  stroke-width: 1.8px;
 }

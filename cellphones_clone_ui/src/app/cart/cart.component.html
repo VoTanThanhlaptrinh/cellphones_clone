@@ -189,17 +189,6 @@
           width="24"
           height="24"
         >
-          <defs>
-            <style>
-              .cls-1 {
-                fill: none;
-                stroke: #fff;
-                stroke-linecap: round;
-                stroke-linejoin: round;
-                stroke-width: 1.8px;
-              }
-            </style>
-          </defs>
           <g id="Layer_2" data-name="Layer 2">
             <g id="Layer_1-2" data-name="Layer 1">
               <path
@@ -226,17 +215,6 @@
           width="25"
           height="25"
         >
-          <defs>
-            <style>
-              .cls-1 {
-                fill: none;
-                stroke: #fff;
-                stroke-linecap: round;
-                stroke-linejoin: round;
-                stroke-width: 1.8px;
-              }
-            </style>
-          </defs>
           <g id="Layer_2" data-name="Layer 2">
             <g id="Layer_1-2" data-name="Layer 1">
               <path
@@ -266,33 +244,9 @@
           viewBox="0 0 44.22 25.85"
           height="24"
         >
-          <defs>
-            <style>
-              .cls-1,
-              .cls-2,
-              .cls-3 {
-                fill: none;
-                stroke: #fff;
-                stroke-linecap: round;
-                stroke-linejoin: round;
-              }
-
-              .cls-1 {
-                stroke-width: 1.66px;
-              }
-
-              .cls-2 {
-                stroke-width: 1.66px;
-              }
-
-              .cls-3 {
-                stroke-width: 1.8px;
-              }
-            </style>
-          </defs>
           <g id="Layer_2" data-name="Layer 2">
             <g id="Layer_1-2" data-name="Layer 1">
-              <circle cx="7.66" cy="22.02" r="3" class="cls-1"></circle>
+              <circle cx="7.66" cy="22.02" r="3" class="cls-1" ></circle>
               <circle cx="24.79" cy="22.02" r="3" class="cls-2"></circle>
               <path
                 d="M28.61,22h4.13a1.44,1.44,0,0,0,1.44-1.44v-6"
@@ -438,7 +392,7 @@
         Giỏ hàng
       </button>
       <div class="flex flex-row gap-2 mt-2">
-        <input type="checkbox" class="rounded-full h-5 w-5 checked:bg-danger" />
+        <input type="checkbox" class="rounded-full h-5 w-5 checked:bg-danger" aria-label="input" />
         <label class="text-black">Chọn tất cả</label>
       </div>
       <div
@@ -448,14 +402,14 @@
           @for (item of carts; track $index) {
           <div class="flex flex-row gap-x-2">
             <div>
-              <input type="checkbox" class="rounded-full" />
+              <input type="checkbox" class="rounded-full" aria-label="input" />
             </div>
             <div class="flex flex-col gap-y-2">
               <div class="grid grid-cols-5">
                 <img
                   src="{{ item.src }}"
                   loading="lazy"
-                  class="h-24 w-24 col-span-1"
+                  class="h-24 w-24 col-span-1" alt="img"
                 />
                 <div class="flex flex-col col-span-3 gap-y-2">
                   <a href="#" class="hover:text-blue-400 text-black">{{
@@ -469,7 +423,7 @@
                   </div>
                 </div>
                 <div class="col-span-1 flex flex-col gap-y-6 w-full">
-                  <button class="ms-auto me-1">
+                  <button class="ms-auto me-1" aria-label="button">
                     <svg
                       width="20"
                       height="20"
@@ -511,7 +465,7 @@
               >
                 <div class="flex flex-row items-center gap-2">
                   <img
-                    src="https://static-cart.cellphones.com.vn/cart/_nuxt/img/gift.0c5e31b.svg"
+                    src="https://static-cart.cellphones.com.vn/cart/_nuxt/img/gift.0c5e31b.svg" alt="img"
                   />
                   <span>Khuyến mãi hấp dẫn</span>
                 </div>

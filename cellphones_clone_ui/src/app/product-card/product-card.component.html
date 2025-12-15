@@ -1,6 +1,6 @@
 <div
   (click)="goProductDetail(productView?.id || 1)"
-  class="card flex items-center max-w-[230px] h-[400px] md:my-4 shadow-[0_2px_4px_rgba(0,0,0,0.2)] border wrap-normal border-gray-200 bg-white slide"
+  class="card flex items-center lg:max-w-[15vw] min-w-[15vw] min-h-[400px] md:my-4 shadow-[0_2px_4px_rgba(0,0,0,0.2)] border wrap-normal border-gray-200 bg-white slide"
 >
   <div
     class="flex absolute left-2 top-[-12px] discount-bg text-white px-4 py-2 rounded items-center gap-x-1"
@@ -22,7 +22,7 @@
     [src]="productView?.imgUrl"
   />
   <div class="h-[30px]"></div>
-  <h4 class="text-gray-700 w-full ms-4 text-base font-semibold mt-3 truncate">
+  <h4 class="text-gray-700 w-full ms-4 text-base font-semibold mt-3 line-clamp-2">
     {{ productView?.productName }}
   </h4>
   <div class="h-[50px]"></div>

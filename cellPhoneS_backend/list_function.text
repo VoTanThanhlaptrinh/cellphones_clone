@@ -4,3 +4,207 @@ Login - register:
 Search
 Admin:
 buyProduct(List<CartDetails> cd): mua danh sách hàng
+
+BEGIN TRANSACTION;
+
+BEGIN TRY
+    -- Bắt đầu thực hiện lệnh INSERT
+    INSERT INTO Stores (StoreHouseId, ProductId, ColorId, Quantity, Status, CreateDate, UpdateDate, CreateBy, UpdateBy)
+    SELECT 
+        s.Id AS StoreHouseId,
+        p.Id AS ProductId,
+        c.Id AS ColorId,
+        ABS(CHECKSUM(NEWID())) % 20 + 1 AS Quantity, -- Random số lượng 1-20
+        'active' AS Status,
+        GETDATE() AS CreateDate,
+        GETDATE() AS UpdateDate,
+        '98a4fdb1-44a7-49d1-b9a0-03f9ff71e3c9' AS CreateBy,
+        '98a4fdb1-44a7-49d1-b9a0-03f9ff71e3c9' AS UpdateBy
+    FROM StoreHouses s
+    CROSS JOIN Products p
+    CROSS JOIN Colors c
+    WHERE 
+        -- Lọc cửa hàng có địa chỉ (Street) chứa TP. HCM hoặc Hồ Chí Minh
+        (s.Street LIKE N'%TP. HCM%' OR s.Street LIKE N'%Hồ Chí Minh%') 
+        -- Lọc sản phẩm có giá gốc > 0
+        AND p.BasePrice > 0;
+
+    -- Nếu không có lỗi gì, xác nhận lưu dữ liệu
+    COMMIT TRANSACTION;
+    PRINT N'Thành công: Đã cập nhật dữ liệu vào bảng Stores.';
+END TRY
+
+BEGIN CATCH
+    -- Nếu có lỗi, hoàn tác lại toàn bộ (như chưa từng chạy lệnh này)
+    ROLLBACK TRANSACTION;
+    
+    -- In ra thông báo lỗi để biết đường sửa
+    DECLARE @ErrorMessage NVARCHAR(4000);
+    SET @ErrorMessage = ERROR_MESSAGE();
+    PRINT N'Thất bại: Có lỗi xảy ra - ' + @ErrorMessage;
+END CATCH;
+
+DECLARE @StoreId INT;
+DECLARE @Counter INT = 0;
+
+-- 1. Lấy danh sách các ID cửa hàng ở HCM vào một bảng tạm
+SELECT Id 
+INTO #TempHcmStores 
+FROM StoreHouses 
+WHERE (Street LIKE N'%TP. HCM%' OR Street LIKE N'%Hồ Chí Minh%');
+
+-- Lấy tổng số cửa hàng cần xử lý để theo dõi
+DECLARE @TotalStores INT = (SELECT COUNT(*) FROM #TempHcmStores);
+PRINT N'Tổng số cửa hàng cần xử lý: ' + CAST(@TotalStores AS NVARCHAR(10));
+
+-- 2. Dùng vòng lặp để xử lý từng cửa hàng một
+WHILE EXISTS (SELECT 1 FROM #TempHcmStores)
+BEGIN
+    -- Lấy ra 1 ID cửa hàng
+    SELECT TOP 1 @StoreId = Id FROM #TempHcmStores;
+
+    BEGIN TRANSACTION; -- Bắt đầu transaction nhỏ cho 1 cửa hàng
+    BEGIN TRY
+        -- Insert dữ liệu cho cửa hàng này
+        INSERT INTO Stores (StoreHouseId, ProductId, ColorId, Quantity, Status, CreateDate, UpdateDate, CreateBy, UpdateBy)
+        SELECT 
+            @StoreId,           -- Dùng biến ID cửa hàng đang lặp
+            p.Id,
+            c.Id,
+            ABS(CHECKSUM(NEWID())) % 20 + 1,
+            'active',
+            GETDATE(),
+            GETDATE(),
+            '98a4fdb1-44a7-49d1-b9a0-03f9ff71e3c9',
+            '98a4fdb1-44a7-49d1-b9a0-03f9ff71e3c9'
+        FROM Products p
+        CROSS JOIN Colors c
+        WHERE p.BasePrice > 0;
+
+        -- Xóa ID cửa hàng vừa làm xong khỏi bảng tạm
+        DELETE FROM #TempHcmStores WHERE Id = @StoreId;
+
+        COMMIT TRANSACTION; -- Lưu ngay lập tức để giải phóng bộ nhớ
+        
+        -- In tiến độ (Optional)
+        SET @Counter = @Counter + 1;
+        PRINT N'Đã xong cửa hàng ' + CAST(@Counter AS NVARCHAR(10)) + N'/' + CAST(@TotalStores AS NVARCHAR(10));
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRANSACTION;
+        PRINT N'Lỗi tại StoreId: ' + CAST(@StoreId AS NVARCHAR(10)) + N' - ' + ERROR_MESSAGE();
+        -- Vẫn xóa khỏi bảng tạm để vòng lặp chạy tiếp (hoặc dừng tùy bạn)
+        DELETE FROM #TempHcmStores WHERE Id = @StoreId; 
+    END CATCH
+END
+
+-- 3. Dọn dẹp bảng tạm
+DROP TABLE #TempHcmStores;
+PRINT N'Hoàn tất quá trình nhập liệu!';
+
+SET NOCOUNT ON;
+SET XACT_ABORT ON; -- Tự động rollback nếu lỗi trong batch
+
+DECLARE @BatchSize INT = 50;  -- Giảm nếu vẫn chậm (50-200)
+DECLARE @CurrentStoreIndex INT;
+DECLARE @CurrentProductIndex INT;
+DECLARE @TotalProducts INT;
+DECLARE @TotalStores INT;
+DECLARE @StoreId INT;
+
+BEGIN TRY
+    -- 1) Temp stores (HCM) tránh kế thừa IDENTITY
+    IF OBJECT_ID('tempdb..#TempStores') IS NOT NULL DROP TABLE #TempStores;
+    SELECT
+        ROW_NUMBER() OVER (ORDER BY Id) AS RowNum,
+        CAST(Id AS INT) AS StoreHouseId
+    INTO #TempStores
+    FROM StoreHouses
+    WHERE (Street LIKE N'%TP. HCM%' OR Street LIKE N'%Hồ Chí Minh%');
+
+    CREATE CLUSTERED INDEX IX_TempStores_RowNum ON #TempStores(RowNum);
+
+    -- 2) Temp products (BasePrice > 0)
+    IF OBJECT_ID('tempdb..#TempProducts') IS NOT NULL DROP TABLE #TempProducts;
+    SELECT
+        ROW_NUMBER() OVER (ORDER BY Id) AS RowNum,
+        CAST(Id AS INT) AS ProductId
+    INTO #TempProducts
+    FROM Products
+    WHERE BasePrice > 0;
+
+    CREATE CLUSTERED INDEX IX_TempProducts_RowNum ON #TempProducts(RowNum);
+
+    -- 3) Cache Colors (nhỏ, join nhanh)
+    DECLARE @Colors TABLE (Id INT PRIMARY KEY);
+    INSERT INTO @Colors(Id) SELECT Id FROM Colors;
+
+    SELECT @TotalProducts = COUNT(*) FROM #TempProducts;
+    SELECT @TotalStores   = COUNT(*) FROM #TempStores;
+
+    PRINT N'Start: Stores=' + CAST(@TotalStores AS NVARCHAR(20))
+        + N', Products=' + CAST(@TotalProducts AS NVARCHAR(20))
+        + N', BatchSize=' + CAST(@BatchSize AS NVARCHAR(20));
+
+    -- 4) Outer loop: từng store
+    SET @CurrentStoreIndex = 1;
+    WHILE @CurrentStoreIndex <= @TotalStores
+    BEGIN
+        SELECT @StoreId = StoreHouseId
+        FROM #TempStores
+        WHERE RowNum = @CurrentStoreIndex;
+
+        -- Inner loop: batch sản phẩm
+        SET @CurrentProductIndex = 1;
+        WHILE @CurrentProductIndex <= @TotalProducts
+        BEGIN
+            BEGIN TRY
+                BEGIN TRANSACTION;
+
+                INSERT INTO Stores WITH (TABLOCK) -- Bỏ TABLOCK nếu lock quá lớn
+                (
+                    StoreHouseId, ProductId, ColorId,
+                    Quantity, Status, CreateDate, UpdateDate, CreateBy, UpdateBy
+                )
+                SELECT
+                    @StoreId,
+                    p.ProductId,
+                    c.Id AS ColorId,
+                    ABS(CHECKSUM(NEWID())) % 20 + 1 AS Quantity,
+                    'active',
+                    GETDATE(), GETDATE(),
+                    '98a4fdb1-44a7-49d1-b9a0-03f9ff71e3c9',
+                    '98a4fdb1-44a7-49d1-b9a0-03f9ff71e3c9'
+                FROM #TempProducts p
+                CROSS JOIN @Colors c
+                WHERE p.RowNum >= @CurrentProductIndex
+                  AND p.RowNum <  @CurrentProductIndex + @BatchSize;
+
+                COMMIT TRANSACTION;
+            END TRY
+            BEGIN CATCH
+                IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+                PRINT N'Lỗi batch tại StoreId ' + CAST(@StoreId AS NVARCHAR(20))
+                      + N': ' + ERROR_MESSAGE();
+                -- Có thể RAISERROR để dừng hẳn nếu muốn
+            END CATCH;
+
+            SET @CurrentProductIndex += @BatchSize;
+        END;
+
+        PRINT N'Đã xong Store ' + CAST(@CurrentStoreIndex AS NVARCHAR(20))
+              + N'/' + CAST(@TotalStores AS NVARCHAR(20));
+
+        SET @CurrentStoreIndex += 1;
+    END;
+
+    PRINT N'Hoàn tất.';
+END TRY
+BEGIN CATCH
+    IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+    PRINT N'Lỗi tổng thể: ' + ERROR_MESSAGE();
+END CATCH;
+
+-- Dọn dẹp
+IF OBJECT_ID('tempdb..#TempStores')   IS NOT NULL DROP TABLE #TempStores;
+IF OBJECT_ID('tempdb..#TempProducts') IS NOT NULL DROP TABLE #TempProducts;

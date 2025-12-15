@@ -68,18 +68,22 @@ export class HomeComponent implements OnInit {
     0: {
       slidesPerView: 1,
       grid: { rows: 2, fill: 'row' },
+      spaceBetween: 8,
     },
     425: {
       slidesPerView: 2,
       grid: { rows: 2, fill: 'row' },
+      spaceBetween: 8,
     },
     768: {
       slidesPerView: 3,
       grid: { rows: 2, fill: 'row' },
+      spaceBetween: 8,
     },
     1024: {
       slidesPerView: 4,
       grid: { rows: 2, fill: 'row' },
+      spaceBetween: 8,
     },
   };
   breakpoints = {
