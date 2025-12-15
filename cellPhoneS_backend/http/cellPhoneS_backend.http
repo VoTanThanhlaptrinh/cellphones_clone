@@ -39,6 +39,10 @@ Authorization: Bearer {{token}}
 GET {{cellPhoneS_backend_HostAddress}}/api/home
 Accept: application/json
 
+### Category (Get products of category)
+GET {{cellPhoneS_backend_HostAddress}}/api/category/3/1
+Accept: application/json
+
 ### Migration ElasticSearch (Get homepage data)
 POST   {{cellPhoneS_backend_HostAddress}}/api/migrate-data
 Accept: application/json

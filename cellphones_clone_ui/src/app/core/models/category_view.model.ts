@@ -17,3 +17,12 @@ export interface BrandView {
     id: number;
     name: string;
 }
+
+export interface CategoryDetailView {
+    id: number;
+    name: string;
+    demands: DemandView[];
+    brands: BrandView[];
+    products: ProductView[];
+    total: number;
+}

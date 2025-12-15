@@ -19,6 +19,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<InitService, InitServiceImpl>();
         services.AddScoped<ProductService, ProductServiceImpl>();
         services.AddScoped<ShippingFeeService, ShippingFeeServiceImpl>();
+        services.AddScoped<CategoryService, CategoryServiceImpl>();
         return services;
     }
 }
