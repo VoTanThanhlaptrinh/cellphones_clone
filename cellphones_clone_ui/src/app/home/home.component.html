@@ -6,14 +6,18 @@
       class="flex-1 hidden lg:block max-w-[230px] shadow-sm rounded-lg card font-light text-gray-700"
     >
       <nav>
-        <ul 
-        >
-          <li class="relative" (mouseenter)="show = true" (mouseleave)="show = false">
-            <div class="flex flex-col gap-y-2 text-xs font-normal py-1 " >
+        <ul>
+          <li
+            class="relative"
+            (mouseenter)="show = true"
+            (mouseleave)="show = false"
+          >
+            <div class="flex flex-col gap-y-2 text-xs font-normal py-1">
               @for (item of categories; track $index) {
               <div
-                class="flex justify-between items-center gap-x-2 font-semibold  hover:bg-neutral-100 px-2 py-1"
-              (mouseover)="i = $index">
+                class="flex justify-between items-center gap-x-2 font-semibold hover:bg-neutral-100 px-2 py-1"
+                (mouseover)="i = $index"
+              >
                 <img
                   class="img-fluid w-7 h-6"
                   src="{{ item.src }}"
@@ -34,12 +38,13 @@
                   ></path>
                 </svg>
               </div>
-            }
+              }
             </div>
-            
-              @if (show) {
-              <div
-              class="absolute transition-opacity duration-1000 shadow bg-white left-[calc(100%+8px)] top-0 w-[1000px] h-[480px] px-4 py-2 rounded-lg z-[1000]">
+
+            @if (show) {
+            <div
+              class="absolute transition-opacity duration-1000 shadow bg-white left-[calc(100%+8px)] top-0 w-[1000px] h-[480px] px-4 py-2 rounded-lg z-[1000]"
+            >
               <div class="flex flex-wrap gap-2">
                 @for (tab of categories[i].tabs; track tab.title) {
                 <div class="flex flex-col gap-2">
@@ -63,7 +68,6 @@
               </div>
             </div>
             }
-            
           </li>
         </ul>
       </nav>
@@ -169,408 +173,82 @@
     </div>
   </div>
 </main>
-<section class="mt-3 container md:max-w-[1200px] mx-auto bg-white">
-  <img
-    src="https://cdn2.cellphones.com.vn/insecure/rs:fill:1200:75/q:90/plain/https://dashboard.cellphones.com.vn/storage/special-b2s-dday3-d.gif"
-    width="1200"
-    height="75"
-    alt="B2S 2025 - DDAY2"
-    loading="lazy"
-    class="shadow-[0_2px_4px_rgba(0,0,0,0.2)] rounded-lg sm:hidden md:hidden lg:block"
-  />
-  <img
-    src="https://cdn2.cellphones.com.vn/insecure/rs:fill:800:150/q:90/plain/https://dashboard.cellphones.com.vn/storage/special-b2s-dday3-m.gif"
-    width="800"
-    height="150"
-    alt="B2S 2025 - DDAY2"
-    loading="lazy"
-    class="horizontal-banner__img mobile lg:hidden"
-  />
-</section>
-<section
-  class="mt-3 container md:max-w-[1200px] items-center w-full mx-auto bg-white"
->
+<img
+  alt="ƯU ĐÃI SINH VIÊN"
+  loading="lazy"
+  width="1200"
+  height="75"
+  decoding="async"
+  data-nimg="1"
+  class="transition-opacity duration-500 md:max-w-[1200px] opacity-100 object-contain hidden w-full mx-auto rounded-lg shadow-md md:block"
+  style="color: transparent"
+  src="https://cdn2.cellphones.com.vn/insecure/rs:fill:1200:75/q:90/plain/https://dashboard.cellphones.com.vn/storage/s-edu-2-0-special-desk.gif"
+/>
+@for (category of home_view?.categories; track category.name; let i = $index) {
+<section class="mt-2">
   <div
-    class="rounded-lg shadow-[0_2px_4px_rgba(0,0,0,0.2)] w-full py-2 px-2 main-color"
+    class="flex container mx-auto max-w-[1200px] items-center text-black gap-x-2"
   >
-    <ngx-slick-carousel
-      class="carousel"
-      #slickModal="slick-carousel"
-      [config]="slideConfig"
-    >
-      @for (slide of slides; track $index) {
-      <div class="flex-column items-center justify-center">
-        <div
-          ngxSlickItem (click)="goProductDetail()"
-          class="card flex items-center mx-2 md:my-2 md:ms-1 shadow-[0_2px_4px_rgba(0,0,0,0.2)] border sm:w-[auto] sm:h-[auto] md:w-[225px] md:h-[310px] border-gray-200 bg-white slide"
-        >
-          <img
-            class="rounded-lg img-fluid w-[150px] h-[150px] md:mt-3"
-            alt=""
-            loading="lazy"
-            src="{{ slide.img }}"
-          />
-          <h4 class="text-gray-700 w-full ms-4 text-base font-semibold mt-3">
-            Tên Sản phẩm
-          </h4>
-          <h4 class="text-gray-700 w-full ms-4 text-sm font-semibold">
-            Chính hãng Apple Việt Nam
-          </h4>
-          <span class="main-text-color w-full ms-4 mt-2 font-semibold"
-            >10.000.000đ
-            <span class="line-through font-normal text-gray-600"
-              >8.900.000đ</span
-            ></span
-          >
-          <div
-            class="items-start flex justify-content-center w-full my-auto relative"
-          >
-            <img
-              src="https://cdn2.cellphones.com.vn/x/media/wysiwyg/flash_2.png"
-              loading="lazy"
-              class="img-fluid w-[20px] h-[20px] absolute left-1"
-            />
-            <div
-              class="text-sm sold-text text-white rounded-lg text-center w-[95%] mx-auto"
-            >
-              <p>Đã bán 0/15 suất</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      }
-    </ngx-slick-carousel>
-  </div>
-</section>
-<section
-  class="mt-3 container md:max-w-[1200px] my-1 items-center w-full mx-auto bg-recommend"
->
-  <div class="rounded-lg shadow-[0_2px_4px_rgba(0,0,0,0.2)] w-full pt-3 px-2">
-    <div class="flex-row flex items-center">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="40"
-        height="40"
-        viewBox="0 0 1080 1080"
-        fill="none"
-      >
-        <path
-          d="M515.09 725.824L472.006 824.503C455.444 862.434 402.954 862.434 386.393 824.503L343.308 725.824C304.966 638.006 235.953 568.104 149.868 529.892L31.2779 477.251C-6.42601 460.515 -6.42594 405.665 31.2779 388.929L146.164 337.932C234.463 298.737 304.714 226.244 342.401 135.431L386.044 30.2693C402.239 -8.75637 456.159 -8.75646 472.355 30.2692L515.998 135.432C553.685 226.244 623.935 298.737 712.234 337.932L827.121 388.929C864.825 405.665 864.825 460.515 827.121 477.251L708.53 529.892C622.446 568.104 553.433 638.006 515.09 725.824Z"
-          fill="url(#paint0_radial_2525_777)"
-        ></path>
-        <path
-          d="M915.485 1036.98L903.367 1064.75C894.499 1085.08 866.349 1085.08 857.481 1064.75L845.364 1036.98C823.765 987.465 784.862 948.042 736.318 926.475L698.987 909.889C678.802 900.921 678.802 871.578 698.987 862.61L734.231 846.951C784.023 824.829 823.623 783.947 844.851 732.75L857.294 702.741C865.966 681.826 894.882 681.826 903.554 702.741L915.997 732.75C937.225 783.947 976.826 824.829 1026.62 846.951L1061.86 862.61C1082.05 871.578 1082.05 900.921 1061.86 909.889L1024.53 926.475C975.987 948.042 937.083 987.465 915.485 1036.98Z"
-          fill="url(#paint1_radial_2525_777)"
-        ></path>
-        <defs>
-          <radialGradient
-            id="paint0_radial_2525_777"
-            cx="0"
-            cy="0"
-            r="1"
-            gradientUnits="userSpaceOnUse"
-            gradientTransform="translate(670.447 474.006) rotate(78.858) scale(665.5 665.824)"
-          >
-            <stop stop-color="#1BA1E3"></stop>
-            <stop offset="0.0001" stop-color="#1BA1E3"></stop>
-            <stop offset="0.300221" stop-color="#5489D6"></stop>
-            <stop offset="0.545524" stop-color="#9B72CB"></stop>
-            <stop offset="0.825372" stop-color="#D96570"></stop>
-            <stop offset="1" stop-color="#F49C46"></stop>
-          </radialGradient>
-          <radialGradient
-            id="paint1_radial_2525_777"
-            cx="0"
-            cy="0"
-            r="1"
-            gradientUnits="userSpaceOnUse"
-            gradientTransform="translate(670.447 474.006) rotate(78.858) scale(665.5 665.824)"
-          >
-            <stop stop-color="#1BA1E3"></stop>
-            <stop offset="0.0001" stop-color="#1BA1E3"></stop>
-            <stop offset="0.300221" stop-color="#5489D6"></stop>
-            <stop offset="0.545524" stop-color="#9B72CB"></stop>
-            <stop offset="0.825372" stop-color="#D96570"></stop>
-            <stop offset="1" stop-color="#F49C46"></stop>
-          </radialGradient>
-        </defs>
-      </svg>
-      <h2 class="recommend-text text-3xl">Gợi ý cho bạn</h2>
+    <div class="flex-col flex gap-y-1">
+      <img
+        class="rounded-lg max-w-[200px]"
+        alt=""
+        loading="lazy"
+        src="https://cdn2.cellphones.com.vn/insecure/rs:fill:321:795/q:90/plain/https://media-asset.cellphones.com.vn/page_configs/01K8AK76MB2NCC8QHS16T26ES2.png"
+      />
+      <img
+        class="rounded-lg max-w-[200px]"
+        alt=""
+        loading="lazy"
+        src="https://cdn2.cellphones.com.vn/insecure/rs:fill:321:795/q:90/plain/https://media-asset.cellphones.com.vn/page_configs/01K8AK76MB2NCC8QHS16T26ES2.png"
+      />
     </div>
-    <div class="relative">
+    <div class="flex-col flex gap-y-2 mt-2 min-w-0">
       @if (isBrowser) {
       <swiper-container
         navigation="true"
         thumbs-swiper=".thumbs"
-        loop="true"
-        [breakpoints]="this.breakpoints"
-        navigation-next-el=".custom-next-button"
-        navigation-prev-el=".custom-prev-button"
-      >
-        @for (src of slides; track $index) {
-        <swiper-slide class="my-3">
-          <div
-            class="card items-center md:my-4 max-w-[250px] ms-2 shadow-[0_2px_4px_rgba(0,0,0,0.2)] border border-gray-200 flex bg-white slide"
-            (click)="goProductDetail()"
-          >
-            <img
-              class="rounded-lg w-[150px] h-[150px]"
-              alt=""
-              loading="lazy"
-              [src]="src.img"
-            />
-            <h4 class="text-gray-700 w-full ms-4 text-base font-semibold mt-6">
-              Tên Sản phẩm
-            </h4>
-            <h4 class="text-gray-700 w-full ms-4 text-sm font-semibold">
-              Chính hãng Apple Việt Nam
-            </h4>
-            <span class="main-text-color w-full ms-4 mt-2 font-semibold"
-              >10.000.000đ
-              <span class="line-through font-normal text-gray-600"
-                >8.900.000đ</span
-              ></span
-            >
-
-            <span
-              class="bg-recommend-text w-[95%] ms-2 text-xs text-left rounded-lg"
-              >S-Student giảm thêm xxxđ</span
-            >
-            <div class="flex ml-auto">
-              <button
-                type="button"
-                class="bg-white flex-column flex favorite-btn favorite-text hover:bg-gray-100 my-2 rounded-lg py-1 px-2"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="md:w-10 md:h-7"
-                  stroke="#3b82f6"
-                >
-                  <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                  <g
-                    id="SVGRepo_tracerCarrier"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  ></g>
-                  <g id="SVGRepo_iconCarrier">
-                    <path
-                      fill-rule="evenodd"
-                      clip-rule="evenodd"
-                      d="M12 6.00019C10.2006 3.90317 7.19377 3.2551 4.93923 5.17534C2.68468 7.09558 2.36727 10.3061 4.13778 12.5772C5.60984 14.4654 10.0648 18.4479 11.5249 19.7369C11.6882 19.8811 11.7699 19.9532 11.8652 19.9815C11.9483 20.0062 12.0393 20.0062 12.1225 19.9815C12.2178 19.9532 12.2994 19.8811 12.4628 19.7369C13.9229 18.4479 18.3778 14.4654 19.8499 12.5772C21.6204 10.3061 21.3417 7.07538 19.0484 5.17534C16.7551 3.2753 13.7994 3.90317 12 6.00019Z"
-                      stroke="#3b82f6"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    ></path>
-                  </g>
-                </svg>
-                <svg
-                  fill="#3b82f6"
-                  viewBox="0 0 24 24"
-                  class="md:w-10 md:h-7 hidden"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                  <g
-                    id="SVGRepo_tracerCarrier"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  ></g>
-                  <g id="SVGRepo_iconCarrier">
-                    <path
-                      fill-rule="evenodd"
-                      d="M12,20.9996 L3.847,13.2406 C2.656,12.1076 2,10.5986 2,8.9916 C2,7.3846 2.656,5.8756 3.847,4.7416 C6.067,2.6286 9.552,2.4386 12,4.1686 C14.448,2.4386 17.933,2.6286 20.153,4.7416 C21.344,5.8756 22,7.3846 22,8.9916 C22,10.5986 21.344,12.1076 20.153,13.2406 L12,20.9996 Z"
-                    ></path>
-                  </g>
-                </svg>
-                <p class="w-full">Yêu thích</p>
-              </button>
-            </div>
-          </div>
-        </swiper-slide>
-        }
-        <!-- Ẩn/hiện mũi tên khi hover (dùng ::part) -->
-        <div slot="container-end"></div>
-      </swiper-container>
-      }
-
-      <div slot="container-end" class="pointer-events-none text-black">
-        <div
-          class="custom-prev-button pointer-events-auto absolute left-2 top-2/4 -translate-y-1/2 z-10 h-10 w-10 grid place-items-center rounded-full bg-white/90 border border-gray-200 shadow"
-        >
-          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-            <path
-              d="M15 18l-6-6 6-6"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </div>
-
-        <div
-          class="custom-next-button pointer-events-auto absolute right-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 grid place-items-center rounded-full bg-white/90 border border-gray-200 shadow"
-        >
-          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-            <path
-              d="M9 6l6 6-6 6"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-@for (device of list_device; track device.typeName; let i = $index) {
-<section
-  class="my-3 container md:max-w-[1200px] items-center mx-auto bg-recommend"
->
-  <div class="w-full pt-3 px-2 text-black">
-    <div class="flex flex-wrap justify-between items-center gap-2">
-      <div>
-        <a href="#" class="text-3xl font-medium">{{ device.signature }}</a>
-      </div>
-      <div class="flex gap-x-3 overflow-x-auto">
-        @for (brand of device.brandName; track brand) {
-        <div
-          class="bg-gray-100 text-sm border-1/2 border-gray-800 py-2 px-4 rounded-lg"
-        >
-          <a href="#">{{ brand }}</a>
-        </div>
-        }
-      </div>
-    </div>
-    <div class="relative mt-2">
-      @if (isBrowser) {
-      <swiper-container
-        navigation="true"
-        thumbs-swiper=".thumbs"
-        space-between="10"
         [breakpoints]="this.breakpoints"
         [style.--swiper-navigation-color]="'#21130d'"
-        [style.--swiper-navigation-size.px]="12"
+        [style.--swiper-navigation-size.px]="8"
         [style.--swiper-pagination-color]="'#21130d'"
         [style.--swiper-theme-color]="'#21130d'"
       >
-        @for (src of slides; track $index) {
-        <swiper-slide>
-          <div (click)="goProductDetail()"
-            class="card relative items-center max-w-[220px] md:my-4 shadow-[0_2px_4px_rgba(0,0,0,0.2)] border border-gray-200 flex bg-white slide"
-          >
-            <div
-              class="flex absolute left-2 top-[-12px] discount-bg text-white px-4 py-2 rounded items-center gap-x-1"
-            >
-              <span class="text-[11px] mt-1 md:mt-0"> Giảm </span>
-              <span class="text-xs font-medium">17%</span>
-            </div>
-            <div
-              class="flex absolute right-[-12px] top-[-7px] installment-bg text-white px-4 py-2 rounded gap-1"
-            >
-              <p class="text-[11px] mb-2">Trả góp</p>
-              <p class="text-[11px] font-medium">0%</p>
-            </div>
-            <img
-              class="rounded-lg mt-6 w-[150px] h-[150px] hover:scale-105 duration-500 transform-gpu"
-              alt=""
-              loading="lazy"
-              [src]="src.img"
-            />
-            <h4 class="text-gray-700 w-full ms-4 text-base font-semibold mt-3">
-              Tên Sản phẩm
-            </h4>
-            <h4 class="text-gray-700 w-full ms-4 text-sm font-semibold">
-              Chính hãng Apple Việt Nam
-            </h4>
-            <div class="flex flex-col me-auto md:flex-row md:items-center">
-              <p class="main-text-color w-full ms-2 lg:ms-4 mt-2 font-semibold">
-                10.000.000đ
-              </p>
-              <p class="line-through font-normal ms-2 md:ms-0 text-gray-600">
-                8.900.000đ
-              </p>
-            </div>
+        @for (demand of category.demands; track demand) {
+        <swiper-slide class="bg-gray-100 flex-wrap items-center border-0 py-2 px-4 me-1 rounded-lg h-[70px]">
+            <a href="#">{{ demand.name! }}</a>
+        </swiper-slide>
+        }
+      </swiper-container>
 
-            <span
-              class="bg-recommend-text w-[95%] ms-2 text-xs text-left rounded-lg"
-              >S-Student giảm thêm xxxđ</span
-            >
-            <div class="flex justify-between w-full items-center">
-              <div class="flex items-center ms-2 gap-2">
-                <svg
-                  height="15"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 576 512"
-                >
-                  <path
-                    fill="#fbbf24"
-                    d="M381.2 150.3L524.9 171.5C536.8 173.2 546.8 181.6 550.6 193.1C554.4 204.7 551.3 217.3 542.7 225.9L438.5 328.1L463.1 474.7C465.1 486.7 460.2 498.9 450.2 506C440.3 513.1 427.2 514 416.5 508.3L288.1 439.8L159.8 508.3C149 514 135.9 513.1 126 506C116.1 498.9 111.1 486.7 113.2 474.7L137.8 328.1L33.58 225.9C24.97 217.3 21.91 204.7 25.69 193.1C29.46 181.6 39.43 173.2 51.42 171.5L195 150.3L259.4 17.97C264.7 6.954 275.9-.0391 288.1-.0391C300.4-.0391 311.6 6.954 316.9 17.97L381.2 150.3z"
-                  ></path>
-                </svg>
-                <p class="text-lg">5</p>
-              </div>
-              <div>
-                <button
-                  type="button"
-                  class="bg-white flex-column flex favorite-btn favorite-text hover:bg-gray-100 my-2 rounded-lg py-1 px-2"
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="md:w-10 md:h-7"
-                    stroke="#3b82f6"
-                  >
-                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                    <g
-                      id="SVGRepo_tracerCarrier"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    ></g>
-                    <g id="SVGRepo_iconCarrier">
-                      <path
-                        fill-rule="evenodd"
-                        clip-rule="evenodd"
-                        d="M12 6.00019C10.2006 3.90317 7.19377 3.2551 4.93923 5.17534C2.68468 7.09558 2.36727 10.3061 4.13778 12.5772C5.60984 14.4654 10.0648 18.4479 11.5249 19.7369C11.6882 19.8811 11.7699 19.9532 11.8652 19.9815C11.9483 20.0062 12.0393 20.0062 12.1225 19.9815C12.2178 19.9532 12.2994 19.8811 12.4628 19.7369C13.9229 18.4479 18.3778 14.4654 19.8499 12.5772C21.6204 10.3061 21.3417 7.07538 19.0484 5.17534C16.7551 3.2753 13.7994 3.90317 12 6.00019Z"
-                        stroke="#3b82f6"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      ></path>
-                    </g>
-                  </svg>
-                  <svg
-                    fill="#3b82f6"
-                    viewBox="0 0 24 24"
-                    class="md:w-10 md:h-7 hidden"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                    <g
-                      id="SVGRepo_tracerCarrier"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    ></g>
-                    <g id="SVGRepo_iconCarrier">
-                      <path
-                        fill-rule="evenodd"
-                        d="M12,20.9996 L3.847,13.2406 C2.656,12.1076 2,10.5986 2,8.9916 C2,7.3846 2.656,5.8756 3.847,4.7416 C6.067,2.6286 9.552,2.4386 12,4.1686 C14.448,2.4386 17.933,2.6286 20.153,4.7416 C21.344,5.8756 22,7.3846 22,8.9916 C22,10.5986 21.344,12.1076 20.153,13.2406 L12,20.9996 Z"
-                      ></path>
-                    </g>
-                  </svg>
-                  <p class="w-full">Yêu thích</p>
-                </button>
-              </div>
-            </div>
-          </div>
+      <swiper-container
+        navigation="true"
+        thumbs-swiper=".thumbs"
+        [breakpoints]="this.breakpoints2"
+        [style.--swiper-navigation-color]="'#21130d'"
+        [style.--swiper-navigation-size.px]="0"
+        [style.--swiper-pagination-color]="'#21130d'"
+        [style.--swiper-theme-color]="'#21130d'"
+      >
+        @for (brand of category.brands; track brand) {
+        <swiper-slide class=" w-auto text-sm border border-gray-400 py-1 px-4 rounded-full">
+            <a href="#">{{ brand.name! }}</a>
+        </swiper-slide>
+        }
+      </swiper-container>
+
+      <swiper-container
+        navigation="true"
+        thumbs-swiper=".thumbs"
+        [breakpoints]="this.breakpoints1"
+        [style.--swiper-navigation-color]="'#21130d'"
+        [style.--swiper-navigation-size.px]="8"
+        [style.--swiper-pagination-color]="'#21130d'"
+        [style.--swiper-theme-color]="'#21130d'"
+      >
+        @for (product of category.products; track product.id) {
+        <swiper-slide>
+          <app-product-card [productView]="product"> </app-product-card>
         </swiper-slide>
         }
       </swiper-container>
@@ -590,7 +268,7 @@
       <div
         class="bg-gray-100 rounded-lg flex flex-col items-center p-2 gap-y-2 h-[120px] w-[120px]"
       >
-        <img src="{{ phu_kien.src }}" loading="lazy" class="w-18 h-15" />
+        <img src="{{ phu_kien.src }}" loading="lazy" class="w-18 h-15" alt="" />
         <p class="font-medium text-xs text-center">{{ phu_kien.name }}</p>
       </div>
       }
@@ -598,4 +276,3 @@
   </div>
 </section>
 }
-

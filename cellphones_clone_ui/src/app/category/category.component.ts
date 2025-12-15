@@ -1,22 +1,56 @@
-import { isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser, NgTemplateOutlet } from '@angular/common';
 import {
+  AfterViewInit,
+  ChangeDetectorRef,
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
   Inject,
+  OnInit,
   PLATFORM_ID,
 } from '@angular/core';
-
+import { CategoryService } from '../services/category.service';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { CategoryDetailView, CategoryView } from '../core/models/category_view.model';
+import { ProductCardComponent } from "../product-card/product-card.component";
+import { ProductView } from '../core/models/product.model';
+import { delay } from 'rxjs';
 @Component({
   selector: 'app-category',
-  imports: [],
+  imports: [ProductCardComponent],
   templateUrl: './category.component.html',
   styleUrl: './category.component.css',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class CategoryComponent {
+export class CategoryComponent implements OnInit {
   isBrowser = false;
-  constructor(@Inject(PLATFORM_ID) platformId: Object) {
+  categoryId: number = 0;
+  products: ProductView[] = [];
+  page: number = 1;               // Trang hiện tại
+  isLoading = false;        // Biến cờ để hiện Skeleton
+  hasMore = true;           // Kiểm tra xem còn dữ liệu để tải không
+  total = 0;
+  data: CategoryDetailView | null = null;
+  constructor(@Inject(PLATFORM_ID) platformId: Object, private cdr: ChangeDetectorRef,
+    private categoryService: CategoryService,
+    private activatedRoute: ActivatedRoute) {
     this.isBrowser = isPlatformBrowser(platformId);
+  }
+  ngOnInit(): void {
+    this.categoryId = Number(this.activatedRoute.snapshot.paramMap.get('id'))
+    this.categoryService.GetCategoryDetail(this.categoryId).subscribe({
+      next: response => {
+        delay(2000);
+        if (response && response.products) {
+          this.data = response
+          this.products = [...response.products, ...this.products]
+          this.total = response.total - response.products.length
+          this.cdr.detectChanges()
+        }
+      },
+      error: reportError => {
+        console.log(reportError)
+      }
+    });
   }
   slides1 = [
     'https://cdn2.cellphones.com.vn/insecure/rs:fill:595:100/q:100/plain/https://dashboard.cellphones.com.vn/storage/595x100_iPhone_17_Pro_opensale_v3.png',
@@ -36,123 +70,30 @@ export class CategoryComponent {
     'https://cdn2.cellphones.com.vn/insecure/rs:fill:595:100/q:100/plain/https://dashboard.cellphones.com.vn/storage/xiaomi-15t-5g-cate-0925.png',
     'https://cdn2.cellphones.com.vn/insecure/rs:fill:595:100/q:100/plain/https://dashboard.cellphones.com.vn/storage/595x100_iPhone_17_Pro_opensale_v3.png',
   ];
-  category_list = [
-    {
-      src: 'https://cdn2.cellphones.com.vn/insecure/rs:fill:0:50/q:30/plain/https://cellphones.com.vn/media/tmp/catalog/product/f/r/frame_59.png',
-      alt: 'Điện thoại Apple',
-    },
-    {
-      src: 'https://cdn2.cellphones.com.vn/insecure/rs:fill:0:50/q:30/plain/https://cellphones.com.vn/media/tmp/catalog/product/f/r/frame_60.png',
-      alt: 'Điện thoại Samsung',
-    },
-    {
-      src: 'https://cdn2.cellphones.com.vn/insecure/rs:fill:0:50/q:30/plain/https://cellphones.com.vn/media/tmp/catalog/product/f/r/frame_61.png',
-      alt: 'Điện thoại Xiaomi',
-    },
-    {
-      src: 'https://cdn2.cellphones.com.vn/insecure/rs:fill:0:50/q:30/plain/https://cellphones.com.vn/media/tmp/catalog/product/f/r/frame_62.png',
-      alt: 'Điện thoại OPPO',
-    },
-    {
-      src: 'https://cdn2.cellphones.com.vn/insecure/rs:fill:0:50/q:30/plain/https://cellphones.com.vn/media/tmp/catalog/product/f/r/frame_69_1_.png',
-      alt: 'Điện thoại Tecno',
-    },
-    {
-      src: 'https://cdn2.cellphones.com.vn/insecure/rs:fill:0:50/q:30/plain/https://cellphones.com.vn/media/wysiwyg/HONOR.png',
-      alt: 'HONOR',
-    },
-    {
-      src: 'https://cdn2.cellphones.com.vn/insecure/rs:fill:0:50/q:30/plain/https://cellphones.com.vn/media/wysiwyg/nubia_1.png',
-      alt: 'Điện thoại Nubia',
-    },
-    {
-      src: 'https://cdn2.cellphones.com.vn/insecure/rs:fill:0:50/q:30/plain/https://cellphones.com.vn/media/catalog/product/b/r/brand-icon-sony_2.png',
-      alt: 'Điện thoại Sony',
-    },
-    {
-      src: 'https://cdn2.cellphones.com.vn/insecure/rs:fill:0:50/q:30/plain/https://cellphones.com.vn/media/tmp/catalog/product/f/r/frame_37_1.png',
-      alt: 'Điện thoại Nokia',
-    },
-    {
-      src: 'https://cdn2.cellphones.com.vn/insecure/rs:fill:0:50/q:30/plain/https://cellphones.com.vn/media/tmp/catalog/product/i/n/infinixlogo.png',
-      alt: 'Điện thoại Infinix',
-    },
-    {
-      src: 'https://cdn2.cellphones.com.vn/insecure/rs:fill:0:50/q:30/plain/https://cellphones.com.vn/media/wysiwyg/nothing-phone.png',
-      alt: 'Điện thoại Nothing Phone',
-    },
-    {
-      src: 'https://cdn2.cellphones.com.vn/insecure/rs:fill:0:50/q:30/plain/https://cellphones.com.vn/media/wysiwyg/masstel-mobile-logo022.png',
-      alt: 'Điện thoại Masstel',
-    },
-    {
-      src: 'https://cdn2.cellphones.com.vn/insecure/rs:fill:0:50/q:30/plain/https://cellphones.com.vn/media/tmp/catalog/product/f/r/frame_63.png',
-      alt: 'Điện thoại realme',
-    },
-    {
-      src: 'https://cdn2.cellphones.com.vn/insecure/rs:fill:0:50/q:30/plain/https://cellphones.com.vn/media/wysiwyg/logo-itel-11.png',
-      alt: 'Điện thoại Itel',
-    },
-    {
-      src: 'https://cdn2.cellphones.com.vn/insecure/rs:fill:0:50/q:30/plain/https://cellphones.com.vn/media/tmp/catalog/product/t/_/t_i_xu_ng_67_.png',
-      alt: 'Điện thoại vivo',
-    },
-    {
-      src: 'https://cdn2.cellphones.com.vn/insecure/rs:fill:0:50/q:30/plain/https://cellphones.com.vn/media/tmp/catalog/product/f/r/frame_65.png',
-      alt: 'Điện thoại OnePlus',
-    },
-    {
-      src: 'https://cdn2.cellphones.com.vn/insecure/rs:fill:0:50/q:30/plain/https://cellphones.com.vn/media/tmp/catalog/product/t/i/tivi-logo-cate.png',
-      alt: 'Điện thoại TCL',
-    },
-    {
-      src: 'https://cdn2.cellphones.com.vn/insecure/rs:fill:0:50/q:30/plain/https://cellphones.com.vn/media/wysiwyg/iinoi-mobile-logo022.png',
-      alt: 'Điện thoại INOI',
-    },
-    {
-      src: 'https://cdn2.cellphones.com.vn/insecure/rs:fill:0:50/q:30/plain/https://cellphones.com.vn/media/wysiwyg/Icon/logo-benco-icon-cate-menu.png',
-      alt: 'Điện thoại Benco',
-    },
-    {
-      src: 'https://cdn2.cellphones.com.vn/insecure/rs:fill:0:50/q:30/plain/https://cellphones.com.vn/media/tmp/catalog/product/f/r/frame_67.png',
-      alt: 'Điện thoại ASUS',
-    },
-  ];
-  phoneCategories = [
-  {
-    "src": "https://cdn2.cellphones.com.vn/insecure/rs:fill:150:0/q:70/plain/https://cellphones.com.vn/media/wysiwyg/dien-thoai-gaming-icon-cate.png",
-    "alt": "Điện thoại chơi game",
-    "text": "Điện thoại chơi game"
-  },
-  {
-    "src": "https://cdn2.cellphones.com.vn/insecure/rs:fill:150:0/q:70/plain/https://cellphones.com.vn/media/wysiwyg/dien-thoai-pin-trau-icon-cate.png",
-    "alt": "Điện thoại pin trâu",
-    "text": "Điện thoại pin trâu"
-  },
-  {
-    "src": "https://cdn2.cellphones.com.vn/insecure/rs:fill:150:0/q:70/plain/https://cellphones.com.vn/media/wysiwyg/dien-thoai-5g-icon-cate.png",
-    "alt": "Điện thoại 5G",
-    "text": "Điện thoại 5G"
-  },
-  {
-    "src": "https://cdn2.cellphones.com.vn/insecure/rs:fill:150:0/q:70/plain/https://cellphones.com.vn/media/wysiwyg/dien-thoai-chup-anh-dep-icon-cate.png",
-    "alt": "Điện thoại chụp ảnh đẹp",
-    "text": "Điện thoại chụp ảnh đẹp"
-  },
-  {
-    "src": "https://cdn2.cellphones.com.vn/insecure/rs:fill:150:0/q:70/plain/https://cellphones.com.vn/media/wysiwyg/dien-thoai-gap-icon-cate.png",
-    "alt": "Điện thoại gập",
-    "text": "Điện thoại gập"
-  },
-  {
-    "src": "https://cdn2.cellphones.com.vn/insecure/rs:fill:150:0/q:70/plain/https://cellphones.com.vn/media/wysiwyg/dien-thoai-ai-icon-cate.png",
-    "alt": "Điện thoại AI",
-    "text": "Điện thoại AI"
-  },
-  {
-    "src": "https://cdn2.cellphones.com.vn/insecure/rs:fill:150:0/q:70/plain/https://cellphones.com.vn/media/wysiwyg/dien-thoai-pho-thong-icon-cate.png",
-    "alt": "Điện thoại phổ thông",
-    "text": "Điện thoại phổ thông"
+  loadMore() {
+    this.page += 1
+    this.categoryService.LoadMoreProduct(this.categoryId, this.page).subscribe({
+      next: res => {
+        console.log(res)
+        if (res && res.length > 0) {
+          this.products = [...this.products, ...res];
+          this.total = this.total - res.length;
+          this.cdr.detectChanges()
+        }
+      },
+      error: e => {
+        console.error(e)
+        this.hasMore = false
+        this.isLoading = false;
+      },
+      complete: () => {
+        this.hasMore = this.total >= 1;
+        this.isLoading = false
+        this.cdr.detectChanges()
+      }
+    });
   }
-];
+  getRemainingCount() {
+    return this.total
+  }
 }

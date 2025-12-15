@@ -23,6 +23,25 @@ namespace cellphones_backend.Controllers
             var res = await _productService.GetProducts(page, size);
             return HandleResult(res);
         }
+        [HttpGet("brand/{brandId}/{page}/{size}")]
+        public async Task<ActionResult<ApiResponse<List<ProductView>>>> ListProductByBrand(long brandId, int page, int size)
+        {
+            var res = await _productService.GetProductsByBrand(brandId, page, size);
+            return HandleResult(res);
+        }
+        [HttpGet("series/{seriesId}/{page}/{size}")]
+        public async Task<ActionResult<ApiResponse<List<ProductView>>>> ListProductBySeries(long seriesId, int page, int size)
+        {
+            var res = await _productService.GetProductsBySeries(seriesId, page, size);
+            return HandleResult(res);
+        }
+        [HttpGet("category/{categoryId}/{page}/{size}")]
+        public async Task<ActionResult<ApiResponse<List<ProductView>>>> ListProductByCategory(long categoryId, int page, int size)
+        {
+            var res = await _productService.GetProductsByCategory(categoryId, page, size);
+            return HandleResult(res);
+        }
+        
         [HttpGet("{productId}")]
         public async Task<ActionResult<ApiResponse<ProductViewDetail>>> GetProduct(long productId)
         {
@@ -39,16 +58,10 @@ namespace cellphones_backend.Controllers
         {
             return null!;
         }
-        [HttpDelete("{productId}")]
+        [HttpDelete("/{productId}")]
         public async Task<ActionResult<ApiResponse<string>>> DeleteProduct(long productId)
         {
-            return HandleResult( await _productService.DeleteProduct(productId));
-        }
-        [HttpGet("search/{keyword}/{page}/{size}")]
-        public async Task<ActionResult<ApiResponse<List<ProductView>>>> SearchProducts(string keyword, int page, int size)
-        {
-            var res = await _productService.SearchProducts(keyword, page, size);
-            return HandleResult(res);
+            return HandleResult(await _productService.DeleteProduct(productId));
         }
     }
 

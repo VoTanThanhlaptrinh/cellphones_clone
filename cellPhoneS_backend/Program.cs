@@ -1,24 +1,17 @@
 
 
 using cellphones_backend.Data;
-
 using cellphones_backend.Resources;
-using cellphones_backend.Services;
-using cellphones_backend.Services.Implement;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using cellphones_backend.Models;
 using Microsoft.Extensions.Azure;
 using cellPhoneS_backend.Services;
-using cellPhoneS_backend.Services.Implement;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
-using Microsoft.AspNetCore.OpenApi;
-using cellPhoneS_backend.DTOs;
-using System.Text.Json;
-using cellPhoneS_backend.Models;
-using cellphones_backend.Repositories; // add repo registration extension
+using cellphones_backend.Repositories;
+using Elastic.Clients.Elasticsearch; // add repo registration extension
 
 internal class Program
 {
@@ -37,7 +30,14 @@ internal class Program
         })
             .AddEntityFrameworkStores<ApplicationDbContext>()  // ⚡ cái này tạo UserManager/RoleManager
             .AddDefaultTokenProviders();
-
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("CorsPolicy", builder =>
+            {
+                builder.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:4200");
+                    
+            });
+        });
         builder.Services.AddAuthentication().AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, jwtOptions =>
         {
             jwtOptions.TokenValidationParameters = new TokenValidationParameters
@@ -65,7 +65,7 @@ internal class Program
         builder.Services.AddControllers();
         builder.Services.AddCustomServices();
         builder.Services.AddHttpClient();
-    // Register all repositories
+        // Register all repositories
         builder.Services.AddRepositories();
 
         var supportedCultures = new[] { "vi", "en" }; // start với vi, sau thêm en
@@ -80,6 +80,11 @@ internal class Program
             opts.RequestCultureProviders.Insert(0, new Microsoft.AspNetCore.Localization.QueryStringRequestCultureProvider { QueryStringKey = "culture" });
             // CookieProvider và AcceptLanguageHeaderProvider đã có sẵn
         });
+        // Elasticsearch
+        var settings = new ElasticsearchClientSettings(new Uri("http://127.0.0.1:9200"))
+        .DefaultIndex("products");
+        var client = new ElasticsearchClient(settings);
+        builder.Services.AddSingleton(client);
 
         var app = builder.Build();
         using (var scope = app.Services.CreateScope())
@@ -92,7 +97,7 @@ internal class Program
             // var categories = builder.Configuration.GetSection("DefaultSetting:CategoryInit").Get<string[]>();
             // var creater = await userManager.FindByEmailAsync("john.doe@example.com");
             // string createrId = creater?.Id.ToString() ?? "";
-
+            app.UseCors("CorsPolicy");
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();

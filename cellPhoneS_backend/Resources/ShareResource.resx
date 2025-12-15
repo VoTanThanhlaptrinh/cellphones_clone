@@ -79,5 +79,128 @@
 <data name="FrontFaceCardRequired" xml:space="preserve"><value>Please upload the front side of the card.</value><comment/></data>
 <data name="BehindFaceCardRequired" xml:space="preserve"><value>Please upload the back side of the card.</value><comment/></data>
 <data name="FileExceed2Mb" xml:space="preserve"><value>File size must not exceed 2 MB.</value><comment/></data>
+<!-- AddProductRequest -->
+<data name="ProductNameRequired" xml:space="preserve">
+  <value>Product name is required.</value>
+  <comment/>
+</data>
+<data name="ProductNameMaxLength" xml:space="preserve">
+  <value>Product name must not exceed 255 characters.</value>
+  <comment/>
+</data>
 
+<data name="BasePriceMustBeGreaterOrEqualZero" xml:space="preserve">
+  <value>Base price must be greater than or equal to 0.</value>
+  <comment/>
+</data>
+<data name="SalePriceMustBeGreaterOrEqualZero" xml:space="preserve">
+  <value>Sale price must be greater than or equal to 0.</value>
+  <comment/>
+</data>
+
+<data name="VersionMaxLength" xml:space="preserve">
+  <value>Version must not exceed 255 characters.</value>
+  <comment/>
+</data>
+<data name="StatusMaxLength" xml:space="preserve">
+  <value>Status must not exceed 50 characters.</value>
+  <comment/>
+</data>
+
+<data name="CategoryIdMustBeGreaterThanZero" xml:space="preserve">
+  <value>Category ID must be greater than 0.</value>
+  <comment/>
+</data>
+<data name="BrandIdMustBeGreaterThanZero" xml:space="preserve">
+  <value>Brand ID must be greater than 0.</value>
+  <comment/>
+</data>
+
+<data name="CommitmentNotEmpty" xml:space="preserve">
+  <value>Commitment must not be empty.</value>
+  <comment/>
+</data>
+<data name="CommitmentNotWhiteSpace" xml:space="preserve">
+  <value>Commitment must not contain only whitespace.</value>
+  <comment/>
+</data>
+
+<!-- SpecificationDTO -->
+<data name="SpecificationNameRequired" xml:space="preserve">
+  <value>Specification name is required.</value>
+  <comment/>
+</data>
+<data name="SpecificationNameMaxLength" xml:space="preserve">
+  <value>Specification name must not exceed 255 characters.</value>
+  <comment/>
+</data>
+
+<data name="SpecificationDetailsRequired" xml:space="preserve">
+  <value>Specification details are required.</value>
+  <comment/>
+</data>
+<data name="SpecificationDetailsMustHaveAtLeastOne" xml:space="preserve">
+  <value>There must be at least one specification detail.</value>
+  <comment/>
+</data>
+
+<!-- SpecificationDetailDTO -->
+<data name="SpecificationDetailNameRequired" xml:space="preserve">
+  <value>Specification detail name is required.</value>
+  <comment/>
+</data>
+<data name="SpecificationDetailNameMaxLength" xml:space="preserve">
+  <value>Specification detail name must not exceed 255 characters.</value>
+  <comment/>
+</data>
+
+<data name="SpecificationDetailValueRequired" xml:space="preserve">
+  <value>Specification detail value is required.</value>
+  <comment/>
+</data>
+<data name="SpecificationDetailValueMaxLength" xml:space="preserve">
+  <value>Specification detail value must not exceed 1000 characters.</value>
+  <comment/>
+</data>
+
+<!-- ImageDTO -->
+<data name="ImageOriginUrlRequired" xml:space="preserve">
+  <value>Image URL is required.</value>
+  <comment/>
+</data>
+<data name="ImageOriginUrlMaxLength" xml:space="preserve">
+  <value>Image URL must not exceed 1000 characters.</value>
+  <comment/>
+</data>
+<data name="ImageOriginUrlInvalid" xml:space="preserve">
+  <value>Image URL format is invalid.</value>
+  <comment/>
+</data>
+
+<data name="ImageMimeTypeRequired" xml:space="preserve">
+  <value>Image MIME type is required.</value>
+  <comment/>
+</data>
+<data name="ImageMimeTypeMaxLength" xml:space="preserve">
+  <value>Image MIME type must not exceed 100 characters.</value>
+  <comment/>
+</data>
+
+<data name="ImageNameRequired" xml:space="preserve">
+  <value>Image name is required.</value>
+  <comment/>
+</data>
+<data name="ImageNameMaxLength" xml:space="preserve">
+  <value>Image name must not exceed 255 characters.</value>
+  <comment/>
+</data>
+
+<data name="ImageAltRequired" xml:space="preserve">
+  <value>Image alt text is required.</value>
+  <comment/>
+</data>
+<data name="ImageAltMaxLength" xml:space="preserve">
+  <value>Image alt text must not exceed 255 characters.</value>
+  <comment/>
+</data>
 </root>

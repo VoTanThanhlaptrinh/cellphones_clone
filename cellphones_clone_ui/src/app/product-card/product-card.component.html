@@ -1,0 +1,104 @@
+<div
+  (click)="goProductDetail(productView?.id || 1)"
+  class="card flex items-center lg:max-w-[15vw] min-w-[15vw] min-h-[400px] md:my-4 shadow-[0_2px_4px_rgba(0,0,0,0.2)] border wrap-normal border-gray-200 bg-white slide"
+>
+  <div
+    class="flex absolute left-2 top-[-12px] discount-bg text-white px-4 py-2 rounded items-center gap-x-1"
+  >
+    <span class="text-[11px] mt-1 md:mt-0"> Giảm </span>
+    <span class="text-xs font-medium">17%</span>
+  </div>
+  <div
+    class="flex absolute right-[-12px] top-[-7px] installment-bg text-white px-4 py-2 rounded gap-1"
+  >
+    <p class="text-[11px] mb-2">Trả góp</p>
+    <p class="text-[11px] font-medium">0%</p>
+  </div>
+  <div class="h-[30px]"></div>
+  <img
+    class="rounded-lg mt-6 max-w-[150px] max-h-[150px] h-[100px] w-[100px] hover:scale-102 duration-500 transform-gpu"
+    alt=""
+    loading="lazy"
+    [src]="productView?.imgUrl"
+  />
+  <div class="h-[30px]"></div>
+  <h4 class="text-gray-700 w-full ms-4 text-base font-semibold mt-3 line-clamp-2">
+    {{ productView?.productName }}
+  </h4>
+  <div class="h-[50px]"></div>
+  <div class="flex flex-col me-auto md:flex-row md:items-center">
+    <p class="main-text-color w-full ms-2 font-semibold">
+      {{ productView?.salePrice }}đ
+    </p>
+    <p class="line-through font-normal ms-2 text-gray-600 text-xs">
+      {{ productView?.basePrice }}đ
+    </p>
+  </div>
+
+  <span class="bg-recommend-text w-[95%] ms-2 text-xs text-left rounded-lg"
+    >S-Student giảm đến xxxđ</span
+  >
+  <div class="flex justify-between w-full items-center">
+    <div class="flex items-center ms-2 gap-2">
+      <svg height="15" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+        <path
+          fill="#fbbf24"
+          d="M381.2 150.3L524.9 171.5C536.8 173.2 546.8 181.6 550.6 193.1C554.4 204.7 551.3 217.3 542.7 225.9L438.5 328.1L463.1 474.7C465.1 486.7 460.2 498.9 450.2 506C440.3 513.1 427.2 514 416.5 508.3L288.1 439.8L159.8 508.3C149 514 135.9 513.1 126 506C116.1 498.9 111.1 486.7 113.2 474.7L137.8 328.1L33.58 225.9C24.97 217.3 21.91 204.7 25.69 193.1C29.46 181.6 39.43 173.2 51.42 171.5L195 150.3L259.4 17.97C264.7 6.954 275.9-.0391 288.1-.0391C300.4-.0391 311.6 6.954 316.9 17.97L381.2 150.3z"
+        ></path>
+      </svg>
+      <p class="text-lg">5</p>
+    </div>
+    <div>
+      <button
+        type="button"
+        class="bg-white flex-column flex favorite-btn favorite-text hover:bg-gray-100 my-2 rounded-lg py-1 px-2"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          class="md:w-10 md:h-7"
+          stroke="#3b82f6"
+        >
+          <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+          <g
+            id="SVGRepo_tracerCarrier"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          ></g>
+          <g id="SVGRepo_iconCarrier">
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M12 6.00019C10.2006 3.90317 7.19377 3.2551 4.93923 5.17534C2.68468 7.09558 2.36727 10.3061 4.13778 12.5772C5.60984 14.4654 10.0648 18.4479 11.5249 19.7369C11.6882 19.8811 11.7699 19.9532 11.8652 19.9815C11.9483 20.0062 12.0393 20.0062 12.1225 19.9815C12.2178 19.9532 12.2994 19.8811 12.4628 19.7369C13.9229 18.4479 18.3778 14.4654 19.8499 12.5772C21.6204 10.3061 21.3417 7.07538 19.0484 5.17534C16.7551 3.2753 13.7994 3.90317 12 6.00019Z"
+              stroke="#3b82f6"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></path>
+          </g>
+        </svg>
+        <svg
+          fill="#3b82f6"
+          viewBox="0 0 24 24"
+          class="md:w-10 md:h-7 hidden"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+          <g
+            id="SVGRepo_tracerCarrier"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          ></g>
+          <g id="SVGRepo_iconCarrier">
+            <path
+              fill-rule="evenodd"
+              d="M12,20.9996 L3.847,13.2406 C2.656,12.1076 2,10.5986 2,8.9916 C2,7.3846 2.656,5.8756 3.847,4.7416 C6.067,2.6286 9.552,2.4386 12,4.1686 C14.448,2.4386 17.933,2.6286 20.153,4.7416 C21.344,5.8756 22,7.3846 22,8.9916 C22,10.5986 21.344,12.1076 20.153,13.2406 L12,20.9996 Z"
+            ></path>
+          </g>
+        </svg>
+        <p class="w-full">Yêu thích</p>
+      </button>
+    </div>
+  </div>
+</div>

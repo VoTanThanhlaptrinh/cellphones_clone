@@ -40,7 +40,7 @@
     </svg>
     <a href="/" class="font-medium">Trang chủ</a>
     <span>/</span>
-    <a href="/" class="text-gray-500">Máy tính để bàn</a>
+    <a href="/" class="text-gray-500">{{ data?.name }}</a>
   </div>
   <div class="grid grid-cols-2 gap-x-2">
     @if (isBrowser) {
@@ -78,38 +78,18 @@
     </swiper-container>
     }
   </div>
-  <div class="flex flex-col gap-y-4 mt-2">
-    <p class="font-medium text-xl text-black">Điện thoại</p>
-    <div class="flex flex-wrap gap-2">
-      @for (item of category_list; track $index) {
-      <a href="#">
-        <img
-          class="w-27 h-10 border border-gray-200 rounded-sm px-1 py-2"
-          [src]="item.src"
-          loading="lazy"
-          [alt]="item.alt"
-        />
-      </a>
-      }
-    </div>
-  </div>
   <div class="flex flex-col gap-y-2 mt-4">
-    <p class="font-medium text-xl text-black">Chọn theo nhu cầu</p>
+    <p class="font-medium text-xl text-black">{{ this.data?.name }}</p>
     <div class="flex flex-wrap gap-2">
-      @for (item of phoneCategories; track $index) {
+      @for (item of data?.brands; track $index) {
       <div
         class="flex flex-col gap-y-1 items-center justify-center py-1 px-2 bg-gray-100 w-[125px] rounded-xl"
       >
-        <a href="#">
-          <img
-            class="h-18 px-2 py-1"
-            [src]="item.src"
-            loading="lazy"
-            [alt]="item.alt"
-          />
+        <a>
+          <img class="h-18 px-2 py-1" loading="lazy" alt="item.alt" />
         </a>
         <p class="text-center text-xs text-black font-medium">
-          {{ item.text }}
+          {{ item.name }}
         </p>
       </div>
       }
@@ -118,23 +98,46 @@
   <div class="flex flex-col gap-y-2 mt-4">
     <p class="font-medium text-xl text-black">Chọn theo nhu cầu</p>
     <div class="flex flex-wrap gap-2">
-      @for (item of phoneCategories; track $index) {
+      @for (item of this.data?.demands; track $index) {
       <div
         class="flex flex-col gap-y-1 items-center justify-center py-1 px-2 bg-gray-100 w-[125px] rounded-xl"
       >
-        <a href="#">
+        <!-- <a href="#">
           <img
             class="h-18 px-2 py-1"
             [src]="item.src"
             loading="lazy"
-            [alt]="item.alt"
+            alt="item.alt"
           />
-        </a>
+        </a> -->
         <p class="text-center text-xs text-black font-medium">
-          {{ item.text }}
+          {{ item.name }}
         </p>
       </div>
       }
     </div>
   </div>
+  @defer {
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 px-2">
+    @for (item of products; track $index) {
+    <app-product-card [productView]="item" />
+    }
+  </div>
+  } @placeholder {
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 px-2">
+    @for (i of [1,2,3,4,5,6,7,8,9,10]; track $index) {
+    <app-product-skeleton />
+    }
+  </div>
+  } @if (this.hasMore && !this.isLoading) {
+  <div class="flex w-full justify-center py-4">
+    <button
+      type="button"
+      class="btn bg-blue-200 items-center border-blue-100 border-[1px] rounded-lg hover:scale-105 transition-transform px-4 py-2"
+      (click)="loadMore()"
+    >
+      Xem thêm {{ getRemainingCount() }} sản phẩm
+    </button>
+  </div>
+  }
 </main>
