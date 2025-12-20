@@ -25,12 +25,12 @@ export class App implements OnInit {
   protected title = 'cellphones-clone-ui';
   isHideHeader = false;
   isHideFooter = false;
-  urlForHideHeadFooter: string[] = ['/login', '/register', '/cart'];
+  urlForHideHeadFooter: string[] = ['/login', '/register', '/cart', '/order'];
 
   constructor(
     private router: Router,
     private viewportScroller: ViewportScroller
-  ) {}
+  ) { }
   ngOnInit(): void {
     this.isHideHeader = this.isHideFooter = this.urlForHideHeadFooter.includes(
       this.router.url
@@ -47,7 +47,7 @@ export class App implements OnInit {
         },
       });
   }
-  onScrollToTop(){
+  onScrollToTop() {
     console.log('[Parent] received');
     this.viewportScroller.scrollToPosition([0, 0]);
   }

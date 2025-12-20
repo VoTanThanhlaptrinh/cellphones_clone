@@ -1,5 +1,6 @@
 using System;
 using cellphones_backend.Models;
+using cellPhoneS_backend.Data.View;
 using cellPhoneS_backend.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -40,6 +41,7 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, string>
     public DbSet<CategoryProduct> CategoryProducts { get; set; }
     public DbSet<ProductImage> ProductImages { get; set; }
     public DbSet<Payment> Payments { get; set; }
+    public DbSet<ProductColorStockView> ProductColorStockView { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -59,7 +61,7 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, string>
         {
             entity.HasKey(ci => ci.Id);
             entity.Property(ci => ci.Id).ValueGeneratedOnAdd();
-            
+
         });
         modelBuilder.Entity<CategoryProduct>(entity =>
         {
@@ -75,6 +77,10 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, string>
         modelBuilder.Entity<User>()
             .HasOne(u => u.Info).WithOne(i => i.CreateUser)
             .HasForeignKey<Info>(i => i.CreateBy).IsRequired();
+
+        modelBuilder.Entity<ProductColorStockView>()
+        .ToView("ProductColorStockView")
+        .HasNoKey();
     }
 }
 

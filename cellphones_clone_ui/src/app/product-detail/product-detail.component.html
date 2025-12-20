@@ -1,6 +1,6 @@
 <main class="container mx-auto max-w-[1200px] items-center text-black">
   @defer{
-    <div class="items-center justify-between mb-3 mx-1">
+  <div class="items-center justify-between mb-3 mx-1">
     <div class="flex text-black text-[13px] space-x-2 font-normal mt-3">
       <svg
         width="16"
@@ -64,11 +64,7 @@
         <h2 class="text-xl font-medium">
           {{ product?.name ?? "Đang cập nhật sản phẩm" }}
         </h2>
-        @if (product?.version) {
-        <p class="text-sm text-gray-500 mt-1">
-          Phiên bản: {{ product?.version }}
-        </p>
-        }
+
         <div class="flex space-x-1 items-center my-2">
           <svg height="15" viewBox="0 0 576 512" class="text-yellow-300">
             <path
@@ -382,10 +378,13 @@
                   {{ spec.name }}
                 </td>
                 <td class="px-4 py-3 align-top">
-                  @if (spec.specDetails?.length != null && spec.specDetails!.length > 0 ) {
+                  @if (spec.specDetails?.length != null &&
+                  spec.specDetails!.length > 0 ) {
                   <div class="space-y-1">
                     <p>
-                      <span class="font-medium">{{ spec.specDetails![0].name }}:</span>
+                      <span class="font-medium"
+                        >{{ spec.specDetails![0].name }}:</span
+                      >
                       <span>{{ spec.specDetails![0].value }}</span>
                     </p>
                   </div>
@@ -439,35 +438,88 @@
           <h3>Giá sản phẩm</h3>
           <div class="gap-2 flex items-center">
             <span class="text-2xl font-medium">
-              {{
-                product?.salePrice != null
-                  ? (product?.salePrice | currency : "VND" : "symbol" : "1.0-0")
-                  : "Đang cập nhật"
-              }}
+              {{ convertPriceVnd(product?.salePrice) }}
             </span>
-            @if (product?.basePrice != null && product?.basePrice !==
-            product?.salePrice) {
             <span class="line-through text-lg text-gray-500">
-              {{ product?.basePrice | currency : "VND" : "symbol" : "1.0-0" }}
+              {{ convertPriceVnd(product?.basePrice) }}
             </span>
-            }
           </div>
-          @if (product?.quantity != null) {
-          <p class="text-sm text-gray-600 mt-1">
-            Kho còn {{ product?.quantity }} sản phẩm.
-          </p>
+          @if (this.product?.StoreHouseDTOs) {
+          <p class="text-sm text-gray-600 mt-1">Kho còn {{ 1 }} sản phẩm.</p>
           }
         </div>
         <div class="mt-2">
           <p class="text-black font-medium">Phiên bản</p>
-          @if (product?.version) {
-          <div
-            class="rounded-xl border border-gray-300 px-4 py-3 mt-2 bg-white"
-          >
-            {{ product?.version }}
-          </div>
+          @if (product?.versions) {
+          <fieldset class="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <!-- Option -->
+            <label class="relative inline-block">
+              <input
+                type="radio"
+                name="version"
+                value="v1"
+                class="peer sr-only"
+                [checked]="true"
+              />
+
+              <!-- Khung item -->
+              <span
+                class="block select-none rounded-xl border border-gray-300 px-4 py-3 text-center font-medium transition peer-checked:border-red-600 peer-checked:ring-2 peer-checked:ring-red-500 peer-checked:ring-offset-2 focus:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-red-300"
+              >
+                {{ this.product?.versions }}
+              </span>
+
+              <!-- Badge ✓ góc phải -->
+              <span
+                class="pointer-events-none absolute -top-2 -right-2 hidden h-5 w-5 rounded-full bg-red-600 text-white text-[10px] leading-5 text-center peer-checked:inline-block"
+              >
+                ✓
+              </span>
+            </label>
+          </fieldset>
           } @else {
           <p class="text-sm text-gray-500 mt-2">Đang cập nhật phiên bản.</p>
+          }
+        </div>
+        <div class="mt-2 flex-col">
+          @if(this.product?.colorDTOs){
+          <p class="text-black font-medium">Màu sắc</p>
+          <fieldset class="grid grid-cols-2 md:grid-cols-3 gap-2">
+            @for (item of this.product?.colorDTOs; track $index) {
+            <!-- Option -->
+            <label class="relative inline-block">
+              <input
+                type="radio"
+                name="color"
+                [value]="item.colorId"
+                class="peer sr-only"
+                (change)="onRadioChange($event)"
+                [checked]="item.colorId === selected_color"
+              />
+
+              <!-- Khung item -->
+              <span
+                class="flex items-center min-w-[12vw] select-none rounded-xl border border-gray-300 px-4 py-3 text-center font-medium transition peer-checked:border-red-600 peer-checked:ring-2 peer-checked:ring-red-500 peer-checked:ring-offset-2 focus:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-red-300 gap-2"
+              >
+                <img
+                  [src]="item.image.originUrl"
+                  [alt]="item.image.alt"
+                  class="img-fluid object-contain rounded-lg"
+                  alt=""
+                />
+                <div class="flex-col items-center gap-y-2">
+                  <p>{{ item.name }}</p>
+                  <p>{{ convertPriceVnd(product?.salePrice) }}</p>
+                </div>
+              </span>
+              <span
+                class="pointer-events-none absolute -top-2 -right-2 hidden h-5 w-5 rounded-full bg-red-600 text-white text-[10px] leading-5 text-center peer-checked:inline-block"
+              >
+                ✓
+              </span>
+            </label>
+            }
+          </fieldset>
           }
         </div>
         <div class="mt-2">
@@ -475,17 +527,17 @@
           <div
             class="rounded-xl border border-gray-300 px-4 py-3 mt-2 bg-white"
           >
-            <p class="font-medium">
+            <!-- <p class="font-medium">
               {{
                 product?.city ||
                   product?.district ||
                   product?.street ||
                   "Đang cập nhật"
               }}
-            </p>
-            <p class="text-sm text-gray-500">
+            </p> -->
+            <!-- <p class="text-sm text-gray-500">
               {{ warehouseAddress || "Địa chỉ đang được cập nhật" }}
-            </p>
+            </p> -->
           </div>
         </div>
         <div
@@ -723,20 +775,20 @@
         </div>
         <div class="flex flex-row items-center mt-2 justify-between">
           <div
-            class="border border-full border-blue-500 hover:bg-blue-100 h-15 text-blue-500 grid place-items-center rounded-lg px-3 py-2"
+            class="border border-full border-blue-500 hover:bg-blue-100 h-15 text-blue-500 grid place-items-center rounded-lg py-2 px-1"
           >
             <p class="text-lg font-medium">Trả góp 0%</p>
           </div>
           <div
-            class="bg-[linear-gradient(0deg,#d70018,#e45464)] h-15 text-white items-center hover:bg-red-700 rounded-lg px-6 py-2"
+            class="bg-[linear-gradient(0deg,#d70018,#e45464)] h-15 text-white items-center hover:bg-red-700 rounded-lg px-6 py-2 min-w-[21.5vw]"
           >
-            <p class="text-center text-lg font-medium">MUA NGAY</p>
-            <p class="text-center text-sm">
+            <p class="text-center text-lg font-semibold">MUA NGAY</p>
+            <p class="text-center text-xs">
               Giao nhanh từ 2 giờ hoặc nhận tại cửa hàng
             </p>
           </div>
           <div
-            class="main-text-color border border-red-500 bg-white h-15 hover:bg-red-300 items-center flex flex-row rounded-lg px-3 py-2"
+            class="main-text-color border border-red-500 bg-white h-15 hover:bg-red-300 items-center flex flex-row rounded-lg px-1 py-2 line-clamp-1"
           >
             <svg
               width="24"
@@ -780,7 +832,7 @@
                 fill="#D70018"
               ></path>
             </svg>
-            <p class="text-lg font-medium">Thêm vào giỏ</p>
+            <a (click)="addToCart()">Thêm vào giỏ</a>
           </div>
         </div>
       </div>

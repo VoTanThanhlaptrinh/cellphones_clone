@@ -10,7 +10,7 @@ public class CartRepository : BaseRepository<Cart>, ICartRepository
 {
     public CartRepository(ApplicationDbContext context) : base(context) {}
 
-    public Task<bool> CreateCartForUser(string userId)
+    public async Task<Cart> CreateCartForUser(string userId)
     {
         Cart cart = new Cart{
             CreateBy = userId,
@@ -19,15 +19,16 @@ public class CartRepository : BaseRepository<Cart>, ICartRepository
             UpdateDate = DateTime.UtcNow,
             UpdateBy = userId
         };
-        _context.Carts.Add(cart);
-        return Task.FromResult(true);
+        await _context.Carts.AddAsync(cart);
+        await _context.SaveChangesAsync();
+        return cart;
     }
 
-    public async Task<Cart?> GetCartByUserId(string userId)
+    public async Task<Cart?> GetCartByUserIdIfNotThenCreate(string userId)
     {
         var res  = await _context.Carts.FirstOrDefaultAsync(c => c.CreateBy == userId);
         if (res == null)
-          await CreateCartForUser(userId);
+          res = await CreateCartForUser(userId);
         return res;
     }
 }

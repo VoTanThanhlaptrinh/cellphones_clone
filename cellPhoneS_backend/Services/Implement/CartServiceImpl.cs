@@ -1,7 +1,12 @@
 using System;
 using cellphones_backend.DTOs.Responses;
+using cellphones_backend.Models;
 using cellphones_backend.Repositories;
 using cellPhoneS_backend.DTOs;
+using cellPhoneS_backend.DTOs.Requests;
+using cellPhoneS_backend.DTOs.Responses;
+using Elastic.Transport;
+using Microsoft.AspNetCore.Mvc;
 
 namespace cellPhoneS_backend.Services.Implement;
 
@@ -9,32 +14,47 @@ public class CartServiceImpl : CartService
 {
     private readonly ICartRepository _cartRepository;
     private readonly ICartDetailRepository _cartDetailRepository;
-    public CartServiceImpl(ICartRepository cartRepository, ICartDetailRepository cartDetailRepository)
+    private readonly IColorRepository _colorRepository;
+    private readonly IConfiguration _configuration;
+    private readonly IStoreRepository _storeRepository;
+    private int _pageSize;
+    private string userId = "98a4fdb1-44a7-49d1-b9a0-03f9ff71e3c9";
+    public CartServiceImpl(ICartRepository cartRepository, ICartDetailRepository cartDetailRepository
+    , IColorRepository colorRepository, IConfiguration configuration, IStoreRepository storeRepository)
     {
         _cartRepository = cartRepository;
         _cartDetailRepository = cartDetailRepository;
+        _colorRepository = colorRepository;
+        _configuration = configuration;
+        _pageSize = _configuration.GetValue<int>("DefaultSetting:PageSize");
+        _storeRepository = storeRepository;
     }
 
-    public async Task<ServiceResult<bool>> AddToCart(long productId, string userId)
+    public async Task<ServiceResult<bool>> AddToCart([FromBody] CartRequest request)
     {
-        var cart = await _cartRepository.GetCartByUserId(userId);
-        if (cart == null)
+
+        var cart = await _cartRepository.GetCartByUserIdIfNotThenCreate(userId);
+
+        var productId = request.productId;
+        var colorId = request.colorId;
+        // validate color exists
+        var colorExists = await _colorRepository.FindById(colorId);
+        Console.WriteLine(colorExists);
+        if (colorExists == null)
         {
-            return ServiceResult<bool>.Fail("Cart not found", ServiceErrorType.NotFound);
+            return ServiceResult<bool>.Fail(productId.ToString(), ServiceErrorType.BadRequest);
         }
-        if(cart.CreateUser == null || cart.CreateUser.Id != userId)
-        {
-            return ServiceResult<bool>.Fail("User does not own the cart", ServiceErrorType.Unauthorized);
-        }
-        // chưa có cart detail này -> tạo mới
-        // đã có thì +1 vào số lượng
-        var cartDetail = await _cartDetailRepository.GetCartDetailIfExists(cart.Id, productId, userId);
+
+        var cartDetail = await _cartDetailRepository
+            .GetCartDetailIfExists(cart!.Id, productId, colorId, userId);
+
         if (cartDetail == null)
         {
-            cartDetail = new cellphones_backend.Models.CartDetail
+            cartDetail = new CartDetail
             {
                 Cart = cart,
                 ProductCartDetailId = productId,
+                ColorId = colorId,
                 Quantity = 1,
                 CreateBy = userId,
                 CreateDate = DateTime.UtcNow,
@@ -50,17 +70,45 @@ public class CartServiceImpl : CartService
             cartDetail.UpdateDate = DateTime.UtcNow;
             await _cartDetailRepository.UpdateAsync(cartDetail);
         }
+
+        await _cartDetailRepository.SaveChangesAsync();
         return ServiceResult<bool>.Success(true, "Product added to cart successfully");
     }
-
-    public async Task<ServiceResult<List<CartView>>> GetCartItems(int page, int pageSize, string userId)
+    public async Task<ServiceResult<List<CartDetailView>>> GetCartItems(int page, string userId)
     {
-        var cartItems = await _cartDetailRepository.GetCartItems(userId, page, pageSize);
+        var cartItems = await _cartDetailRepository.GetCartItems(userId, page, _pageSize);
         if (cartItems == null || cartItems.Count == 0)
         {
-            return ServiceResult<List<CartView>>.Fail("No items in cart", ServiceErrorType.NotFound);
+            return ServiceResult<List<CartDetailView>>.Fail("No items in cart", ServiceErrorType.NotFound);
         }
-        return ServiceResult<List<CartView>>.Success(cartItems, "Cart items retrieved successfully");
+        return ServiceResult<List<CartDetailView>>.Success(cartItems, "Cart items retrieved successfully");
+    }
+
+    public async Task<ServiceResult<int>> MinusQuantity(long cartDetailId)
+    {
+        var cartDetail = await _cartDetailRepository.GetByIdAsync(cartDetailId);
+        if (cartDetail == null)
+            return ServiceResult<int>.Fail("Cart detail not found", ServiceErrorType.BadRequest);
+        if (cartDetail.Quantity < 2)
+            return ServiceResult<int>.Fail("Quantity at least one", ServiceErrorType.BadRequest);
+        cartDetail.Quantity = cartDetail.Quantity - 1;
+        await _cartDetailRepository.UpdateAsync(cartDetail);
+        await _cartDetailRepository.SaveChangesAsync();
+        return ServiceResult<int>.Success(cartDetail.Quantity, "Minus success");
+    }
+
+    public async Task<ServiceResult<int>> PlusQuantity(long cartDetailId)
+    {
+        var cartDetail = await _cartDetailRepository.GetByIdAsync(cartDetailId);
+        if (cartDetail == null)
+            return ServiceResult<int>.Fail("Cart detail not found", ServiceErrorType.BadRequest);
+        var totalQuantity = await _storeRepository.GetTotalQuantityInStoreByProductAndColor(cartDetail.ProductCartDetailId, cartDetail.ColorId);
+        if (cartDetail.Quantity == totalQuantity)
+            return ServiceResult<int>.Fail("We don't have any more item", ServiceErrorType.BadRequest);
+        cartDetail.Quantity += 1;
+        await _cartDetailRepository.UpdateAsync(cartDetail);
+        await _cartDetailRepository.SaveChangesAsync();
+        return ServiceResult<int>.Success(cartDetail.Quantity, "Plus success");
     }
 
     public async Task<ServiceResult<bool>> RemoveFromCart(long cartDetailId)

@@ -2,6 +2,7 @@ using cellphones_backend.Data;
 using cellphones_backend.DTOs.Responses;
 using cellphones_backend.Models;
 using cellPhoneS_backend.DTOs;
+using cellPhoneS_backend.DTOs.Responses;
 using cellPhoneS_backend.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,24 +14,24 @@ public class CartDetailRepository : BaseRepository<CartDetail>, ICartDetailRepos
     {
     }
 
-    public async Task<CartDetail> GetCartDetailIfExists(long cartId, long productId, string userId)
+    public async Task<CartDetail> GetCartDetailIfExists(long cartId, long productId, long colorId, string userId)
     {
         return await _context.CartDetails.FirstOrDefaultAsync(c => c.CartId == cartId 
-                            && c.ProductCartDetailId == productId) ?? null!;
+                            && c.ProductCartDetailId == productId && c.ColorId == colorId) ?? null!;
     }
 
-    public async Task<List<CartView>> GetCartItems(string userId, int page, int pageSize)
+    public async Task<List<CartDetailView>> GetCartItems(string userId, int page, int pageSize)
     {
         return await _context.CartDetails.Where(c => c.CreateBy == userId)
-            .OrderByDescending(c => c.CreateDate).Skip(page * pageSize).Take(pageSize)
-            .Select(c => new CartView(
+            .OrderByDescending(c => c.CreateDate).Skip((page - 1) * pageSize).Take(pageSize)
+            .Select(c => new CartDetailView(
                         c.Id,
-                        c.ProductCartDetailId,
-                        c.Product!.Name!,
-                        c.Product!.ImageUrl!,
+                        c.Quantity,
+                        c.Product!.Id,
+                        c.Color!.Image!.BlobUrl!,
+                        c.Product.Name,
                         c.Product.BasePrice,
-                        c.Product.SalePrice,
-                        c.Quantity)
+                        c.Product.SalePrice)
                     ).ToListAsync();
     }
 

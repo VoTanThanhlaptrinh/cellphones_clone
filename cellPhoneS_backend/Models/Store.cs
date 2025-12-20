@@ -18,7 +18,7 @@ public class Store
     public long ColorId { get; set; }
     [Required]
     [ForeignKey(nameof(ColorId))]
-    public Color? ColorImage { get; set; }     // FK tới Image
+    public Color? Color { get; set; }     // FK tới Image
     [Required][Range(0,int.MaxValue)]
     public int Quantity { get; set; }
     public string? Status { get; set; } = "active";

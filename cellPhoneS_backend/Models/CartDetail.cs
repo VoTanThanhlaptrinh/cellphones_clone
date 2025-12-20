@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace cellphones_backend.Models;
 
@@ -20,13 +21,15 @@ public class CartDetail
     [Required]
     [ForeignKey(nameof(ProductCartDetailId))]
     public Product? Product { get; set; }
-
-    // Số lượng
-    [Required][Range(0,int.MaxValue)]
+    public long ColorId {get; set; }
+    [Required]
+    [ForeignKey(nameof(ColorId))]
+    public Color? Color {get; set; }
+    [Required]
+    [Range(0,int.MaxValue)]
     public int Quantity { get; set; }
-
     // Audit fields
-    public string? Status { get; set; } = "pending";
+    public string? Status { get; set; } = "active";
     [Required]
     public DateTime CreateDate { get; set; }  // ngày tạo
     public DateTime UpdateDate { get; set; }  // ngày cập nhật

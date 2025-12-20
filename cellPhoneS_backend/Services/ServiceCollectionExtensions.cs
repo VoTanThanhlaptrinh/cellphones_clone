@@ -20,6 +20,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ProductService, ProductServiceImpl>();
         services.AddScoped<ShippingFeeService, ShippingFeeServiceImpl>();
         services.AddScoped<CategoryService, CategoryServiceImpl>();
+        services.AddScoped<CartService, CartServiceImpl>();
         return services;
     }
 }

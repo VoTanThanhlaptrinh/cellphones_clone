@@ -203,4 +203,21 @@
   <value>Văn bản mô tả (alt) của hình ảnh không được vượt quá 255 ký tự.</value>
   <comment/>
 </data>
+<!-- Cart Request -->
+<data name="ProductIdRequired" xml:space="preserve">
+  <value>Mã sản phẩm không được để trống.</value>
+  <comment/>
+</data>
+<data name="ProductIdMustBeGreaterThanZero" xml:space="preserve">
+  <value>Mã sản phẩm phải lớn hơn 0.</value>
+  <comment/>
+</data>
+<data name="ColorIdRequired" xml:space="preserve">
+  <value>Mã màu không được để trống.</value>
+  <comment/>
+</data>
+<data name="ColorIdMustBeGreaterThanZero" xml:space="preserve">
+  <value>Mã màu phải lớn hơn 0.</value>
+  <comment/>
+</data>
 </root>

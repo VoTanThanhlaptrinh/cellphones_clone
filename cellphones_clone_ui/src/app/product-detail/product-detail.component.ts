@@ -1,13 +1,14 @@
-import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, Inject, OnInit, PLATFORM_ID } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CommonModule, CurrencyPipe, isPlatformBrowser } from '@angular/common';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { EMPTY, switchMap, take } from 'rxjs';
 import { ProductService } from '../services/product.service';
 import { ProductViewDetail } from '../core/models/product.model';
+import { CartService } from '../services/cart.service';
 @Component({
   selector: 'app-product-detail',
   imports: [CommonModule],
+  providers: [CurrencyPipe],
   standalone: true,
   templateUrl: './product-detail.component.html',
   styleUrl: './product-detail.component.css',
@@ -16,6 +17,7 @@ import { ProductViewDetail } from '../core/models/product.model';
 export class ProductDetailComponent implements OnInit {
   isBrowser: boolean;
   product?: ProductViewDetail;
+  selected_color: any;
   private readonly fallbackImages = [
     'assets/images/12_5_119.webp',
     'assets/images/14_2_122.webp',
@@ -29,11 +31,12 @@ export class ProductDetailComponent implements OnInit {
   ];
   isLoading = false;
   errorMessage = '';
-
+  private currency = inject(CurrencyPipe);
   constructor(
     @Inject(PLATFORM_ID) platformId: Object,
     private readonly route: ActivatedRoute,
     private readonly productService: ProductService,
+    private readonly cartService: CartService
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
   }
@@ -68,6 +71,7 @@ export class ProductDetailComponent implements OnInit {
           }
 
           this.product = detail;
+          this.selected_color = this.product.colorDTOs[0].colorId
           this.images = this.buildImageGallery(detail);
         },
         error: () => {
@@ -78,11 +82,11 @@ export class ProductDetailComponent implements OnInit {
   }
 
   get warehouseAddress(): string {
-    if (!this.product) {
+    if (!this.product?.StoreHouseDTOs) {
       return '';
     }
 
-    return [this.product.street, this.product.district, this.product.city]
+    return [this.product.StoreHouseDTOs[0].street, this.product.StoreHouseDTOs[0].district, this.product.StoreHouseDTOs[0].city]
       .filter((value): value is string => Boolean(value))
       .join(', ');
   }
@@ -101,5 +105,28 @@ export class ProductDetailComponent implements OnInit {
     }
 
     return [...this.fallbackImages];
+  }
+
+  addToCart() {
+    var productId = this.product?.id
+    var color_id = this.selected_color
+    if (productId && color_id && productId > 0 && color_id > 0)
+      this.cartService.addToCart({ productId: this.product?.id, colorId: color_id }).pipe(take(1)).subscribe({
+        next: res =>{
+          console.log('success')
+        },
+        error: (err) => console.error(err)
+      })
+    else
+      console.log('Dữ liệu có vấn đề')
+  }
+  convertPriceVnd(price: number | null | undefined): string {
+    if (price == null) return 'Đang cập nhật';
+    const formatted = this.currency.transform(price, 'VND', 'symbol', '1.0-0') ?? '';
+    return formatted.replace('₫', 'đ');
+  }
+  onRadioChange(event: any) {
+    const input = event.target.value
+    console.log('selected value =', input);
   }
 }

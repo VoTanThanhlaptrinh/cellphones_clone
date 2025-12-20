@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CartComponent } from './cart.component';
+import { SharedUtils } from './shared-utils';
 
-describe('CartComponent', () => {
-  let component: CartComponent;
-  let fixture: ComponentFixture<CartComponent>;
+describe('SharedUtils', () => {
+  let component: SharedUtils;
+  let fixture: ComponentFixture<SharedUtils>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CartComponent]
+      imports: [SharedUtils]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(CartComponent);
+    fixture = TestBed.createComponent(SharedUtils);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
