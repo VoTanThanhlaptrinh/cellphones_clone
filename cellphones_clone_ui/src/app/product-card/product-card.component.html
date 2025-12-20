@@ -28,10 +28,10 @@
   <div class="h-[50px]"></div>
   <div class="flex flex-col me-auto md:flex-row md:items-center">
     <p class="main-text-color w-full ms-2 font-semibold">
-      {{ productView?.salePrice }}đ
+      {{ productView?.salePrice != 0 ? productView?.salePrice : 'Đang cập nhật' }}
     </p>
     <p class="line-through font-normal ms-2 text-gray-600 text-xs">
-      {{ productView?.basePrice }}đ
+       {{ productView?.basePrice != 0 ? productView?.basePrice + 'đ' : 'Đang cập nhật' }}
     </p>
   </div>
 

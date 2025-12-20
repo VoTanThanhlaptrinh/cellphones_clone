@@ -1,5 +1,9 @@
 using cellphones_backend.DTOs.Responses;
+using cellPhoneS_backend.Controllers;
+using cellPhoneS_backend.DTOs.Requests;
+using cellPhoneS_backend.DTOs.Responses;
 using cellPhoneS_backend.Services;
+using Elastic.Transport;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,32 +11,39 @@ namespace cellphones_backend.Controllers
 {
     [Route("api/carts")]
     [ApiController]
-    public class CartController : ControllerBase
+    public class CartController : BaseController
     {
         private readonly CartService _cartService;
         public CartController(CartService cartService)
         {
             _cartService = cartService;
         }
-        // [HttpGet("")]
-        // public Task<ApiResponse<string>> ListCart()
-        // {
-        //     return null!;
-        // }
-        [HttpGet("{productId}")]
-        public Task<ActionResult<ApiResponse<string>>> AddProductToCart(long productId)
+        [HttpGet("{page}")]
+        public async Task<ActionResult<ApiResponse<List<CartDetailView>>>> ListCart(int page)
         {
-            return null!;
+            var userId = "98a4fdb1-44a7-49d1-b9a0-03f9ff71e3c9";
+            return HandleResult(await _cartService.GetCartItems(page,userId));
         }
-        [HttpDelete("{productId}")]
-        public async Task<ActionResult<ApiResponse<string>>> DeleteProductOutCart(long productId)
+        [HttpPost("addToCart")]
+        public async Task<ActionResult<ApiResponse<bool>>> AddProductToCart(CartRequest request)
         {
-            return null!;
+            return HandleResult(await _cartService.AddToCart(request));
         }
-        [HttpPut("{productId}")]
-        public async Task<ActionResult<ApiResponse<string>>> UpdateProductInCart(long productId)
+        [HttpDelete("{cartDetailId}")]
+        public async Task<ActionResult<ApiResponse<bool>>> DeleteProductOutCart(long cartDetailId)
         {
-            return null!;
+             return HandleResult(await _cartService.RemoveFromCart(cartDetailId));
+        }
+        [HttpPatch("plusQuantity/{cartDetailId}")]
+        public async Task<ActionResult<ApiResponse<int>>> PlusQuantity(long cartDetailId)
+        {
+            return HandleResult(await _cartService.PlusQuantity(cartDetailId));
+        }
+        [HttpPatch("minusQuantity/{cartDetailId}")]
+        public async Task<ActionResult<ApiResponse<int>>> MinusQuantity(long cartDetailId)
+        {
+            return HandleResult(await _cartService.MinusQuantity(cartDetailId));
         }
     }
+
 }

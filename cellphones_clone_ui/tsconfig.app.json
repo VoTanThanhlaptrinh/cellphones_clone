@@ -4,14 +4,17 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/app",
-    "types": [
-      "node"
-    ]
+    "types": [],
+    "module": "ES2022",
+    "target": "ES2022"
   },
-  "include": [
-    "src/**/*.ts"
+  "files": [
+    "src/main.ts"
   ],
-  "exclude": [
-    "src/**/*.spec.ts"
+  "include": [
+    "src/**/*.ts",
+    "src/main.server.ts",    
+    "src/server.ts"        
   ]
 }
+

@@ -203,4 +203,21 @@
   <value>Image alt text must not exceed 255 characters.</value>
   <comment/>
 </data>
+  <!-- Cart request -->
+  <data name="ProductIdRequired" xml:space="preserve">
+  <value>Product ID is required.</value>
+  <comment/>
+</data>
+<data name="ProductIdMustBeGreaterThanZero" xml:space="preserve">
+  <value>Product ID must be greater than 0.</value>
+  <comment/>
+</data>
+<data name="ColorIdRequired" xml:space="preserve">
+  <value>Color ID is required.</value>
+  <comment/>
+</data>
+<data name="ColorIdMustBeGreaterThanZero" xml:space="preserve">
+  <value>Color ID must be greater than 0.</value>
+  <comment/>
+</data>
 </root>

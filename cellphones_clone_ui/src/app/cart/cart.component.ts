@@ -1,24 +1,114 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
-export interface CartDetail {
-  src: string;
-  title: string;
-  priceAfterDiscount: number;
-  realPrice: number;
-}
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { CartService } from '../services/cart.service';
+import { CartView } from '../core/models/cart_request.model';
+import { CurrencyPipe, NgClass } from '@angular/common';
+import { HeaderCartOrderComponent } from "../header-cart-order/header-cart-order.component";
+
 @Component({
   selector: 'app-cart',
-  imports: [],
+  imports: [NgClass, HeaderCartOrderComponent],
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.css',
 })
-export class CartComponent {
-  carts: CartDetail[] = [
-    {
-      src: 'https://cdn2.cellphones.com.vn/insecure/rs:fill:350:0/q:80/plain/https://cellphones.com.vn/media/catalog/product/g/r/group_784.png',
-      title: 'PC CPS X MSI Gaming Intel i5 Gen 12 Kèm màn hình',
-      priceAfterDiscount: 20000000,
-      realPrice: 23000000
-    },
-  ];
+export class CartComponent implements OnInit {
+  page: number = 1;
+  totalPrice: number = 0;
+  totalQuantity: number = 0;
+  selectedItems: number[] = [];
+  allSelected: boolean = false;
+  isDisable = true;
+  cartDetails: CartView[] = [];
+  isLoadding: boolean = true;
+  hasMore: boolean = false;
+  private currency = inject(CurrencyPipe);
+  constructor(private cartService: CartService, private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {
+
+  }
+  ngOnInit(): void {
+    this.cartService.getList(this.page).subscribe({
+      next: res => {
+        this.cartDetails = res.data
+        console.log(this.cartDetails)
+      },
+      error: err => console.error(err),
+      complete: () => {
+        this.isLoadding = false;
+        this.updateCommon();
+      }
+    })
+  }
+  convertPriceVnd(price: number | null | undefined): string {
+    if (price == null) return 'Đang cập nhật';
+    const formatted = this.currency.transform(price, 'VND', 'symbol', '1.0-0') ?? '';
+    return formatted.replace('₫', 'đ');
+  }
+  goProductDetail(id: number) {
+    this.router.navigate(['/product', id]);
+  }
+  selectAll(event: any) {
+    this.isDisable = !this.isDisable;
+    if (event.target.checked)
+      this.selectedItems = this.cartDetails.map((_, index) => index);
+    else
+      this.selectedItems = [];
+    this.updatePrice();
+  }
+  selectItem(event: any, index: number) {
+    var isSelected = event.target.checked;
+    if (isSelected) {
+      this.selectedItems.push(index);
+      this.isDisable = !isSelected;
+    } else {
+      this.selectedItems = this.selectedItems.filter(i => i != index);
+    }
+    this.allSelected = this.selectedItems.length != 0;
+    this.isDisable = this.selectedItems.length == 0
+    this.updatePrice();
+  }
+  updatePrice() {
+    this.totalPrice = this.selectedItems.map(i => this.cartDetails[i]).reduce((acc, c) => acc + c.quantity * (c.salePrice || 0), 0);
+  }
+  minusQuantity(cartDetailId: number) {
+    var item = this.cartDetails.find(c => c.cartDetailId == cartDetailId)
+    if (!item)
+      return;
+    if (item.quantity <= 1)
+      return;
+    this.totalQuantity -= 1;
+    this.cartService.minusQuantity(cartDetailId).subscribe({
+      next: (res) => {
+        item!.quantity = res.data;
+
+      },
+      error: (e) => console.log(e),
+      complete: () => {
+       this.updateCommon();
+      }
+    })
+  }
+  plusQuantity(cartDetailId: number) {
+    var item = this.cartDetails.find(c => c.cartDetailId == cartDetailId)
+    if (!item)
+      return;
+    this.totalQuantity += 1;
+    this.cartService.plusQuantity(cartDetailId).subscribe({
+      next: (res) => item!.quantity = res.data,
+      error: (e) => console.log(e),
+      complete: () => {
+        this.updateCommon();
+      }
+    })
+  }
+  updateTotalQuantity() {
+    this.totalQuantity = this.cartDetails.reduce((acc, c) => acc + (c.quantity || 0), 0);
+  }
+  updateCommon() {
+    this.updateTotalQuantity();
+    this.updatePrice();
+    this.cartService.updateCartItems(this.cartDetails)
+    this.cdr.detectChanges();
+  }
 }

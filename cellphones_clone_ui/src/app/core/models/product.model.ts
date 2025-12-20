@@ -28,13 +28,24 @@ export interface ProductViewDetail {
     name: string | null;
     basePrice: number;
     salePrice: number;
-    version: string | null;
+    versions: string | null;
     imageUrl: string | null;
     productImages: ProductImage[];
     productSpecification: ProductSpecification[];
     commitments: string[];
+    colorDTOs: ColorDTO[];
+    StoreHouseDTOs: StoreHouseDTO[]
+}
+
+export interface StoreHouseDTO {
     quantity: number;
     street: string | null;
     district: string | null;
     city: string | null;
+}
+
+export interface ColorDTO {
+    colorId: number;
+    name: string;
+    image: ProductImage
 }

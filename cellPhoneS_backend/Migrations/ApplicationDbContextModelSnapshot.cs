@@ -128,6 +128,22 @@ namespace cellPhoneS_backend.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("cellPhoneS_backend.Data.View.ProductColorStockView", b =>
+                {
+                    b.Property<long>("ColorId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("TotalQuantity")
+                        .HasColumnType("int");
+
+                    b.ToTable((string)null);
+
+                    b.ToView("ProductColorStockView", (string)null);
+                });
+
             modelBuilder.Entity("cellPhoneS_backend.Models.CategoryProduct", b =>
                 {
                     b.Property<long>("CategoryId")
@@ -381,6 +397,9 @@ namespace cellPhoneS_backend.Migrations
                     b.Property<long>("CartId")
                         .HasColumnType("bigint");
 
+                    b.Property<long>("ColorId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("CreateBy")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -407,6 +426,8 @@ namespace cellPhoneS_backend.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CartId");
+
+                    b.HasIndex("ColorId");
 
                     b.HasIndex("CreateBy");
 
@@ -893,6 +914,55 @@ namespace cellPhoneS_backend.Migrations
                     b.HasIndex("UpdateBy");
 
                     b.ToTable("OrderDetails");
+                });
+
+            modelBuilder.Entity("cellphones_backend.Models.Payment", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("CreateBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ImageURL")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("PaymentType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UpdateBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreateBy");
+
+                    b.HasIndex("UpdateBy");
+
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("cellphones_backend.Models.Product", b =>
@@ -1553,7 +1623,7 @@ namespace cellPhoneS_backend.Migrations
             modelBuilder.Entity("cellPhoneS_backend.Models.Demand", b =>
                 {
                     b.HasOne("cellphones_backend.Models.Category", "Category")
-                        .WithMany()
+                        .WithMany("Demands")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1708,6 +1778,12 @@ namespace cellPhoneS_backend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("cellphones_backend.Models.Color", "Color")
+                        .WithMany()
+                        .HasForeignKey("ColorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("cellphones_backend.Models.User", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateBy")
@@ -1727,6 +1803,8 @@ namespace cellPhoneS_backend.Migrations
                         .IsRequired();
 
                     b.Navigation("Cart");
+
+                    b.Navigation("Color");
 
                     b.Navigation("CreateUser");
 
@@ -1796,7 +1874,7 @@ namespace cellPhoneS_backend.Migrations
                         .IsRequired();
 
                     b.HasOne("cellphones_backend.Models.Product", "Product")
-                        .WithMany()
+                        .WithMany("Commitments")
                         .HasForeignKey("ProductCommitmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2010,6 +2088,25 @@ namespace cellPhoneS_backend.Migrations
                     b.Navigation("UpdateUser");
                 });
 
+            modelBuilder.Entity("cellphones_backend.Models.Payment", b =>
+                {
+                    b.HasOne("cellphones_backend.Models.User", "CreateUser")
+                        .WithMany()
+                        .HasForeignKey("CreateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("cellphones_backend.Models.User", "UpdateUser")
+                        .WithMany()
+                        .HasForeignKey("UpdateBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CreateUser");
+
+                    b.Navigation("UpdateUser");
+                });
+
             modelBuilder.Entity("cellphones_backend.Models.Product", b =>
                 {
                     b.HasOne("cellphones_backend.Models.User", "CreateUser")
@@ -2139,7 +2236,7 @@ namespace cellPhoneS_backend.Migrations
 
             modelBuilder.Entity("cellphones_backend.Models.Store", b =>
                 {
-                    b.HasOne("cellphones_backend.Models.Color", "ColorImage")
+                    b.HasOne("cellphones_backend.Models.Color", "Color")
                         .WithMany()
                         .HasForeignKey("ColorId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2152,7 +2249,7 @@ namespace cellPhoneS_backend.Migrations
                         .IsRequired();
 
                     b.HasOne("cellphones_backend.Models.Product", "Product")
-                        .WithMany("stores")
+                        .WithMany("Stores")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2169,7 +2266,7 @@ namespace cellPhoneS_backend.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("ColorImage");
+                    b.Navigation("Color");
 
                     b.Navigation("CreateUser");
 
@@ -2282,6 +2379,8 @@ namespace cellPhoneS_backend.Migrations
                     b.Navigation("Children");
 
                     b.Navigation("Criteria");
+
+                    b.Navigation("Demands");
                 });
 
             modelBuilder.Entity("cellphones_backend.Models.Criterion", b =>
@@ -2303,11 +2402,13 @@ namespace cellPhoneS_backend.Migrations
                 {
                     b.Navigation("CategoryProducts");
 
+                    b.Navigation("Commitments");
+
                     b.Navigation("ProductImages");
 
                     b.Navigation("ProductSpecification");
 
-                    b.Navigation("stores");
+                    b.Navigation("Stores");
                 });
 
             modelBuilder.Entity("cellphones_backend.Models.Specification", b =>

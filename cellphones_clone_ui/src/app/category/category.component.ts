@@ -96,4 +96,5 @@ export class CategoryComponent implements OnInit {
   getRemainingCount() {
     return this.total
   }
+  
 }

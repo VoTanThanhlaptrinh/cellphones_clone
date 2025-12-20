@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("cellPhoneS_backend")]
 [assembly: System.Reflection.AssemblyCopyrightAttribute(" ")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+74f17f0d825388c6c985cbe6a6741ab5d6252a54")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1cb88f4fccc15ff8e15979d19a25b4afb719f421")]
 [assembly: System.Reflection.AssemblyProductAttribute("cellPhoneS_backend")]
 [assembly: System.Reflection.AssemblyTitleAttribute("cellPhoneS_backend")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

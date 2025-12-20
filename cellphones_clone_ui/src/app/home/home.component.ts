@@ -5,10 +5,10 @@ import {
   Inject,
   OnInit,
   PLATFORM_ID,
+  NgModule
 } from '@angular/core';
 import { MatTabsModule } from '@angular/material/tabs';
-import { SlickCarouselModule } from 'ngx-slick-carousel';
-import { Router, RouterLink, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { ProductService } from '../services/product.service';
 import { HomeView } from '../core/models/home_view.model';
 import { ProductCardComponent } from "../product-card/product-card.component";
@@ -16,11 +16,10 @@ import { ProductCardComponent } from "../product-card/product-card.component";
   selector: 'app-home',
   imports: [
     MatTabsModule,
-    SlickCarouselModule,
     CommonModule,
     RouterModule,
     ProductCardComponent
-],
+  ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -30,7 +29,7 @@ export class HomeComponent implements OnInit {
   home_view: HomeView | null = null;
   protected show = false
   protected i = 0;
-  constructor(@Inject(PLATFORM_ID) platformId: Object, private router: Router, private productService: ProductService) {
+  constructor(@Inject(PLATFORM_ID) platformId: Object, private productService: ProductService) {
     this.isBrowser = isPlatformBrowser(platformId);
   }
 

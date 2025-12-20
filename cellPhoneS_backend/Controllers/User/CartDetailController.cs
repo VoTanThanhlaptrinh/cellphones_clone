@@ -19,16 +19,12 @@ namespace cellphones_backend.Controllers
             this._cartService = cartService;
             userId = "test-user-id"; // Placeholder for user identification
         }
-        [HttpGet("{page}/{pageSize}")]
-        public async Task<ActionResult<ApiResponse<List<CartView>>>> GetCartDetails(int page, int pageSize)
-        {
-            return HandleResult(await _cartService.GetCartItems(page, pageSize, userId));
-        }
         [HttpGet("{productId}")]
         public async Task<ActionResult<ApiResponse<bool>>> AddToCart(long productId)
         {
             // Placeholder logic to add product to cart
-            return HandleResult(await _cartService.AddToCart(productId, userId));
+            // return HandleResult(await _cartService.AddToCart(productId, userId));
+            return null!;
         }
         [HttpDelete("{cartDetailId}")]
         public async Task<ActionResult<ApiResponse<bool>>> RemoveFromCart(long cartDetailId)

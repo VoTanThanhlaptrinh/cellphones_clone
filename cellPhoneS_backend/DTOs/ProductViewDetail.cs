@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using cellphones_backend.Models;
+using cellPhoneS_backend.DTOs.Responses;
 using cellPhoneS_backend.Models;
 
 namespace cellPhoneS_backend.DTOs;
@@ -15,8 +16,6 @@ public record ProductViewDetail(
     ICollection<ImageDTO> ProductImages,
     ICollection<SpecificationDTO> ProductSpecification,
     ICollection<string> Commitments,
-    int Quantity,
-    string? Street,
-    string? District,
-    string? City
+    ICollection<ColorDTO> ColorDTOs,
+    ICollection<StoreHouseDTO> StoreHouseDTOs
 );
