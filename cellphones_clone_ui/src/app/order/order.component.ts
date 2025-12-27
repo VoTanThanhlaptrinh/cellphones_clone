@@ -3,12 +3,15 @@ import { HeaderCartOrderComponent } from "../header-cart-order/header-cart-order
 import { CartService } from '../services/cart.service';
 import { MatTabsModule } from '@angular/material/tabs';
 import { CommonModule, CurrencyPipe } from '@angular/common';
-import { UserView } from '../core/models/user_response.model';
-import { FormsModule } from '@angular/forms';
-import { IgxInputDirective, IgxInputGroupComponent, IgxLabelDirective, IgxIconComponent, IgxPrefixDirective, IgxSuffixDirective, IgxHintDirective, IgxGridComponent, IgxColumnComponent } from 'igniteui-angular';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { PaymentComponent } from "../payment/payment.component";
+import { PaymentInforComponent } from "../payment-infor/payment-infor.component";
+import { StoreView } from '../core/models/store.model';
+import { OrderService } from '../services/order.service';
+import { NotifyService } from '../services/notify.service';
 @Component({
   selector: 'app-order',
-  imports: [HeaderCartOrderComponent, MatTabsModule, CommonModule, FormsModule],
+  imports: [HeaderCartOrderComponent, MatTabsModule, CommonModule, FormsModule, ReactiveFormsModule, PaymentComponent, PaymentInforComponent],
   templateUrl: './order.component.html',
   styleUrl: './order.component.css',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -16,19 +19,25 @@ import { IgxInputDirective, IgxInputGroupComponent, IgxLabelDirective, IgxIconCo
 
 export class OrderComponent implements OnInit {
   totalQuantity?: number;
-  email?: string;
+  isAppear: boolean = true;
+  storeViews?: StoreView[];
   private currency = inject(CurrencyPipe);
-  user?: UserView = {
-    name: "Võ Tấn Thành", mobile: "0796692184", email: "votanthanh32004@gmail.com"
-  };
-  constructor(private cartService: CartService) {
-  }
+  constructor(
+    private orderService: OrderService,
+    private cartService: CartService,
+    private notifySerivce: NotifyService,
+  ) {}
   ngOnInit(): void {
     this.totalQuantity = this.cartService.cartQuantity();
+    this.getStoreViews();
   }
-  convertPriceVnd(price: number | null | undefined): string {
-    if (price == null) return 'Đang cập nhật';
-    const formatted = this.currency.transform(price, 'VND', 'symbol', '1.0-0') ?? '';
-    return formatted.replace('₫', 'đ');
+  allowAppear(event: any){
+    this.isAppear = event
+  }
+  getStoreViews(){
+    this.orderService.getStoreView().subscribe({
+      next: res => this.storeViews = res.data,
+      error: err => this.notifySerivce.error(err)
+    })
   }
 }

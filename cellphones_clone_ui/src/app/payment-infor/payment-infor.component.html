@@ -1,0 +1,173 @@
+<!-- Thông tin -->
+<div class="w-full sm:w-160 mx-auto px-2 md:px-4">
+  <form [formGroup]="paymentInfoForm" class="flex-col w-full mt-2" (submit)="$event.preventDefault()">
+    <div class="flex justify-between w-full mx-auto mt-2">
+      <svg (click)="goCart()" width="20" height="17" viewBox="0 0 20 17" fill="none" xmlns="http://www.w3.org/2000/svg"
+        data-v-5273d083="">
+        <path d="M19 8.5L1 8.5M1 8.5L8 1M1 8.5L8 16" stroke="#121219" stroke-width="1.5" stroke-linecap="round"
+          stroke-linejoin="round" data-v-5273d083=""></path>
+      </svg>
+      <p class="text-center text-black text-lg font-medium">Thông tin</p>
+      <div></div>
+    </div>
+    <hr class="border-t border-gray-200 mb-2 w-full mx-auto" />
+    <div class="grid grid-cols-2 gap-x-2 mx-auto mt-2 text-base font-bold font-sans px-2 py-4">
+      <div class="text-red-700 flex-col items-center">
+        <p class="text-center uppercase">1. Thông tin</p>
+        <hr class="border-2 mt-2 mx-auto" />
+      </div>
+      <div class="text-gray-400 flex-col items-center" (click)="goPayment()">
+        <p class="text-center uppercase">2. Thanh toán</p>
+        <hr class="border-2 mt-2 mx-auto" />
+      </div>
+    </div>
+    <div class="flex flex-col w-full mx-auto mt-4 gap-y-4">
+      <div class="flex justify-between bg-white shadow rounded-lg p-4">
+        <img loading="lazy" class="h-24 w-24 col-span-1" alt="img" />
+        <div class="flex flex-col">
+          <h3>Item name</h3>
+          <div class="flex flex-row gap-x-2">
+            <p class="text-red-500">
+              {{ convertPriceVnd(10) }}
+            </p>
+            <p class="text-gray-600 line-through">
+              {{ convertPriceVnd(20) }}
+            </p>
+          </div>
+        </div>
+        <h4 class="mt-auto">Số lượng: 1</h4>
+      </div>
+      <p class="text-base uppercase">Thông tin khách hàng</p>
+      <div class="flex flex-col gap-y-2 p-4 bg-white shadow rounded-lg">
+        <div class="bg-white flex justify-between">
+          <p>{{ user?.name }}</p>
+          <p class="text-sm text-gray-400">{{ user?.mobile }}</p>
+        </div>
+        <div class="relative my-4 group">
+          <app-input formControlName="email" label="Email" [required]="true"></app-input>
+
+          <button type="button" id="remove" (click)="deleteMail()" aria-label="remove"
+            class="absolute btn hover:bg-gray-200 hover:rounded-full hidden peer-valid:block items-center justify-center top-1/3 right-0 p-1">
+            <svg version="1.1" id="svg2" xmlns:dc="http://purl.org/dc/elements/1.1/"
+              xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+              xmlns:svg="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+              xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" sodipodi:docname="remove-circle.svg"
+              inkscape:version="0.48.4 r9939" xmlns="http://www.w3.org/2000/svg"
+              xmlns:xlink="http://www.w3.org/1999/xlink" width="16px" height="16px" viewBox="0 0 1200 1200"
+              enable-background="new 0 0 1200 1200" xml:space="preserve" fill="#000000" stroke="#000000"
+              transform="matrix(1, 0, 0, 1, 0, 0)">
+              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+              <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+              <g id="SVGRepo_iconCarrier">
+                <path id="path18520" inkscape:connector-curvature="0"
+                  d="M600,0C268.63,0,0,268.63,0,600c0,331.369,268.63,600,600,600 c331.369,0,600-268.63,600-600S931.369,0,600,0z M600,130.371c259.369,0,469.556,210.325,469.556,469.629 c0,259.305-210.187,469.556-469.556,469.556c-259.37,0-469.556-210.251-469.556-469.556C130.445,340.696,340.63,130.371,600,130.371 L600,130.371z M435.425,305.347L305.347,435.425L469.922,600L305.347,764.575l130.078,130.078L600,730.078l164.575,164.575 l130.078-130.078L730.078,600l164.575-164.575L764.575,305.347L600,469.922L435.425,305.347z">
+                </path>
+              </g>
+            </svg>
+          </button>
+        </div>
+        <p class="text-xs text-gray-400">
+          (*) Hóa đơn VAT sẽ được gửi qua email này
+        </p>
+        <div class="flex gap-x-2 items-center">
+          <input type="checkbox" value="" name="" placeholder="a"
+            class="checkbox-warning rounded-sm checked:ring-transparent" />
+          <label>Nhận email thông báo và ưu đãi từ CellphoneS</label>
+        </div>
+      </div>
+      <!-- Thông tin nhận hàng -->
+      <p class="text-base uppercase">Thông tin nhận hàng</p>
+      <div class="flex flex-col w-full gap-y-2 rounded-lg bg-white shadow peer">
+        <div class="grid grid-cols-2 justify-between items-center bg-gray-100">
+          <label for="receive"
+            class="flex gap-x-2 w-full items-center has-checked:rounded-tl-lg has-checked:rounded-tr-lg sm:px-2 md:px-3 lg:px-4 xl:px-6 py-4 border border-transparent transition-all cursor-pointer duration-300 has-checked:bg-white">
+            <input type="radio" name="method-get" value="at-store" id="receive" formControlName="deliveryMethod"
+              name="deliveryMethod" value="at-store" class="accent-red-600 text-red-600 focus:ring-red-600" />
+            <p class="text-base">Nhận tại cửa hàng</p>
+          </label>
+          <label for="ship"
+            class="flex gap-x-2 w-full items-center rounded-tl-lg rounded-tr-lg px-2 py-4 border border-transparent transition-all cursor-pointer duration-300 has-checked:bg-white">
+            <input type="radio" name="method-get" value="ship" id="ship" formControlName="deliveryMethod"
+              name="deliveryMethod" value="ship"
+              class="accent-red-600 text-red-600 checked:text-red-600 checked:ring-0 checked:ring-current focus:ring-0 focus:ring-current" />
+            <p class="text-base">Giao hàng tận nơi</p>
+          </label>
+        </div>
+        @if(this.deliveryMethod == 'at-store'){
+        <div class="flex flex-col p-2 bg-white w-full gap-y-2 rounded-lg">
+          <div class="grid grid-cols-2 gap-x-4 px-4">
+            <app-autocomplete-input [label]="'Tỉnh/thành phố'.toUpperCase()" [original]="origins" formControlName="city"
+              name="city"></app-autocomplete-input>
+            <app-autocomplete-input [label]="'quận/huyện'.toUpperCase()" [original]="origins" formControlName="district"
+              name="district"></app-autocomplete-input>
+          </div>
+          <div class="w-full px-4">
+            <app-input formControlName="storeId" name="storeId" label="Chọn địa chỉ cửa hàng"></app-input>
+          </div>
+          <div class="w-full mx-auto px-4">
+            <app-input formControlName="note" name="note" label="Ghi chú"></app-input>
+          </div>
+        </div>
+        } @if(this.deliveryMethod === 'ship') {
+        <div class="flex flex-col p-2 bg-white w-full gap-y-2 rounded-lg">
+          <div class="grid grid-cols-2 gap-x-4 px-4">
+            <div class="group">
+              <app-input formControlName="receiverName" label="Tên người nhận" name="receiverName"
+                [required]="true"></app-input>
+            </div>
+            <div class="group">
+              <app-input formControlName="receiverPhone" label="Số điện thoại" name="receiverPhone"
+                [required]="true"></app-input>
+            </div>
+          </div>
+          @if(origins && districtLabel){
+          <div class="grid grid-cols-3 gap-x-2 px-4">
+            <app-autocomplete-input [label]="'Tỉnh/Thành phố'" [original]="origins" formControlName="shipCity"
+              name="shipCity"></app-autocomplete-input>
+            <app-autocomplete-input [label]="'Quận/Huyện'" [original]="origins" formControlName="shipDistrict"
+              name="shipDistrict"></app-autocomplete-input>
+            <app-autocomplete-input [label]="'Phường/Xã'" [original]="origins" formControlName="shipWard"
+              name="shipWard"></app-autocomplete-input>
+          </div>
+          }
+          <div class="w-full mx-auto px-4">
+            <app-input formControlName="address" label="Số nhà tên đường nhận hàng" name="address"
+              [required]="true"></app-input>
+          </div>
+          <div class="w-full mx-auto px-4">
+            <app-input formControlName="note" label="Ghi chú khác (nếu có)" name="note"></app-input>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+    <div class="h-[2vh]"></div>
+    <!-- hóa đơn -->
+    <div class="bg-white flex w-full justify-between mt-2 gap-y-2 px-2 py-4 mx-auto shadow rounded-lg">
+      <p>Quý khách có muốn xuất hóa đơn công ty không?</p>
+      <div class="flex gap-x-2 items-center">
+        <input type="radio" formControlName="requestInvoice" name="requestInvoice" [value]="true" id="" placeholder="a"
+          class="accent-red-600 text-red-600 focus:ring-red-600 ring-offset-8 w-4 h-4" />
+        <p>Có</p>
+        <input type="radio" formControlName="requestInvoice" name="requestInvoice" [value]="false" id="" placeholder="a"
+          class="accent-red-600 text-red-600 focus:ring-red-600 ring-offset-8 w-4 h-4" />
+        <p>Không</p>
+      </div>
+    </div>
+    <div class="h-[25vh]"></div>
+    <div
+      class="fixed z-20 left-1/2 -translate-x-1/2 bottom-0 w-full sm:w-152 h-[14vh] bg-white rounded-sm shadow-[0_-4px_20px_-1px_rgba(40,124,234,.15)] py-1 px-2 gap-y-2">
+      <div class="flex flex-col items-center justify-center w-full h-full gap-y-2 font-semibold">
+        <div class="flex w-full justify-between px-2 text-base">
+          <p class="text-black">Tổng tiền tạm tính:</p>
+          <p class="text-red-700">{{ convertPriceVnd(13690000) }}</p>
+        </div>
+        <button type="button"
+          class="btn bg-red-600 rounded-sm border-transparent text-white h-10 w-full px-2 py-1 font-normal"
+          (click)="goPayment()">
+          Tiếp tục
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

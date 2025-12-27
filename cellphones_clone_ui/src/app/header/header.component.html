@@ -1,5 +1,5 @@
 <header class="main-color w-full relative flex flex-col">
-    <div class="flex md:flex-row items-center  pt-1 mx-auto lg:max-w-[1400px]">
+    <div class="flex md:flex-row items-center  pt-1 mx-auto lg:max-w-350">
         <div class="overflow-x-hidden items-center space-x-3 text-xs text-white font-medium  md:w-200 md:py-1">
             <nav class=" md:w-auto flex justify-center order-2 md:order-1" aria-label="Main promotions"
                 aria-live="polite">
@@ -156,8 +156,8 @@
             </nav>
         </div>
     </div>
-    <section class="container sticky top-0 z-[9999] main-color mx-auto py-4 ps-2">
-    <div class="flex flex-row gap-2 lg:max-w-[1400px] mx-auto items-center justify-center md:gap-x-4  ">
+    <section class="container sticky top-0 z-9999 main-color mx-auto py-4 ps-2">
+    <div class="flex flex-row gap-2 lg:max-w-350 mx-auto items-center justify-center md:gap-x-4  ">
         <svg class="hidden lg:block" (click)="goHome()" width="169" height="28" viewBox="0 0 169 28" fill="none"
             xmlns="http://www.w3.org/2000/svg">
             <path
@@ -276,7 +276,7 @@
             </svg>
         </div>
         <div
-            class="bg-white rounded-xl sm:justify-between sm:max-w-[130px] md:max-w-sm  border-white px-1 md:px-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
+            class="bg-white rounded-xl sm:justify-between sm:max-w-32.5 md:max-w-sm  border-white px-1 md:px-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
             <form role="search">
                 <div class="flex flex-row me-auto  md:items-center md:px-2 md:space-x-2">
                     <button type="submit" class="md:pe-2" aria-label="submit">
@@ -317,7 +317,7 @@
                         d="M2.5 3H3.26772C3.74998 3 4.16354 3.3442 4.2511 3.81845L4.65385 6M4.65385 6L6.1978 14.3631C6.37291 15.3116 7.20004 16 8.16457 16H17.3968C17.8625 16 18.2665 15.6786 18.3712 15.2249L20.2173 7.22486C20.3619 6.59824 19.886 6 19.2429 6H4.65385Z"
                         stroke="white" stroke-width="1.5" stroke-linecap="round"></path>
                 </svg>
-                    <p class="absolute top-[-5px] right-[-5px] grid place-items-center w-[17px] h-[15px]  rounded-lg border border-white
+                    <p class="absolute -top-1.25 -right-1.25 grid place-items-center w-4.25 h-3.75  rounded-lg border border-white
                      bg-orange-400 text-white text-center text-xs">0</p>
                 </div>
             </a>
@@ -347,30 +347,30 @@
 </section>
 <section>
     <dialog id="login_modal" class="modal">
-        <div class="modal-box max-w-[360px] rounded-xl bg-white">
+        <div class="modal-box max-w-90 rounded-xl bg-white">
             <div class="flex flex-col py-2 px-4 items-center">
                 <p class="text-red-600 text-2xl text-center font-medium mt-2">Smember</p>
                 <img src="assets/images/modal_login.png" class="h-20 w-12 items-center">
                 <p class="text-black text-center font-medium text-normal mt-2">Vui lòng đăng nhập tài khoản Smember để xem ưu đãi và thanh toán dễ dàng hơn.</p>
                 <div class="w-full gap-x-2 items-center flex justify-between mt-2">
                     <a routerLink="/register" class="btn bg-white text-red-600 border-2 rounded-xl border-red-600 hover:scale-105 duration-500 text-center w-40 h-12 text-lg font-medium">Đăng ký</a>
-                    <a routerLink="/login" class="btn bg-red-600 text-white border-1 rounded-xl border-transparent hover:scale-105 duration-500 text-center w-40 h-12 text-lg font-medium">Đăng nhập</a>
+                    <a routerLink="/login" class="btn bg-red-600 text-white border rounded-xl border-transparent hover:scale-105 duration-500 text-center w-40 h-12 text-lg font-medium">Đăng nhập</a>
                 </div>
             </div>
         </div>
         <form method="dialog" class="modal-backdrop">
-            <button>close</button>
+            <button type="reset">close</button>
         </form>
     </dialog>
 </section>
 <section>
   <dialog id="my_modal_2" class="modal">
     <div
-      class="modal-box top-22 left-37 absolute bg-white flex max-w-[1000px] shadow-sm rounded-lg font-light text-gray-700"
+      class="modal-box top-22 left-37 absolute bg-white flex max-w-250 shadow-sm rounded-lg font-light text-gray-700"
     >
       <nav>
         <ul
-          class="flex flex-col md:px-2 md:py-2 md:space-y-2 md:text-xs w-[230px] space-y-1"
+          class="flex flex-col md:px-2 md:py-2 md:space-y-2 md:text-xs w-57.5 space-y-1"
         >
           @for (item of categories; track $index) {
           <li class="relative group">
@@ -398,7 +398,7 @@
               </svg>
             </div>
             <div
-              class="hidden fixed transition duration-150 group-hover:block opacity-0 group-hover:opacity-100 bg-white top-0 left-57 max-w-[1000px] px-4 py-2 rounded-lg z-[9999]"
+              class="hidden fixed transition duration-150 group-hover:block opacity-0 group-hover:opacity-100 bg-white top-0 left-57 max-w-250 px-4 py-2 rounded-lg z-9999"
             >
               <div class="flex flex-row w-full">
                 @for (tab of item.tabs; track tab.title) {
@@ -428,7 +428,7 @@
       </nav>
     </div>
     <form method="dialog" class="modal-backdrop">
-    <button>close</button>
+    <button type="reset">close</button>
   </form>
   </dialog>
 </section>

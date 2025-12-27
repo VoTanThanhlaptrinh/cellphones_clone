@@ -21,6 +21,7 @@ internal class Program
 
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("dev")));
+        builder.Services.AddMemoryCache();
         builder.Services.AddIdentity<User, Role>(options =>
         {
             options.Password.RequireDigit = true;

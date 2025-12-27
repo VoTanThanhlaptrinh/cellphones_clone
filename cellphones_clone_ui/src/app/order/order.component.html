@@ -2,153 +2,16 @@
   <app-header-cart-order
     [totalQuantity]="this.totalQuantity"
     [Username]="'Thành'"
+    class="w-full"
   />
-  <form class="flex-col justify-between min-w-[39vw] mx-auto mt-2">
-    <div class="flex justify-between w-full mx-auto mt-2">
-      <svg
-        width="20"
-        height="17"
-        viewBox="0 0 20 17"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        data-v-5273d083=""
-      >
-        <path
-          d="M19 8.5L1 8.5M1 8.5L8 1M1 8.5L8 16"
-          stroke="#121219"
-          stroke-width="1.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          data-v-5273d083=""
-        ></path>
-      </svg>
-      <p class="text-center text-black text-lg font-medium">Thông tin</p>
-      <div></div>
-    </div>
-    <hr class="border-t border-gray-200 mb-2 w-full mx-auto" />
-    <div
-      class="grid grid-cols-2 gap-x-2 justify-between min-w-[35vw] mx-auto mt-2 text-base font-bold font-sans"
-    >
-      <div
-        [ngClass]="{
-      ' text-gray-400': false,
-      ' text-red-700': true,
-    }"
-      >
-        <p class="text-center uppercase">1. Thông tin</p>
-        <hr class="border-2 mt-2 mx-auto" />
-      </div>
-      <div
-        [ngClass]="{
-      ' text-gray-400': true,
-      ' text-red-700': false,
-    }"
-      >
-        <p class="text-center uppercase">2. Thanh toán</p>
-        <hr class="border-2 mt-2 mx-auto" />
-      </div>
-    </div>
-    <!-- Thông tin -->
-    <div class="flex flex-col w-full mx-auto mt-2 gap-y-4">
-      <div class="flex justify-between bg-white shadow rounded-lg p-4">
-        <img loading="lazy" class="h-24 w-24 col-span-1" alt="img" />
-        <div class="flex flex-col">
-          <h3>Item name</h3>
-          <div class="flex flex-row gap-x-2">
-            <p class="text-red-500">
-              {{ convertPriceVnd(10) }}
-            </p>
-            <p class="text-gray-600 line-through">
-              {{ convertPriceVnd(20) }}
-            </p>
-          </div>
-        </div>
-        <h4 class="mt-auto">Số lượng: 1</h4>
-      </div>
-      <p class="text-base uppercase">Thông tin khách hàng</p>
-      <div class="flex flex-col gap-y-2 p-4 bg-white shadow rounded-lg">
-        <div class="bg-white flex justify-between">
-          <p>{{ user?.name }}</p>
-          <p class="text-sm text-gray-400">{{ user?.mobile }}</p>
-        </div>
-
-        <p class="text-xs text-gray-200">
-          (*) Hóa đơn VAT sẽ được gửi qua email này
-        </p>
-        <div class="flex gap-x-2 items-center">
-          <input
-            type="checkbox"
-            value=""
-            name=""
-            placeholder="a"
-            class="checkbox-warning rounded-sm checked:ring-transparent"
-          />
-          <label>Nhận email thông báo và ưu đãi từ CellphoneS</label>
-        </div>
-      </div>
-      <!-- Thông tin nhận hàng -->
-      <p class="text-base uppercase">Thông tin nhận hàng</p>
-      <div class="flex flex-col w-full gap-y-2 p-4 bg-white shadow rounded-lg">
-        <div class="flex justify-between">
-          <p>{{ user?.name }}</p>
-          <p class="text-sm text-gray-200">{{ user?.mobile }}</p>
-        </div>
-        <div class="relative my-4 group">
-          <input
-            type="text"
-            id="input"
-            required
-            class="peer w-full border-none border-b-2 border-gray-300 bg-transparent px-0 py-1.5 text-xl outline-none transition-all duration-300 ease-in-out focus:border-transparent"
-          />
-          <label
-            for="input"
-            class="pointer-events-none absolute left-0 top-0 text-gray-300 transition-all duration-300 ease-in-out peer-focus:-top-5 peer-focus:text-xs peer-focus:text-blue-600 peer-valid:-top-5 peer-valid:text-base peer-valid:text-gray-800"
-          >
-            Enter Text
-          </label>
-          <!-- Underline gray (nền) -->
-          <div class="absolute bottom-0 left-0 h-1/24 w-full bg-gray-300"></div>
-          <!-- Underline blue (tràn vào) -->
-          <div
-            class="absolute bottom-0 left-0 h-1/24 w-full origin-left scale-x-0 bg-blue-600 transition-transform duration-500 ease-in-out peer-focus:scale-x-100 peer-valid:scale-x-100"
-          ></div>
-        </div>
-        <p class="text-xs text-gray-200">
-          (*) Hóa đơn VAT sẽ được gửi qua email này
-        </p>
-      </div>
-    </div>
-    <!-- hóa đơn -->
-    <div
-      class="bg-white flex w-full justify-between mt-2 gap-y-2 px-2 py-4 mx-auto shadow rounded-lg"
-    >
-      <p>Quý khách có muốn xuất hóa đơn công ty không?</p>
-      <div class="flex gap-x-2 items-center">
-        <input type="radio" name="choose" id="" placeholder="a" class="" />
-        <p>Có</p>
-        <input type="radio" name="choose" id="" placeholder="a" />
-        <p>Không</p>
-      </div>
-    </div>
-    <div class="h-[30vh]"></div>
-    <!-- Thanh toán -->
-    <div
-      class="fixed left-1/2 -translate-x-1/2 bottom-0 min-w-[39vw] h-[14vh] bg-white rounded-sm shadow-[0_-4px_20px_-1px_rgba(40,124,234,.15)] py-1 px-2 gap-y-2"
-    >
-      <div
-        class="flex flex-col items-center justify-center w-full h-full gap-y-2 font-semibold"
-      >
-        <div class="flex w-full justify-between px-2">
-          <p class="text-black">Tổng tiền tạm tính:</p>
-          <p class="text-red-700">{{ convertPriceVnd(13690000) }}</p>
-        </div>
-        <button
-          type="button"
-          class="btn bg-red-600 rounded-sm border-transparent text-white h-10 w-full px-2 py-1 font-normal"
-        >
-          Tiếp tục
-        </button>
-      </div>
-    </div>
-  </form>
+  @if(this.isAppear){
+  <app-payment-infor
+    [storeViews]="this.storeViews"
+    (isPaymentInfor)="allowAppear($event)"
+  />
+  }@else {
+  <app-payment
+    (isPaymentInfor)="allowAppear($event)"
+  />
+  }
 </div>

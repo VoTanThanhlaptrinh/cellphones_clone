@@ -1,13 +1,21 @@
 using Microsoft.AspNetCore.Mvc;
 using cellphones_backend.DTOs.Responses;
 using cellphones_backend.Models;
+using cellPhoneS_backend.DTOs.Responses;
+using cellPhoneS_backend.Services.Implement;
+using cellPhoneS_backend.Controllers;
 
 namespace cellphones_backend.Controllers
 {
     [Route("api/orders")]
     [ApiController]
-    public class OrderController : ControllerBase
+    public class OrderController : BaseController
     {
+        private readonly CacheService _cacheService;
+        public OrderController(CacheService cacheService)
+        {
+            this._cacheService = cacheService;
+        }
         // GET: api/orders/list/{page}/{pageSize}
         [HttpGet("list/{page}/{pageSize}")]
         public Task<ActionResult<ApiResponse<List<Order>>>> GetOrders(int page, int pageSize)
@@ -69,6 +77,12 @@ namespace cellphones_backend.Controllers
         public Task<ActionResult<ApiResponse<List<Order>>>> GetYearOrders(int year)
         {
             return null!; // TODO: implement fetch orders by entire year
+        }
+
+        [HttpGet("getStores")]
+        public async Task<ActionResult<ApiResponse<List<StoreView>>>> GetStores(int year)
+        {
+            return HandleResult(await _cacheService.GetStoreViews());
         }
     }
 }
