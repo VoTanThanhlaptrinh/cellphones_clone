@@ -1,0 +1,33 @@
+<div class="relative my-4 group">
+  <input
+    #inputEl
+    type="text"
+    id="input"
+    [attr.required]="required"
+    [disabled]="disabled"
+    [value]="value"
+    (input)="onInput($event)"
+    (blur)="onTouch()"
+    [placeholder]="' '"
+    class="peer w-full border-none border-b-2 text-base border-gray-300 bg-transparent px-0 py-1.5 outline-none transition-all duration-300 ease-in-out focus:border-transparent placeholder-transparent"
+  />
+  <label
+    for="input"
+    [for]="inputEl.id"
+    class="pointer-events-none absolute left-0 top-0 text-gray-400 transition-all duration-300 ease-in-out peer-focus:-top-5 peer-focus:text-xs peer-focus:text-blue-600 peer-valid:-top-5 peer-valid:text-xs peer-valid:text-gray-400"
+  >
+    {{ this.label }}
+  </label>
+  <!-- Underline gray (nền) -->
+  <div class="absolute bottom-0 left-0 h-1/24 w-full bg-gray-300"></div>
+  <!-- Underline blue (tràn vào) -->
+  <div
+    class="absolute bottom-0 left-0 h-1/24 w-full origin-left scale-x-0 bg-blue-600 transition-transform duration-500 ease-in-out peer-focus:scale-x-100"
+  ></div>
+  @if(helperText || errorMessage){
+  <p
+    class="mt-1 text-xs transition-all duration-200 text-gray-500 peer-focus:text-blue-600 peer-valid:text-green-600 peer-invalid:text-red-500 peer-invalid:font-medium">
+    {{ errorMessage || helperText }}
+  </p>
+  }
+</div>

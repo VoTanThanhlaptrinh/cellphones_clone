@@ -1,7 +1,7 @@
 <div class="flex flex-col static">
   <app-header-cart-order [totalQuantity]="this.totalQuantity" [Username]="'Thành'"/>
-  <div class="bg-gray-100 min-h-[640px] overflow-x-auto static">
-    <div class="mx-auto max-w-[600px] p-2 gap-y-2 flex flex-col">
+  <div class="bg-gray-100 min-h-160 overflow-x-auto static">
+    <div class="mx-auto max-w-150 p-2 gap-y-2 flex flex-col">
       <div class="flex flex-row items-center justify-between w-full p-2">
         <svg
           width="20"
@@ -25,7 +25,7 @@
         </p>
         <div></div>
       </div>
-      <hr class="flex-grow border-t border-gray-200 mb-2" />
+      <hr class="grow border-t border-gray-200 mb-2" />
       <button
         type="button"
         class="btn bg-red-700 text-center rounded-lg p-2 text-base text-white font-normal border border-transparent w-25 h-10"
@@ -142,7 +142,7 @@
     <div class="min-h-[10vh]">
     </div>
     <div
-      class="fixed flex bottom-0 sm:w-full bg-white left-115 items-center justify-between rounded-sm shadow-[0_-4px_20px_-1px_rgba(40,124,234,.15)] py-1 px-2 max-w-[600px] w-[600px] h-15">
+      class="fixed flex bottom-0 sm:w-full bg-white left-115 items-center justify-between rounded-sm shadow-[0_-4px_20px_-1px_rgba(40,124,234,.15)] py-1 px-2 max-w-150 w-150 h-15">
       <div class="flex flex-row gap-x-2">
         <p class="text-black">Tạm tính:</p>
         <p class="text-red-700">{{ convertPriceVnd(this.totalPrice) }}</p>

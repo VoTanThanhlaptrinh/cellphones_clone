@@ -1,9 +1,9 @@
 <main
-  class="main-nav md:max-w-[1200px] bg-white container my-1 items-center w-full mx-auto"
+  class="main-nav md:max-w-300 bg-white container my-1 items-center w-full mx-auto"
 >
   <div class="flex gap-2">
     <div
-      class="flex-1 hidden lg:block max-w-[230px] shadow-sm rounded-lg card font-light text-gray-700"
+      class="flex-1 hidden lg:block max-w-57.5 shadow-sm rounded-lg card font-light text-gray-700"
     >
       <nav>
         <ul>
@@ -43,7 +43,7 @@
 
             @if (show) {
             <div
-              class="absolute transition-opacity duration-1000 shadow bg-white left-[calc(100%+8px)] top-0 w-[1000px] h-[480px] px-4 py-2 rounded-lg z-[1000]"
+              class="absolute transition-opacity duration-1000 shadow bg-white left-[calc(100%+8px)] top-0 w-250 h-120 px-4 py-2 rounded-lg z-1000"
             >
               <div class="flex flex-wrap gap-2">
                 @for (tab of categories[i].tabs; track tab.title) {
@@ -72,7 +72,7 @@
         </ul>
       </nav>
     </div>
-    <div class="flex-2 text-black max-w-[700px] w-fit">
+    <div class="flex-2 text-black max-w-175 w-fit">
       <mat-tab-group
         class="shadow-[0_2px_4px_rgba(0,0,0,0.2)] rounded-lg md:py-5"
         headerPosition="below"
@@ -153,7 +153,7 @@
       </mat-tab-group>
     </div>
     <div
-      class="flex-1 hidden lg:block max-w-[270px] flex-row space-y-1 md:space-y-2 lg:space-y-5"
+      class="flex-1 hidden lg:block max-w-67.5 flex-row space-y-1 md:space-y-2 lg:space-y-5"
     >
       <img
         src="https://cdn2.cellphones.com.vn/insecure/rs:fill:690:300/q:10/plain/https://dashboard.cellphones.com.vn/storage/samsung-galaxy-m55-5g-8gb-256gb.png"
@@ -180,24 +180,23 @@
   height="75"
   decoding="async"
   data-nimg="1"
-  class="transition-opacity duration-500 md:max-w-[1200px] opacity-100 object-contain hidden w-full mx-auto rounded-lg shadow-md md:block"
-  style="color: transparent"
+  class="transition-opacity duration-500 md:max-w-300 opacity-100 object-contain hidden w-full mx-auto rounded-lg shadow-md md:block"
   src="https://cdn2.cellphones.com.vn/insecure/rs:fill:1200:75/q:90/plain/https://dashboard.cellphones.com.vn/storage/s-edu-2-0-special-desk.gif"
 />
 @for (category of home_view?.categories; track category.name; let i = $index) {
 <section class="mt-2">
   <div
-    class="flex container mx-auto max-w-[1200px] items-center text-black gap-x-2"
+    class="flex container mx-auto max-w-300 items-center text-black gap-x-2"
   >
     <div class="flex-col flex gap-y-1">
       <img
-        class="rounded-lg max-w-[200px]"
+        class="rounded-lg max-w-50"
         alt=""
         loading="lazy"
         src="https://cdn2.cellphones.com.vn/insecure/rs:fill:321:795/q:90/plain/https://media-asset.cellphones.com.vn/page_configs/01K8AK76MB2NCC8QHS16T26ES2.png"
       />
       <img
-        class="rounded-lg max-w-[200px]"
+        class="rounded-lg max-w-50"
         alt=""
         loading="lazy"
         src="https://cdn2.cellphones.com.vn/insecure/rs:fill:321:795/q:90/plain/https://media-asset.cellphones.com.vn/page_configs/01K8AK76MB2NCC8QHS16T26ES2.png"
@@ -215,7 +214,7 @@
         [style.--swiper-theme-color]="'#21130d'"
       >
         @for (demand of category.demands; track demand) {
-        <swiper-slide class="bg-gray-100 flex-wrap items-center border-0 py-2 px-4 me-1 rounded-lg h-[70px]">
+        <swiper-slide class="bg-gray-100 flex-wrap items-center border-0 py-2 px-4 me-1 rounded-lg h-17.5">
             <a href="#">{{ demand.name! }}</a>
         </swiper-slide>
         }
@@ -258,7 +257,7 @@
 </section>
 } @for (item of this.list_phu; track item.name_title) {
 <section class="mt-4">
-  <div class="container mx-auto max-w-[1200px] items-center text-black">
+  <div class="container mx-auto max-w-300 items-center text-black">
     <div class="w-full justify-between flex flex-row">
       <h2 class="text-2xl font-medium">{{ item.name_title }}</h2>
       <a href="#" class="hover:underline">Xem tất cả</a>
@@ -266,7 +265,7 @@
     <div class="grid grid-cols-9 gap-2 mt-2">
       @for (phu_kien of item.list_phukien; track phu_kien.name) {
       <div
-        class="bg-gray-100 rounded-lg flex flex-col items-center p-2 gap-y-2 h-[120px] w-[120px]"
+        class="bg-gray-100 rounded-lg flex flex-col items-center p-2 gap-y-2 h-30 w-30"
       >
         <img src="{{ phu_kien.src }}" loading="lazy" class="w-18 h-15" alt="" />
         <p class="font-medium text-xs text-center">{{ phu_kien.name }}</p>

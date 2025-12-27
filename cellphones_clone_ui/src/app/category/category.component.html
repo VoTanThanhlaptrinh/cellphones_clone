@@ -1,5 +1,5 @@
 <main
-  class="container my-2 items-center w-full mx-auto lg:max-w-[1200px] gap-y-2"
+  class="container my-2 items-center w-full mx-auto lg:max-w-300 gap-y-2"
 >
   <div class="flex text-black text-[13px] gap-x-2 items-center font-normal">
     <svg
@@ -83,7 +83,7 @@
     <div class="flex flex-wrap gap-2">
       @for (item of data?.brands; track $index) {
       <div
-        class="flex flex-col gap-y-1 items-center justify-center py-1 px-2 bg-gray-100 w-[125px] rounded-xl"
+        class="flex flex-col gap-y-1 items-center justify-center py-1 px-2 bg-gray-100 w-31.25 rounded-xl"
       >
         <a>
           <img class="h-18 px-2 py-1" loading="lazy" alt="item.alt" />
@@ -100,7 +100,7 @@
     <div class="flex flex-wrap gap-2">
       @for (item of this.data?.demands; track $index) {
       <div
-        class="flex flex-col gap-y-1 items-center justify-center py-1 px-2 bg-gray-100 w-[125px] rounded-xl"
+        class="flex flex-col gap-y-1 items-center justify-center py-1 px-2 bg-gray-100 w-31.25 rounded-xl"
       >
         <!-- <a href="#">
           <img
@@ -133,7 +133,7 @@
   <div class="flex w-full justify-center py-4">
     <button
       type="button"
-      class="btn bg-blue-200 items-center border-blue-100 border-[1px] rounded-lg hover:scale-105 transition-transform px-4 py-2"
+      class="btn bg-blue-200 items-center border-blue-100 border rounded-lg hover:scale-105 transition-transform px-4 py-2"
       (click)="loadMore()"
     >
       Xem thêm {{ getRemainingCount() }} sản phẩm

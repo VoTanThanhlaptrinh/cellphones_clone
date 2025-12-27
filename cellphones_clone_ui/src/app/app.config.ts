@@ -6,6 +6,7 @@ import { provideHttpClient, withFetch } from '@angular/common/http';
 import { LOCALE_ID, DEFAULT_CURRENCY_CODE } from '@angular/core';
 import { CurrencyPipe, registerLocaleData } from '@angular/common';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { DefaultGlobalConfig, provideToastr } from 'ngx-toastr';
 import localeVi from '@angular/common/locales/vi';
 registerLocaleData(localeVi);
 
@@ -19,6 +20,10 @@ export const appConfig: ApplicationConfig = {
 		provideClientHydration(withEventReplay()),
 		importProvidersFrom(BrowserModule),
 		provideAnimations(),
+		provideToastr({
+			timeOut: 3000,
+			preventDuplicates: true,
+		}),
 		provideHttpClient(withFetch()),
 		{ provide: LOCALE_ID, useValue: 'vi-VN' },
 		{ provide: DEFAULT_CURRENCY_CODE, useValue: 'VND' },

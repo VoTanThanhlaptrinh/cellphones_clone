@@ -1,0 +1,51 @@
+<div class="relative my-4 group peer z-10">
+  <input
+    type="text"
+    id="input"
+    #inputRef
+    autocomplete="off"
+    (input)="filter($event)"
+    [value]="this.data"
+    required
+    class="peer w-full border-none border-b-2 text-base border-gray-300 bg-transparent px-0 py-1.5 outline-none transition-all duration-300 ease-in-out focus:border-transparent"
+  />
+
+  <label
+    for="input"
+    class="pointer-events-none absolute left-0 top-0 text-gray-400 transition-all duration-300 ease-in-out peer-focus:-top-5 peer-focus:text-xs peer-focus:text-blue-600 peer-valid:-top-5 peer-valid:text-xs peer-valid:text-gray-400"
+  >
+    {{ this.label }}
+  </label>
+  <svg
+    data-v-6be49bcd=""
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    class="icon absolute top-1/3 right-0"
+  >
+    <path
+      data-v-6be49bcd=""
+      d="M8.00004 10.6668C7.84427 10.6671 7.69331 10.6128 7.57337 10.5135L3.57337 7.18012C3.28986 6.94448 3.25106 6.52362 3.4867 6.24012C3.72234 5.95661 4.1432 5.91781 4.4267 6.15345L8.00004 9.14012L11.5734 6.26012C11.7111 6.14827 11.8877 6.09594 12.0642 6.11471C12.2406 6.13348 12.4023 6.2218 12.5134 6.36012C12.6368 6.49869 12.6969 6.68244 12.6792 6.86716C12.6614 7.05188 12.5675 7.22086 12.42 7.33345L8.42004 10.5535C8.29665 10.6371 8.14877 10.677 8.00004 10.6668Z"
+      fill="#717171"
+    ></path>
+  </svg>
+  <!-- Underline gray (nền) -->
+  <div class="absolute bottom-0 left-0 h-1/24 w-full bg-gray-300"></div>
+  <!-- Underline blue (tràn vào) -->
+  <div
+    class="absolute bottom-0 left-0 h-1/24 w-full origin-left scale-x-0 bg-blue-600 transition-transform duration-500 ease-in-out peer-focus:scale-x-100"
+  ></div>
+  <div
+    class="absolute bg-white hidden overflow-y-auto left-0 max-h-[20vh] w-full scroll shadow border border-gray-200 rounded-lg px-4 py-2 mt-2 peer-focus:block"
+  >
+    <div class="flex-col justify-start items-start text-sm text-black z-9999">
+      @for (item of filtered; track $index) {
+      <p class="hover:bg-gray-400 peer-focus:bg-red-400" (mousedown)="choose(item, inputRef); $event.preventDefault()">
+        {{ item }}
+      </p>
+      }
+    </div>
+  </div>
+</div>
