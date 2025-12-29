@@ -1,17 +1,35 @@
 <div class="w-full sm:w-160 mx-auto px-2 md:px-4">
   <div class="flex-col w-full mt-2">
     <div class="flex justify-between w-full mx-auto mt-2">
-      <svg (click)="goInfor($event)" width="20" height="17" viewBox="0 0 20 17" fill="none"
-        xmlns="http://www.w3.org/2000/svg" data-v-5273d083="">
-        <path d="M19 8.5L1 8.5M1 8.5L8 1M1 8.5L8 16" stroke="#121219" stroke-width="1.5" stroke-linecap="round"
-          stroke-linejoin="round" data-v-5273d083=""></path>
+      <svg
+        (click)="goInfor($event)"
+        width="20"
+        height="17"
+        viewBox="0 0 20 17"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        data-v-5273d083=""
+      >
+        <path
+          d="M19 8.5L1 8.5M1 8.5L8 1M1 8.5L8 16"
+          stroke="#121219"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          data-v-5273d083=""
+        ></path>
       </svg>
       <p class="text-center text-black text-lg font-medium">Thanh Toán</p>
       <div></div>
     </div>
     <hr class="border-t border-gray-200 mb-2 w-full mx-auto" />
-    <div class="grid grid-cols-2 gap-x-2 mx-auto mt-2 text-base font-bold font-sans px-2 py-4">
-      <div class="text-gray-400 flex-col items-center" (click)="goInfor($event)">
+    <div
+      class="grid grid-cols-2 gap-x-2 mx-auto mt-2 text-base font-bold font-sans px-2 py-4"
+    >
+      <div
+        class="text-gray-400 flex-col items-center"
+        (click)="goInfor($event)"
+      >
         <p class="text-center uppercase">1. Thông tin</p>
         <hr class="border-2 mt-2 mx-auto" />
       </div>
@@ -20,30 +38,54 @@
         <hr class="border-2 mt-2 mx-auto" />
       </div>
     </div>
-    <form [formGroup]="paymentForm" (submit)="onPayment()" class="flex flex-col gap-4">
+    <form
+      [formGroup]="paymentForm"
+      (submit)="onPayment()"
+      class="flex flex-col gap-4"
+    >
       <!-- Thanh toán -->
-      <div class="flex flex-col w-full bg-white px-4 py-3 rounded-lg shadow gap-y-2 md:gap-y-4">
-        <div class="flex flex-row justify-between gap-x-2 mt-2">
-          <div class="relative group w-full">
-            <app-input formControlName="coupon" label="Mã giảm giá"></app-input>
+      <div
+        class="flex flex-col w-full bg-white px-4 py-3 rounded-lg shadow gap-y-2"
+      >
+        <div class="flex w-full justify-between items-center gap-x-2 mt-2">
+          <div class="w-[85%]">
+            <app-input
+              formControlName="coupon"
+              label="Mã giảm giá"
+              name="coupon"
+              [required]="true"
+            ></app-input>
           </div>
-          <button type="button" aria-label="discount"
-            class="btn bg-gray-200 active:bg-red-700 active:hover:bg-red-800 px-4 py-1 rounded-lg">
+          <button
+            type="button"
+            aria-label="discount"
+            class="w-[15%] h-8 btn bg-gray-200 active:bg-red-700 active:hover:bg-red-800 px-2 py-1 rounded-lg"
+          >
             áp dụng
           </button>
         </div>
-        <button type="button"
+        <button
+          type="button"
           class="flex justify-between items-center w-full border border-blue-600 bg-transparent text-sm text-blue-600 rounded-lg px-2 py-1"
-          aria-label="discount">
+          aria-label="discount"
+        >
           <p>hoặc chọn từ 1 mã giảm giá có sẵn</p>
-          <svg data-v-95f5c986="" width="7" height="12" viewBox="0 0 7 12" fill="none"
-            xmlns="http://www.w3.org/2000/svg">
-            <path data-v-95f5c986=""
+          <svg
+            data-v-95f5c986=""
+            width="7"
+            height="12"
+            viewBox="0 0 7 12"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              data-v-95f5c986=""
               d="M6.49944 6.01814C6.49982 6.21285 6.432 6.40155 6.30777 6.55148L2.1411 11.5515C1.84655 11.9059 1.32048 11.9544 0.966102 11.6598C0.611719 11.3653 0.563216 10.8392 0.857768 10.4848L4.5911 6.01814L0.991102 1.55148C0.851293 1.37932 0.785877 1.15853 0.809339 0.937991C0.8328 0.717457 0.943202 0.515371 1.1161 0.376477C1.28932 0.222198 1.519 0.147098 1.7499 0.169239C1.9808 0.191381 2.19203 0.30876 2.33277 0.493143L6.35777 5.49314C6.46237 5.64738 6.51224 5.83223 6.49944 6.01814Z"
-              fill="#1877F2"></path>
+              fill="#1877F2"
+            ></path>
           </svg>
         </button>
-        <div class="flex justify-between text-base">
+        <div class="flex justify-between text-base mt-2">
           <p class="text-gray-400">Số lượng sản phẩm</p>
           <p class="font-normal text-black">01</p>
         </div>
@@ -71,19 +113,40 @@
       </div>
       <p class="text-base mb-2 font-light">THÔNG TIN THANH TOÁN</p>
       <div class="flex flex-col gap-y-2">
-        <label class="flex items-center gap-x-2 bg-white p-4 rounded-lg shadow cursor-pointer">
-          <input type="radio" formControlName="paymentMethod" name="paymentMethod" value="cod"
-            class="accent-red-600 text-red-600 focus:ring-red-600 w-5 h-5">
+        <label
+          class="flex items-center gap-x-2 bg-white p-4 rounded-lg shadow cursor-pointer"
+        >
+          <input
+            type="radio"
+            formControlName="paymentMethod"
+            name="paymentMethod"
+            value="cod"
+            class="accent-red-600 text-red-600 focus:ring-red-600 w-5 h-5"
+          />
           <span>Thanh toán khi nhận hàng (COD)</span>
         </label>
-        <label class="flex items-center gap-x-2 bg-white p-4 rounded-lg shadow cursor-pointer">
-          <input type="radio" formControlName="paymentMethod" name="paymentMethod" value="banking"
-            class="accent-red-600 text-red-600 focus:ring-red-600 w-5 h-5">
+        <label
+          class="flex items-center gap-x-2 bg-white p-4 rounded-lg shadow cursor-pointer"
+        >
+          <input
+            type="radio"
+            formControlName="paymentMethod"
+            name="paymentMethod"
+            value="banking"
+            class="accent-red-600 text-red-600 focus:ring-red-600 w-5 h-5"
+          />
           <span>Chuyển khoản ngân hàng</span>
         </label>
-        <label class="flex items-center gap-x-2 bg-white p-4 rounded-lg shadow cursor-pointer">
-          <input type="radio" formControlName="paymentMethod" name="paymentMethod" value="vnpay"
-            class="accent-red-600 text-red-600 focus:ring-red-600 w-5 h-5">
+        <label
+          class="flex items-center gap-x-2 bg-white p-4 rounded-lg shadow cursor-pointer"
+        >
+          <input
+            type="radio"
+            formControlName="paymentMethod"
+            name="paymentMethod"
+            value="vnpay"
+            class="accent-red-600 text-red-600 focus:ring-red-600 w-5 h-5"
+          />
           <span>VNPAY</span>
         </label>
       </div>
@@ -196,14 +259,19 @@
       <div class="h-[25vh]"></div>
       <!-- Checkout -->
       <div
-        class="fixed z-20 left-1/2 -translate-x-1/2 bottom-0 w-full sm:w-152 h-[14vh] bg-white rounded-sm shadow-[0_-4px_20px_-1px_rgba(40,124,234,.15)] py-1 px-2 gap-y-2">
-        <div class="flex flex-col items-center justify-center w-full h-full gap-y-2 font-semibold">
+        class="fixed z-20 left-1/2 -translate-x-1/2 bottom-0 w-full sm:w-152 h-[14vh] bg-white rounded-sm shadow-[0_-4px_20px_-1px_rgba(40,124,234,.15)] py-1 px-2 gap-y-2"
+      >
+        <div
+          class="flex flex-col items-center justify-center w-full h-full gap-y-2 font-semibold"
+        >
           <div class="flex w-full justify-between px-2 text-base">
             <p class="text-black">Tổng tiền tạm tính:</p>
             <p class="text-red-700">{{ convertPriceVnd(13690000) }}</p>
           </div>
-          <button type="submit"
-            class="btn bg-red-600 rounded-sm border-transparent text-white h-10 w-full px-2 py-1 font-normal">
+          <button
+            type="submit"
+            class="btn bg-red-600 rounded-sm border-transparent text-white h-10 w-full px-2 py-1 font-normal"
+          >
             Thanh Toán
           </button>
         </div>

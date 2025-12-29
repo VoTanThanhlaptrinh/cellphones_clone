@@ -7,6 +7,7 @@ using cellphones_backend.Services;
 using cellPhoneS_backend.Controllers;
 using cellPhoneS_backend.DTOs.Responses;
 using cellPhoneS_backend.J2O;
+using Elastic.Transport;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -24,10 +25,10 @@ namespace cellphones_backend.Controllers
             this._authService = _authService;
         }
         [HttpPost("register")]
-        public async Task<ActionResult<ApiResponse<string>>> Register(RegisterDTO register)
+        public async Task<ActionResult<ApiResponse<VoidResponse>>> Register([FromBody] RegisterDTO register, HttpRequest httpRequest)
         {
 
-            return HandleResult(await _authService.Register(register));
+            return HandleResult(await _authService.Register(register, httpRequest));
         }
         [HttpPost("studentRegister")]
         public async Task<ActionResult<ApiResponse<string>>> StudentRegister([FromBody] StudentRegisterDTO studentRegister)
@@ -40,7 +41,7 @@ namespace cellphones_backend.Controllers
             return HandleResult(await _authService.TeacherRegister(teacherRegister));
         }
         [HttpPost("login")]
-        public async Task<ActionResult<ApiResponse<string>>> Login(LoginDTO loginDTO)
+        public async Task<ActionResult<ApiResponse<VoidResponse>>> Login(LoginDTO loginDTO)
         {
 
             return HandleResult(await _authService.Login(loginDTO, Request));
@@ -66,7 +67,7 @@ namespace cellphones_backend.Controllers
             return null!;
         }
         [HttpGet("refreshToken")]
-        public async Task<ActionResult<ApiResponse<string>>> RefreshToken()
+        public async Task<ActionResult<ApiResponse<VoidResponse>>> RefreshToken(HttpRequest httpRequest)
         {
             return null!;
         }
@@ -75,6 +76,18 @@ namespace cellphones_backend.Controllers
         public async Task<ActionResult<ApiResponse<Oauth2GoogleCallBackResponse>>> GetInfoAfterLoginByGoogle()
         {
             return HandleResult(await _authService.GetInfoAfterLoginByGoogle(HttpContext));
+        }
+        [HttpGet("logout")]
+        public async Task<ActionResult<ApiResponse<VoidResponse>>> Logout(HttpContext context)
+        {
+
+            return HandleResult(await this._authService.Logout(context));
+        }
+        [HttpPost("refresh")]
+        public async Task<ActionResult<ApiResponse<VoidResponse>>> RefreshToken(HttpContext context)
+        {
+
+            return HandleResult(await this._authService.RefreshToken(context));
         }
     }
 }

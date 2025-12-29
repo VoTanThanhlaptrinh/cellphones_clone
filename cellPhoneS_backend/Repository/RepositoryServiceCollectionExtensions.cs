@@ -1,5 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using cellphones_backend.Repositories;
+using cellPhoneS_backend.Repository.Interfaces;
+using cellPhoneS_backend.Repository.Implement;
 
 namespace cellphones_backend.Repositories;
 
@@ -35,6 +37,7 @@ public static class RepositoryServiceCollectionExtensions
         services.AddScoped<ICategoryProductRepository, CategoryProductRepository>();
         services.AddScoped<IProductImageRepository, ProductImageRepository>();
         services.AddScoped<IPaymentRepository, PaymentRepository>();
+        services.AddScoped<IJwtRotationRepository, JwtRotationRepository>();
         return services;
     }
 }

@@ -1,0 +1,29 @@
+<div class="bg-white rounded-lg shadow-sm min-h-[500px] flex flex-col">
+    <!-- Horizontal Tabs -->
+    <div class="flex items-center overflow-x-auto border-b border-gray-200">
+        @for (tab of tabs; track tab.id) {
+        <button (click)="setActiveTab(tab.id)"
+            class="relative px-4 py-4 text-sm font-medium whitespace-nowrap transition-colors duration-200 outline-none"
+            [ngClass]="{
+                  'text-red-600': activeTab() === tab.id,
+                  'text-gray-500 hover:text-gray-700': activeTab() !== tab.id
+              }">
+            {{ tab.label }}
+            <!-- Active Indicator -->
+            <div *ngIf="activeTab() === tab.id" class="absolute bottom-0 left-0 w-full h-0.5 bg-red-600"></div>
+        </button>
+        }
+    </div>
+
+    <!-- Content (Empty State for now as per image) -->
+    <div class="flex-1 flex flex-col items-center justify-center p-8 gap-4">
+        <div class="w-40 h-40 bg-pink-50 rounded-full flex items-center justify-center relative mb-2">
+            <!-- Reusing the shipper image or similar illustration -->
+            <img src="https://cdn2.cellphones.com.vn/x/media/wysiwyg/shipper.png" alt="Empty Warranty"
+                class="w-32 object-contain mix-blend-multiply opacity-80" onerror="this.style.display='none'" />
+        </div>
+        <div class="text-sm text-gray-500 flex gap-1">
+            Bạn chưa có đơn bảo hành <a href="/" class="text-red-600 font-semibold hover:underline">Trang chủ</a>
+        </div>
+    </div>
+</div>

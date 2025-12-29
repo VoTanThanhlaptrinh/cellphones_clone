@@ -44,6 +44,11 @@ namespace cellphones_backend.Controllers
         {
             return HandleResult(await _cartService.MinusQuantity(cartDetailId));
         }
+        [HttpGet("getStoreViews")]
+        public async Task<ActionResult<ApiResponse<List<StoreView>>>> GetStoreViews()
+        {
+            return HandleResult(await _cartService.GetAllCity());
+        }
     }
 
 }

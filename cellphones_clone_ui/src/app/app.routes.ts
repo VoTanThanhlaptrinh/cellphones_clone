@@ -8,6 +8,7 @@ import { CategoryComponent } from './category/category.component';
 import { CartComponent } from './cart/cart.component';
 import { CheckoutComponent } from './checkout/checkout.component';
 import { AutocompleteInputComponent } from './shared/custom/autocomplete-input/autocomplete-input.component';
+import { MemberDashboardComponent } from './member-dashboard/member-dashboard.component';
 
 export const routes: Routes = [
     {
@@ -42,9 +43,13 @@ export const routes: Routes = [
         path: 'checkout',
         component: CheckoutComponent
     },
-        {
+    {
         path: 'autocomplete',
         component: AutocompleteInputComponent
+    },
+    {
+        path: 'member-dashboard',
+        component: MemberDashboardComponent
     },
     { path: '**', redirectTo: 'home' }
     ,

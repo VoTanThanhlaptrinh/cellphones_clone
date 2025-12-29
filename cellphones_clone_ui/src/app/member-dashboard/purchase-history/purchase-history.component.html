@@ -1,0 +1,73 @@
+<div class="bg-white rounded-lg shadow-sm min-h-[500px] flex flex-col">
+    <!-- Top Horizontal Tabs -->
+    <div class="flex items-center overflow-x-auto border-b border-gray-200">
+        @for (tab of tabs; track tab.id) {
+        <button (click)="setActiveTab(tab.id)"
+            class="relative px-4 py-4 text-sm font-medium whitespace-nowrap transition-colors duration-200" [ngClass]="{
+                  'text-red-600': activeTab() === tab.id,
+                  'text-gray-500 hover:text-gray-700': activeTab() !== tab.id
+              }">
+            {{ tab.label }}
+            <!-- Active Indicator Line -->
+            <div *ngIf="activeTab() === tab.id" class="absolute bottom-0 left-0 w-full h-0.5 bg-red-600"></div>
+        </button>
+        }
+    </div>
+
+    <!-- Content Area -->
+    <div class="p-4 flex-1 flex flex-col">
+        <!-- Date Filter Row -->
+        <div class="flex items-center justify-between mb-8">
+            <h2 class="font-bold text-gray-800 hidden md:block">Lịch sử mua hàng</h2>
+
+            <div
+                class="flex items-center border border-gray-300 rounded px-3 py-1.5 bg-white text-sm text-gray-600 gap-2 cursor-pointer hover:border-gray-400">
+                <span>01/12/2020</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+                <span>29/12/2025</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 ml-2" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+            </div>
+        </div>
+
+        <!-- Tab Content Switch -->
+        @switch (activeTab()) {
+        @case ('all') {
+        <!-- Empty State for "All" (Start Default) -->
+        <div class="flex-1 flex flex-col items-center justify-center p-8 gap-4">
+            <div class="w-40 h-40 bg-pink-50 rounded-full flex items-center justify-center relative">
+                <!-- Illustration Placeholder (Shipper with box) -->
+                <img src="https://cdn2.cellphones.com.vn/x/media/wysiwyg/shipper.png" alt="Empty Order"
+                    class="w-32 object-contain mix-blend-multiply"
+                    onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZTI4NzQzIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0zIDNsMTggMTlNMi41IDloMThNNCAyMWgyMGEyIDIgMCAwMC44LTFMMjEgOkg3IiAvPjwvc3ZnPg=='" />
+            </div>
+            <div class="text-sm text-gray-500">
+                Bạn chưa có đơn hàng nào <a href="/" class="text-red-600 font-semibold hover:underline">Trang chủ</a>
+            </div>
+        </div>
+        }
+        @default {
+        <!-- Empty State for other tabs -->
+        <div class="flex-1 flex flex-col items-center justify-center p-8 gap-4">
+            <div class="w-40 h-40 bg-gray-50 rounded-full flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-300" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+            </div>
+            <div class="text-sm text-gray-500">
+                Chưa có đơn hàng trong mục này.
+            </div>
+        </div>
+        }
+        }
+    </div>
+</div>

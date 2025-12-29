@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using cellphones_backend.DTOs.Responses;
 using cellphones_backend.Models;
 using cellphones_backend.Repositories;
@@ -9,7 +10,6 @@ using Elastic.Transport;
 using Microsoft.AspNetCore.Mvc;
 
 namespace cellPhoneS_backend.Services.Implement;
-
 public class CartServiceImpl : CartService
 {
     private readonly ICartRepository _cartRepository;
@@ -17,10 +17,11 @@ public class CartServiceImpl : CartService
     private readonly IColorRepository _colorRepository;
     private readonly IConfiguration _configuration;
     private readonly IStoreRepository _storeRepository;
+    private readonly IStoreHouseRepository _storeHouseRepository;
     private int _pageSize;
     private string userId = "98a4fdb1-44a7-49d1-b9a0-03f9ff71e3c9";
     public CartServiceImpl(ICartRepository cartRepository, ICartDetailRepository cartDetailRepository
-    , IColorRepository colorRepository, IConfiguration configuration, IStoreRepository storeRepository)
+    , IColorRepository colorRepository, IConfiguration configuration, IStoreRepository storeRepository, IStoreHouseRepository storeHouseRepository)
     {
         _cartRepository = cartRepository;
         _cartDetailRepository = cartDetailRepository;
@@ -28,6 +29,7 @@ public class CartServiceImpl : CartService
         _configuration = configuration;
         _pageSize = _configuration.GetValue<int>("DefaultSetting:PageSize");
         _storeRepository = storeRepository;
+        _storeHouseRepository = storeHouseRepository;
     }
 
     public async Task<ServiceResult<bool>> AddToCart([FromBody] CartRequest request)
@@ -74,6 +76,15 @@ public class CartServiceImpl : CartService
         await _cartDetailRepository.SaveChangesAsync();
         return ServiceResult<bool>.Success(true, "Product added to cart successfully");
     }
+
+    public async Task<ServiceResult<List<StoreView>>> GetAllCity()
+    {
+        var res = await _storeHouseRepository.GetStoreViews();
+        if(res == null)
+            return ServiceResult<List<StoreView>>.Fail("No store found", ServiceErrorType.NotFound);
+       return ServiceResult<List<StoreView>>.Success(res, "Store retrieved successfully");
+    }
+
     public async Task<ServiceResult<List<CartDetailView>>> GetCartItems(int page, string userId)
     {
         var cartItems = await _cartDetailRepository.GetCartItems(userId, page, _pageSize);

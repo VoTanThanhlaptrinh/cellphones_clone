@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, forwardRef } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
@@ -15,8 +15,17 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
     }
   ]
 })
-export class AutocompleteInputComponent implements OnInit, ControlValueAccessor {
-
+export class AutocompleteInputComponent implements OnInit, ControlValueAccessor, OnChanges {
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['original']) {
+      this.filtered = [...this.original];
+      if (this.data && !this.original.includes(this.data)) {
+        this.data = ''
+        this.onChange('')
+      }
+    }
+  }
+  @Output() dataChosen = new EventEmitter<object>();
   data: string = ''
   @Input()
   label: string = ''
@@ -37,7 +46,6 @@ export class AutocompleteInputComponent implements OnInit, ControlValueAccessor 
   writeValue(value: any): void {
     this.data = value || '';
     if (!this.data && this.original.length > 0) {
-      // Optional: set default? No, leave empty if not set.
     }
   }
   registerOnChange(fn: any): void {
@@ -66,6 +74,7 @@ export class AutocompleteInputComponent implements OnInit, ControlValueAccessor 
       return;
     this.data = item
     this.onChange(item)
+    this.dataChosen.emit(item);
     this.onTouch()
     // Reset filter?
     this.filtered = [...this.original];

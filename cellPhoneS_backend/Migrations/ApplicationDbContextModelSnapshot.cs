@@ -262,6 +262,51 @@ namespace cellPhoneS_backend.Migrations
                     b.ToTable("DemandImages");
                 });
 
+            modelBuilder.Entity("cellPhoneS_backend.Models.JwtRotation", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime?>("ExprireAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReplaceByTokenHash")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<DateTime?>("RevokeAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("SessionId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("TokenHash")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExprireAt");
+
+                    b.HasIndex("SessionId");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique()
+                        .HasFilter("[TokenHash] IS NOT NULL");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("JwtRotations");
+                });
+
             modelBuilder.Entity("cellPhoneS_backend.Models.ProductImage", b =>
                 {
                     b.Property<long>("ProductId")
@@ -1680,6 +1725,17 @@ namespace cellPhoneS_backend.Migrations
                     b.Navigation("Image");
 
                     b.Navigation("UpdateUser");
+                });
+
+            modelBuilder.Entity("cellPhoneS_backend.Models.JwtRotation", b =>
+                {
+                    b.HasOne("cellphones_backend.Models.User", "UserRef")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("UserRef");
                 });
 
             modelBuilder.Entity("cellPhoneS_backend.Models.ProductImage", b =>
