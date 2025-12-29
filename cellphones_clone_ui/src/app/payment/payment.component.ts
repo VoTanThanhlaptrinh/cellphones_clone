@@ -8,7 +8,7 @@ import { InputComponent } from "../shared/custom/input/input.component";
 
 @Component({
   selector: 'app-payment',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, InputComponent],
   templateUrl: './payment.component.html',
   styleUrl: './payment.component.css',
 })

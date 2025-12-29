@@ -118,3 +118,6 @@ Content-Type: image/png
 --BOUNDARY--
 
 
+### StoreViews
+GET   {{cellPhoneS_backend_HostAddress}}/api/carts/getStoreViews
+Accept: application/json

@@ -6,7 +6,7 @@ import { AutocompleteInputComponent } from "../shared/custom/autocomplete-input/
 import { Router } from '@angular/router';
 import { CartView } from '../core/models/cart_request.model';
 import { CheckoutService, PaymentInfo } from '../services/checkout.service';
-import { StoreView } from '../core/models/store.model';
+import { StoreView, StreetView } from '../core/models/store.model';
 import { CartService } from '../services/cart.service';
 
 import { InputComponent } from "../shared/custom/input/input.component";
@@ -19,7 +19,6 @@ import { InputComponent } from "../shared/custom/input/input.component";
 })
 export class PaymentInforComponent implements OnInit {
   @Input() storeViews?: StoreView[]
-
   get deliveryMethod() {
     return this.paymentInfoForm?.get('deliveryMethod')?.value;
   }
@@ -32,10 +31,12 @@ export class PaymentInforComponent implements OnInit {
   private currency = inject(CurrencyPipe);
   private fb = inject(FormBuilder);
   private checkoutService = inject(CheckoutService);
-
+  citySelected?: string;
+  districtSelected?: string;
+  city: string[] = [];
+  district: string[] = [];
+  street: string[] = [];
   districtLabel = 'Chọn tỉnh/thành phố'
-  origins: string[] = ['Khánh Hòa', 'HN', 'HCM', 'DN', 'CT', 'HP']
-
   user?: UserView = {
     name: "Võ Tấn Thành", mobile: "0796692184", email: "votanthanh32004@gmail.com"
   };
@@ -44,6 +45,7 @@ export class PaymentInforComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
+    this.city = this.storeViews?.map(store => store.city) || [];
   }
 
   initForm() {
@@ -168,5 +170,16 @@ export class PaymentInforComponent implements OnInit {
 
   goCart() {
     this.router.navigate(['/cart']);
+  }
+  onCityChosen(event: any) {
+    this.citySelected = event;
+    this.district = this.storeViews?.filter(store =>
+      store.city === event).map(store => store.districts)[0]?.map(d => d.district) || [];
+  }
+  onDistrictChosen(event: any) {
+    this.districtSelected = event;
+    this.street = this.storeViews?.filter(store =>
+      store.city === this.citySelected).map(store => store.districts)[0]
+          .filter(d => d.district === event)[0].streets.map(s => s.street) || [];
   }
 }

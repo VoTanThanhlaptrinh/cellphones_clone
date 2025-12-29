@@ -16,5 +16,5 @@ public interface CartService
     Task<ServiceResult<int>> PlusQuantity(long cartDetailId);
     Task<ServiceResult<int>> MinusQuantity(long cartDetailId);
 
-    Task<ServiceResult<Collection<StoreView>>> GetAllCity();
+    Task<ServiceResult<List<StoreView>>> GetAllCity();
 }

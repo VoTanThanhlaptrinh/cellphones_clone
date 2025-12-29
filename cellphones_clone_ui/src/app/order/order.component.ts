@@ -21,7 +21,6 @@ export class OrderComponent implements OnInit {
   totalQuantity?: number;
   isAppear: boolean = true;
   storeViews?: StoreView[];
-  private currency = inject(CurrencyPipe);
   constructor(
     private orderService: OrderService,
     private cartService: CartService,
@@ -36,8 +35,11 @@ export class OrderComponent implements OnInit {
   }
   getStoreViews(){
     this.orderService.getStoreView().subscribe({
-      next: res => this.storeViews = res.data,
+      next: res => {
+        this.storeViews = res.data
+      },
       error: err => this.notifySerivce.error(err)
     })
   }
+
 }

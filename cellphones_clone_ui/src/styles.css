@@ -215,7 +215,7 @@ swiper-container::part(button-next) {
   stroke-width: 1.8px;
 }
 
-/* From Uiverse.io by Satwinder04 */ 
+/* From Uiverse.io by Satwinder04 */
 .input-container {
   position: relative;
 }
@@ -262,3 +262,14 @@ swiper-container::part(button-next) {
   transform: scaleX(1);
 }
 
+.bg-gradient-peach {
+  background: linear-gradient(#fff5f0, #f4c8d0);
+}
+.bg-snull {
+  background: linear-gradient(
+    131deg,
+    #f6f1f1 -0.22%,
+    #dfd8d8 45.23%,
+    #c8bebe 90.68%
+  );
+}

@@ -8,4 +8,6 @@ public interface JwtTokenService
 {
     string GenerateJwtToken(User user);
     string ExtractUserId(string token);
+
+    string HashToken(string token);
 }

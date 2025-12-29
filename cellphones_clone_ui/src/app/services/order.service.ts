@@ -13,6 +13,6 @@ export class OrderService {
   constructor(private http: HttpClient) {
   }
   getStoreView(): Observable<ApiResponse<StoreView[]>>{
-    return this.http.get<ApiResponse<StoreView[]>>(`${this.baseUrl}/order/getStoreViews`).pipe(take(1));
+    return this.http.get<ApiResponse<StoreView[]>>(`${this.baseUrl}/carts/getStoreViews`).pipe(take(1));
   }
 }

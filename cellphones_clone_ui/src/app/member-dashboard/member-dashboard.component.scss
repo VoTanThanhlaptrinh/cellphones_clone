@@ -1,0 +1,22 @@
+/* Member Dashboard Component Scoped Styles */
+
+:host {
+  display: block;
+}
+
+/* Custom scrollbar for sidebar if it gets too long */
+aside {
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: #e5e7eb;
+    border-radius: 4px;
+  }
+}
+
+/* Specific icon placeholders styling (until real icons are added) */
+.icon-overview {
+  background-color: #ef4444;
+} /* Red */
+/* Add more specific override styles if needed, but Tailwind handles most */

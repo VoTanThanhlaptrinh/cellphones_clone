@@ -25,7 +25,7 @@ export class App implements OnInit {
   protected title = 'cellphones-clone-ui';
   isHideHeader = false;
   isHideFooter = false;
-  urlForHideHeadFooter: string[] = ['/login', '/register', '/cart', '/order'];
+  urlForHideHeadFooter: string[] = ['/login', '/register', '/cart', '/order', '/member-dashboard'];
 
   constructor(
     private router: Router,
