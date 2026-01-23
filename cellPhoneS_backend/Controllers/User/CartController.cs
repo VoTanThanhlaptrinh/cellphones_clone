@@ -3,7 +3,6 @@ using cellPhoneS_backend.Controllers;
 using cellPhoneS_backend.DTOs.Requests;
 using cellPhoneS_backend.DTOs.Responses;
 using cellPhoneS_backend.Services;
-using Elastic.Transport;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

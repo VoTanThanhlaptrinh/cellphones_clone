@@ -353,3 +353,5 @@ D:\IT\docnet_workspace\cellPhoneS_backend\obj\Debug\net9.0\cellPhoneS_backend.ge
 D:\IT\docnet_workspace\cellPhoneS_backend\obj\Debug\net9.0\ref\cellPhoneS_backend.dll
 D:\IT\docnet_workspace\cellPhoneS_backend\bin\Debug\net9.0\Elastic.Clients.Elasticsearch.dll
 D:\IT\docnet_workspace\cellPhoneS_backend\bin\Debug\net9.0\Elastic.Transport.dll
+D:\IT\docnet_workspace\cellPhoneS_backend\bin\Debug\net9.0\Npgsql.dll
+D:\IT\docnet_workspace\cellPhoneS_backend\bin\Debug\net9.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll

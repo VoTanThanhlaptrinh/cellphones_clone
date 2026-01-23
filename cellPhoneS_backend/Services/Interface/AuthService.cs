@@ -4,7 +4,6 @@ using cellphones_backend.Models;
 using cellPhoneS_backend.DTOs.Responses;
 using cellPhoneS_backend.Services;
 using Elastic.Transport;
-
 namespace cellphones_backend.Services;
 
 public interface AuthService
