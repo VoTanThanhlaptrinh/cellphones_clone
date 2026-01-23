@@ -43,6 +43,7 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, string>
     public DbSet<Payment> Payments { get; set; }
     public DbSet<ProductColorStockView> ProductColorStockView { get; set; }
     public DbSet<JwtRotation> JwtRotations { get; set; }
+    public DbSet<ProductSearchResult> ProductSearchResults { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -102,6 +103,11 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, string>
             entity.HasIndex(x => x.UserId);
             entity.HasIndex(x => x.SessionId);
             entity.HasIndex(x => x.ExprireAt);
+        });
+        modelBuilder.Entity<ProductSearchResult>(entity =>
+        {
+            entity.HasNoKey();
+            entity.ToView("mv_ProductSearch");
         });
     }
 }

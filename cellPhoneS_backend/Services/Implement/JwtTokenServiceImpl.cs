@@ -53,4 +53,9 @@ public class JwtTokenServiceImpl : JwtTokenService
         );
         return _jwtSecurityTokenHandler.WriteToken(token);
     }
+
+    public string HashToken(string token)
+    {
+        throw new NotImplementedException();
+    }
 }
