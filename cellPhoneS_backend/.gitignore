@@ -1,4 +1,0 @@
-# Bỏ qua các thư mục build rác
-bin/
-obj/
-appsettings.Development.json
