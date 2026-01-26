@@ -1,0 +1,17 @@
+# --- Build rác (Đã đúng) ---
+bin/
+obj/
+
+# --- Cấu hình & Secrets (QUAN TRỌNG) ---
+# Chặn tất cả các file cấu hình json
+appsettings.json
+appsettings.Development.json
+appsettings.Production.json
+
+# --- File môi trường khác ---
+.env
+
+# --- IDE rác ---
+.vscode/
+.idea/
+*.user
