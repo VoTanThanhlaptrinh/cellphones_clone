@@ -3,8 +3,9 @@ using cellphones_backend.DTOs.Responses;
 using cellPhoneS_backend.DTOs;
 using cellPhoneS_backend.Models;
 using cellPhoneS_backend.Services;
+using cellPhoneS_backend.Services.Implement;
+using cellPhoneS_backend.Services.Interface;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace cellPhoneS_backend.Controllers.User
 {
@@ -12,32 +13,40 @@ namespace cellPhoneS_backend.Controllers.User
     [ApiController]
     public class ProductSearchController : BaseController
     {
-        private readonly ApplicationDbContext _context;
-        public ProductSearchController(ApplicationDbContext context)
+        private readonly ProductSearchService _service;
+        public ProductSearchController(ProductSearchService service)
         {
-            _context = context;
+            this._service = service;
         }
 
         [HttpGet("search")]
         public async Task<ActionResult<ApiResponse<List<ProductIndexModel>>>> SearchProducts([FromQuery] string keyword)
         {
-            var cleanKeyword = keyword.Trim().ToLower();
-
-            var results = await _context.ProductSearchResults
-                .FromSqlInterpolated($@"
-                    SELECT *
-                    FROM ""mv_ProductSearch""
-                    WHERE 
-                        -- 1. Bắt trường hợp gõ dở (Autocomplete): Tìm chuỗi chứa keyword
-                        ""SearchVector"" ILIKE ('%' || unaccent({cleanKeyword}) || '%') 
-                        OR 
-                        -- 2. Bắt trường hợp sai chính tả (Fuzzy): Tìm chuỗi gần giống
-                        ""SearchVector"" % unaccent({cleanKeyword})
-                    ORDER BY 
-                        similarity(""SearchVector"", unaccent({cleanKeyword})) DESC
-                    LIMIT 5")
-                .AsNoTracking()
-                .ToListAsync();
+            // string cleanKeyword = StringHelper.RemoveSign(keyword).ToLower().Trim();
+            var results = await this._service.SearchAsync(keyword);
+            // var results = await _context.ProductSearchResults
+            //     .FromSqlInterpolated($@"
+            //         SELECT * FROM (
+            //             -- BƯỚC 1: Ưu tiên tìm chính xác (Match) - Cực nhanh
+            //             SELECT *, 
+            //                 1.0 as RankScore -- Điểm tuyệt đối
+            //             FROM ""mv_ProductSearch""
+            //             WHERE ""SearchVector"" LIKE ('%' || {cleanKeyword} || '%')
+                        
+            //             UNION ALL
+                        
+            //             -- BƯỚC 2: Tìm gần đúng (Fuzzy) - Chỉ chạy khi cần thiết
+            //             SELECT *, 
+            //                 similarity(""SearchVector"", {cleanKeyword}) as RankScore
+            //             FROM ""mv_ProductSearch""
+            //             WHERE ""SearchVector"" % {cleanKeyword} 
+            //             -- Loại bỏ những cái đã tìm thấy ở Bước 1 để tránh trùng
+            //             AND NOT (""SearchVector"" LIKE ('%' || {cleanKeyword} || '%'))
+            //         ) AS UnifiedResult
+            //         ORDER BY RankScore DESC
+            //         LIMIT 5")
+            //     .AsNoTracking()
+            //     .ToListAsync();
             if (results.Count == 0)
             {
                 return HandleResult(ServiceResult<List<ProductIndexModel>>.Fail("No products found matching the keyword.", ServiceErrorType.NotFound));

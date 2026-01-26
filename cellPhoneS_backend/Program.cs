@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using cellphones_backend.Repositories;
+using cellPhoneS_backend.Services.Interface;
 
 internal class Program
 {
@@ -19,7 +20,7 @@ internal class Program
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(builder.Configuration.GetConnectionString("dev")));
+            options.UseNpgsql(builder.Configuration.GetConnectionString("local")));
         builder.Services.AddMemoryCache();
         builder.Services.AddIdentity<User, Role>(options =>
         {
@@ -35,7 +36,7 @@ internal class Program
             options.AddPolicy("CorsPolicy", builder =>
             {
                 builder.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:4200");
-                    
+
             });
         });
         builder.Services.AddAuthentication().AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, jwtOptions =>
@@ -67,7 +68,6 @@ internal class Program
         builder.Services.AddHttpClient();
         // Register all repositories
         builder.Services.AddRepositories();
-
         var supportedCultures = new[] { "vi", "en" }; // start với vi, sau thêm en
         builder.Services.Configure<RequestLocalizationOptions>(opts =>
         {
@@ -84,17 +84,22 @@ internal class Program
         using (var scope = app.Services.CreateScope())
         {
             var services = scope.ServiceProvider;
-            var userManager = services.GetRequiredService<UserManager<User>>();
-            var roleManager = services.GetRequiredService<RoleManager<Role>>();
-            var dbContext = services.GetRequiredService<ApplicationDbContext>();
-            var cloneService = services.GetRequiredService<CloneService>();
-            app.UseCors("CorsPolicy");
-            app.UseHttpsRedirection();
-            app.UseAuthentication();
-            app.UseAuthorization();
-            app.UseRequestLocalization(app.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<RequestLocalizationOptions>>().Value);
-            app.MapControllers();
-            app.Run();
+            try
+            {
+                var searchService = services.GetRequiredService<ProductSearchService>();
+                await searchService.InitializeAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi Init Cache: " + ex.Message);
+            }
         }
+        app.UseCors("CorsPolicy");
+        app.UseHttpsRedirection();
+        app.UseAuthentication();
+        app.UseAuthorization();
+        app.UseRequestLocalization(app.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<RequestLocalizationOptions>>().Value);
+        app.MapControllers();
+        app.Run();
     }
 }
