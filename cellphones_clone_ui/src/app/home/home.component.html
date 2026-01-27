@@ -1,7 +1,7 @@
 <main
-  class="main-nav md:max-w-300 bg-white container my-1 items-center w-full mx-auto"
+  class="main-nav sm:w-sm md:w-md lg:w-full xl:w-[80vw] bg-white container my-1 items-center w-full mx-auto p-2"
 >
-  <div class="flex gap-2">
+  <div class="flex flex-row gap-2 w-full ">
     <div
       class="flex-1 hidden lg:block max-w-57.5 shadow-sm rounded-lg card font-light text-gray-700"
     >
@@ -14,65 +14,67 @@
           >
             <div class="flex flex-col gap-y-2 text-xs font-normal py-1">
               @for (item of categories; track $index) {
-              <div
-                class="flex justify-between items-center gap-x-2 font-semibold hover:bg-neutral-100 px-2 py-1"
-                (mouseover)="i = $index"
-              >
-                <img
-                  class="img-fluid w-7 h-6"
-                  src="{{ item.src }}"
-                  alt="smartphone--v2"
-                />
-                @for (x of item.name; track x) {
-                <a class="hover:text-red-700 font-normal" href="#">{{ x }}</a>
-                }
-
-                <svg
-                  height="15"
-                  class="ml-auto"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 320 512"
+                <div
+                  class="flex justify-between items-center gap-x-2 font-semibold hover:bg-neutral-100 px-2 py-1"
+                  (mouseover)="i = $index"
                 >
-                  <path
-                    d="M96 480c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L242.8 256L73.38 86.63c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l192 192c12.5 12.5 12.5 32.75 0 45.25l-192 192C112.4 476.9 104.2 480 96 480z"
-                  ></path>
-                </svg>
-              </div>
+                  <img
+                    class="img-fluid w-7 h-6"
+                    src="{{ item.src }}"
+                    alt="smartphone--v2"
+                  />
+                  @for (x of item.name; track x) {
+                    <a class="hover:text-red-700 font-normal" href="#">{{
+                      x
+                    }}</a>
+                  }
+
+                  <svg
+                    height="15"
+                    class="ml-auto"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 320 512"
+                  >
+                    <path
+                      d="M96 480c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L242.8 256L73.38 86.63c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l192 192c12.5 12.5 12.5 32.75 0 45.25l-192 192C112.4 476.9 104.2 480 96 480z"
+                    ></path>
+                  </svg>
+                </div>
               }
             </div>
 
             @if (show) {
-            <div
-              class="absolute transition-opacity duration-1000 shadow bg-white left-[calc(100%+8px)] top-0 w-250 h-120 px-4 py-2 rounded-lg z-1000"
-            >
-              <div class="flex flex-wrap gap-2">
-                @for (tab of categories[i].tabs; track tab.title) {
-                <div class="flex flex-col gap-2">
-                  <p class="text-base font-medium">{{ tab.title }}</p>
-                  @for (item of tab.items; track $index) {
-                  <div class="flex flex-row items-center gap-2">
-                    <a
-                      href="#"
-                      class="text-sm text-gray-500 font-base hover:text-red-500"
-                      >{{ item.name }}</a
-                    >
-                    @if(item.badge){
-                    <p class="bg-red-500 text-white font-medium">
-                      {{ item.badge }}
-                    </p>
-                    }
-                  </div>
+              <div
+                class="absolute transition-opacity duration-1000 shadow bg-white left-[calc(100%+8px)] top-0 w-250 h-120 px-4 py-2 rounded-lg z-1000"
+              >
+                <div class="flex flex-wrap gap-2">
+                  @for (tab of categories[i].tabs; track tab.title) {
+                    <div class="flex flex-col gap-2">
+                      <p class="text-base font-medium">{{ tab.title }}</p>
+                      @for (item of tab.items; track $index) {
+                        <div class="flex flex-row items-center gap-2">
+                          <a
+                            href="#"
+                            class="text-sm text-gray-500 font-base hover:text-red-500"
+                            >{{ item.name }}</a
+                          >
+                          @if (item.badge) {
+                            <p class="bg-red-500 text-white font-medium">
+                              {{ item.badge }}
+                            </p>
+                          }
+                        </div>
+                      }
+                    </div>
                   }
                 </div>
-                }
               </div>
-            </div>
             }
           </li>
         </ul>
       </nav>
     </div>
-    <div class="flex-2 text-black max-w-175 w-fit">
+    <div class="flex-2 text-black w-full sm:w-sm md:w-md lg:w-300">
       <mat-tab-group
         class="shadow-[0_2px_4px_rgba(0,0,0,0.2)] rounded-lg md:py-5"
         headerPosition="below"
@@ -88,6 +90,7 @@
           </ng-template>
           <div>
             <img
+              class="w-full"
               src="assets/images/banner.png"
               loading="lazy"
               alt="OPPO RENO14 &lt;br /&gt; Mua sớm ngay"
@@ -103,6 +106,7 @@
             </div>
           </ng-template>
           <img
+            class="w-full"
             src="assets/images/banner.png"
             alt="GALAXY Z7&lt;br /&gt;Đặt trước ngay"
             loading="lazy"
@@ -117,6 +121,7 @@
             </div>
           </ng-template>
           <img
+            class="w-full"
             src="assets/images/banner.png"
             alt="IPHONE 16 PRO MAX &lt;br /&gt; Mua ngay"
             loading="lazy"
@@ -131,6 +136,7 @@
             </div>
           </ng-template>
           <img
+            class="w-full"
             src="https://cdn2.cellphones.com.vn/insecure/rs:fill:690:300/q:90/plain/https://dashboard.cellphones.com.vn/storage/home-watch8.jpg"
             alt="GALAXY WATCH8 &lt;br /&gt; Đặt trước ngay"
             loading="lazy"
@@ -145,6 +151,7 @@
             </div>
           </ng-template>
           <img
+            class="w-full"
             src="assets/images/banner.png"
             alt="NOTHING PHONE&lt;br /&gt;Giá tốt chỉ có tại CPS"
             loading="lazy"
@@ -153,7 +160,7 @@
       </mat-tab-group>
     </div>
     <div
-      class="flex-1 hidden lg:block max-w-67.5 flex-row space-y-1 md:space-y-2 lg:space-y-5"
+      class="flex-1 w-full sm:hidden md:block lg:block max-w-67.5 flex-row space-y-1 md:space-y-2 lg:space-y-5"
     >
       <img
         src="https://cdn2.cellphones.com.vn/insecure/rs:fill:690:300/q:10/plain/https://dashboard.cellphones.com.vn/storage/samsung-galaxy-m55-5g-8gb-256gb.png"
@@ -180,98 +187,110 @@
   height="75"
   decoding="async"
   data-nimg="1"
-  class="transition-opacity duration-500 md:max-w-300 opacity-100 object-contain hidden w-full mx-auto rounded-lg shadow-md md:block"
+  class="transition-opacity duration-500 lg:block lg:w-300 opacity-100 object-contain hidden w-full mx-auto rounded-lg shadow-md md:block"
   src="https://cdn2.cellphones.com.vn/insecure/rs:fill:1200:75/q:90/plain/https://dashboard.cellphones.com.vn/storage/s-edu-2-0-special-desk.gif"
 />
 @for (category of home_view?.categories; track category.name; let i = $index) {
-<section class="mt-2">
-  <div
-    class="flex container mx-auto max-w-300 items-center text-black gap-x-2"
-  >
-    <div class="flex-col flex gap-y-1">
-      <img
-        class="rounded-lg max-w-50"
-        alt=""
-        loading="lazy"
-        src="https://cdn2.cellphones.com.vn/insecure/rs:fill:321:795/q:90/plain/https://media-asset.cellphones.com.vn/page_configs/01K8AK76MB2NCC8QHS16T26ES2.png"
-      />
-      <img
-        class="rounded-lg max-w-50"
-        alt=""
-        loading="lazy"
-        src="https://cdn2.cellphones.com.vn/insecure/rs:fill:321:795/q:90/plain/https://media-asset.cellphones.com.vn/page_configs/01K8AK76MB2NCC8QHS16T26ES2.png"
-      />
-    </div>
-    <div class="flex-col flex gap-y-2 mt-2 min-w-0">
-      @if (isBrowser) {
-      <swiper-container
-        navigation="true"
-        thumbs-swiper=".thumbs"
-        [breakpoints]="this.breakpoints"
-        [style.--swiper-navigation-color]="'#21130d'"
-        [style.--swiper-navigation-size.px]="8"
-        [style.--swiper-pagination-color]="'#21130d'"
-        [style.--swiper-theme-color]="'#21130d'"
-      >
-        @for (demand of category.demands; track demand) {
-        <swiper-slide class="bg-gray-100 flex-wrap items-center border-0 py-2 px-4 me-1 rounded-lg h-17.5">
-            <a href="#">{{ demand.name! }}</a>
-        </swiper-slide>
-        }
-      </swiper-container>
-
-      <swiper-container
-        navigation="true"
-        thumbs-swiper=".thumbs"
-        [breakpoints]="this.breakpoints2"
-        [style.--swiper-navigation-color]="'#21130d'"
-        [style.--swiper-navigation-size.px]="0"
-        [style.--swiper-pagination-color]="'#21130d'"
-        [style.--swiper-theme-color]="'#21130d'"
-      >
-        @for (brand of category.brands; track brand) {
-        <swiper-slide class=" w-auto text-sm border border-gray-400 py-1 px-4 rounded-full">
-            <a href="#">{{ brand.name! }}</a>
-        </swiper-slide>
-        }
-      </swiper-container>
-
-      <swiper-container
-        navigation="true"
-        thumbs-swiper=".thumbs"
-        [breakpoints]="this.breakpoints1"
-        [style.--swiper-navigation-color]="'#21130d'"
-        [style.--swiper-navigation-size.px]="8"
-        [style.--swiper-pagination-color]="'#21130d'"
-        [style.--swiper-theme-color]="'#21130d'"
-      >
-        @for (product of category.products; track product.id) {
-        <swiper-slide>
-          <app-product-card [productView]="product"> </app-product-card>
-        </swiper-slide>
-        }
-      </swiper-container>
-      }
-    </div>
-  </div>
-</section>
-} @for (item of this.list_phu; track item.name_title) {
-<section class="mt-4">
-  <div class="container mx-auto max-w-300 items-center text-black">
-    <div class="w-full justify-between flex flex-row">
-      <h2 class="text-2xl font-medium">{{ item.name_title }}</h2>
-      <a href="#" class="hover:underline">Xem tất cả</a>
-    </div>
-    <div class="grid grid-cols-9 gap-2 mt-2">
-      @for (phu_kien of item.list_phukien; track phu_kien.name) {
+  <section class="mt-2 sm:w-sm md:w-full lg:w-full xl:w-[80vw] items-center w-full mx-auto p-2">
+    <div
+      class="flex flex-row items-center text-black gap-x-2 w-full"
+    >
       <div
-        class="bg-gray-100 rounded-lg flex flex-col items-center p-2 gap-y-2 h-30 w-30"
+        class="flex flex-col w-full gap-y-2"
       >
-        <img src="{{ phu_kien.src }}" loading="lazy" class="w-18 h-15" alt="" />
-        <p class="font-medium text-xs text-center">{{ phu_kien.name }}</p>
+        <img
+          class="rounded-lg md:w-sm lg:w-[25vw] xl:w-[35vw]"
+          alt=""
+          loading="lazy"
+          src="https://cdn2.cellphones.com.vn/insecure/rs:fill:321:795/q:90/plain/https://media-asset.cellphones.com.vn/page_configs/01K8AK76MB2NCC8QHS16T26ES2.png"
+        />
+        <img
+          class="rounded-lg md:w-20 lg:w-[25vw] xl:w-[35vw]"
+          alt=""
+          loading="lazy"
+          src="https://cdn2.cellphones.com.vn/insecure/rs:fill:321:795/q:90/plain/https://media-asset.cellphones.com.vn/page_configs/01K8AK76MB2NCC8QHS16T26ES2.png"
+        />
       </div>
-      }
+      <div class="flex flex-col w-full gap-y-2 mt-2 lg:w-[75vw] xl:w-[65vw] ">
+        @if (isBrowser) {
+          <swiper-container
+            navigation="true"
+            thumbs-swiper=".thumbs"
+            [breakpoints]="this.breakpoints"
+            [style.--swiper-navigation-color]="'#21130d'"
+            [style.--swiper-navigation-size.px]="8"
+            [style.--swiper-pagination-color]="'#21130d'"
+            [style.--swiper-theme-color]="'#21130d'"
+          >
+            @for (demand of category.demands; track demand) {
+              <swiper-slide
+                class="bg-gray-100 flex-wrap items-center border-0 py-2 px-2 me-1 rounded-lg"
+              >
+                <a href="#">{{ demand.name! }}</a>
+              </swiper-slide>
+            }
+          </swiper-container>
+
+          <swiper-container
+            navigation="true"
+            thumbs-swiper=".thumbs"
+            [breakpoints]="this.breakpoints2"
+            [style.--swiper-navigation-color]="'#21130d'"
+            [style.--swiper-navigation-size.px]="0"
+            [style.--swiper-pagination-color]="'#21130d'"
+            [style.--swiper-theme-color]="'#21130d'"
+          >
+            @for (brand of category.brands; track brand) {
+              <swiper-slide
+                class="w-auto text-sm border border-gray-400 py-1 px-4 rounded-full"
+              >
+                <a href="#">{{ brand.name! }}</a>
+              </swiper-slide>
+            }
+          </swiper-container>
+
+          <swiper-container
+            navigation="true"
+            thumbs-swiper=".thumbs"
+            [breakpoints]="this.breakpoints1"
+            [style.--swiper-navigation-color]="'#21130d'"
+            [style.--swiper-navigation-size.px]="2"
+            [style.--swiper-pagination-color]="'#21130d'"
+            [style.--swiper-theme-color]="'#21130d'"
+          >
+            @for (product of category.products; track product.id) {
+              <swiper-slide>
+                <app-product-card [productView]="product"> </app-product-card>
+              </swiper-slide>
+            }
+          </swiper-container>
+        }
+      </div>
     </div>
-  </div>
-</section>
+  </section>
+}
+@for (item of this.list_phu; track item.name_title) {
+  <section class="mt-4">
+    <div class="container mx-auto max-w-300 items-center text-black">
+      <div class="w-full justify-between flex flex-row">
+        <h2 class="text-2xl font-medium">{{ item.name_title }}</h2>
+        <a href="#" class="hover:underline">Xem tất cả</a>
+      </div>
+      <div class="grid grid-cols-9 gap-2 mt-2">
+        @for (phu_kien of item.list_phukien; track phu_kien.name) {
+          <div
+            class="bg-gray-100 rounded-lg flex flex-col items-center p-2 gap-y-2 h-30 w-30"
+          >
+            <img
+              src="{{ phu_kien.src }}"
+              loading="lazy"
+              class="w-18 h-15"
+              alt=""
+            />
+            <p class="font-medium text-xs text-center">{{ phu_kien.name }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
 }

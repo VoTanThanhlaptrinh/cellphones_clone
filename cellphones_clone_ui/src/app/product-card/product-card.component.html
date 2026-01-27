@@ -1,45 +1,54 @@
 <div
   (click)="goProductDetail(productView?.id || 1)"
-  class="card flex items-center lg:max-w-[15vw] min-w-[15vw] min-h-[400px] md:my-4 shadow-[0_2px_4px_rgba(0,0,0,0.2)] border wrap-normal border-gray-200 bg-white slide"
+  class="card flex flex-col items-center w-full sm:w-[30vw] md:w-[25vw] lg:w-[16vw] xl:w-[14vw] h-100 rounded-lg md:my-4 shadow-[0_2px_4px_rgba(0,0,0,0.2)] border wrap-normal border-gray-200 bg-white slide p-2"
 >
   <div
-    class="flex absolute left-2 top-[-12px] discount-bg text-white px-4 py-2 rounded items-center gap-x-1"
+    class="flex absolute left-2 top-0.5 discount-bg text-white px-4 py-2 rounded items-center gap-x-1"
   >
     <span class="text-[11px] mt-1 md:mt-0"> Giảm </span>
     <span class="text-xs font-medium">17%</span>
   </div>
   <div
-    class="flex absolute right-[-12px] top-[-7px] installment-bg text-white px-4 py-2 rounded gap-1"
+    class="flex absolute lg:right-0 md:right-6 top-3 installment-bg text-white px-4 py-2 rounded gap-1"
   >
     <p class="text-[11px] mb-2">Trả góp</p>
     <p class="text-[11px] font-medium">0%</p>
   </div>
-  <div class="h-[30px]"></div>
-  <img
-    class="rounded-lg mt-6 max-w-[150px] max-h-[150px] h-[100px] w-[100px] hover:scale-102 duration-500 transform-gpu"
-    alt=""
-    loading="lazy"
-    [src]="productView?.imgUrl"
-  />
-  <div class="h-[30px]"></div>
-  <h4 class="text-gray-700 w-full ms-4 text-base font-semibold mt-3 line-clamp-2">
+  <div class="h-7.5"></div>
+  <div class="flex items-center mx-auto">
+    <img
+      class="rounded-lg hover:scale-102 duration-500 transform-gpu h-40 w-30"
+      alt=""
+      loading="lazy"
+      [src]="productView?.imgUrl"
+    />
+  </div>
+  <div class="h-7.5"></div>
+  <h4
+    class="text-gray-700 w-full ms-4 text-base font-semibold mt-3 line-clamp-2"
+  >
     {{ productView?.productName }}
   </h4>
-  <div class="h-[50px]"></div>
-  <div class="flex flex-col me-auto md:flex-row md:items-center">
-    <p class="main-text-color w-full ms-2 font-semibold">
-      {{ productView?.salePrice != 0 ? productView?.salePrice : 'Đang cập nhật' }}
+  <div class="flex flex-row justify-between w-full items-center">
+    <p class="main-text-color font-semibold">
+      {{
+        productView?.salePrice != 0 ? productView?.salePrice +' đ' : "Đang cập nhật"
+      }}
     </p>
-    <p class="line-through font-normal ms-2 text-gray-600 text-xs">
-       {{ productView?.basePrice != 0 ? productView?.basePrice + 'đ' : 'Đang cập nhật' }}
+    <p class="line-through line-clamp-1 font-normal text-gray-600 text-xs">
+      {{
+        productView?.basePrice != 0
+          ? productView?.basePrice + "đ"
+          : "Đang cập nhật"
+      }}
     </p>
   </div>
-
-  <span class="bg-recommend-text w-[95%] ms-2 text-xs text-left rounded-lg"
+  <div class="h-2.5"></div>
+  <span class="bg-recommend-text w-full px-1 text-xs text-left rounded-sm"
     >S-Student giảm đến xxxđ</span
   >
-  <div class="flex justify-between w-full items-center">
-    <div class="flex items-center ms-2 gap-2">
+  <div class="flex flex-row justify-between w-full items-center mt-auto">
+    <div class="flex flex-row items-center ms-2 gap-2">
       <svg height="15" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
         <path
           fill="#fbbf24"
@@ -51,7 +60,7 @@
     <div>
       <button
         type="button"
-        class="bg-white flex-column flex favorite-btn favorite-text hover:bg-gray-100 my-2 rounded-lg py-1 px-2"
+        class="bg-white flex flex-row items-center favorite-btn favorite-text hover:bg-gray-100 my-2 rounded-lg py-1 px-2"
       >
         <svg
           viewBox="0 0 24 24"
