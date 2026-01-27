@@ -65,7 +65,7 @@ export class HomeComponent implements OnInit {
   ];
   breakpoints1 = {
     0: {
-      slidesPerView: 1,
+      slidesPerView: 2,
       grid: { rows: 2, fill: 'row' },
       spaceBetween: 8,
     },
