@@ -20,7 +20,7 @@ internal class Program
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(builder.Configuration.GetConnectionString("local")));
+            options.UseNpgsql(builder.Configuration.GetConnectionString("cloud")));
         builder.Services.AddMemoryCache();
         builder.Services.AddIdentity<User, Role>(options =>
         {
