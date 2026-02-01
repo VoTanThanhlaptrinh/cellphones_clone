@@ -1,19 +1,29 @@
-import { AfterViewInit, Component, NgModule } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, NgModule, OnInit, ViewChild } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { ProductService } from '../services/product.service';
+import { ProductView } from '../core/models/product.model';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { debounceTime, distinctUntilChanged, Subject, Subscription, switchMap } from 'rxjs';
 
 
 @Component({
   selector: 'app-header',
-  imports: [RouterLink],
+  imports: [RouterLink, CommonModule, FormsModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })
 
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
+  keyword: string = '';
+  private searchSubject = new Subject<string>();
+  private searchSubscription?: Subscription;
+  isCalled = false;
   showTab = false;
   i = 0;
-  constructor(private router: Router){
-
+  useSearch = false;
+  searchResults: ProductView[] = [];
+  constructor(private router: Router, private productService: ProductService) {
   }
   categories = [
     {
@@ -851,7 +861,38 @@ export class HeaderComponent {
       ],
     },
   ];
-  goHome(){
+  goHome() {
     this.router.navigate(['/home'])
+  }
+  @ViewChild('searchContainer') searchContainer!: ElementRef;
+
+  @HostListener('document:click', ['$event'])
+  onClickOutside(event: Event) {
+    if (this.searchContainer) {
+      const clickedInside = this.searchContainer.nativeElement.contains(event.target);
+      if (!clickedInside) {
+        this.useSearch = false;
+      }
+    }
+  }
+  ngOnInit() {
+    this.searchSubscription = this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap((keyword) => {  
+        if (!keyword.trim()) {
+           return [];
+        }
+        return this.productService.searchProducts(keyword);
+      })
+    ).subscribe(results => {
+      this.searchResults = results;
+      this.isCalled = true;
+      this.useSearch = true;
+    });
+  }
+  onSearch() {
+    this.useSearch = true;
+    this.searchSubject.next(this.keyword);
   }
 }

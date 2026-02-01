@@ -5,6 +5,7 @@ import { map, Observable, take } from 'rxjs';
 import { ApiResponse } from '../core/models/api-response.model';
 import { ProductView, ProductViewDetail } from '../core/models/product.model';
 import { HomeView } from '../core/models/home_view.model';
+import * as e from 'express';
 
 @Injectable({
   providedIn: 'root'
@@ -61,6 +62,21 @@ export class ProductService {
   getProductsBySeries(seriesId: number, page: number, size: number): Observable<ProductView[]> {
     return this.http.get<ApiResponse<ProductView[]>>(`${this.baseUrl}/products/series/${seriesId}/${page}/${size}`).pipe(take(1), map(response => {
       if (response.data === null || response.data === undefined) {
+        return [];
+      }
+      return response.data.map(product => {
+        product.imgUrl = product.imgUrl;
+        product.id = product.id;
+        product.productName = product.productName;
+        product.basePrice = product.basePrice;
+        product.salePrice = product.salePrice;
+        return product;
+      });
+    }));
+  }
+  searchProducts(searchTerm: string): Observable<ProductView[]> {
+    return this.http.get<ApiResponse<ProductView[]>>(`${this.baseUrl}/search?keyword=${encodeURIComponent(searchTerm)}`).pipe(take(1), map(response => {
+      if(response.data === null || response.data === undefined) {
         return [];
       }
       return response.data.map(product => {

@@ -20,7 +20,7 @@ namespace cellPhoneS_backend.Controllers.User
         }
 
         [HttpGet("search")]
-        public async Task<ActionResult<ApiResponse<List<ProductIndexModel>>>> SearchProducts([FromQuery] string keyword)
+        public async Task<ActionResult<ApiResponse<List<ProductView>>>> SearchProducts([FromQuery] string keyword)
         {
             // string cleanKeyword = StringHelper.RemoveSign(keyword).ToLower().Trim();
             var results = await this._service.SearchAsync(keyword);
@@ -49,17 +49,16 @@ namespace cellPhoneS_backend.Controllers.User
             //     .ToListAsync();
             if (results.Count == 0)
             {
-                return HandleResult(ServiceResult<List<ProductIndexModel>>.Fail("No products found matching the keyword.", ServiceErrorType.NotFound));
+                return HandleResult(ServiceResult<List<ProductView>>.Fail("No products found matching the keyword.", ServiceErrorType.NotFound));
             }
-            var productModels = results.Select(p => new ProductIndexModel
-            {
-                Id = p.Id,
-                Name = p.Name,
-                ImageUrl = p.ImageUrl,
-                BasePrice = p.BasePrice,
-                SalePrice = p.SalePrice
-            }).ToList();
-            return HandleResult(ServiceResult<List<ProductIndexModel>>.Success(productModels, "Products retrieved successfully."));
+            var productModels = results.Select(p => new ProductView(
+                p.Id,
+                p.ImageUrl,
+                p.Name,
+                p.BasePrice,
+                p.SalePrice)  
+            ).ToList();
+            return HandleResult(ServiceResult<List<ProductView>>.Success(productModels, "Products retrieved successfully."));
         }
     }
 }
