@@ -74,11 +74,7 @@ internal class Program
             opts.SetDefaultCulture("vi");
             opts.AddSupportedCultures(supportedCultures);
             opts.AddSupportedUICultures(supportedCultures);
-
-            // Các provider xác định culture theo thứ tự ưu tiên:
-            // ?culture=vi, Header Accept-Language, Route/Path (nếu dùng), Cookie
             opts.RequestCultureProviders.Insert(0, new Microsoft.AspNetCore.Localization.QueryStringRequestCultureProvider { QueryStringKey = "culture" });
-            // CookieProvider và AcceptLanguageHeaderProvider đã có sẵn
         });
         var app = builder.Build();
         using (var scope = app.Services.CreateScope())
