@@ -90,6 +90,7 @@ internal class Program
                 Console.WriteLine("Lỗi Init Cache: " + ex.Message);
             }
         }
+        app.UseRouting();
         app.UseCors("CorsPolicy");
         app.UseHttpsRedirection();
         app.UseAuthentication();
