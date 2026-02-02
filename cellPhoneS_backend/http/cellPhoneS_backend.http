@@ -105,7 +105,7 @@ POST {{cellPhoneS_backend_HostAddress}}/api/img/upload
 Content-Type: multipart/form-data; boundary=BOUNDARY
 
 ### Search PRODUCTS) 
-GET {{cellPhoneS_backend_HostAddress}}/api/search?keyword=Iphone15
+GET {{cellPhoneS_backend_HostAddress}}/api/search?keyword=15
 Accept: application/json	
 
 --BOUNDARY
