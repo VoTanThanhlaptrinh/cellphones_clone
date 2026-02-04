@@ -13,6 +13,7 @@ import { HeaderComponent } from './header/header.component';
 import { filter, fromEvent, map, Observable } from 'rxjs';
 import { ViewportScroller } from '@angular/common';
 import { BackToTopComponent } from './back-to-top/back-to-top.component';
+import { NotifyService } from './services/notify.service';
 
 @Component({
   selector: 'app-root',
@@ -29,7 +30,8 @@ export class App implements OnInit {
 
   constructor(
     private router: Router,
-    private viewportScroller: ViewportScroller
+    private viewportScroller: ViewportScroller,
+    private notifyService: NotifyService
   ) { }
   ngOnInit(): void {
     this.isHideHeader = this.isHideFooter = this.urlForHideHeadFooter.includes(
@@ -43,12 +45,11 @@ export class App implements OnInit {
             this.urlForHideHeadFooter.includes(value.url);
         },
         error: (err) => {
-          console.error(err);
+          this.notifyService.error('Không thể điều hướng trang web');
         },
       });
   }
   onScrollToTop() {
-    console.log('[Parent] received');
     this.viewportScroller.scrollToPosition([0, 0]);
   }
 }

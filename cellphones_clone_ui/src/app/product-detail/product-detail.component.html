@@ -1,533 +1,313 @@
-<main class="container mx-auto max-w-[1200px] items-center text-black">
-  @defer{
-  <div class="items-center justify-between mb-3 mx-1">
-    <div class="flex text-black text-[13px] space-x-2 font-normal mt-3">
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 16 16"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <g clip-path="url(#clip0_2841_7864)">
-          <path
-            d="M3.33333 8H2L8 2L14 8H12.6667"
-            stroke="#18181B"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          ></path>
-          <path
-            d="M3.3335 8V12.6667C3.3335 13.0203 3.47397 13.3594 3.72402 13.6095C3.97407 13.8595 4.31321 14 4.66683 14H11.3335C11.6871 14 12.0263 13.8595 12.2763 13.6095C12.5264 13.3594 12.6668 13.0203 12.6668 12.6667V8"
-            stroke="#18181B"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          ></path>
-          <path
-            d="M6 14V9.99996C6 9.64634 6.14048 9.3072 6.39052 9.05715C6.64057 8.8071 6.97971 8.66663 7.33333 8.66663H8.66667C9.02029 8.66663 9.35943 8.8071 9.60948 9.05715C9.85952 9.3072 10 9.64634 10 9.99996V14"
-            stroke="#18181B"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          ></path>
-        </g>
-        <defs>
-          <clipPath id="clip0_2841_7864">
-            <rect width="16" height="16" fill="white"></rect>
-          </clipPath>
-        </defs>
-      </svg>
-      <a href="/">Trang chủ</a>
-      <span>/</span>
-      <span class="text-gray-400">
-        {{ product?.name ?? "Đang cập nhật sản phẩm" }}
-      </span>
-    </div>
-    @if (isLoading) {
-    <div
-      class="mt-3 px-4 py-2 text-sm rounded border border-blue-200 bg-blue-50 text-blue-700"
-    >
-      Đang tải thông tin sản phẩm...
-    </div>
-    } @else if (errorMessage) {
-    <div
-      class="mt-3 px-4 py-2 text-sm rounded border border-red-200 bg-red-50 text-red-700"
-    >
-      {{ errorMessage }}
-    </div>
-    }
-    <div
-      class="product-detail gap-6 sm:grid sm:grid-cols-1 md:grid md:grid-cols-1 lg:grid lg:grid-cols-2 items-center w-full text-black my-5"
-    >
-      <div class="flex-col items-center">
-        <h2 class="text-xl font-medium">
-          {{ product?.name ?? "Đang cập nhật sản phẩm" }}
-        </h2>
-
-        <div class="flex space-x-1 items-center my-2">
-          <svg height="15" viewBox="0 0 576 512" class="text-yellow-300">
+<main class="bg-white">
+  <div
+    class="flex lg:flex-row xl:flex-row flex-col items-start justify-between gap-x-2 sm:w-sm md:w-md lg:w-full xl:w-[80vw] container my-1 w-full mx-auto p-2">
+    @defer{
+    <div class="flex flex-col lg:w-[39vw] xl:w-[39vw] gap-2">
+      <div class="flex flex-row text-black space-x-2 font-normal mt-3">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g clip-path="url(#clip0_2841_7864)">
+            <path d="M3.33333 8H2L8 2L14 8H12.6667" stroke="#18181B" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round"></path>
             <path
-              fill="currentColor"
-              d="M381.2 150.3L524.9 171.5C536.8 173.2 546.8 181.6 550.6 193.1C554.4 204.7 551.3 217.3 542.7 225.9L438.5 328.1L463.1 474.7C465.1 486.7 460.2 498.9 450.2 506C440.3 513.1 427.2 514 416.5 508.3L288.1 439.8L159.8 508.3C149 514 135.9 513.1 126 506C116.1 498.9 111.1 486.7 113.2 474.7L137.8 328.1L33.58 225.9C24.97 217.3 21.91 204.7 25.69 193.1C29.46 181.6 39.43 173.2 51.42 171.5L195 150.3L259.4 17.97C264.7 6.954 275.9-.0391 288.1-.0391C300.4-.0391 311.6 6.954 316.9 17.97L381.2 150.3z"
-            ></path>
+              d="M3.3335 8V12.6667C3.3335 13.0203 3.47397 13.3594 3.72402 13.6095C3.97407 13.8595 4.31321 14 4.66683 14H11.3335C11.6871 14 12.0263 13.8595 12.2763 13.6095C12.5264 13.3594 12.6668 13.0203 12.6668 12.6667V8"
+              stroke="#18181B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path
+              d="M6 14V9.99996C6 9.64634 6.14048 9.3072 6.39052 9.05715C6.64057 8.8071 6.97971 8.66663 7.33333 8.66663H8.66667C9.02029 8.66663 9.35943 8.8071 9.60948 9.05715C9.85952 9.3072 10 9.64634 10 9.99996V14"
+              stroke="#18181B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+          </g>
+          <defs>
+            <clipPath id="clip0_2841_7864">
+              <rect width="16" height="16" fill="white"></rect>
+            </clipPath>
+          </defs>
+        </svg>
+        <a href="/">Trang chủ</a>
+        <span>/</span>
+        <span class="text-gray-400">
+          {{ product?.name ?? "Đang cập nhật sản phẩm" }}
+        </span>
+      </div>
+      <div class="h-5"></div>
+      <h2>
+        <p class="text-xl font-medium">{{ product?.name ?? "Đang cập nhật sản phẩm" }}</p>
+      </h2>
+      <div class="flex space-x-1 items-center my-2">
+        <svg height="15" viewBox="0 0 576 512" class="text-yellow-300">
+          <path fill="currentColor"
+            d="M381.2 150.3L524.9 171.5C536.8 173.2 546.8 181.6 550.6 193.1C554.4 204.7 551.3 217.3 542.7 225.9L438.5 328.1L463.1 474.7C465.1 486.7 460.2 498.9 450.2 506C440.3 513.1 427.2 514 416.5 508.3L288.1 439.8L159.8 508.3C149 514 135.9 513.1 126 506C116.1 498.9 111.1 486.7 113.2 474.7L137.8 328.1L33.58 225.9C24.97 217.3 21.91 204.7 25.69 193.1C29.46 181.6 39.43 173.2 51.42 171.5L195 150.3L259.4 17.97C264.7 6.954 275.9-.0391 288.1-.0391C300.4-.0391 311.6 6.954 316.9 17.97L381.2 150.3z">
+          </path>
+        </svg>
+        <p class="text-base font-medium">5</p>
+        <span class="text-gray-400 text-base">(1 đánh giá)</span>
+      </div>
+      <div class="hidden lg:flex gap-3 favorite-text text-sm font-medium items-center my-2">
+        <div class="flex items-center">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+            class="md:w-10 md:h-7" stroke="#3b82f6">
+            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+            <g id="SVGRepo_iconCarrier">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M12 6.00019C10.2006 3.90317 7.19377 3.2551 4.93923 5.17534C2.68468 7.09558 2.36727 10.3061 4.13778 12.5772C5.60984 14.4654 10.0648 18.4479 11.5249 19.7369C11.6882 19.8811 11.7699 19.9532 11.8652 19.9815C11.9483 20.0062 12.0393 20.0062 12.1225 19.9815C12.2178 19.9532 12.2994 19.8811 12.4628 19.7369C13.9229 18.4479 18.3778 14.4654 19.8499 12.5772C21.6204 10.3061 21.3417 7.07538 19.0484 5.17534C16.7551 3.2753 13.7994 3.90317 12 6.00019Z"
+                stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            </g>
           </svg>
-          <p class="text-base font-medium">5</p>
-          <span class="text-gray-400 text-base">(1 đánh giá)</span>
+          <svg width="24" height="24" fill="#3b82f6" viewBox="0 0 24 24" class="md:w-10 md:h-7 hidden"
+            xmlns="http://www.w3.org/2000/svg">
+            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+            <g id="SVGRepo_iconCarrier">
+              <path fill-rule="evenodd"
+                d="M12,20.9996 L3.847,13.2406 C2.656,12.1076 2,10.5986 2,8.9916 C2,7.3846 2.656,5.8756 3.847,4.7416 C6.067,2.6286 9.552,2.4386 12,4.1686 C14.448,2.4386 17.933,2.6286 20.153,4.7416 C21.344,5.8756 22,7.3846 22,8.9916 C22,10.5986 21.344,12.1076 20.153,13.2406 L12,20.9996 Z">
+              </path>
+            </g>
+          </svg>
+          <p>Yêu thích</p>
         </div>
-        <div
-          class="hidden lg:flex gap-3 favorite-text text-sm font-medium items-center my-2"
-        >
-          <div class="flex items-center">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              class="md:w-10 md:h-7"
-              stroke="#3b82f6"
-            >
-              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-              <g
-                id="SVGRepo_tracerCarrier"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></g>
-              <g id="SVGRepo_iconCarrier">
-                <path
-                  fill-rule="evenodd"
-                  clip-rule="evenodd"
-                  d="M12 6.00019C10.2006 3.90317 7.19377 3.2551 4.93923 5.17534C2.68468 7.09558 2.36727 10.3061 4.13778 12.5772C5.60984 14.4654 10.0648 18.4479 11.5249 19.7369C11.6882 19.8811 11.7699 19.9532 11.8652 19.9815C11.9483 20.0062 12.0393 20.0062 12.1225 19.9815C12.2178 19.9532 12.2994 19.8811 12.4628 19.7369C13.9229 18.4479 18.3778 14.4654 19.8499 12.5772C21.6204 10.3061 21.3417 7.07538 19.0484 5.17534C16.7551 3.2753 13.7994 3.90317 12 6.00019Z"
-                  stroke="#3b82f6"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                ></path>
-              </g>
-            </svg>
-            <svg
-              width="24"
-              height="24"
-              fill="#3b82f6"
-              viewBox="0 0 24 24"
-              class="md:w-10 md:h-7 hidden"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-              <g
-                id="SVGRepo_tracerCarrier"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></g>
-              <g id="SVGRepo_iconCarrier">
-                <path
-                  fill-rule="evenodd"
-                  d="M12,20.9996 L3.847,13.2406 C2.656,12.1076 2,10.5986 2,8.9916 C2,7.3846 2.656,5.8756 3.847,4.7416 C6.067,2.6286 9.552,2.4386 12,4.1686 C14.448,2.4386 17.933,2.6286 20.153,4.7416 C21.344,5.8756 22,7.3846 22,8.9916 C22,10.5986 21.344,12.1076 20.153,13.2406 L12,20.9996 Z"
-                ></path>
-              </g>
-            </svg>
-            <p>Yêu thích</p>
-          </div>
-          <span class="text-gray-400">|</span>
-          <div class="flex gap-2 items-center">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M8 9H16"
-                stroke="#3B82F6"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
-              <path
-                d="M8 13H14"
-                stroke="#3B82F6"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
-              <path
-                d="M9 18H6C5.20435 18 4.44129 17.6839 3.87868 17.1213C3.31607 16.5587 3 15.7956 3 15V7C3 6.20435 3.31607 5.44129 3.87868 4.87868C4.44129 4.31607 5.20435 4 6 4H18C18.7956 4 19.5587 4.31607 20.1213 4.87868C20.6839 5.44129 21 6.20435 21 7V15C21 15.7956 20.6839 16.5587 20.1213 17.1213C19.5587 17.6839 18.7956 18 18 18H15L12 21L9 18Z"
-                stroke="#3B82F6"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
-            </svg>
-            <p>Hỏi đáp</p>
-          </div>
-          <span class="text-gray-400">|</span>
-          <div class="flex gap-2 items-center">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <rect
-                x="5"
-                y="5"
-                width="14"
-                height="14"
-                rx="2"
-                stroke="#3B82F6"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></rect>
-              <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
-                d="M9 10C9 9.44772 9.44772 9 10 9H14C14.5523 9 15 9.44772 15 10V14C15 14.5523 14.5523 15 14 15H10C9.44772 15 9 14.5523 9 14V10Z"
-                stroke="#3B82F6"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
-              <path
-                d="M3 10H5"
-                stroke="#3B82F6"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
-              <path
-                d="M3 14H5"
-                stroke="#3B82F6"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
-              <path
-                d="M10 3V5"
-                stroke="#3B82F6"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
-              <path
-                d="M14 3V5"
-                stroke="#3B82F6"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
-              <path
-                d="M21 10H19"
-                stroke="#3B82F6"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
-              <path
-                d="M21 14H19"
-                stroke="#3B82F6"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
-              <path
-                d="M14 21V19"
-                stroke="#3B82F6"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
-              <path
-                d="M10 21V19"
-                stroke="#3B82F6"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
-            </svg>
-            <p>Thông số</p>
-          </div>
-          <span class="text-gray-400">|</span>
-          <div class="flex gap-2 items-center">
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M3 12C3 13.1819 3.23279 14.3522 3.68508 15.4442C4.13738 16.5361 4.80031 17.5282 5.63604 18.364C6.47177 19.1997 7.46392 19.8626 8.55585 20.3149C9.64778 20.7672 10.8181 21 12 21C13.1819 21 14.3522 20.7672 15.4442 20.3149C16.5361 19.8626 17.5282 19.1997 18.364 18.364C19.1997 17.5282 19.8626 16.5361 20.3149 15.4442C20.7672 14.3522 21 13.1819 21 12C21 9.61305 20.0518 7.32387 18.364 5.63604C16.6761 3.94821 14.3869 3 12 3C9.61305 3 7.32387 3.94821 5.63604 5.63604C3.94821 7.32387 3 9.61305 3 12Z"
-                stroke="#3B82F6"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
-              <path
-                d="M9 12H15"
-                stroke="#3B82F6"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
-              <path
-                d="M12 9V15"
-                stroke="#3B82F6"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
-            </svg>
-            <p>So sánh</p>
-          </div>
+        <span class="text-gray-400">|</span>
+        <div class="flex gap-2 items-center">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 9H16" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            </path>
+            <path d="M8 13H14" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            </path>
+            <path
+              d="M9 18H6C5.20435 18 4.44129 17.6839 3.87868 17.1213C3.31607 16.5587 3 15.7956 3 15V7C3 6.20435 3.31607 5.44129 3.87868 4.87868C4.44129 4.31607 5.20435 4 6 4H18C18.7956 4 19.5587 4.31607 20.1213 4.87868C20.6839 5.44129 21 6.20435 21 7V15C21 15.7956 20.6839 16.5587 20.1213 17.1213C19.5587 17.6839 18.7956 18 18 18H15L12 21L9 18Z"
+              stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          <p>Hỏi đáp</p>
         </div>
-
-        <div class="flex flex-col gap-3">
-          <!-- Slider chính -->
-          @if (isBrowser) {
-          <swiper-container
-            class="group border border-gray-300 rounded-lg overflow-hidden bg-white"
-            navigation="true"
-            thumbs-swiper=".thumbs"
-          >
-            @for (src of images; track $index) {
-            <swiper-slide>
-              <div class="w-full h-full grid place-items-center">
-                <img [src]="src" alt="Ảnh sản phẩm" class="img-fluid" />
-              </div>
-            </swiper-slide>
-            }
-
-            <!-- Ẩn/hiện mũi tên khi hover (dùng ::part) -->
-            <div slot="container-end"></div>
-          </swiper-container>
-          } @if (isBrowser) {
-          <swiper-container
-            class="thumbs flex"
-            slides-per-view="6"
-            watch-slides-progress="true"
-            free-mode="true"
-          >
-            @for (src of images; track $index) {
-            <swiper-slide class="cursor-pointer">
-              <img
-                [src]="src"
-                alt="Thumbnail"
-                class="border border-gray-400 rounded-lg p-1 w-[75px] h-[75px] img-thumbnail"
-                loading="lazy"
-              />
-            </swiper-slide>
-            }
-          </swiper-container>
-          }
-          <!-- Slider thumbnails -->
+        <span class="text-gray-400">|</span>
+        <div class="flex gap-2 items-center">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="5" y="5" width="14" height="14" rx="2" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round"></rect>
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M9 10C9 9.44772 9.44772 9 10 9H14C14.5523 9 15 9.44772 15 10V14C15 14.5523 14.5523 15 14 15H10C9.44772 15 9 14.5523 9 14V10Z"
+              stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M3 10H5" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            </path>
+            <path d="M3 14H5" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            </path>
+            <path d="M10 3V5" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            </path>
+            <path d="M14 3V5" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            </path>
+            <path d="M21 10H19" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            </path>
+            <path d="M21 14H19" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            </path>
+            <path d="M14 21V19" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            </path>
+            <path d="M10 21V19" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            </path>
+          </svg>
+          <p>Thông số</p>
         </div>
-        <div class="my-2">
-          <h2 class="font-medium">Cam kết sản phẩm</h2>
-          <div class="grid grid-cols-2 gap-2 mt-2">
-            @if (product?.commitments?.length) { @for (commitment of
-            product?.commitments ?? []; track commitment) {
-            <div class="bg-gray-100 text-black rounded-lg p-3 w-full">
-              <p class="text-xs text-gray-700 leading-5">
-                {{ commitment }}
-              </p>
-            </div>
-            } } @else {
-            <div class="bg-gray-100 text-black rounded-lg p-2 w-full">
-              <p class="text-xs mt-1">Mới, đầy đủ phụ kiện từ nhà sản xuất</p>
-            </div>
-            <div class="bg-gray-100 text-black rounded-lg p-2 w-full">
-              <p class="text-xs mt-1">
-                Bảo hành 24 tháng tại trung tâm bảo hành Chính hãng. 1 đổi 1
-                trong 30 ngày nếu có lỗi phần cứng từ nhà sản xuất.
-              </p>
-            </div>
-            }
-          </div>
-        </div>
-        <div>
-          <div class="flex items-center gap-2 mt-3">
-            <p class="text-black text-xl font-medium">Thông số kỹ thuật</p>
-            <a
-              class="flex no-underline text-[13px] favorite-text items-center gap-1 ms-auto"
-              >Xem tất cả
-              <svg
-                height="10"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 320 512"
-              >
-                <path
-                  fill="currentColor"
-                  d="M96 480c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L242.8 256L73.38 86.63c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l192 192c12.5 12.5 12.5 32.75 0 45.25l-192 192C112.4 476.9 104.2 480 96 480z"
-                ></path></svg
-            ></a>
-          </div>
-          <table
-            class="w-full mt-2 text-sm border border-gray-300 rounded-lg overflow-hidden border-separate border-spacing-0"
-          >
-            <tbody>
-              @if (product?.productSpecification?.length) { @for (spec of
-              product?.productSpecification ?? []; track spec.name) {
-              <tr class="border-b border-gray-300">
-                <td
-                  class="w-1/3 bg-gray-100 px-4 py-3 align-top border-r border-gray-300"
-                >
-                  {{ spec.name }}
-                </td>
-                <td class="px-4 py-3 align-top">
-                  @if (spec.specDetails?.length != null &&
-                  spec.specDetails!.length > 0 ) {
-                  <div class="space-y-1">
-                    <p>
-                      <span class="font-medium"
-                        >{{ spec.specDetails![0].name }}:</span
-                      >
-                      <span>{{ spec.specDetails![0].value }}</span>
-                    </p>
-                  </div>
-                  } @else {
-                  <span class="text-gray-500">Đang cập nhật</span>
-                  }
-                </td>
-              </tr>
-              } } @else {
-              <tr class="border-b border-gray-300">
-                <td
-                  class="w-1/3 bg-gray-100 px-4 py-3 align-top border-r border-gray-300"
-                >
-                  Kích thước màn hình
-                </td>
-                <td class="px-4 py-3 align-top">6.9 inches</td>
-              </tr>
-              <tr class="border-b border-gray-300">
-                <td
-                  class="bg-gray-100 px-4 py-3 align-top border-r border-t border-gray-300"
-                >
-                  Công nghệ màn hình
-                </td>
-                <td class="px-4 py-3 align-top border-t border-gray-300">
-                  <a href="#" class="text-blue-600 hover:underline"
-                    >Super Retina XDR OLED</a
-                  >
-                </td>
-              </tr>
-              <tr>
-                <td
-                  class="bg-gray-100 px-4 py-3 align-top border-r border-t border-gray-300"
-                >
-                  Camera sau
-                </td>
-                <td class="px-4 py-3 align-top border-t border-gray-300">
-                  Camera chính: 48MP, f/1.78, 24mm, 2µm, chống rung...<br />
-                  Telephoto 2x 12MP: 52 mm, f/1.6<br />
-                  Camera góc siêu rộng: 48MP, 13 mm, f/2.2, 120°
-                </td>
-              </tr>
-              }
-            </tbody>
-          </table>
+        <span class="text-gray-400">|</span>
+        <div class="flex gap-2 items-center">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M3 12C3 13.1819 3.23279 14.3522 3.68508 15.4442C4.13738 16.5361 4.80031 17.5282 5.63604 18.364C6.47177 19.1997 7.46392 19.8626 8.55585 20.3149C9.64778 20.7672 10.8181 21 12 21C13.1819 21 14.3522 20.7672 15.4442 20.3149C16.5361 19.8626 17.5282 19.1997 18.364 18.364C19.1997 17.5282 19.8626 16.5361 20.3149 15.4442C20.7672 14.3522 21 13.1819 21 12C21 9.61305 20.0518 7.32387 18.364 5.63604C16.6761 3.94821 14.3869 3 12 3C9.61305 3 7.32387 3.94821 5.63604 5.63604C3.94821 7.32387 3 9.61305 3 12Z"
+              stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M9 12H15" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            </path>
+            <path d="M12 9V15" stroke="#3B82F6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            </path>
+          </svg>
+          <p>So sánh</p>
         </div>
       </div>
-      <div class="flex-col items-center">
-        <div
-          class="border border-primary/30 rounded-lg p-3 inline-block primary-bg"
-        >
-          <h3>Giá sản phẩm</h3>
-          <div class="gap-2 flex items-center">
-            <span class="text-2xl font-medium">
-              {{ convertPriceVnd(product?.salePrice) }}
-            </span>
-            <span class="line-through text-lg text-gray-500">
-              {{ convertPriceVnd(product?.basePrice) }}
-            </span>
+
+      <div class="flex flex-col gap-3 w-full">
+        <!-- Slider chính -->
+        @if (isBrowser) {
+        <swiper-container class="group border border-gray-300 rounded-lg overflow-hidden bg-white" navigation="true"
+          thumbs-swiper=".thumbs">
+          @for (src of images; track $index) {
+          <swiper-slide>
+            <div class="place-items-center">
+              <img [src]="src" alt="Ảnh sản phẩm" class="h-100 w-100 object-cover " />
+            </div>
+          </swiper-slide>
+          }
+
+          <!-- Ẩn/hiện mũi tên khi hover (dùng ::part) -->
+          <div slot="container-end"></div>
+        </swiper-container>
+        } @if (isBrowser) {
+        <swiper-container class="thumbs flex" slides-per-view="6" watch-slides-progress="true" free-mode="true">
+          @for (src of images; track $index) {
+          <swiper-slide class="cursor-pointer">
+            <img [src]="src" alt="Thumbnail"
+              class="border border-gray-400 rounded-lg p-1 w-[75px] h-[75px] img-thumbnail" loading="lazy" />
+          </swiper-slide>
+          }
+        </swiper-container>
+        }
+        <!-- Slider thumbnails -->
+      </div>
+      <div class="my-2">
+        <h2 class="font-medium">Cam kết sản phẩm</h2>
+        <div class="grid grid-cols-2 gap-2 mt-2">
+          @if (product?.commitments?.length) { @for (commitment of
+          product?.commitments ?? []; track commitment) {
+          <div class="bg-gray-100 text-black rounded-lg p-3 w-full">
+            <p class="text-xs text-gray-700 leading-5">
+              {{ commitment }}
+            </p>
           </div>
-          @if (this.product?.StoreHouseDTOs) {
-          <p class="text-sm text-gray-600 mt-1">Kho còn {{ 1 }} sản phẩm.</p>
+          } } @else {
+          <div class="bg-gray-100 text-black rounded-lg p-2 w-full">
+            <p class="text-xs mt-1">Mới, đầy đủ phụ kiện từ nhà sản xuất</p>
+          </div>
+          <div class="bg-gray-100 text-black rounded-lg p-2 w-full">
+            <p class="text-xs mt-1">
+              Bảo hành 24 tháng tại trung tâm bảo hành Chính hãng. 1 đổi 1
+              trong 30 ngày nếu có lỗi phần cứng từ nhà sản xuất.
+            </p>
+          </div>
           }
         </div>
-        <div class="mt-2">
-          <p class="text-black font-medium">Phiên bản</p>
-          @if (product?.versions) {
-          <fieldset class="grid grid-cols-2 md:grid-cols-3 gap-3">
-            <!-- Option -->
-            <label class="relative inline-block">
-              <input
-                type="radio"
-                name="version"
-                value="v1"
-                class="peer sr-only"
-                [checked]="true"
-              />
-
-              <!-- Khung item -->
-              <span
-                class="block select-none rounded-xl border border-gray-300 px-4 py-3 text-center font-medium transition peer-checked:border-red-600 peer-checked:ring-2 peer-checked:ring-red-500 peer-checked:ring-offset-2 focus:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-red-300"
-              >
-                {{ this.product?.versions }}
-              </span>
-
-              <!-- Badge ✓ góc phải -->
-              <span
-                class="pointer-events-none absolute -top-2 -right-2 hidden h-5 w-5 rounded-full bg-red-600 text-white text-[10px] leading-5 text-center peer-checked:inline-block"
-              >
-                ✓
-              </span>
-            </label>
-          </fieldset>
-          } @else {
-          <p class="text-sm text-gray-500 mt-2">Đang cập nhật phiên bản.</p>
-          }
+      </div>
+      <div>
+        <div class="flex items-center gap-2 mt-3">
+          <p class="text-black text-xl font-medium">Thông số kỹ thuật</p>
+          <a class="flex no-underline text-[13px] favorite-text items-center gap-1 ms-auto">Xem tất cả
+            <svg height="10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+              <path fill="currentColor"
+                d="M96 480c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L242.8 256L73.38 86.63c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l192 192c12.5 12.5 12.5 32.75 0 45.25l-192 192C112.4 476.9 104.2 480 96 480z">
+              </path>
+            </svg></a>
         </div>
-        <div class="mt-2 flex-col">
-          @if(this.product?.colorDTOs){
-          <p class="text-black font-medium">Màu sắc</p>
-          <fieldset class="grid grid-cols-2 md:grid-cols-3 gap-2">
-            @for (item of this.product?.colorDTOs; track $index) {
-            <!-- Option -->
-            <label class="relative inline-block">
-              <input
-                type="radio"
-                name="color"
-                [value]="item.colorId"
-                class="peer sr-only"
-                (change)="onRadioChange($event)"
-                [checked]="item.colorId === selected_color"
-              />
 
-              <!-- Khung item -->
-              <span
-                class="flex items-center min-w-[12vw] select-none rounded-xl border border-gray-300 px-4 py-3 text-center font-medium transition peer-checked:border-red-600 peer-checked:ring-2 peer-checked:ring-red-500 peer-checked:ring-offset-2 focus:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-red-300 gap-2"
-              >
-                <img
-                  [src]="item.image.originUrl"
-                  [alt]="item.image.alt"
-                  class="img-fluid object-contain rounded-lg"
-                  alt=""
-                />
-                <div class="flex-col items-center gap-y-2">
-                  <p>{{ item.name }}</p>
-                  <p>{{ convertPriceVnd(product?.salePrice) }}</p>
+        <table
+          class="w-full mt-2 text-sm border border-gray-200 rounded-lg overflow-hidden border-separate border-spacing-0 shadow-sm">
+          <tbody class="bg-white">
+            @if (product?.productSpecification?.length) { @for (spec of
+            product?.productSpecification ?? []; track spec.name) {
+            <tr class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+              <td class="w-1/3 bg-gray-50 px-6 py-4 align-top border-r border-gray-200 font-medium text-gray-700">
+                {{ spec.name }}
+              </td>
+              <td class="px-6 py-4 align-top text-gray-900 leading-relaxed">
+                @if (spec.specDetails?.length != null &&
+                spec.specDetails!.length > 0 ) {
+                <div class="space-y-2">
+                  <p>
+                    <span class="font-semibold text-gray-800">{{ spec.specDetails![0].name }}:</span>
+                    <span class="ml-1">{{ spec.specDetails![0].value }}</span>
+                  </p>
                 </div>
-              </span>
-              <span
-                class="pointer-events-none absolute -top-2 -right-2 hidden h-5 w-5 rounded-full bg-red-600 text-white text-[10px] leading-5 text-center peer-checked:inline-block"
-              >
-                ✓
-              </span>
-            </label>
+                } @else {
+                <span class="text-gray-400 italic">Đang cập nhật</span>
+                }
+              </td>
+            </tr>
+            } } @else {
+            <tr class="border-b border-gray-200">
+              <td class="w-1/3 bg-gray-50 px-6 py-4 align-top border-r border-gray-200 font-medium text-gray-700">
+                Kích thước màn hình
+              </td>
+              <td class="px-6 py-4 align-top text-gray-900 leading-relaxed">6.9 inches</td>
+            </tr>
+            <tr class="border-b border-gray-200">
+              <td class="bg-gray-50 px-6 py-4 align-top border-r border-gray-200 font-medium text-gray-700">
+                Công nghệ màn hình
+              </td>
+              <td class="px-6 py-4 align-top border-t border-gray-200 leading-relaxed">
+                <a href="#" class="text-blue-600 hover:underline font-medium">Super Retina XDR OLED</a>
+              </td>
+            </tr>
+            <tr>
+              <td class="bg-gray-50 px-6 py-4 align-top border-r border-t border-gray-200 font-medium text-gray-700">
+                Camera sau
+              </td>
+              <td class="px-6 py-4 align-top border-t border-gray-200 text-gray-900 leading-relaxed">
+                Camera chính: 48MP, f/1.78, 24mm, 2µm, chống rung...<br />
+                Telephoto 2x 12MP: 52 mm, f/1.6<br />
+                Camera góc siêu rộng: 48MP, 13 mm, f/2.2, 120°
+              </td>
+            </tr>
             }
-          </fieldset>
-          }
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="flex flex-col gap-2 lg:w-[38vw] xl:w-[38vw]">
+      <div class="h-10"></div>
+      <div class="border border-primary/30 rounded-lg p-3 inline-block primary-bg">
+        <h3>Giá sản phẩm</h3>
+        <div class="gap-2 flex items-center">
+          <span class="text-2xl font-medium">
+            {{ convertPriceVnd(product?.salePrice) }}
+          </span>
+          <span class="line-through text-lg text-gray-500">
+            {{ convertPriceVnd(product?.basePrice) }}
+          </span>
         </div>
-        <div class="mt-2">
-          <p class="text-black font-medium">Kho hàng</p>
-          <div
-            class="rounded-xl border border-gray-300 px-4 py-3 mt-2 bg-white"
-          >
-            <!-- <p class="font-medium">
+        @if (this.product?.StoreHouseDTOs) {
+        <p class="text-sm text-gray-600 mt-1">Kho còn {{ 1 }} sản phẩm.</p>
+        }
+      </div>
+      <div class="mt-2">
+        <p class="text-black font-medium">Phiên bản</p>
+        @if (product?.versions) {
+        <fieldset class="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <!-- Option -->
+          <label class="relative inline-block">
+            <input type="radio" name="version" value="v1" class="peer sr-only" [checked]="true" />
+
+            <!-- Khung item -->
+            <span
+              class="block select-none rounded-xl border border-gray-300 px-4 py-3 text-center font-medium transition peer-checked:border-red-600 peer-checked:ring-2 peer-checked:ring-red-500 peer-checked:ring-offset-2 focus:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-red-300">
+              {{ this.product?.versions }}
+            </span>
+
+            <!-- Badge ✓ góc phải -->
+            <span
+              class="pointer-events-none absolute -top-2 -right-2 hidden h-5 w-5 rounded-full bg-red-600 text-white text-[10px] leading-5 text-center peer-checked:inline-block">
+              ✓
+            </span>
+          </label>
+        </fieldset>
+        } @else {
+        <p class="text-sm text-gray-500 mt-2">Đang cập nhật phiên bản.</p>
+        }
+      </div>
+      <div class="mt-2 flex-col">
+        @if(this.product?.colorDTOs){
+        <p class="text-black font-medium">Màu sắc</p>
+        <fieldset class="grid grid-cols-2 md:grid-cols-3 gap-2">
+          @for (item of this.product?.colorDTOs; track $index) {
+          <!-- Option -->
+          <label class="relative inline-block">
+            <input type="radio" name="color" [value]="item.colorId" class="peer sr-only"
+              (change)="onRadioChange($event)" [checked]="item.colorId === selected_color" />
+
+            <!-- Khung item -->
+            <span
+              class="flex items-center min-w-[12vw] select-none rounded-xl border border-gray-300 px-4 py-3 text-center font-medium transition peer-checked:border-red-600 peer-checked:ring-2 peer-checked:ring-red-500 peer-checked:ring-offset-2 focus:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-red-300 gap-2">
+              <img [src]="item.image.originUrl" [alt]="item.image.alt" class="img-fluid object-contain rounded-lg"
+                alt="" />
+              <div class="flex-col items-center gap-y-2">
+                <p>{{ item.name }}</p>
+                <p>{{ convertPriceVnd(product?.salePrice) }}</p>
+              </div>
+            </span>
+            <span
+              class="pointer-events-none absolute -top-2 -right-2 hidden h-5 w-5 rounded-full bg-red-600 text-white text-[10px] leading-5 text-center peer-checked:inline-block">
+              ✓
+            </span>
+          </label>
+          }
+        </fieldset>
+        }
+      </div>
+      <div class="mt-2">
+        <p class="text-black font-medium">Kho hàng</p>
+        <div class="rounded-xl border border-gray-300 px-4 py-3 mt-2 bg-white">
+          <!-- <p class="font-medium">
               {{
                 product?.city ||
                   product?.district ||
@@ -535,308 +315,161 @@
                   "Đang cập nhật"
               }}
             </p> -->
-            <!-- <p class="text-sm text-gray-500">
+          <!-- <p class="text-sm text-gray-500">
               {{ warehouseAddress || "Địa chỉ đang được cập nhật" }}
             </p> -->
-          </div>
         </div>
-        <div
-          class="text-black bg-gray-300 flex gap-3 justify-between items-center mt-2 p-3 rounded-lg"
-        >
-          <svg
-            width="30"
-            height="30"
-            class="main-text-color main-color rounded flex-none"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <g clip-path="url(#clip0_3699_166789)">
-              <path
-                fill="currentColor"
-                d="M14.8 8C14.6188 7.68576 14.3557 7.4267 14.0386 7.25055C13.7215 7.0744 13.3625 6.9878 13 7H11C10.4696 7 9.96086 7.21071 9.58579 7.58579C9.21071 7.96086 9 8.46957 9 9C9 9.53043 9.21071 10.0391 9.58579 10.4142C9.96086 10.7893 10.4696 11 11 11H13C13.5304 11 14.0391 11.2107 14.4142 11.5858C14.7893 11.9609 15 12.4696 15 13C15 13.5304 14.7893 14.0391 14.4142 14.4142C14.0391 14.7893 13.5304 15 13 15H11C10.6375 15.0122 10.2785 14.9256 9.96142 14.7494C9.64435 14.5733 9.38115 14.3142 9.2 14M12 6V16M5 21V5C5 4.46957 5.21071 3.96086 5.58579 3.58579C5.96086 3.21071 6.46957 3 7 3H17C17.5304 3 18.0391 3.21071 18.4142 3.58579C18.7893 3.96086 19 4.46957 19 5V21L16 19L14 21L12 19L10 21L8 19L5 21Z"
-                stroke="url(#paint0_linear_3699_166789)"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
-            </g>
-            <defs>
-              <linearGradient
-                id="paint0_linear_3699_166789"
-                x1="12"
-                y1="3"
-                x2="12"
-                y2="21"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stop-color="#FFF5F0"></stop>
-                <stop offset="1" stop-color="#F4C8D0"></stop>
-              </linearGradient>
-              <clipPath id="clip0_3699_166789">
-                <rect width="24" height="24" fill="white"></rect>
-              </clipPath>
-            </defs>
+      </div>
+      <div class="text-black bg-gray-300 flex gap-3 justify-between items-center mt-2 p-3 rounded-lg">
+        <svg width="30" height="30" class="main-text-color main-color rounded flex-none" viewBox="0 0 24 24" fill="none"
+          xmlns="http://www.w3.org/2000/svg">
+          <g clip-path="url(#clip0_3699_166789)">
+            <path fill="currentColor"
+              d="M14.8 8C14.6188 7.68576 14.3557 7.4267 14.0386 7.25055C13.7215 7.0744 13.3625 6.9878 13 7H11C10.4696 7 9.96086 7.21071 9.58579 7.58579C9.21071 7.96086 9 8.46957 9 9C9 9.53043 9.21071 10.0391 9.58579 10.4142C9.96086 10.7893 10.4696 11 11 11H13C13.5304 11 14.0391 11.2107 14.4142 11.5858C14.7893 11.9609 15 12.4696 15 13C15 13.5304 14.7893 14.0391 14.4142 14.4142C14.0391 14.7893 13.5304 15 13 15H11C10.6375 15.0122 10.2785 14.9256 9.96142 14.7494C9.64435 14.5733 9.38115 14.3142 9.2 14M12 6V16M5 21V5C5 4.46957 5.21071 3.96086 5.58579 3.58579C5.96086 3.21071 6.46957 3 7 3H17C17.5304 3 18.0391 3.21071 18.4142 3.58579C18.7893 3.96086 19 4.46957 19 5V21L16 19L14 21L12 19L10 21L8 19L5 21Z"
+              stroke="url(#paint0_linear_3699_166789)" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round">
+            </path>
+          </g>
+          <defs>
+            <linearGradient id="paint0_linear_3699_166789" x1="12" y1="3" x2="12" y2="21"
+              gradientUnits="userSpaceOnUse">
+              <stop stop-color="#FFF5F0"></stop>
+              <stop offset="1" stop-color="#F4C8D0"></stop>
+            </linearGradient>
+            <clipPath id="clip0_3699_166789">
+              <rect width="24" height="24" fill="white"></rect>
+            </clipPath>
+          </defs>
+        </svg>
+        <p>
+          Tiết kiệm thêm đến <span class="font-extrabold">149.000đ</span> cho
+          Smember Ưu đãi Học sinh - sinh viên, Giảng viên - giáo viên đến
+          <span class="font-extrabold">300.000đ</span>
+        </p>
+        <a href="/" class="main-text-color hover:underline text-xs flex whitespace-nowrap">Kiểm tra lần cuối
+          <svg width="16" height="16" class="main-text-color" viewBox="0 0 16 16" fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <path fill="currentColor" d="M3.3335 8H12.6668" stroke="#D70018" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round"></path>
+            <path fill="currentColor" d="M8.6665 12L12.6665 8" stroke="#D70018" stroke-width="1.5"
+              stroke-linecap="round" stroke-linejoin="round"></path>
+            <path fill="currentColor" d="M8.6665 4L12.6665 8" stroke="#D70018" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round"></path>
           </svg>
-          <p>
-            Tiết kiệm thêm đến <span class="font-extrabold">149.000đ</span> cho
-            Smember Ưu đãi Học sinh - sinh viên, Giảng viên - giáo viên đến
-            <span class="font-extrabold">300.000đ</span>
-          </p>
-          <a
-            href="/"
-            class="main-text-color hover:underline text-xs flex whitespace-nowrap"
-            >Kiểm tra lần cuối
-            <svg
-              width="16"
-              height="16"
-              class="main-text-color"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fill="currentColor"
-                d="M3.3335 8H12.6668"
-                stroke="#D70018"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
-              <path
-                fill="currentColor"
-                d="M8.6665 12L12.6665 8"
-                stroke="#D70018"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
-              <path
-                fill="currentColor"
-                d="M8.6665 4L12.6665 8"
-                stroke="#D70018"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
-            </svg>
-          </a>
-        </div>
-        <div class="relative">
-          @if (isBrowser) {
-          <swiper-container
-            navigation="true"
-            thumbs-swiper=".thumbs"
-            navigation-next-el=".custom-next-button"
-            navigation-prev-el=".custom-prev-button"
-          >
-            @for (src of slides; track $index) {
-            <swiper-slide>
-              <div>
-                <img
-                  [src]="src"
-                  alt="Ảnh sản phẩm"
-                  class="img-fluid object-contain rounded-lg"
-                />
-              </div>
-            </swiper-slide>
-            }
-            <!-- Ẩn/hiện mũi tên khi hover (dùng ::part) -->
-            <div slot="container-end"></div>
-          </swiper-container>
+        </a>
+      </div>
+      <div class="w-full relative">
+        @if (isBrowser) {
+        <swiper-container navigation="true" thumbs-swiper=".thumbs" navigation-next-el=".custom-next-button"
+          navigation-prev-el=".custom-prev-button">
+          @for (src of slides; track $index) {
+          <swiper-slide>
+            <div>
+              <img [src]="src" alt="Ảnh sản phẩm" class="img-fluid object-contain rounded-lg" />
+            </div>
+          </swiper-slide>
           }
+          <!-- Ẩn/hiện mũi tên khi hover (dùng ::part) -->
+          <div slot="container-end"></div>
+        </swiper-container>
+        }
 
-          <div slot="container-end" class="pointer-events-none">
-            <div
-              class="custom-prev-button pointer-events-auto absolute left-2 top-1/2 -translate-y-1/2 z-10 h-5 w-5 grid place-items-center rounded-full bg-white/90 border border-gray-200 shadow"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                width="18"
-                height="18"
-                aria-hidden="true"
-              >
-                <path
-                  d="M15 18l-6-6 6-6"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </div>
+        <div slot="container-end" class="pointer-events-none">
+          <div
+            class="custom-prev-button pointer-events-auto absolute left-2 top-1/2 -translate-y-1/2 z-10 h-5 w-5 grid place-items-center rounded-full bg-white/90 border border-gray-200 shadow">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </div>
 
-            <div
-              class="custom-next-button pointer-events-auto absolute right-2 top-1/2 -translate-y-1/2 z-10 h-5 w-5 grid place-items-center rounded-full bg-white/90 border border-gray-200 shadow"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                width="18"
-                height="18"
-                aria-hidden="true"
-              >
-                <path
-                  d="M9 6l6 6-6 6"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
-        <div
-          class="border border-primary/50 rounded-lg p-3 inline-block primary-bg w-full"
-        >
-          <div class="flex flex-column gap-x-3 items-center">
-            <svg
-              width="24"
-              height="25"
-              viewBox="0 0 24 25"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M2 15.5H11V24.5H7C5.67392 24.5 4.40215 23.9732 3.46447 23.0355C2.52678 22.0979 2 20.8261 2 19.5V15.5ZM24 11.5C24 12.0304 23.7893 12.5391 23.4142 12.9142C23.0391 13.2893 22.5304 13.5 22 13.5H13V9.457C12.664 9.483 12.329 9.5 12 9.5C11.671 9.5 11.336 9.483 11 9.457V13.5H2C1.46957 13.5 0.960859 13.2893 0.585786 12.9142C0.210714 12.5391 0 12.0304 0 11.5C0 10.4391 0.421427 9.42172 1.17157 8.67157C1.92172 7.92143 2.93913 7.5 4 7.5H5.738C5.1726 7.0016 4.7238 6.38488 4.42344 5.6936C4.12307 5.00232 3.97851 4.25341 4 3.5C4 3.23478 4.10536 2.98043 4.29289 2.79289C4.48043 2.60536 4.73478 2.5 5 2.5C5.26522 2.5 5.51957 2.60536 5.70711 2.79289C5.89464 2.98043 6 3.23478 6 3.5C6 6.122 8.371 7.03 10.174 7.341C9.50852 6.16105 9.10791 4.85037 9 3.5C9 2.70435 9.31607 1.94129 9.87868 1.37868C10.4413 0.81607 11.2044 0.5 12 0.5C12.7956 0.5 13.5587 0.81607 14.1213 1.37868C14.6839 1.94129 15 2.70435 15 3.5C14.8921 4.85037 14.4915 6.16105 13.826 7.341C15.629 7.03 18 6.122 18 3.5C18 3.23478 18.1054 2.98043 18.2929 2.79289C18.4804 2.60536 18.7348 2.5 19 2.5C19.2652 2.5 19.5196 2.60536 19.7071 2.79289C19.8946 2.98043 20 3.23478 20 3.5C20.0215 4.25341 19.8769 5.00232 19.5766 5.6936C19.2762 6.38488 18.8274 7.0016 18.262 7.5H20C21.0609 7.5 22.0783 7.92143 22.8284 8.67157C23.5786 9.42172 24 10.4391 24 11.5ZM11 3.5C11.1207 4.56283 11.4613 5.58891 12 6.513C12.5387 5.58891 12.8793 4.56283 13 3.5C13 3.23478 12.8946 2.98043 12.7071 2.79289C12.5196 2.60536 12.2652 2.5 12 2.5C11.7348 2.5 11.4804 2.60536 11.2929 2.79289C11.1054 2.98043 11 3.23478 11 3.5ZM13 24.5H17C17.6566 24.5 18.3068 24.3707 18.9134 24.1194C19.52 23.8681 20.0712 23.4998 20.5355 23.0355C20.9998 22.5712 21.3681 22.02 21.6194 21.4134C21.8707 20.8068 22 20.1566 22 19.5V15.5H13V24.5Z"
-                fill="url(#paint0_linear_0_11239)"
-              ></path>
-              <defs>
-                <linearGradient
-                  id="paint0_linear_0_11239"
-                  x1="18"
-                  y1="-13.5"
-                  x2="-5.9444"
-                  y2="3.07082"
-                  gradientUnits="userSpaceOnUse"
-                >
-                  <stop stop-color="#ED8A95"></stop>
-                  <stop offset="0.815713" stop-color="#C40016"></stop>
-                </linearGradient>
-              </defs>
+          <div
+            class="custom-next-button pointer-events-auto absolute right-2 top-1/2 -translate-y-1/2 z-10 h-5 w-5 grid place-items-center rounded-full bg-white/90 border border-gray-200 shadow">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
             </svg>
-            <h3 class="text-xl">Khuyến mãi hấp dẫn</h3>
-          </div>
-          <div class="items-center text-black space-y-3 mt-2">
-            <div class="flex items-center gap-3">
-              <p
-                class="bg-primary w-5 h-5 rounded-full flex justify-center items-center text-xs text-white"
-              >
-                1
-              </p>
-              <span class="text-sm"
-                >Đặc quyền trợ giá lên đến 3 triệu khi thu cũ lên đời iPhone
-                <a href="#" class="text-primary no-underline text-xs"
-                  >&nbsp; Xem chi tiết</a
-                ></span
-              >
-            </div>
-            <div class="flex items-center gap-3">
-              <p
-                class="bg-primary w-5 h-5 rounded-full flex justify-center items-center text-xs text-white"
-              >
-                2
-              </p>
-              <span class="text-sm"
-                >Đặc quyền trợ giá lên đến 3 triệu khi thu cũ lên đời iPhone
-                <a href="#" class="text-primary no-underline text-xs"
-                  >&nbsp; Xem chi tiết</a
-                ></span
-              >
-            </div>
-            <div class="flex items-center gap-3">
-              <span
-                class="bg-primary w-5 h-5 rounded-full flex justify-center items-center text-xs text-white"
-                >3</span
-              >
-              <span class="text-sm"
-                >Đặc quyền trợ giá lên đến 3 triệu khi thu cũ lên đời iPhone
-                <a href="#" class="text-primary no-underline text-xs"
-                  >&nbsp; Xem chi tiết</a
-                ></span
-              >
-            </div>
-            <div class="flex items-center gap-3">
-              <p
-                class="bg-primary w-5 h-5 rounded-full flex justify-center items-center text-xs text-white"
-              >
-                4
-              </p>
-              <span class="text-sm"
-                >Đặc quyền trợ giá lên đến 3 triệu khi thu cũ lên đời iPhone
-                <a href="#" class="text-primary no-underline text-xs"
-                  >&nbsp; Xem chi tiết</a
-                ></span
-              >
-            </div>
-          </div>
-        </div>
-        <div class="flex flex-row items-center mt-2 justify-between">
-          <div
-            class="border border-full border-blue-500 hover:bg-blue-100 h-15 text-blue-500 grid place-items-center rounded-lg py-2 px-1"
-          >
-            <p class="text-lg font-medium">Trả góp 0%</p>
-          </div>
-          <div
-            class="bg-[linear-gradient(0deg,#d70018,#e45464)] h-15 text-white items-center hover:bg-red-700 rounded-lg px-6 py-2 min-w-[21.5vw]"
-          >
-            <p class="text-center text-lg font-semibold">MUA NGAY</p>
-            <p class="text-center text-xs">
-              Giao nhanh từ 2 giờ hoặc nhận tại cửa hàng
-            </p>
-          </div>
-          <div
-            class="main-text-color border border-red-500 bg-white h-15 hover:bg-red-300 items-center flex flex-row rounded-lg px-1 py-2 line-clamp-1"
-          >
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              class=""
-            >
-              <circle
-                cx="6"
-                cy="19"
-                r="2"
-                stroke="#D70018"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></circle>
-              <circle
-                cx="17"
-                cy="19"
-                r="2"
-                stroke="#D70018"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></circle>
-              <path
-                d="M17 17H6V3H4"
-                stroke="#D70018"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
-              <path
-                d="M6.07126 4.00254C5.52038 3.96319 5.0419 4.37786 5.00254 4.92874C4.96319 5.47962 5.37786 5.9581 5.92874 5.99746L6.07126 4.00254ZM11.9337 6.42646C12.4846 6.46581 12.9631 6.05114 13.0025 5.50026C13.0418 4.94938 12.6271 4.4709 12.0763 4.43154L11.9337 6.42646ZM20.1329 12.1438C20.2112 11.5971 19.8315 11.0904 19.2848 11.0121C18.7381 10.9338 18.2314 11.3135 18.1531 11.8602L20.1329 12.1438ZM19 13V14C19.4975 14 19.9193 13.6343 19.9899 13.1418L19 13ZM6 12C5.44772 12 5 12.4477 5 13C5 13.5523 5.44772 14 6 14V12ZM5.92874 5.99746L11.9337 6.42646L12.0763 4.43154L6.07126 4.00254L5.92874 5.99746ZM18.1531 11.8602L18.0101 12.8582L19.9899 13.1418L20.1329 12.1438L18.1531 11.8602ZM19 12H6V14H19V12Z"
-                fill="#D70018"
-              ></path>
-              <path
-                d="M15 5C14.4477 5 14 5.44772 14 6C14 6.55228 14.4477 7 15 7V5ZM21 7C21.5523 7 22 6.55228 22 6C22 5.44772 21.5523 5 21 5V7ZM19 3C19 2.44772 18.5523 2 18 2C17.4477 2 17 2.44772 17 3H19ZM17 9C17 9.55228 17.4477 10 18 10C18.5523 10 19 9.55228 19 9H17ZM15 7H21V5H15V7ZM17 3V9H19V3H17Z"
-                fill="#D70018"
-              ></path>
-            </svg>
-            <a (click)="addToCart()">Thêm vào giỏ</a>
           </div>
         </div>
       </div>
+      <div class="border border-primary/50 rounded-lg p-3 inline-block primary-bg w-full">
+        <div class="flex flex-column gap-x-3 items-center">
+          <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M2 15.5H11V24.5H7C5.67392 24.5 4.40215 23.9732 3.46447 23.0355C2.52678 22.0979 2 20.8261 2 19.5V15.5ZM24 11.5C24 12.0304 23.7893 12.5391 23.4142 12.9142C23.0391 13.2893 22.5304 13.5 22 13.5H13V9.457C12.664 9.483 12.329 9.5 12 9.5C11.671 9.5 11.336 9.483 11 9.457V13.5H2C1.46957 13.5 0.960859 13.2893 0.585786 12.9142C0.210714 12.5391 0 12.0304 0 11.5C0 10.4391 0.421427 9.42172 1.17157 8.67157C1.92172 7.92143 2.93913 7.5 4 7.5H5.738C5.1726 7.0016 4.7238 6.38488 4.42344 5.6936C4.12307 5.00232 3.97851 4.25341 4 3.5C4 3.23478 4.10536 2.98043 4.29289 2.79289C4.48043 2.60536 4.73478 2.5 5 2.5C5.26522 2.5 5.51957 2.60536 5.70711 2.79289C5.89464 2.98043 6 3.23478 6 3.5C6 6.122 8.371 7.03 10.174 7.341C9.50852 6.16105 9.10791 4.85037 9 3.5C9 2.70435 9.31607 1.94129 9.87868 1.37868C10.4413 0.81607 11.2044 0.5 12 0.5C12.7956 0.5 13.5587 0.81607 14.1213 1.37868C14.6839 1.94129 15 2.70435 15 3.5C14.8921 4.85037 14.4915 6.16105 13.826 7.341C15.629 7.03 18 6.122 18 3.5C18 3.23478 18.1054 2.98043 18.2929 2.79289C18.4804 2.60536 18.7348 2.5 19 2.5C19.2652 2.5 19.5196 2.60536 19.7071 2.79289C19.8946 2.98043 20 3.23478 20 3.5C20.0215 4.25341 19.8769 5.00232 19.5766 5.6936C19.2762 6.38488 18.8274 7.0016 18.262 7.5H20C21.0609 7.5 22.0783 7.92143 22.8284 8.67157C23.5786 9.42172 24 10.4391 24 11.5ZM11 3.5C11.1207 4.56283 11.4613 5.58891 12 6.513C12.5387 5.58891 12.8793 4.56283 13 3.5C13 3.23478 12.8946 2.98043 12.7071 2.79289C12.5196 2.60536 12.2652 2.5 12 2.5C11.7348 2.5 11.4804 2.60536 11.2929 2.79289C11.1054 2.98043 11 3.23478 11 3.5ZM13 24.5H17C17.6566 24.5 18.3068 24.3707 18.9134 24.1194C19.52 23.8681 20.0712 23.4998 20.5355 23.0355C20.9998 22.5712 21.3681 22.02 21.6194 21.4134C21.8707 20.8068 22 20.1566 22 19.5V15.5H13V24.5Z"
+              fill="url(#paint0_linear_0_11239)"></path>
+            <defs>
+              <linearGradient id="paint0_linear_0_11239" x1="18" y1="-13.5" x2="-5.9444" y2="3.07082"
+                gradientUnits="userSpaceOnUse">
+                <stop stop-color="#ED8A95"></stop>
+                <stop offset="0.815713" stop-color="#C40016"></stop>
+              </linearGradient>
+            </defs>
+          </svg>
+          <h3 class="text-xl">Khuyến mãi hấp dẫn</h3>
+        </div>
+        <div class="items-center text-black space-y-3 mt-2">
+          <div class="flex items-center gap-3">
+            <p class="bg-primary w-5 h-5 rounded-full flex justify-center items-center text-xs text-white">
+              1
+            </p>
+            <span class="text-sm">Đặc quyền trợ giá lên đến 3 triệu khi thu cũ lên đời iPhone
+              <a href="#" class="text-primary no-underline text-xs">&nbsp; Xem chi tiết</a></span>
+          </div>
+          <div class="flex items-center gap-3">
+            <p class="bg-primary w-5 h-5 rounded-full flex justify-center items-center text-xs text-white">
+              2
+            </p>
+            <span class="text-sm">Đặc quyền trợ giá lên đến 3 triệu khi thu cũ lên đời iPhone
+              <a href="#" class="text-primary no-underline text-xs">&nbsp; Xem chi tiết</a></span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="bg-primary w-5 h-5 rounded-full flex justify-center items-center text-xs text-white">3</span>
+            <span class="text-sm">Đặc quyền trợ giá lên đến 3 triệu khi thu cũ lên đời iPhone
+              <a href="#" class="text-primary no-underline text-xs">&nbsp; Xem chi tiết</a></span>
+          </div>
+          <div class="flex items-center gap-3">
+            <p class="bg-primary w-5 h-5 rounded-full flex justify-center items-center text-xs text-white">
+              4
+            </p>
+            <span class="text-sm">Đặc quyền trợ giá lên đến 3 triệu khi thu cũ lên đời iPhone
+              <a href="#" class="text-primary no-underline text-xs">&nbsp; Xem chi tiết</a></span>
+          </div>
+        </div>
+      </div>
+      <div class="flex flex-row items-center mt-2 justify-between">
+        <div
+          class="border border-full border-blue-500 hover:bg-blue-100 h-15 text-blue-500 grid place-items-center rounded-lg py-2 px-1">
+          <p class="text-lg font-medium">Trả góp 0%</p>
+        </div>
+        <div
+          class="bg-[linear-gradient(0deg,#d70018,#e45464)] h-15 text-white items-center hover:bg-red-700 rounded-lg px-6 py-2 min-w-[21.5vw]">
+          <p class="text-center text-lg font-semibold">MUA NGAY</p>
+          <p class="text-center text-xs">
+            Giao nhanh từ 2 giờ hoặc nhận tại cửa hàng
+          </p>
+        </div>
+        <div
+          class="main-text-color border border-red-500 bg-white h-15 hover:bg-red-300 items-center flex flex-row rounded-lg px-1 py-2 line-clamp-1">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="">
+            <circle cx="6" cy="19" r="2" stroke="#D70018" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+            </circle>
+            <circle cx="17" cy="19" r="2" stroke="#D70018" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round"></circle>
+            <path d="M17 17H6V3H4" stroke="#D70018" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            </path>
+            <path
+              d="M6.07126 4.00254C5.52038 3.96319 5.0419 4.37786 5.00254 4.92874C4.96319 5.47962 5.37786 5.9581 5.92874 5.99746L6.07126 4.00254ZM11.9337 6.42646C12.4846 6.46581 12.9631 6.05114 13.0025 5.50026C13.0418 4.94938 12.6271 4.4709 12.0763 4.43154L11.9337 6.42646ZM20.1329 12.1438C20.2112 11.5971 19.8315 11.0904 19.2848 11.0121C18.7381 10.9338 18.2314 11.3135 18.1531 11.8602L20.1329 12.1438ZM19 13V14C19.4975 14 19.9193 13.6343 19.9899 13.1418L19 13ZM6 12C5.44772 12 5 12.4477 5 13C5 13.5523 5.44772 14 6 14V12ZM5.92874 5.99746L11.9337 6.42646L12.0763 4.43154L6.07126 4.00254L5.92874 5.99746ZM18.1531 11.8602L18.0101 12.8582L19.9899 13.1418L20.1329 12.1438L18.1531 11.8602ZM19 12H6V14H19V12Z"
+              fill="#D70018"></path>
+            <path
+              d="M15 5C14.4477 5 14 5.44772 14 6C14 6.55228 14.4477 7 15 7V5ZM21 7C21.5523 7 22 6.55228 22 6C22 5.44772 21.5523 5 21 5V7ZM19 3C19 2.44772 18.5523 2 18 2C17.4477 2 17 2.44772 17 3H19ZM17 9C17 9.55228 17.4477 10 18 10C18.5523 10 19 9.55228 19 9H17ZM15 7H21V5H15V7ZM17 3V9H19V3H17Z"
+              fill="#D70018"></path>
+          </svg>
+          <a (click)="addToCart()">Thêm vào giỏ</a>
+        </div>
+      </div>
     </div>
+    }
   </div>
-  }
 </main>

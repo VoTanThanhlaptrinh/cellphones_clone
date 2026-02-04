@@ -4,6 +4,7 @@ import { CartService } from '../services/cart.service';
 import { CartView } from '../core/models/cart_request.model';
 import { CurrencyPipe, NgClass } from '@angular/common';
 import { HeaderCartOrderComponent } from "../header-cart-order/header-cart-order.component";
+import { NotifyService } from '../services/notify.service';
 
 @Component({
   selector: 'app-cart',
@@ -23,7 +24,8 @@ export class CartComponent implements OnInit {
   hasMore: boolean = false;
   private currency = inject(CurrencyPipe);
   constructor(private cartService: CartService, private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private notifyService: NotifyService
   ) {
 
   }
@@ -31,9 +33,8 @@ export class CartComponent implements OnInit {
     this.cartService.getList(this.page).subscribe({
       next: res => {
         this.cartDetails = res.data
-        console.log(this.cartDetails)
       },
-      error: err => console.error(err),
+      error: err => this.notifyService.error('Có lỗi xảy ra khi tải giỏ hàng'),
       complete: () => {
         this.isLoadding = false;
         this.updateCommon();
@@ -83,9 +84,9 @@ export class CartComponent implements OnInit {
         item!.quantity = res.data;
 
       },
-      error: (e) => console.log(e),
+      error: (e) => this.notifyService.error('Không thể cập nhật số lượng'),
       complete: () => {
-       this.updateCommon();
+        this.updateCommon();
       }
     })
   }
@@ -96,7 +97,7 @@ export class CartComponent implements OnInit {
     this.totalQuantity += 1;
     this.cartService.plusQuantity(cartDetailId).subscribe({
       next: (res) => item!.quantity = res.data,
-      error: (e) => console.log(e),
+      error: (e) => this.notifyService.error('Không thể cập nhật số lượng'),
       complete: () => {
         this.updateCommon();
       }

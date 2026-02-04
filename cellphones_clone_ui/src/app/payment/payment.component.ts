@@ -3,6 +3,7 @@ import { UserView } from '../core/models/user_response.model';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormGroup, FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { CheckoutService } from '../services/checkout.service';
+import { NotifyService } from '../services/notify.service';
 
 import { InputComponent } from "../shared/custom/input/input.component";
 
@@ -21,6 +22,7 @@ export class PaymentComponent implements OnInit {
   private fb = inject(FormBuilder);
   private currency = inject(CurrencyPipe);
   private checkoutService = inject(CheckoutService);
+  private notifyService = inject(NotifyService);
 
   paymentInfo = computed(() => this.checkoutService.checkoutState().paymentInfo);
 
@@ -59,7 +61,8 @@ export class PaymentComponent implements OnInit {
       if (this.paymentForm.value.coupon) {
         this.checkoutService.updateCoupon(this.paymentForm.value.coupon);
       }
-      console.log('Payment Submit:', this.paymentForm.value);
+
+      this.notifyService.success('Thông tin thanh toán hợp lệ');
       // Proceed to backend or next step
     } else {
       this.paymentForm.markAllAsTouched();
