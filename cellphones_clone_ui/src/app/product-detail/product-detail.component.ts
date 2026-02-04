@@ -1,23 +1,26 @@
 import { CommonModule, CurrencyPipe, isPlatformBrowser } from '@angular/common';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, Inject, OnInit, PLATFORM_ID } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { EMPTY, switchMap, take } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute } from '@angular/router';
+import { catchError, distinctUntilChanged, filter, finalize, map, of, switchMap, take, tap } from 'rxjs';
+
 import { ProductService } from '../services/product.service';
 import { ProductViewDetail } from '../core/models/product.model';
 import { CartService } from '../services/cart.service';
+import { NotifyService } from '../services/notify.service';
 @Component({
   selector: 'app-product-detail',
   imports: [CommonModule],
   providers: [CurrencyPipe],
   standalone: true,
   templateUrl: './product-detail.component.html',
-  styleUrl: './product-detail.component.css',
+  styleUrls: ['./product-detail.component.css'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ProductDetailComponent implements OnInit {
   isBrowser: boolean;
   product?: ProductViewDetail;
-  selected_color: any;
+  selected_color: number | null = null;
   private readonly fallbackImages = [
     'assets/images/12_5_119.webp',
     'assets/images/14_2_122.webp',
@@ -36,7 +39,8 @@ export class ProductDetailComponent implements OnInit {
     @Inject(PLATFORM_ID) platformId: Object,
     private readonly route: ActivatedRoute,
     private readonly productService: ProductService,
-    private readonly cartService: CartService
+    private readonly cartService: CartService,
+    private readonly notifyService: NotifyService
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
   }
@@ -44,45 +48,47 @@ export class ProductDetailComponent implements OnInit {
   ngOnInit(): void {
     this.route.paramMap
       .pipe(
-        take(1),
-        switchMap(params => {
-          const idParam = params.get('id');
-          const productId = Number(idParam);
-
-          if (!productId) {
-            this.errorMessage = 'Không tìm thấy sản phẩm.';
-            this.isLoading = false;
-            return EMPTY;
-          }
-
+        map(params => params.get('id')),
+        map(id => {
+          if (!id) return null;
+          const numId = Number(id);
+          return Number.isFinite(numId) && numId > 0 ? numId : null;
+        }),
+        filter((productId): productId is number => productId !== null), // Strict filter to ensure productId is number
+        distinctUntilChanged(),
+        tap(() => {
           this.isLoading = true;
           this.errorMessage = '';
-          return this.productService.getProductDetail(productId);
-        })
+          this.product = undefined; // Reset product while loading new one
+        }),
+        switchMap(productId =>
+          this.productService.getProductDetail(productId).pipe(
+            map(data => ({ success: true, data, error: null })),
+            catchError(error => of({ success: false, data: null, error })), // Handle error in inner pipe to keep outer subscription alive
+          )
+        ),
       )
-      .subscribe({
-        next: detail => {
-          this.isLoading = false;
-          if (!detail) {
-            this.product = undefined;
-            this.images = [...this.fallbackImages];
-            this.errorMessage = 'Không tìm thấy thông tin sản phẩm.';
-            return;
-          }
+      .subscribe(result => {
+        this.isLoading = false;
 
+        if (result.success && result.data) {
+          const detail = result.data;
           this.product = detail;
-          this.selected_color = this.product.colorDTOs[0].colorId
+          // Safe navigation for optional properties
+          this.selected_color = detail.colorDTOs?.[0]?.colorId ?? null;
           this.images = this.buildImageGallery(detail);
-        },
-        error: () => {
-          this.isLoading = false;
-          this.errorMessage = 'Đã xảy ra lỗi khi tải dữ liệu sản phẩm.';
+        } else {
+          this.product = undefined;
+          this.selected_color = null;
+          this.images = [...this.fallbackImages];
+          // Determine error message based on error object if needed, generic for now
+          this.errorMessage = 'Không tìm thấy thông tin sản phẩm hoặc có lỗi xảy ra.';
         }
       });
   }
 
   get warehouseAddress(): string {
-    if (!this.product?.StoreHouseDTOs) {
+    if (!this.product?.StoreHouseDTOs || this.product.StoreHouseDTOs.length === 0) {
       return '';
     }
 
@@ -112,13 +118,15 @@ export class ProductDetailComponent implements OnInit {
     var color_id = this.selected_color
     if (productId && color_id && productId > 0 && color_id > 0)
       this.cartService.addToCart({ productId: this.product?.id, colorId: color_id }).pipe(take(1)).subscribe({
-        next: res =>{
-          console.log('success')
+        next: res => {
+          this.notifyService.success('Thêm vào giỏ hàng thành công');
         },
-        error: (err) => console.error(err)
+        error: (err) => {
+          this.notifyService.error('Thêm vào giỏ hàng thất bại');
+        }
       })
     else
-      console.log('Dữ liệu có vấn đề')
+      this.notifyService.warning('Vui lòng chọn màu sắc sản phẩm');
   }
   convertPriceVnd(price: number | null | undefined): string {
     if (price == null) return 'Đang cập nhật';
@@ -126,7 +134,7 @@ export class ProductDetailComponent implements OnInit {
     return formatted.replace('₫', 'đ');
   }
   onRadioChange(event: any) {
-    const input = event.target.value
-    console.log('selected value =', input);
+    const value = Number(event?.target?.value);
+    this.selected_color = Number.isFinite(value) ? value : null;
   }
 }

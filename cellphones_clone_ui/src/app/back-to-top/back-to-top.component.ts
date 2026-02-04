@@ -11,7 +11,7 @@ export class BackToTopComponent {
   @Output() scrollToTop = new EventEmitter<void>();
 
   clickToTop(): void {
-    console.log('[Child] emit');
+
     this.scrollToTop.emit();
   }
 }

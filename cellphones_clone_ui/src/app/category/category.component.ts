@@ -14,6 +14,7 @@ import { CategoryDetailView, CategoryView } from '../core/models/category_view.m
 import { ProductCardComponent } from "../product-card/product-card.component";
 import { ProductView } from '../core/models/product.model';
 import { delay } from 'rxjs';
+import { NotifyService } from '../services/notify.service';
 @Component({
   selector: 'app-category',
   imports: [ProductCardComponent],
@@ -32,7 +33,8 @@ export class CategoryComponent implements OnInit {
   data: CategoryDetailView | null = null;
   constructor(@Inject(PLATFORM_ID) platformId: Object, private cdr: ChangeDetectorRef,
     private categoryService: CategoryService,
-    private activatedRoute: ActivatedRoute) {
+    private activatedRoute: ActivatedRoute,
+    private notifyService: NotifyService) {
     this.isBrowser = isPlatformBrowser(platformId);
   }
   ngOnInit(): void {
@@ -48,7 +50,7 @@ export class CategoryComponent implements OnInit {
         }
       },
       error: reportError => {
-        console.log(reportError)
+        this.notifyService.error('Không thể tải thông tin danh mục');
       }
     });
   }
@@ -74,7 +76,7 @@ export class CategoryComponent implements OnInit {
     this.page += 1
     this.categoryService.LoadMoreProduct(this.categoryId, this.page).subscribe({
       next: res => {
-        console.log(res)
+
         if (res && res.length > 0) {
           this.products = [...this.products, ...res];
           this.total = this.total - res.length;
@@ -82,7 +84,7 @@ export class CategoryComponent implements OnInit {
         }
       },
       error: e => {
-        console.error(e)
+        this.notifyService.error('Không thể tải thêm sản phẩm');
         this.hasMore = false
         this.isLoading = false;
       },
@@ -96,5 +98,5 @@ export class CategoryComponent implements OnInit {
   getRemainingCount() {
     return this.total
   }
-  
+
 }
