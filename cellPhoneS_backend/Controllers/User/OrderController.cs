@@ -32,7 +32,7 @@ namespace cellphones_backend.Controllers
 
         // POST: api/orders
         [HttpPost]
-        public Task<ActionResult<ApiResponse<string>>> CreateOrder([FromBody] Order order)
+        public Task<ActionResult<ApiResponse<string>>> CreateOrder(List<int> cartDetailIds)
         {
             return null!; // TODO: implement order creation
         }

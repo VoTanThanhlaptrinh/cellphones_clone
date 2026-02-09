@@ -10,8 +10,8 @@ public class LoginDTOValidator : AbstractValidator<LoginDTO>
 {
     public LoginDTOValidator(IStringLocalizer<ShareResource> localizer)
     {
-        RuleFor(x => x.Phone)
-        .NotEmpty().WithMessage(localizer["PhoneRequired"]);
+        RuleFor(x => x.Email)
+        .NotEmpty().WithMessage(localizer["EmailRequired"]);
 
         RuleFor(x => x.Password)
         .NotEmpty().WithMessage(localizer["PasswordRequired"]);

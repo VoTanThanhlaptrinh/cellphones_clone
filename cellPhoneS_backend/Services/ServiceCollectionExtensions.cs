@@ -22,6 +22,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<CategoryService, CategoryServiceImpl>();
         services.AddScoped<CartService, CartServiceImpl>();
         services.AddScoped<ProductSearchService, ProductSearchServiceImpl>();
+        services.AddScoped<IJwtBlacklistService, JwtBlacklistServiceImpl>();
         return services;
     }
 }
