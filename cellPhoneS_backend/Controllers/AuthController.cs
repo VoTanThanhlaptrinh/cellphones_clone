@@ -25,10 +25,10 @@ namespace cellphones_backend.Controllers
             this._authService = _authService;
         }
         [HttpPost("register")]
-        public async Task<ActionResult<ApiResponse<VoidResponse>>> Register([FromBody] RegisterDTO register, HttpRequest httpRequest)
+        public async Task<ActionResult<ApiResponse<VoidResponse>>> Register([FromBody] RegisterDTO register)
         {
 
-            return HandleResult(await _authService.Register(register, httpRequest));
+            return HandleResult(await _authService.Register(register, HttpContext));
         }
         [HttpPost("studentRegister")]
         public async Task<ActionResult<ApiResponse<string>>> StudentRegister([FromBody] StudentRegisterDTO studentRegister)
@@ -41,18 +41,16 @@ namespace cellphones_backend.Controllers
             return HandleResult(await _authService.TeacherRegister(teacherRegister));
         }
         [HttpPost("login")]
-        public async Task<ActionResult<ApiResponse<VoidResponse>>> Login(LoginDTO loginDTO)
+        public async Task<ActionResult<ApiResponse<string>>> Login(LoginDTO loginDTO)
         {
 
-            return HandleResult(await _authService.Login(loginDTO, Request));
+            return HandleResult(await _authService.Login(loginDTO, HttpContext));
         }
         [HttpGet("Oauth2-google")]
         public Task Oauth2Google()
         {
-            // After login by Google success -> redirect to URL of frontend
             return HttpContext.ChallengeAsync("Google", new AuthenticationProperties
             {
-                // URL of frontend -> Frontend will call API callBack/google for getting data include {email,name}
                 RedirectUri = "http://localhost:4434/auth-handler",
             });
         }
@@ -84,7 +82,7 @@ namespace cellphones_backend.Controllers
             return HandleResult(await this._authService.Logout(context));
         }
         [HttpPost("refresh")]
-        public async Task<ActionResult<ApiResponse<VoidResponse>>> RefreshToken(HttpContext context)
+        public async Task<ActionResult<ApiResponse<string>>> RefreshToken(HttpContext context)
         {
 
             return HandleResult(await this._authService.RefreshToken(context));

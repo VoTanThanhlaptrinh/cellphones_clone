@@ -7,7 +7,6 @@ using cellphones_backend.DTOs.Account;
 using cellphones_backend.Models;
 using cellPhoneS_backend.DTOs.Responses;
 using cellPhoneS_backend.Models;
-using cellPhoneS_backend.Repository.Interfaces;
 using cellPhoneS_backend.Services;
 using Elastic.Transport;
 using Microsoft.AspNetCore.Identity;
@@ -19,13 +18,11 @@ public class AuthServiceImpl : AuthService
 {
     private readonly UserManager<User> _userManager;
     private readonly JwtTokenService _jwtTokenService;
-    private readonly IJwtRotationRepository _jwtRotationRepository;
 
-    public AuthServiceImpl(UserManager<User> userManager, JwtTokenService jwtTokenService, IJwtRotationRepository jwtRotationRepository)
+    public AuthServiceImpl(UserManager<User> userManager, JwtTokenService jwtTokenService)
     {
         _userManager = userManager;
         _jwtTokenService = jwtTokenService;
-        _jwtRotationRepository = jwtRotationRepository;
     }
 
     private async Task<User> ReturnUserIfExistEmail(string email)
@@ -45,28 +42,54 @@ public class AuthServiceImpl : AuthService
     public async Task<string> GenerateJwtToken(User user)
     {
         // JwtTokenService reverted to string return
-        return _jwtTokenService.GenerateJwtToken(user);
+        return  _jwtTokenService.GenerateJwtToken(user);
     }
 
-    public async Task<ServiceResult<VoidResponse>> Login(LoginDTO loginDTO, HttpRequest httpRequest)
+    public async Task<ServiceResult<string>> Login(LoginDTO loginDTO, HttpContext context)
     {
-        var user = await this._userManager.FindByLoginAsync(loginDTO.Phone, loginDTO.Password);
+        var user = await ReturnUserIfExistEmail(loginDTO.Email);
         if (user == null)
         {
-            return ServiceResult<VoidResponse>.Fail("Invalid phone or password", ServiceErrorType.Unauthorized);
+            return ServiceResult<string>.Fail("Email not found", ServiceErrorType.Unauthorized);
         }
+
+        if (!await _userManager.CheckPasswordAsync(user, loginDTO.Password))
+        {
+            return ServiceResult<string>.Fail("Incorrect password", ServiceErrorType.Unauthorized);
+        }
+
+        var userAgent = context.Request.Headers["User-Agent"].ToString();
+        var ipAddress = context.Connection.RemoteIpAddress?.ToString();
+        var refreshToken = Guid.NewGuid().ToString();
+        var sessionId = Guid.NewGuid().ToString();
+
+        var tokenModel = new JwtRefreshes
+        {
+            UserId = user.Id,
+            SessionId = sessionId,
+            UserAgent = userAgent,
+            IpAddress = ipAddress,
+            IsUsed = false,
+            CreatedAt = DateTime.UtcNow
+        };
+        
+        await _jwtTokenService.SaveRefreshTokenToRedisAsync(refreshToken, tokenModel, TimeSpan.FromDays(7));
+
         var cookieOptions = new CookieOptions
         {
-            HttpOnly = true, // JavaScript can't read inside
-            Secure = true, // Just pass through HTTPS
-            SameSite = SameSiteMode.Strict, // Against CSRF
-            Expires = DateTime.UtcNow.AddDays(10) // Time life
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTime.UtcNow.AddDays(7)
         };
+
+        context.Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
+
         var jwtToken = await GenerateJwtToken(user);
-        httpRequest.HttpContext.Response.Cookies.Append("jwtToken", jwtToken, cookieOptions);
-        return ServiceResult<VoidResponse>.Success(new VoidResponse(), "Login successful");
+
+        return ServiceResult<string>.Success(jwtToken, "Login successful");
     }
-    public async Task<ServiceResult<VoidResponse>> Register(RegisterDTO register, HttpRequest httpRequest)
+    public async Task<ServiceResult<VoidResponse>> Register(RegisterDTO register, HttpContext context)
     {
         var user = await ReturnUserIfExistPhone(register.Phone);
         if (user != null)
@@ -90,13 +113,6 @@ public class AuthServiceImpl : AuthService
             Status = "active"
         };
         this._userManager.CreateAsync(newUser, register.Password).Wait();
-        httpRequest.HttpContext.Response.Cookies.Append("jwtToken", await GenerateJwtToken(newUser), new CookieOptions
-        {
-            HttpOnly = true, // JavaScript can't read inside
-            Secure = true, // Just pass through HTTPS
-            SameSite = SameSiteMode.Strict, // Against CSRF
-            Expires = DateTime.UtcNow.AddDays(10) // Time life
-        });
         return ServiceResult<VoidResponse>.Success(new VoidResponse(), "User registered successfully");
     }
 
@@ -113,10 +129,10 @@ public class AuthServiceImpl : AuthService
     public async Task<ServiceResult<Oauth2GoogleCallBackResponse>> GetInfoAfterLoginByGoogle(HttpContext context)
     {
         var user = context.User;
-        var email = user.FindFirst(ClaimTypes.Email)?.Value; // get email of user
-        var fullName = user.FindFirst(ClaimTypes.Name)?.Value; // get fullname of user
+        var email = user.FindFirst(ClaimTypes.Email)?.Value;
+        var fullName = user.FindFirst(ClaimTypes.Name)?.Value;
         var userLogin = await ReturnUserIfExistEmail(email!);
-        if (userLogin != null) // Check If user exist then login without register
+        if (userLogin != null)
         {
             var cookieOptions = new CookieOptions
             {
@@ -125,11 +141,11 @@ public class AuthServiceImpl : AuthService
                 SameSite = SameSiteMode.Strict, // Against CSRF
                 Expires = DateTime.UtcNow.AddDays(10) // Time life
             };
-            context.Response.Cookies.Append("jwtToken", (await GenerateJwtToken(userLogin)), cookieOptions);
-            // set IsLoginSuccessful = true for frontend pypass register -> login
+            var jwtToken = await GenerateJwtToken(userLogin);
+            string refreshToken = Guid.NewGuid().ToString();
+            context.Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
             return ServiceResult<Oauth2GoogleCallBackResponse>.Success(new Oauth2GoogleCallBackResponse(null, null, true), "Login successful");
         }
-        // not exist -> go to Register
         return ServiceResult<Oauth2GoogleCallBackResponse>.Fail("User not found, need to register", ServiceErrorType.NotFound);
     }
 
@@ -142,13 +158,13 @@ public class AuthServiceImpl : AuthService
             SameSite = SameSiteMode.Strict, // Against CSRF
             Expires = DateTime.UtcNow.AddDays(-1) // Expire the cookie
         };
-        context.Response.Cookies.Append("jwtToken", "", cookieOptions);
+        context.Response.Cookies.Append("refreshToken", "", cookieOptions);
         return Task.FromResult(ServiceResult<VoidResponse>.Success(new VoidResponse(), "Logout successful"));
     }
 
-    public Task<ServiceResult<VoidResponse>> RefreshToken(HttpContext context)
+    public async Task<ServiceResult<string>> RefreshToken(HttpContext context)
     {
-        context.Request.Cookies.TryGetValue("refresh", out var refresh);
-        return Task.FromResult(ServiceResult<VoidResponse>.Success(new VoidResponse(),""));
+        var newJwtToken = await _jwtTokenService.RefreshJwtToken(context.Request);
+        return ServiceResult<string>.Success(newJwtToken, "Token refreshed successfully");
     }
 }

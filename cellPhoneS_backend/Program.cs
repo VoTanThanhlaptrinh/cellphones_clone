@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using cellphones_backend.Repositories;
 using cellPhoneS_backend.Services.Interface;
+using StackExchange.Redis;
 
 internal class Program
 {
@@ -22,7 +23,7 @@ internal class Program
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(builder.Configuration.GetConnectionString("cloud")));
         builder.Services.AddMemoryCache();
-        builder.Services.AddIdentity<User, Role>(options =>
+        builder.Services.AddIdentity<User, cellphones_backend.Models.Role>(options =>
         {
             options.Password.RequireDigit = true;
             options.Password.RequiredLength = 6;
@@ -39,6 +40,13 @@ internal class Program
                 builder.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://cellphonesclonethanh.vercel.app");
             });
         });
+        string redisConnectionString = builder.Configuration.GetConnectionString("Redis")!;
+        var configuration = ConfigurationOptions.Parse(redisConnectionString, true);
+        configuration.AbortOnConnectFail = false;
+        configuration.Ssl = true;
+        builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+            ConnectionMultiplexer.Connect(configuration));
+
         builder.Services.AddAuthentication().AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, jwtOptions =>
         {
             jwtOptions.TokenValidationParameters = new TokenValidationParameters
@@ -66,7 +74,6 @@ internal class Program
         builder.Services.AddControllers();
         builder.Services.AddCustomServices();
         builder.Services.AddHttpClient();
-        // Register all repositories
         builder.Services.AddRepositories();
         var supportedCultures = new[] { "vi", "en" }; // start với vi, sau thêm en
         builder.Services.Configure<RequestLocalizationOptions>(opts =>
@@ -94,6 +101,7 @@ internal class Program
         app.UseCors("CorsPolicy");
         app.UseHttpsRedirection();
         app.UseAuthentication();
+        app.UseMiddleware<cellPhoneS_backend.Auth.CentralizedAuthMiddleware>(cellPhoneS_backend.Auth.RouteConfig.GetPolicies());
         app.UseAuthorization();
         app.UseRequestLocalization(app.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<RequestLocalizationOptions>>().Value);
         app.MapControllers();

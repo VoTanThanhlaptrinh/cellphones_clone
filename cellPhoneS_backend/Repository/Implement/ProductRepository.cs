@@ -65,29 +65,3 @@ public class ProductRepository : BaseRepository<Product>, IProductRepository
             .FirstOrDefaultAsync();
     }
 }
-
-//     return await _context.Products.Where(p => "active".Equals(p.Status))
-//     .Select(p =>
-//     {
-//         var quantity = p.Stores.FirstOrDefault()?.Quantity ?? 0;
-//         var city = p.Stores.FirstOrDefault()?.StoreHouse?.City;
-//         var district = p.Stores.FirstOrDefault()?.StoreHouse?.District;
-//         var street = p.Stores.FirstOrDefault()?.StoreHouse?.Street;
-//         return new ProductViewDetail
-//          (
-//          p.Id,
-//          p.Name,
-//          p.BasePrice,
-//          p.SalePrice,
-//          p.Version!,
-//          p.ImageUrl,
-//          p.ProductImages.Select(pi => new ImageDTO(pi.Image!.BlobUrl, pi.Image.MimeType, pi.Image.Name, pi.Image.Alt)).ToList(),
-//          p.ProductSpecification.Select(ps => new SpecificationDTO(ps.Specification!.Name, ps.Specification.SpecificationDetails.Select(psd => new SpecificationDetailDTO(psd.Name, psd.Value)).ToList())).ToList(),
-//          p.Commitments.Select(c => c.Context!).ToList(),
-//          quantity,
-//          street, 
-//          district,
-//          city
-//          );
-//     }).FirstOrDefaultAsync(p => p.Id == id);
-// 1. Nên lọc ID ngay từ đầu để SQL chạy nhanh hơn

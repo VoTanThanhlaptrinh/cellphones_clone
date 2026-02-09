@@ -42,7 +42,6 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, string>
     public DbSet<ProductImage> ProductImages { get; set; }
     public DbSet<Payment> Payments { get; set; }
     public DbSet<ProductColorStockView> ProductColorStockView { get; set; }
-    public DbSet<JwtRotation> JwtRotations { get; set; }
     public DbSet<ProductSearchResult> ProductSearchResults { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -83,27 +82,6 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, string>
         modelBuilder.Entity<ProductColorStockView>()
         .ToView("ProductColorStockView")
         .HasNoKey();
-        modelBuilder.Entity<JwtRotation>(entity =>
-        {
-            entity.HasKey(x => x.Id);
-
-            // Quan hệ với User: 1 User - N JwtRotation (thường là vậy)
-            entity.HasOne(x => x.UserRef)
-                .WithMany()                 // nếu User chưa có navigation collection
-                .HasForeignKey(x => x.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            // Nên set độ dài / required tùy nhu cầu
-            entity.Property(x => x.SessionId).HasMaxLength(100);
-            entity.Property(x => x.TokenHash).HasMaxLength(256);
-            entity.Property(x => x.ReplaceByTokenHash).HasMaxLength(256);
-
-            // Index thường dùng
-            entity.HasIndex(x => x.TokenHash).IsUnique();       // token hash không trùng
-            entity.HasIndex(x => x.UserId);
-            entity.HasIndex(x => x.SessionId);
-            entity.HasIndex(x => x.ExprireAt);
-        });
         modelBuilder.Entity<ProductSearchResult>(entity =>
         {
             entity.HasNoKey();

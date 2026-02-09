@@ -8,12 +8,12 @@ namespace cellphones_backend.Services;
 
 public interface AuthService
 {
-    Task<ServiceResult<VoidResponse>> Register(RegisterDTO register, HttpRequest httpRequest);
+    Task<ServiceResult<VoidResponse>> Register(RegisterDTO register, HttpContext context);
     Task<ServiceResult<string>> StudentRegister(StudentRegisterDTO register);
     Task<ServiceResult<string>> TeacherRegister(TeacherRegisterDTO register);
-    Task<ServiceResult<VoidResponse>> Login(LoginDTO loginDTO, HttpRequest httpRequest);
+    Task<ServiceResult<string>> Login(LoginDTO loginDTO, HttpContext context);
     Task<string> GenerateJwtToken(User user);
     Task<ServiceResult<Oauth2GoogleCallBackResponse>> GetInfoAfterLoginByGoogle(HttpContext httpContext);
     Task<ServiceResult<VoidResponse>> Logout(HttpContext context);
-    Task<ServiceResult<VoidResponse>> RefreshToken(HttpContext context);
+    Task<ServiceResult<string>> RefreshToken(HttpContext context);
 }
