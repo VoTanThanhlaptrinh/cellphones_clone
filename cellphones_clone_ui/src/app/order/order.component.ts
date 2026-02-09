@@ -25,18 +25,18 @@ export class OrderComponent implements OnInit {
     private orderService: OrderService,
     private cartService: CartService,
     private notifySerivce: NotifyService,
-  ) {}
+  ) { }
   ngOnInit(): void {
     this.totalQuantity = this.cartService.cartQuantity();
     this.getStoreViews();
   }
-  allowAppear(event: any){
+  allowAppear(event: any) {
     this.isAppear = event
   }
-  getStoreViews(){
+  getStoreViews() {
     this.orderService.getStoreView().subscribe({
       next: res => {
-        this.storeViews = res.data
+        this.storeViews = res
       },
       error: err => this.notifySerivce.error(err)
     })

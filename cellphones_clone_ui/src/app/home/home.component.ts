@@ -1161,10 +1161,8 @@ export class HomeComponent implements OnInit {
     },
   ];
   ngOnInit(): void {
-    this.productService.HomeInit().subscribe((res) => {
+    this.productService.homeInit().subscribe((res) => {
       this.home_view = res;
-    }
-    );
+    });
   }
-
 }

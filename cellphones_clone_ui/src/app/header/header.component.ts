@@ -2,6 +2,7 @@ import { AfterViewInit, Component, ElementRef, HostListener, NgModule, OnInit, V
 import { Router, RouterLink } from '@angular/router';
 import { ProductService } from '../services/product.service';
 import { ProductView } from '../core/models/product.model';
+import { AuthService } from '../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, Subject, Subscription, switchMap } from 'rxjs';
@@ -23,7 +24,19 @@ export class HeaderComponent implements OnInit {
   i = 0;
   useSearch = false;
   searchResults: ProductView[] = [];
-  constructor(private router: Router, private productService: ProductService) {
+
+
+  isLoggedIn$ = this.authService.isLoggedIn$;
+
+  constructor(
+    private router: Router,
+    private productService: ProductService,
+    private authService: AuthService
+  ) {
+  }
+
+  logout() {
+    this.authService.logout();
   }
   categories = [
     {
@@ -879,9 +892,9 @@ export class HeaderComponent implements OnInit {
     this.searchSubscription = this.searchSubject.pipe(
       debounceTime(300),
       distinctUntilChanged(),
-      switchMap((keyword) => {  
+      switchMap((keyword) => {
         if (!keyword.trim()) {
-           return [];
+          return [];
         }
         return this.productService.searchProducts(keyword);
       })

@@ -32,7 +32,7 @@ export class CartComponent implements OnInit {
   ngOnInit(): void {
     this.cartService.getList(this.page).subscribe({
       next: res => {
-        this.cartDetails = res.data
+        this.cartDetails = res
       },
       error: err => this.notifyService.error('Có lỗi xảy ra khi tải giỏ hàng'),
       complete: () => {
@@ -81,7 +81,7 @@ export class CartComponent implements OnInit {
     this.totalQuantity -= 1;
     this.cartService.minusQuantity(cartDetailId).subscribe({
       next: (res) => {
-        item!.quantity = res.data;
+        item!.quantity = res;
 
       },
       error: (e) => this.notifyService.error('Không thể cập nhật số lượng'),
@@ -96,7 +96,7 @@ export class CartComponent implements OnInit {
       return;
     this.totalQuantity += 1;
     this.cartService.plusQuantity(cartDetailId).subscribe({
-      next: (res) => item!.quantity = res.data,
+      next: (res) => item!.quantity = res,
       error: (e) => this.notifyService.error('Không thể cập nhật số lượng'),
       complete: () => {
         this.updateCommon();
