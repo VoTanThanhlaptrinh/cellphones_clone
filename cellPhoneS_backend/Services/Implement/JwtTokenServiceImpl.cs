@@ -40,7 +40,8 @@ public class JwtTokenServiceImpl : JwtTokenService
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id),
-            new Claim(JwtRegisteredClaimNames.Jti, jti)
+            new Claim(JwtRegisteredClaimNames.Jti, jti),
+            new Claim(ClaimTypes.Name, user.Fullname ?? ""),
         };
 
         var rolesResult = _userService.GetRole(user).Result;
@@ -73,30 +74,37 @@ public class JwtTokenServiceImpl : JwtTokenService
     {
         await _redisDb.StringSetAsync($"rt:{refreshTokenGuid}", JsonSerializer.Serialize(tokenModel), expiry);
     }
-
-    public async Task<string> RefreshJwtToken(HttpRequest request)
+    private async Task<ServiceResult<JwtRefreshes>> ValidateRefreshTokenAsync(string refreshToken, HttpRequest request)
     {
-        if (!request.Cookies.TryGetValue("refreshToken", out var refreshToken))
-        {
-            throw new SecurityTokenException("No refresh token provided in cookie.");
-        }
-
         var redisKey = $"rt:{refreshToken}";
         var jsonValue = await _redisDb.StringGetAsync(redisKey);
 
         if (jsonValue.IsNullOrEmpty)
         {
             request.HttpContext.Response.Cookies.Delete("refreshToken");
-            throw new SecurityTokenException("Refresh token expired or invalid.");
+            return ServiceResult<JwtRefreshes>.Fail("Refresh token expired or invalid.", ServiceErrorType.BadRequest);
         }
 
-        var storedToken = JsonSerializer.Deserialize<JwtRefreshes>(jsonValue.ToString());
+        JwtRefreshes? storedToken;
+        try
+        {
+            storedToken = JsonSerializer.Deserialize<JwtRefreshes>(jsonValue.ToString());
+        }
+        catch
+        {
+            return ServiceResult<JwtRefreshes>.Fail("Token data is corrupted.", ServiceErrorType.General);
+        }
 
-        if (storedToken!.IsUsed)
+        if (storedToken == null)
+        {
+            return ServiceResult<JwtRefreshes>.Fail("Invalid token data.", ServiceErrorType.BadRequest);
+        }
+
+        if (storedToken.IsUsed)
         {
             await _redisDb.KeyDeleteAsync(redisKey);
             request.HttpContext.Response.Cookies.Delete("refreshToken");
-            throw new SecurityTokenException("Security alert: Token reuse detected!");
+            return ServiceResult<JwtRefreshes>.Fail("Security alert: Token reuse detected!", ServiceErrorType.Forbidden);
         }
 
         var currentUserAgent = request.Headers["User-Agent"].ToString();
@@ -104,13 +112,43 @@ public class JwtTokenServiceImpl : JwtTokenService
         {
             await _redisDb.KeyDeleteAsync(redisKey);
             request.HttpContext.Response.Cookies.Delete("refreshToken");
-            throw new SecurityTokenException("Device mismatch detected.");
+            return ServiceResult<JwtRefreshes>.Fail("Device mismatch detected.", ServiceErrorType.Forbidden);
         }
+
+        return ServiceResult<JwtRefreshes>.Success(storedToken, null);
+    }
+    private ServiceResult<string> GetRefreshTokenFromCookie(HttpRequest request)
+    {
+        if (!request.Cookies.TryGetValue("refreshToken", out var refreshToken) || string.IsNullOrEmpty(refreshToken))
+        {
+            return ServiceResult<string>.Fail("No refresh token provided in cookie.", ServiceErrorType.BadRequest);
+        }
+        return ServiceResult<string>.Success(refreshToken, null);
+    }
+    public async Task<ServiceResult<string>> RefreshJwtToken(HttpRequest request)
+    {
+        var cookieResult = GetRefreshTokenFromCookie(request);
+        if (!cookieResult.IsSuccess)
+        {
+            return ServiceResult<string>.Fail(cookieResult.Message!, cookieResult.ErrorType);
+        }
+
+        var refreshToken = cookieResult.Data!;
+        var validationResult = await ValidateRefreshTokenAsync(refreshToken, request);
+
+        if (!validationResult.IsSuccess)
+        {
+            return ServiceResult<string>.Fail(validationResult.Message!, validationResult.ErrorType);
+        }
+
+        var storedToken = validationResult.Data!;
 
         storedToken.IsUsed = true;
         await SaveRefreshTokenToRedisAsync(refreshToken, storedToken, TimeSpan.FromMinutes(2));
 
+        var currentUserAgent = request.Headers["User-Agent"].ToString();
         var newRefreshTokenGuid = Guid.NewGuid().ToString();
+
         var newTokenModel = new JwtRefreshes
         {
             UserId = storedToken.UserId,
@@ -126,19 +164,27 @@ public class JwtTokenServiceImpl : JwtTokenService
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
+            Secure = request.IsHttps,
+            SameSite = SameSiteMode.Lax,
             Expires = DateTime.UtcNow.AddDays(7)
         };
         request.HttpContext.Response.Cookies.Append("refreshToken", newRefreshTokenGuid, cookieOptions);
 
         var user = await _userManager.FindByIdAsync(storedToken.UserId);
-        var newAccessToken = GenerateJwtToken(user!);
-        return newAccessToken;
+        if (user == null)
+        {
+            await _redisDb.KeyDeleteAsync($"rt:{refreshToken}");
+            await _redisDb.KeyDeleteAsync($"rt:{newRefreshTokenGuid}");
+            return ServiceResult<string>.Fail("User no longer exists.", ServiceErrorType.Unauthorized);
+        }
+
+        var newAccessToken = GenerateJwtToken(user);
+        return ServiceResult<string>.Success(newAccessToken, "Token refreshed successfully.");
     }
     public string ExtractUserId(string token)
     {
         return new JwtSecurityTokenHandler().ReadJwtToken(token)
            .Claims.First(c => ClaimTypes.NameIdentifier.Equals(c.Type)).Value;
     }
+
 }

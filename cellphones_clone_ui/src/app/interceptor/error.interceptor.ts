@@ -18,7 +18,6 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
                 if (!isRefreshing) {
                     isRefreshing = true;
                     refreshTokenSubject.next(null);
-
                     return authService.refreshToken().pipe(
                         switchMap((newToken: any) => {
                             isRefreshing = false;
@@ -28,14 +27,14 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
                                 return next(addToken(req, newToken));
                             } else {
                                 // Refresh failed (already handled in authService but explicit logout here for safety)
-                                authService.logout();
+                                authService.handleLogout();
                                 return throwError(() => error);
                             }
                         }),
                         catchError((refreshError) => {
                             isRefreshing = false;
                             // Refresh failed
-                            authService.logout();
+                            authService.handleLogout();
                             return throwError(() => refreshError);
                         })
                     );
@@ -52,13 +51,11 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             }
 
             let errorMessage = '';
-
-            // Priority 1: Check for custom message from backend
             if (error.error) {
                 if (typeof error.error === 'string') {
-                    errorMessage = error.error; // Backend returned a simple string
+                    errorMessage = error.error;
                 } else if (error.error.message) {
-                    errorMessage = error.error.message; // Backend returned an object with 'message' property
+                    errorMessage = error.error.message;
                 }
             }
 
@@ -77,7 +74,6 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
                             errorMessage = '400 Bad Request: Yêu cầu không hợp lệ.';
                             break;
                         case 401:
-                            // Should not be reached if handled above, but as a fallback
                             errorMessage = '401 Unauthorized: Phiên đăng nhập hết hạn.';
                             break;
                         case 403:

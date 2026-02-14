@@ -78,7 +78,7 @@ public class AuthServiceImpl : AuthService
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
+            Secure = false,
             SameSite = SameSiteMode.Strict,
             Expires = DateTime.UtcNow.AddDays(7)
         };
@@ -154,8 +154,8 @@ public class AuthServiceImpl : AuthService
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true, // JavaScript can't read inside
-            Secure = true, // Just pass through HTTPS
-            SameSite = SameSiteMode.Strict, // Against CSRF
+            Secure = context.Request.IsHttps, // Just pass through HTTPS
+            SameSite = SameSiteMode.Lax, // Against CSRF
             Expires = DateTime.UtcNow.AddDays(-1) // Expire the cookie
         };
         context.Response.Cookies.Append("refreshToken", "", cookieOptions);
@@ -164,7 +164,16 @@ public class AuthServiceImpl : AuthService
 
     public async Task<ServiceResult<string>> RefreshToken(HttpContext context)
     {
-        var newJwtToken = await _jwtTokenService.RefreshJwtToken(context.Request);
-        return ServiceResult<string>.Success(newJwtToken, "Token refreshed successfully");
+        return await _jwtTokenService.RefreshJwtToken(context.Request);
+    }
+
+    public Task<ServiceResult<string>> IsLoggedIn(string userId, HttpContext context)
+    {
+        var user = _userManager.FindByIdAsync(userId).Result;
+        // if (user == null)
+        // {
+        //     return Task.FromResult(ServiceResult<string>.Fail("User not logged in", ServiceErrorType.BadRequest));
+        // }
+        return _jwtTokenService.RefreshJwtToken(context.Request);
     }
 }

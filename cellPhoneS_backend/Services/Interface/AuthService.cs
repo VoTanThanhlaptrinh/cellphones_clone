@@ -16,4 +16,5 @@ public interface AuthService
     Task<ServiceResult<Oauth2GoogleCallBackResponse>> GetInfoAfterLoginByGoogle(HttpContext httpContext);
     Task<ServiceResult<VoidResponse>> Logout(HttpContext context);
     Task<ServiceResult<string>> RefreshToken(HttpContext context);
+    Task<ServiceResult<string>> IsLoggedIn(string userId, HttpContext context);
 }

@@ -76,16 +76,22 @@ namespace cellphones_backend.Controllers
             return HandleResult(await _authService.GetInfoAfterLoginByGoogle(HttpContext));
         }
         [HttpGet("logout")]
-        public async Task<ActionResult<ApiResponse<VoidResponse>>> Logout(HttpContext context)
+        public async Task<ActionResult<ApiResponse<VoidResponse>>> Logout()
         {
 
-            return HandleResult(await this._authService.Logout(context));
+            return HandleResult(await this._authService.Logout(HttpContext));
         }
         [HttpPost("refresh")]
-        public async Task<ActionResult<ApiResponse<string>>> RefreshToken(HttpContext context)
+        public async Task<ActionResult<ApiResponse<string>>> RefreshToken()
         {
 
-            return HandleResult(await this._authService.RefreshToken(context));
+            return HandleResult(await this._authService.RefreshToken(HttpContext));
+        }
+        [HttpPost("isLoggedIn")]
+        public async Task<ActionResult<ApiResponse<string>>> IsLoggedIn()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return HandleResult(await this._authService.IsLoggedIn(userId!, HttpContext));
         }
     }
 }

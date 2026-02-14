@@ -5,7 +5,8 @@ import {
   Inject,
   OnInit,
   PLATFORM_ID,
-  NgModule
+  NgModule,
+  signal
 } from '@angular/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { RouterModule } from '@angular/router';
@@ -25,12 +26,12 @@ import { ProductCardComponent } from "../product-card/product-card.component";
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class HomeComponent implements OnInit {
-  isBrowser: boolean;
-  home_view: HomeView | null = null;
+  isBrowser = signal(false);
+  home_view = signal<HomeView | null>(null);
   protected show = false
   protected i = 0;
   constructor(@Inject(PLATFORM_ID) platformId: Object, private productService: ProductService) {
-    this.isBrowser = isPlatformBrowser(platformId);
+    this.isBrowser.set(isPlatformBrowser(platformId));
   }
 
 
@@ -1162,7 +1163,7 @@ export class HomeComponent implements OnInit {
   ];
   ngOnInit(): void {
     this.productService.homeInit().subscribe((res) => {
-      this.home_view = res;
+      this.home_view.update(value => value = res);
     });
   }
 }
