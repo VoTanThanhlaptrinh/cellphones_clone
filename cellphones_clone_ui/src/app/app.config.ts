@@ -1,4 +1,4 @@
-import { ApplicationConfig, importProvidersFrom, provideBrowserGlobalErrorListeners, provideZoneChangeDetection, } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, inject, provideAppInitializer, provideBrowserGlobalErrorListeners, provideZoneChangeDetection, } from '@angular/core';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { routes } from './app.routes';
 import { BrowserModule, provideClientHydration, withEventReplay, } from '@angular/platform-browser';
@@ -12,7 +12,7 @@ registerLocaleData(localeVi);
 
 import { errorInterceptor } from './interceptor/error.interceptor';
 import { authInterceptor } from './interceptor/auth.interceptor';
-
+import { AuthService } from './services/auth.service';
 export const appConfig: ApplicationConfig = {
 	providers: [
 		provideBrowserGlobalErrorListeners(),
@@ -31,5 +31,9 @@ export const appConfig: ApplicationConfig = {
 		{ provide: LOCALE_ID, useValue: 'vi-VN' },
 		{ provide: DEFAULT_CURRENCY_CODE, useValue: 'VND' },
 		CurrencyPipe,
+		provideAppInitializer(() => {
+			const authService = inject(AuthService);
+			return authService.initializeAuth();
+		}),
 	],
 };

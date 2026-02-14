@@ -16,7 +16,7 @@ public class OrderDetail
     public double Price { get; set; }
     [Required]
     public int Quantity { get; set; }
-    public string Status { get; set; } = "Created";         // trạng thái (active/inactive/deleted...)
+    public string Status { get; set; } = "Pending";         // trạng thái (active/inactive/deleted...)
     [Required]
     public DateTime CreateDate { get; set; }  // ngày tạo
     public DateTime UpdateDate { get; set; }  // ngày cập nhật

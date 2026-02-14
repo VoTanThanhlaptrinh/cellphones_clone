@@ -30,14 +30,14 @@ internal class Program
             options.Password.RequireUppercase = false;
             options.Password.RequireNonAlphanumeric = false;
         })
-            .AddEntityFrameworkStores<ApplicationDbContext>()  // ⚡ cái này tạo UserManager/RoleManager
+            .AddEntityFrameworkStores<ApplicationDbContext>() 
             .AddDefaultTokenProviders();
         builder.Services.AddCors(options =>
         {
             options.AddPolicy("CorsPolicy", builder =>
             {
-                builder.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:4200");
-                builder.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://cellphonesclonethanh.vercel.app");
+                builder.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("http://localhost:4200");
+                builder.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("https://cellphonesclonethanh.vercel.app");
             });
         });
         string redisConnectionString = builder.Configuration.GetConnectionString("Redis")!;
@@ -46,6 +46,13 @@ internal class Program
         configuration.Ssl = true;
         builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
             ConnectionMultiplexer.Connect(configuration));
+
+        // string redisConnectionString = builder.Configuration.GetConnectionString("RedisLocal")!;
+        // var configuration = ConfigurationOptions.Parse(redisConnectionString, true);
+        // configuration.AbortOnConnectFail = false;
+        // configuration.Ssl = false;
+        // builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+        //     ConnectionMultiplexer.Connect(configuration));
 
         builder.Services.AddAuthentication().AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, jwtOptions =>
         {
