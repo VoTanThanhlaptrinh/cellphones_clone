@@ -1,9 +1,4 @@
-using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+
 using System.Collections.Concurrent; // Cần cho ConcurrentBag
 using Microsoft.EntityFrameworkCore;
 using Amazon.S3;
@@ -18,18 +13,24 @@ namespace cellPhoneS_backend.Services.Implement
     public class UploadImage2Cloud
     {
         // --- CẤU HÌNH ---
-        private readonly string r2AccessKey = "59c24ba636048b7d64558a64d6f37b57";
-        private readonly string r2SecretKey = "83c49846f44ee0fb342e8d2a9d4f905f8ddbfaf3c1cb5f0e5f880402c975bddd";
-        private readonly string r2AccountId = "9d00de951bfd9979b31532e1d1033be2";
+        private readonly string r2AccessKey;
+        private readonly string r2SecretKey;
+        private readonly string r2AccountId;
         private readonly string bucketName = "cellphone-s-image";
-        private readonly string r2PublicDomain = "https://pub-2010553decd7460c941aa6e2b7e6f804.r2.dev";
+        private readonly string r2PublicDomain;
 
         private readonly string r2ServiceUrl;
+        private readonly IConfiguration _configuration;
         private readonly ApplicationDbContext _dbContext;
 
-        public UploadImage2Cloud(ApplicationDbContext context)
+        public UploadImage2Cloud(ApplicationDbContext context, IConfiguration configuration)
         {
             _dbContext = context;
+            _configuration = configuration;
+            r2AccessKey = _configuration["ImageHosting:Cloudflare:AccessKey"]!;
+            r2SecretKey = _configuration["ImageHosting:Cloudflare:SecretKey"]!;
+            r2AccountId = _configuration["ImageHosting:Cloudflare:AccountId"]!;
+            r2PublicDomain = _configuration["ImageHosting:Cloudflare:PublicDomain"]!;
             r2ServiceUrl = $"https://{r2AccountId}.r2.cloudflarestorage.com";
         }
 
