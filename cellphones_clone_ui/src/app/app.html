@@ -1,6 +1,12 @@
 @defer { @if(!isHideHeader){
 <app-header></app-header>
 } }
+<ngx-spinner bdColor="rgba(255, 255, 255, 0.8)" size="medium" color="#d70018" type="ball-scale-multiple"
+    [fullScreen]="true">
+    <p style="color: #d70018; font-weight: 600; font-size: 16px; margin-top: 15px;">
+        Đang xử lý...
+    </p>
+</ngx-spinner>
 <router-outlet></router-outlet>
 <app-back-to-top (scrollToTop)="onScrollToTop()"></app-back-to-top>
 @defer { @if (!isHideFooter) {

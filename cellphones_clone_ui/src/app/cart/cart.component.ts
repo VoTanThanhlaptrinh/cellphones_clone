@@ -112,4 +112,10 @@ export class CartComponent implements OnInit {
     this.cartService.updateCartItems(this.cartDetails)
     this.cdr.detectChanges();
   }
+  goToCheckout() {
+    let cartDetailIds = this.selectedItems.map(i => this.cartDetails[i].cartDetailId);
+    if (cartDetailIds.length > 0) {
+      this.router.navigate(['/checkout'], { state: { cartDetailIds: cartDetailIds } });
+    }
+  }
 }

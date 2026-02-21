@@ -19,7 +19,7 @@ export class CartService {
   private cartItems = signal<CartView[]>([]);
   constructor(private http: HttpClient) { }
   addToCart(request: CartRequest): Observable<any> {
-    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/carts/addToCart`, request, { headers: headers }).pipe(
+    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/carts`, request, { headers: headers }).pipe(
       map(res => res.data)
     );
   }

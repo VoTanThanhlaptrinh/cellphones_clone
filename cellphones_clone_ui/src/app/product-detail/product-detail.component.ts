@@ -1,5 +1,5 @@
 import { CommonModule, CurrencyPipe, isPlatformBrowser } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, Inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { catchError, distinctUntilChanged, filter, finalize, map, of, switchMap, take, tap } from 'rxjs';
@@ -19,8 +19,8 @@ import { NotifyService } from '../services/notify.service';
 })
 export class ProductDetailComponent implements OnInit {
   isBrowser: boolean;
-  product?: ProductViewDetail;
-  selected_color: number | null = null;
+  product = signal<ProductViewDetail | null>(null);
+  selected_color = signal<number | null>(null);
   private readonly fallbackImages = [
     'assets/images/12_5_119.webp',
     'assets/images/14_2_122.webp',
@@ -59,7 +59,6 @@ export class ProductDetailComponent implements OnInit {
         tap(() => {
           this.isLoading = true;
           this.errorMessage = '';
-          this.product = undefined; // Reset product while loading new one
         }),
         switchMap(productId =>
           this.productService.getProductDetail(productId).pipe(
@@ -70,29 +69,24 @@ export class ProductDetailComponent implements OnInit {
       )
       .subscribe(result => {
         this.isLoading = false;
-
         if (result.success && result.data) {
           const detail = result.data;
-          this.product = detail;
-          // Safe navigation for optional properties
-          this.selected_color = detail.colorDTOs?.[0]?.colorId ?? null;
+          this.product.update(p => p = detail);
+          this.selected_color.update(c => detail.colorDTOs?.[0]?.colorId ?? null);
           this.images = this.buildImageGallery(detail);
         } else {
-          this.product = undefined;
-          this.selected_color = null;
           this.images = [...this.fallbackImages];
-          // Determine error message based on error object if needed, generic for now
           this.errorMessage = 'Không tìm thấy thông tin sản phẩm hoặc có lỗi xảy ra.';
         }
       });
   }
 
   get warehouseAddress(): string {
-    if (!this.product?.StoreHouseDTOs || this.product.StoreHouseDTOs.length === 0) {
+    if (!this.product()?.StoreHouseDTOs || this.product()?.StoreHouseDTOs.length === 0) {
       return '';
     }
 
-    return [this.product.StoreHouseDTOs[0].street, this.product.StoreHouseDTOs[0].district, this.product.StoreHouseDTOs[0].city]
+    return [this.product()?.StoreHouseDTOs[0].street, this.product()?.StoreHouseDTOs[0].district, this.product()?.StoreHouseDTOs[0].city]
       .filter((value): value is string => Boolean(value))
       .join(', ');
   }
@@ -109,15 +103,14 @@ export class ProductDetailComponent implements OnInit {
     if (detail.imageUrl) {
       return [detail.imageUrl];
     }
-
     return [...this.fallbackImages];
   }
 
   addToCart() {
-    var productId = this.product?.id
-    var color_id = this.selected_color
+    var productId = this.product()?.id
+    var color_id = this.selected_color()
     if (productId && color_id && productId > 0 && color_id > 0)
-      this.cartService.addToCart({ productId: this.product?.id, colorId: color_id }).pipe(take(1)).subscribe({
+      this.cartService.addToCart({ productId: this.product()?.id, colorId: color_id }).pipe(take(1)).subscribe({
         next: res => {
           this.notifyService.success('Thêm vào giỏ hàng thành công');
         },
@@ -135,6 +128,8 @@ export class ProductDetailComponent implements OnInit {
   }
   onRadioChange(event: any) {
     const value = Number(event?.target?.value);
-    this.selected_color = Number.isFinite(value) ? value : null;
+    this.selected_color.update(c => {
+      return Number.isFinite(c) ? c : null;
+    });
   }
 }

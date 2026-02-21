@@ -12,11 +12,14 @@ public class OrderDetail
     [Required]
     [ForeignKey(nameof(ProductOrderDetailId))]
     public Product? Product { get; set; }
+    public long ColorId { get; set; }
+    [Required]
+    [ForeignKey(nameof(ColorId))]
+    public Color? Color { get; set; }
     [Required]
     public double Price { get; set; }
     [Required]
     public int Quantity { get; set; }
-    public string Status { get; set; } = "Pending";         // trạng thái (active/inactive/deleted...)
     [Required]
     public DateTime CreateDate { get; set; }  // ngày tạo
     public DateTime UpdateDate { get; set; }  // ngày cập nhật

@@ -10,8 +10,9 @@ import { DefaultGlobalConfig, provideToastr } from 'ngx-toastr';
 import localeVi from '@angular/common/locales/vi';
 registerLocaleData(localeVi);
 
-import { errorInterceptor } from './interceptor/error.interceptor';
-import { authInterceptor } from './interceptor/auth.interceptor';
+import { errorInterceptor } from './core/interceptor/error.interceptor';
+import { authInterceptor } from './core/interceptor/auth.interceptor';
+import { loadingInterceptor } from './core/interceptor/loading.interceptor';
 import { AuthService } from './services/auth.service';
 export const appConfig: ApplicationConfig = {
 	providers: [
@@ -27,7 +28,7 @@ export const appConfig: ApplicationConfig = {
 			timeOut: 3000,
 			preventDuplicates: true,
 		}),
-		provideHttpClient(withFetch(), withInterceptors([authInterceptor, errorInterceptor])),
+		provideHttpClient(withFetch(), withInterceptors([loadingInterceptor, authInterceptor, errorInterceptor])),
 		{ provide: LOCALE_ID, useValue: 'vi-VN' },
 		{ provide: DEFAULT_CURRENCY_CODE, useValue: 'VND' },
 		CurrencyPipe,

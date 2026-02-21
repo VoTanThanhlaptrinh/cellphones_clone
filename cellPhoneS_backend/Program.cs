@@ -21,7 +21,7 @@ internal class Program
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(builder.Configuration.GetConnectionString("cloud")));
+            options.UseNpgsql(builder.Configuration.GetConnectionString("local")));
         builder.Services.AddMemoryCache();
         builder.Services.AddIdentity<User, cellphones_backend.Models.Role>(options =>
         {
@@ -30,7 +30,7 @@ internal class Program
             options.Password.RequireUppercase = false;
             options.Password.RequireNonAlphanumeric = false;
         })
-            .AddEntityFrameworkStores<ApplicationDbContext>() 
+            .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
         builder.Services.AddCors(options =>
         {
@@ -40,19 +40,19 @@ internal class Program
                 builder.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("https://cellphonesclonethanh.vercel.app");
             });
         });
-        string redisConnectionString = builder.Configuration.GetConnectionString("Redis")!;
-        var configuration = ConfigurationOptions.Parse(redisConnectionString, true);
-        configuration.AbortOnConnectFail = false;
-        configuration.Ssl = true;
-        builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-            ConnectionMultiplexer.Connect(configuration));
-
-        // string redisConnectionString = builder.Configuration.GetConnectionString("RedisLocal")!;
+        // string redisConnectionString = builder.Configuration.GetConnectionString("Redis")!;
         // var configuration = ConfigurationOptions.Parse(redisConnectionString, true);
         // configuration.AbortOnConnectFail = false;
-        // configuration.Ssl = false;
+        // configuration.Ssl = true;
         // builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
         //     ConnectionMultiplexer.Connect(configuration));
+
+        string redisConnectionString = builder.Configuration.GetConnectionString("RedisLocal")!;
+        var configuration = ConfigurationOptions.Parse(redisConnectionString, true);
+        configuration.AbortOnConnectFail = false;
+        configuration.Ssl = false;
+        builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+            ConnectionMultiplexer.Connect(configuration));
 
         builder.Services.AddAuthentication().AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, jwtOptions =>
         {

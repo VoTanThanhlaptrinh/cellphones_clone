@@ -1,8 +1,8 @@
 import { HttpErrorResponse, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { BehaviorSubject, catchError, filter, switchMap, take, throwError } from 'rxjs';
-import { NotifyService } from '../services/notify.service';
-import { AuthService } from '../services/auth.service';
+import { NotifyService } from '../../services/notify.service';
+import { AuthService } from '../../services/auth.service';
 
 let isRefreshing = false;
 const refreshTokenSubject = new BehaviorSubject<string | null>(null);
@@ -10,9 +10,15 @@ const refreshTokenSubject = new BehaviorSubject<string | null>(null);
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     const notifyService = inject(NotifyService);
     const authService = inject(AuthService);
-
+    const silentApis = [
+        '/api/auth/isLoggedIn',
+    ];
     return next(req).pipe(
         catchError((error: HttpErrorResponse) => {
+            const isSilentApi = silentApis.some(url => req.url.includes(url));
+            if (isSilentApi) {
+                return throwError(() => error);
+            }
             // Handle 401 Unauthorized
             if (error.status === 401) {
                 if (!isRefreshing) {

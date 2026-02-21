@@ -11,4 +11,5 @@ public interface ICartDetailRepository : IRepository<CartDetail>
     Task<CartDetail> GetCartDetailIfExists(long cartId, long productId, long colorId, string userId);
     Task<List<CartDetailView>> GetCartItems(string userId, int page, int pageSize);
     Task<bool> RemoveCartItems(long cartDetailId);
+    Task<List<CartDetail>> GetCartDetails(string userId, List<long> cartItemIds);
 }

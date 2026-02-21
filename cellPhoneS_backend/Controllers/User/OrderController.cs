@@ -4,6 +4,8 @@ using cellphones_backend.Models;
 using cellPhoneS_backend.DTOs.Responses;
 using cellPhoneS_backend.Services.Implement;
 using cellPhoneS_backend.Controllers;
+using cellPhoneS_backend.Services.Interface;
+using System.Security.Claims;
 
 namespace cellphones_backend.Controllers
 {
@@ -12,9 +14,11 @@ namespace cellphones_backend.Controllers
     public class OrderController : BaseController
     {
         private readonly CacheService _cacheService;
-        public OrderController(CacheService cacheService)
+        private readonly OrderService _orderService;
+        public OrderController(CacheService cacheService, OrderService orderService)
         {
             this._cacheService = cacheService;
+            this._orderService = orderService;
         }
         // GET: api/orders/list/{page}/{pageSize}
         [HttpGet("list/{page}/{pageSize}")]
@@ -27,14 +31,16 @@ namespace cellphones_backend.Controllers
         [HttpGet("{orderId}")]
         public Task<ActionResult<ApiResponse<Order>>> GetOrder(long orderId)
         {
-            return null!; // TODO: implement single order retrieval
+            return null!;
         }
 
         // POST: api/orders
         [HttpPost]
-        public Task<ActionResult<ApiResponse<string>>> CreateOrder(List<int> cartDetailIds)
+        public async Task<ActionResult<ApiResponse<Order>>> CreateOrder(List<long> cartDetailIds)
         {
-            return null!; // TODO: implement order creation
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var result = await _orderService.CreateOrder(userId!, cartDetailIds);
+            return HandleResult(result);
         }
 
         // PUT: api/orders/{orderId}
@@ -46,9 +52,11 @@ namespace cellphones_backend.Controllers
 
         // DELETE: api/orders/{orderId}
         [HttpDelete("{orderId}")]
-        public Task<ActionResult<ApiResponse<string>>> DeleteOrder(long orderId)
+        public async Task<ActionResult<ApiResponse<string>>> DeleteOrder(long orderId)
         {
-            return null!; // TODO: implement order deletion
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var result = await _orderService.DeleteOrder(userId!, orderId);
+            return HandleResult(result);
         }
 
         // GET: api/orders/today
@@ -83,6 +91,13 @@ namespace cellphones_backend.Controllers
         public async Task<ActionResult<ApiResponse<List<StoreView>>>> GetStores(int year)
         {
             return HandleResult(await _cacheService.GetStoreViews());
+        }
+        [HttpGet("checkout/{orderId}")]
+        public async Task<ActionResult<ApiResponse<string>>> Checkout(long orderId)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var result = await _orderService.Checkout(userId!, orderId);
+            return HandleResult(result);
         }
     }
 }
