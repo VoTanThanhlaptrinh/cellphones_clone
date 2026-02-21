@@ -23,7 +23,7 @@ namespace cellphones_backend.Controllers
             var userId = "98a4fdb1-44a7-49d1-b9a0-03f9ff71e3c9";
             return HandleResult(await _cartService.GetCartItems(page,userId));
         }
-        [HttpPost("addToCart")]
+        [HttpPost()]
         public async Task<ActionResult<ApiResponse<bool>>> AddProductToCart(CartRequest request)
         {
             return HandleResult(await _cartService.AddToCart(request));

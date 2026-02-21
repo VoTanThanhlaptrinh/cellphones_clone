@@ -53,7 +53,7 @@ public class ProductRepository : BaseRepository<Product>, IProductRepository
                     s.Color.Status == "active")
                 .Select(s => new ColorDTO(
                     s.Color!.Id, s.Color.Name, new ImageDTO(s.Color.Image!.BlobUrl, s.Color.Image.MimeType, s.Color.Image.Name, s.Color.Image.Alt))
-                ).ToList(),
+                ).ToHashSet(),
                 // Quantity: Lấy số lượng của store đầu tiên, nếu không có thì mặc định 0 (dựa vào tính chất int default) và Địa chỉ cửa hàng
                 _context.Stores.Where(s =>
                     s.ProductId == id &&

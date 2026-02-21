@@ -154,6 +154,8 @@
           'btn  bg-red-700 rounded-sm border-transparent text-white h-10 w-28 px-2 py-1 font-normal':
             !isDisable
         }"
+        (click)="goToCheckout()"
+        [disabled]="isDisable"
       >
         Mua ngay
       </button>

@@ -3,4 +3,7 @@ using cellPhoneS_backend.Models;
 
 namespace cellphones_backend.Repositories;
 
-public interface IOrderDetailRepository : IRepository<OrderDetail> { }
+public interface IOrderDetailRepository : IRepository<OrderDetail>
+{
+    public Task<List<OrderDetail>> CreateOrderDetails(string orderId, long cartItemId);
+}

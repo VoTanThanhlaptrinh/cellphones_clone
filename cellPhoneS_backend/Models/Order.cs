@@ -10,7 +10,7 @@ public class Order
     public long Id { get; set; }
 
     public ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
-    public string Status { get; set; } = "Complete";      // trạng thái (active/inactive/deleted...)
+    public string Status { get; set; } = "Pending";      // trạng thái (active/inactive/deleted...)
     [Required]
     public DateTime CreateDate { get; set; }  // ngày tạo
     public DateTime UpdateDate { get; set; }  // ngày cập nhật

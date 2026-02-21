@@ -20,6 +20,11 @@ public class CartDetailRepository : BaseRepository<CartDetail>, ICartDetailRepos
                             && c.ProductCartDetailId == productId && c.ColorId == colorId) ?? null!;
     }
 
+    public async Task<List<CartDetail>> GetCartDetails(string userId, List<long> cartItemIds)
+    {
+        return await _context.CartDetails.Take(cartItemIds.Count).Where(c => c.CreateBy == userId && cartItemIds.Contains(c.Id)).ToListAsync();
+    }
+
     public async Task<List<CartDetailView>> GetCartItems(string userId, int page, int pageSize)
     {
         return await _context.CartDetails.Where(c => c.CreateBy == userId)
