@@ -55,7 +55,7 @@ namespace cellPhoneS_backend.Services.Implement
             var images = await _dbContext.Images
                 .AsNoTracking()
                 .Where(i =>
-                            i.BlobUrl != null && i.BlobUrl.Contains("cloudinary.com"))
+                            i.BlobUrl != null && i.BlobUrl.Contains("cloudinary"))
                 .ToListAsync();
 
             if (images.Count == 0)
@@ -70,35 +70,19 @@ namespace cellPhoneS_backend.Services.Implement
             {
                 // Logic lấy tên file
                 string urlToParse = img.BlobUrl ?? "";
-                string fileName = GetFileNameFromUrl(urlToParse); // Hàm này ở dưới cùng
+                string fullFileName = GetFileNameFromUrl(urlToParse); // Hàm này ở dưới cùng
 
-                if (!string.IsNullOrEmpty(fileName))
+                if (!string.IsNullOrEmpty(fullFileName))
                 {
-                    if (!imageMap.ContainsKey(fileName)) imageMap[fileName] = new List<long>();
-                    imageMap[fileName].Add(img.Id);
+                    // QUAN TRỌNG 1: Cắt bỏ đuôi file để làm key so sánh
+                    string nameOnly = Path.GetFileNameWithoutExtension(fullFileName);
+
+                    if (!imageMap.ContainsKey(nameOnly)) imageMap[nameOnly] = new List<long>();
+                    imageMap[nameOnly].Add(img.Id);
                 }
             }
 
-            Console.WriteLine($"Database: Load được {imageMap.Count} tên file duy nhất.");
-
-            // -----------------------------------------------------------------------
-            // 2. THÊM: ĐOẠN DEBUG "VẠCH TRẦN SỰ THẬT" (Chạy xong xóa cũng được)
-            // -----------------------------------------------------------------------
-            Console.WriteLine("\n🔴 --- DEBUG CHECK (So sánh 10 mẫu đầu tiên) ---");
-            Console.WriteLine("Tên file máy tính ĐANG CHỜ trong Dictionary (từ DB):");
-            foreach (var key in imageMap.Keys.Take(10))
-            {
-                Console.WriteLine($"   - '{key}'"); // Dấu nháy đơn để soi khoảng trắng thừa
-            }
-
-            Console.WriteLine("\nTên file máy tính TÌM THẤY trong Folder Local:");
-            var sampleFiles = Directory.GetFiles(localFolderPath, "*.*", SearchOption.AllDirectories).Take(10);
-            foreach (var path in sampleFiles)
-            {
-                Console.WriteLine($"   - '{Path.GetFileName(path)}'");
-            }
-            Console.WriteLine("🔴 ---------------------------------------------\n");
-            // -----------------------------------------------------------------------
+            Console.WriteLine($"Database: Load được {imageMap.Count} tên file duy nhất (không tính đuôi).");
 
             if (!Directory.Exists(localFolderPath))
             {
@@ -107,6 +91,7 @@ namespace cellPhoneS_backend.Services.Implement
             }
             var localFiles = Directory.GetFiles(localFolderPath, "*.*", SearchOption.AllDirectories);
             Console.WriteLine($"Tìm thấy {localFiles.Length} files trong folder local (bao gồm cả folder con).");
+
             // 3. CHIA BATCH ĐỂ XỬ LÝ (Mỗi lần 50 file để an toàn Transaction)
             int batchSize = 50;
             var fileBatches = localFiles.Chunk(batchSize); // .NET 6 trở lên có hàm Chunk
@@ -117,15 +102,19 @@ namespace cellPhoneS_backend.Services.Implement
             foreach (var batch in fileBatches)
             {
                 // -- BƯỚC 3.1: Upload song song (Không dính dáng gì tới DB context ở đây để tránh lỗi Thread) --
-                var successfulUploads = new ConcurrentBag<(string FileName, string MimeType)>();
+                // QUAN TRỌNG 2: Lưu thêm trường NameWithoutExtension để tí nữa tìm lại ID
+                var successfulUploads = new ConcurrentBag<(string LocalFileName, string MimeType, string NameWithoutExtension)>();
 
                 await Parallel.ForEachAsync(batch, new ParallelOptions { MaxDegreeOfParallelism = 10 }, async (filePath, token) =>
                 {
                     try
                     {
-                        string fileName = Path.GetFileName(filePath);
-                        // Chỉ upload nếu file này có người dùng trong DB
-                        if (imageMap.ContainsKey(fileName))
+                        string localFileName = Path.GetFileName(filePath);
+                        // QUAN TRỌNG 3: Cắt bỏ đuôi file dưới máy tính để đem đi dò tìm
+                        string localNameOnly = Path.GetFileNameWithoutExtension(localFileName);
+
+                        // Chỉ upload nếu TÊN KHÔNG ĐUÔI này có trong DB
+                        if (imageMap.ContainsKey(localNameOnly))
                         {
                             if (!contentTypeProvider.TryGetContentType(filePath, out string mimeType))
                                 mimeType = "application/octet-stream";
@@ -133,7 +122,7 @@ namespace cellPhoneS_backend.Services.Implement
                             var uploadRequest = new TransferUtilityUploadRequest
                             {
                                 InputStream = File.OpenRead(filePath),
-                                Key = fileName,
+                                Key = localFileName, // Vẫn upload lên R2 bằng tên có đuôi thật
                                 BucketName = bucketName,
                                 ContentType = mimeType,
                                 DisablePayloadSigning = true
@@ -141,9 +130,9 @@ namespace cellPhoneS_backend.Services.Implement
 
                             await fileTransferUtility.UploadAsync(uploadRequest);
 
-                            // Ghi nhận upload thành công
-                            successfulUploads.Add((fileName, mimeType));
-                            Console.WriteLine($"[R2 Uploaded] {fileName}");
+                            // Ghi nhận upload thành công (lưu cả 3 thông tin)
+                            successfulUploads.Add((localFileName, mimeType, localNameOnly));
+                            Console.WriteLine($"[R2 Uploaded] {localFileName}");
                         }
                     }
                     catch (Exception ex)
@@ -162,16 +151,17 @@ namespace cellPhoneS_backend.Services.Implement
                 {
                     // Lấy danh sách ID cần update từ Map
                     var idsToUpdate = new List<long>();
-                    var fileInfoDict = new Dictionary<long, (string FileName, string MimeType)>();
+                    var fileInfoDict = new Dictionary<long, (string LocalFileName, string MimeType)>();
 
                     foreach (var item in successfulUploads)
                     {
-                        if (imageMap.TryGetValue(item.FileName, out var ids))
+                        // QUAN TRỌNG 4: Tìm ID dựa vào tên không đuôi
+                        if (imageMap.TryGetValue(item.NameWithoutExtension, out var ids))
                         {
                             idsToUpdate.AddRange(ids);
                             foreach (var id in ids)
                             {
-                                fileInfoDict[id] = item; // Lưu lại để tí nữa gán thông tin
+                                fileInfoDict[id] = (item.LocalFileName, item.MimeType);
                             }
                         }
                     }
@@ -186,7 +176,8 @@ namespace cellPhoneS_backend.Services.Implement
                         if (fileInfoDict.TryGetValue(imgEntity.Id, out var info))
                         {
                             // CẬP NHẬT DỮ LIỆU
-                            string newUrl = $"{r2PublicDomain}/{info.FileName}";
+                            // QUAN TRỌNG 5: URL mới sử dụng tên CÓ ĐUÔI THẬT của file dưới máy tính
+                            string newUrl = $"{r2PublicDomain}/{info.LocalFileName}";
 
                             imgEntity.BlobUrl = newUrl;      // Chỉ sửa BlobUrl
                             imgEntity.MimeType = info.MimeType; // Sửa MimeType
@@ -234,6 +225,177 @@ namespace cellPhoneS_backend.Services.Implement
             {
                 return "";
             }
+        }
+        public async Task CleanAndUploadPipelineAsync(string localFolderPath)
+        {
+            Console.WriteLine("=== BƯỚC 1: LẤY TOÀN BỘ DỮ LIỆU TỪ DATABASE ===");
+
+            // 1. Lấy URL từ bảng Images (Chỉ cần có chứa link ảnh là lấy)
+            var imageUrls = await _dbContext.Images
+                .AsNoTracking()
+                .Where(i => i.BlobUrl != null)
+                .Select(i => i.BlobUrl)
+                .ToListAsync();
+
+            // 2. Lấy URL từ bảng Products (Chỉ cần có chứa link ảnh là lấy)
+            var productUrls = await _dbContext.Products
+                .AsNoTracking()
+                .Where(p => p.ImageUrl != null)
+                .Select(p => p.ImageUrl)
+                .ToListAsync();
+
+            // 3. Gộp lại và tạo danh sách TÊN FILE HỢP LỆ (Bỏ đuôi .webp, .png...)
+            var validNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var url in imageUrls.Concat(productUrls))
+            {
+                string fullFileName = GetFileNameFromUrl(url!);
+                if (!string.IsNullOrEmpty(fullFileName))
+                {
+                    validNames.Add(Path.GetFileNameWithoutExtension(fullFileName));
+                }
+            }
+
+            Console.WriteLine($"=> Tổng hợp được {validNames.Count} tên file hợp lệ cần giữ lại.");
+
+            Console.WriteLine("\n=== BƯỚC 2: DỌN DẸP THƯ MỤC LOCAL ===");
+            if (!Directory.Exists(localFolderPath))
+            {
+                Console.WriteLine($"[Lỗi] Không tìm thấy thư mục: {localFolderPath}");
+                return;
+            }
+
+            var localFiles = Directory.GetFiles(localFolderPath, "*.*", SearchOption.AllDirectories);
+            int deleteCount = 0;
+
+            foreach (var filePath in localFiles)
+            {
+                string localNameOnly = Path.GetFileNameWithoutExtension(filePath);
+
+                // Nếu file dưới máy tính KHÔNG nằm trong danh sách DB -> Tiêu diệt
+                if (!validNames.Contains(localNameOnly))
+                {
+                    File.Delete(filePath);
+                    deleteCount++;
+                }
+            }
+            Console.WriteLine($"=> Đã xóa {deleteCount} file rác.");
+            Console.WriteLine($"=> Giữ lại {localFiles.Length - deleteCount} file chuẩn bị upload.");
+
+            Console.WriteLine("\n=== BƯỚC 3: UPLOAD LÊN CLOUDFLARE R2 ===");
+            // Tới đây folder của bạn đã sạch 100%, gọi lại hàm Upload 
+            await UploadMissingFilesToR2Async(localFolderPath);
+
+            Console.WriteLine("\n=== HOÀN TẤT CHIẾN DỊCH! ===");
+        }
+        public async Task UploadMissingFilesToR2Async(string localFolderPath)
+        {
+            // 1. Setup AWS S3 Client (Đúng chuẩn cấu trúc của bạn)
+            var credentials = new BasicAWSCredentials(r2AccessKey, r2SecretKey);
+            var config = new AmazonS3Config
+            {
+                ServiceURL = r2ServiceUrl,
+                ForcePathStyle = true
+            };
+
+            using var s3Client = new AmazonS3Client(credentials, config);
+            using var fileTransferUtility = new TransferUtility(s3Client);
+            var contentTypeProvider = new FileExtensionContentTypeProvider();
+
+            if (!Directory.Exists(localFolderPath))
+            {
+                Console.WriteLine($"Thư mục không tồn tại: {localFolderPath}");
+                return;
+            }
+
+            // 2. Lấy danh sách các file ĐÃ TỒN TẠI trên R2 để loại trừ
+            Console.WriteLine("Đang lấy danh sách file trên Cloudflare R2...");
+            var existingKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            string? continuationToken = null;
+
+            do
+            {
+                var request = new Amazon.S3.Model.ListObjectsV2Request
+                {
+                    BucketName = bucketName,
+                    ContinuationToken = continuationToken
+                };
+
+                var response = await s3Client.ListObjectsV2Async(request);
+
+                foreach (var obj in response.S3Objects)
+                {
+                    existingKeys.Add(obj.Key); // Lưu lại tên file
+                }
+                continuationToken = response.NextContinuationToken;
+
+            } while (!string.IsNullOrEmpty(continuationToken));
+
+            Console.WriteLine($"R2: Đã load được {existingKeys.Count} file.");
+
+            // 3. Quét folder local và lọc ra những file CHƯA CÓ trên R2
+            var localFiles = Directory.GetFiles(localFolderPath, "*.*", SearchOption.AllDirectories);
+            var filesToUpload = new List<string>();
+
+            foreach (var filePath in localFiles)
+            {
+                string fileName = Path.GetFileName(filePath);
+                // Nếu tên file dưới máy tính chưa có trong HashSet của R2 -> Thêm vào list cần upload
+                if (!existingKeys.Contains(fileName))
+                {
+                    filesToUpload.Add(filePath);
+                }
+            }
+
+            Console.WriteLine($"Tìm thấy {localFiles.Length} files trong folder local (bao gồm cả folder con).");
+            Console.WriteLine($"Cần upload mới: {filesToUpload.Count} files. Sẽ bỏ qua: {localFiles.Length - filesToUpload.Count} files trùng.");
+
+            if (filesToUpload.Count == 0)
+            {
+                Console.WriteLine("Tuyệt vời! Tất cả ảnh đã có mặt trên R2. Không cần upload thêm.");
+                return;
+            }
+
+            // 4. CHIA BATCH ĐỂ XỬ LÝ UPLOAD (Sử dụng luồng như code của bạn)
+            int batchSize = 50;
+            var fileBatches = filesToUpload.Chunk(batchSize);
+
+            int totalSuccess = 0;
+            int totalError = 0;
+
+            foreach (var batch in fileBatches)
+            {
+                await Parallel.ForEachAsync(batch, new ParallelOptions { MaxDegreeOfParallelism = 10 }, async (filePath, token) =>
+                {
+                    try
+                    {
+                        string localFileName = Path.GetFileName(filePath);
+
+                        if (!contentTypeProvider.TryGetContentType(filePath, out string mimeType))
+                            mimeType = "application/octet-stream";
+
+                        var uploadRequest = new TransferUtilityUploadRequest
+                        {
+                            InputStream = File.OpenRead(filePath),
+                            Key = localFileName,
+                            BucketName = bucketName,
+                            ContentType = mimeType,
+                            DisablePayloadSigning = true
+                        };
+
+                        await fileTransferUtility.UploadAsync(uploadRequest);
+
+                        Interlocked.Increment(ref totalSuccess);
+                        Console.WriteLine($"[R2 Uploaded] {localFileName}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Interlocked.Increment(ref totalError);
+                        Console.WriteLine($"[R2 Error] {filePath}: {ex.Message}");
+                    }
+                });
+            }
+
+            Console.WriteLine($"HOÀN TẤT UPLOAD TOÀN BỘ! Thành công: {totalSuccess}, Lỗi: {totalError}");
         }
     }
 }
