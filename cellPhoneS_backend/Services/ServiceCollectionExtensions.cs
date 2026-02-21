@@ -23,6 +23,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<CartService, CartServiceImpl>();
         services.AddScoped<ProductSearchService, ProductSearchServiceImpl>();
         services.AddScoped<IJwtBlacklistService, JwtBlacklistServiceImpl>();
+        services.AddScoped<UploadImage2Cloud>();
         return services;
     }
 }
