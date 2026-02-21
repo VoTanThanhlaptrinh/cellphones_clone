@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace cellPhoneS_backend.Controllers.User
 {
-    [Route("api/[controller]")]
+    [Route("api/health")]
     [ApiController]
     public class HealthController : ControllerBase
     {
