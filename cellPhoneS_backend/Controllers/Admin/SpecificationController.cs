@@ -1,0 +1,119 @@
+using cellphones_backend.DTOs.Responses;
+using cellphones_backend.Services;
+using cellPhoneS_backend.Controllers;
+using cellPhoneS_backend.DTOs;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+
+namespace cellphones_backend.Controllers.Admin
+{
+    [Route("api/admin/specifications")]
+    [ApiController]
+    public class AdminSpecificationController : BaseController
+    {
+        private readonly SpecificationService _specificationService;
+
+        public AdminSpecificationController(SpecificationService specificationService)
+        {
+            _specificationService = specificationService;
+        }
+
+        // POST: api/admin/specifications
+        // Creates a new specification category (e.g., "Display", "Camera") with optional initial details
+        [HttpPost]
+        public async Task<ActionResult<ApiResponse<long>>> CreateSpecification([FromBody] CreateSpecificationRequest createSpecificationRequest)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new ApiResponse<long>("User not authenticated", 0));
+            }
+            
+            var result = await _specificationService.CreateSpecification(createSpecificationRequest, userId);
+            return HandleResult(result);
+        }
+
+        // POST: api/admin/specifications/{specificationId}/details
+        // Adds a new detail to an existing specification
+        [HttpPost("{specificationId}/details")]
+        public async Task<ActionResult<ApiResponse<long>>> AddSpecificationDetail(
+            long specificationId, 
+            [FromBody] CreateSpecificationDetailRequest createDetailRequest)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new ApiResponse<long>("User not authenticated", 0));
+            }
+            
+            var result = await _specificationService.AddSpecificationDetail(specificationId, createDetailRequest, userId);
+            return HandleResult(result);
+        }
+
+        // DELETE: api/admin/specifications/{specificationId}
+        // Soft deletes a specification (sets status to "deleted")
+        [HttpDelete("{specificationId}")]
+        public async Task<ActionResult<ApiResponse<string>>> DeleteSpecification(long specificationId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new ApiResponse<string>("User not authenticated", null!));
+            }
+            
+            var result = await _specificationService.DeleteSpecification(specificationId, userId);
+            return HandleResult(result);
+        }
+    }
+}
+{
+    [Route("api/admin/specifications")]
+    [ApiController]
+    public class AdminSpecificationController : BaseController
+    {
+        private readonly SpecificationService _specificationService;
+
+        public AdminSpecificationController(SpecificationService specificationService)
+        {
+            _specificationService = specificationService;
+        }
+
+        // POST: api/admin/specifications
+        // Creates a new specification category (e.g., "Display", "Camera") with optional initial details
+        [HttpPost]
+        public async Task<ActionResult<ApiResponse<long>>> CreateSpecification([FromBody] CreateSpecificationRequest createSpecificationRequest)
+        {
+            var result = await _specificationService.CreateSpecification(createSpecificationRequest);
+            return HandleResult(result);
+        }
+
+        // POST: api/admin/specifications/{specificationId}/details
+        // Adds a new detail to an existing specification
+        [HttpPost("{specificationId}/details")]
+        public async Task<ActionResult<ApiResponse<long>>> AddSpecificationDetail(
+            long specificationId, 
+            [FromBody] CreateSpecificationDetailRequest createDetailRequest)
+        {
+            // TODO: Implement the business logic to add specification detail here. I will develop this part.
+            // Implementation steps:
+            // 1. Verify specification exists
+            // 2. Create SpecificationDetail entity
+            // 3. Link to parent Specification
+            // 4. Set Status = "active"
+            // 5. Set CreateDate, UpdateDate, CreateBy, UpdateBy
+            // 6. Save to database
+            // 7. Return the new SpecificationDetail ID
+            
+            return Ok(new ApiResponse<long>(
+                "Specification detail creation endpoint is ready but not yet implemented",
+                0
+            ));
+        }var result = await _specificationService.AddSpecificationDetail(specificationId, createDetailRequest);
+            return HandleResult(result/ 5. Save changes
+            
+            return Ok(new ApiResponse<string>(
+                "Specification deletion endpoint is ready but not yet implemented",
+                null!
+            ));
+        }var result = await _specificationService.DeleteSpecification(specificationId);
+            return HandleResult(result
