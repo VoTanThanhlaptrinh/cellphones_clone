@@ -220,4 +220,62 @@
   <value>Color ID must be greater than 0.</value>
   <comment/>
 </data>
+
+<!-- Color validation -->
+<data name="ColorsRequired" xml:space="preserve">
+  <value>At least one color is required.</value>
+  <comment/>
+</data>
+<data name="ColorsMustHaveAtLeastOne" xml:space="preserve">
+  <value>At least one color must be provided.</value>
+  <comment/>
+</data>
+<data name="ColorNameRequired" xml:space="preserve">
+  <value>Color name is required.</value>
+  <comment/>
+</data>
+<data name="ColorNameMaxLength" xml:space="preserve">
+  <value>Color name must not exceed 100 characters.</value>
+  <comment/>
+</data>
+<data name="ColorCodeInvalid" xml:space="preserve">
+  <value>Color code must be a valid hex color (e.g., #FF5733).</value>
+  <comment/>
+</data>
+
+<!-- Inventory validation -->
+<data name="InitialInventoryRequired" xml:space="preserve">
+  <value>Initial inventory is required.</value>
+  <comment/>
+</data>
+<data name="InitialInventoryMustHaveAtLeastOne" xml:space="preserve">
+  <value>At least one inventory entry must be provided.</value>
+  <comment/>
+</data>
+<data name="StoreHouseIdRequired" xml:space="preserve">
+  <value>Storehouse ID is required.</value>
+  <comment/>
+</data>
+<data name="StoreHouseIdMustBeGreaterThanZero" xml:space="preserve">
+  <value>Storehouse ID must be greater than 0.</value>
+  <comment/>
+</data>
+<data name="QuantityMustBeGreaterOrEqualZero" xml:space="preserve">
+  <value>Quantity must be greater than or equal to 0.</value>
+  <comment/>
+</data>
+
+<!-- Required fields -->
+<data name="ThumbnailImageRequired" xml:space="preserve">
+  <value>Thumbnail image is required.</value>
+  <comment/>
+</data>
+<data name="CategoryIdRequired" xml:space="preserve">
+  <value>Category ID is required.</value>
+  <comment/>
+</data>
+<data name="BrandIdRequired" xml:space="preserve">
+  <value>Brand ID is required.</value>
+  <comment/>
+</data>
 </root>

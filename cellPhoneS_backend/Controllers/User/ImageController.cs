@@ -1,35 +1,29 @@
-using Microsoft.AspNetCore.Http;
+using cellphones_backend.DTOs.Responses;
+using cellphones_backend.Services;
+using cellPhoneS_backend.Controllers;
+using cellPhoneS_backend.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
-namespace cellphones_backend.Controllers
+namespace cellphones_backend.Controllers.User
 {
-    [Route("api/img")]
+    [Route("api/images")]
     [ApiController]
-    public class ImageController : ControllerBase
+    public class ImageController : BaseController
     {
-        [HttpPost("upload")]
-        public IActionResult UploadImage(IFormFile file)
+        private readonly ImageService _imageService;
+
+        public ImageController(ImageService imageService)
         {
-            // Placeholder for image upload logic
-            throw new NotImplementedException();
+            _imageService = imageService;
         }
+
+        // GET: api/images/{imageId}
+        // Retrieves image details and blob URL for public viewing
         [HttpGet("{imageId}")]
-        public IActionResult GetImage(long imageId)
+        public async Task<ActionResult<ApiResponse<ImageDTO>>> GetImage(long imageId)
         {
-            // Placeholder for image retrieval logic
-            throw new NotImplementedException();
-        }
-        [HttpDelete("{imageId}")]
-        public IActionResult DeleteImage(long imageId)
-        {
-            // Placeholder for image deletion logic
-            throw new NotImplementedException();
-        }
-        [HttpPut("{imageId}")]
-        public IActionResult UpdateImage(long imageId, IFormFile file)
-        {
-            // Placeholder for image update logic
-            throw new NotImplementedException();
+            var result = await _imageService.GetImage(imageId);
+            return HandleResult(result);
         }
     }
 }
