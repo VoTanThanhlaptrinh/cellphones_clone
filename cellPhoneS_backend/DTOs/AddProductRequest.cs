@@ -63,7 +63,7 @@ public record AddProductRequest
     // Products without colors cannot be added to cart or tracked in inventory
     [Required(ErrorMessage = "At least one color is required. / Ít nhất một màu sắc là bắt buộc.")]
     [MinLength(1, ErrorMessage = "At least one color must be provided. / Phải cung cấp ít nhất một màu sắc.")]
-    public List<ColorDTO>? Colors { get; set; }
+    public List<ColorRequest>? Colors { get; set; }
 
     // Ensures initial inventory is set up for fulfillment
     // Without inventory data, the product cannot be sold even if it exists in the catalog

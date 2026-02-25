@@ -6,7 +6,7 @@ using Microsoft.Extensions.Localization;
 
 namespace cellPhoneS_backend.Validation.Product;
 
-public class ColorDTOValidator : AbstractValidator<ColorDTO>
+public class ColorDTOValidator : AbstractValidator<ColorRequest>
 {
     public ColorDTOValidator(IStringLocalizer<ShareResource> localizer)
     {

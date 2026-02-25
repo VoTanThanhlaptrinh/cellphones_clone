@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace cellPhoneS_backend.DTOs;
 
-public class ColorDTO
+public class ColorRequest
 {
     // Ensures the color has a valid identifier if it's an existing color being referenced
     // This allows linking products to pre-existing color definitions in the database

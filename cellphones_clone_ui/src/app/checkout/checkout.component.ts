@@ -3,9 +3,10 @@ import { Router, RouterLink } from '@angular/router';
 import { OrderService } from '../services/order.service';
 import { Order, OrderDetail } from '../core/models/order.model';
 import { CurrencyPipe, NgClass } from '@angular/common';
-import { HeaderCartOrderComponent } from "../header-cart-order/header-cart-order.component";
+
 import { NotifyService } from '../services/notify.service';
 import { FormsModule } from '@angular/forms';
+import { HeaderCartOrderComponent } from '../shared/header-cart-order/header-cart-order.component';
 
 @Component({
   selector: 'app-checkout',

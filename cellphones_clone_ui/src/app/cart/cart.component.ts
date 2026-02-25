@@ -3,8 +3,8 @@ import { Router, RouterLink } from '@angular/router';
 import { CartService } from '../services/cart.service';
 import { CartView } from '../core/models/cart_request.model';
 import { CurrencyPipe, NgClass } from '@angular/common';
-import { HeaderCartOrderComponent } from "../header-cart-order/header-cart-order.component";
 import { NotifyService } from '../services/notify.service';
+import { HeaderCartOrderComponent } from '../shared/header-cart-order/header-cart-order.component';
 
 @Component({
   selector: 'app-cart',

@@ -1,0 +1,51 @@
+<mat-dialog-content class=" overflow-visible">
+    <div class="relative flex bg-white rounded-lg font-light text-gray-700 w-full">
+        
+        <nav class="w-[250px] border-r border-gray-100 shrink-0">
+            <ul class="flex flex-col py-2">
+                @for (item of categories; track $index) {
+                <li class="group">
+                    
+                    <div class="flex justify-between items-center px-4 py-2 hover:bg-gray-100 cursor-pointer transition-colors">
+                        <div class="flex items-center space-x-3 font-semibold overflow-hidden">
+                            <img class="w-6 h-6 object-contain shrink-0" src="{{ item.src }}" alt="icon" />
+                            <div class="flex gap-1 text-sm truncate">
+                                @for (x of item.name; track x) {
+                                    <span class="hover:text-red-600 transition-colors">{{ x }}</span>
+                                }
+                            </div>
+                        </div>
+
+                        <svg height="12" class="text-gray-400 shrink-0 ml-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" fill="currentColor">
+                            <path d="M96 480c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L242.8 256L73.38 86.63c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l192 192c12.5 12.5 12.5 32.75 0 45.25l-192 192C112.4 476.9 104.2 480 96 480z"></path>
+                        </svg>
+                    </div>
+
+                    <div class="hidden absolute top-0 left-[250px] w-[650px] min-h-full bg-white border border-gray-100 shadow-xl rounded-r-lg group-hover:block z-50 p-6">
+                        <div class="grid grid-cols-3 gap-6 w-full">
+                            @for (tab of item.tabs; track tab.title) {
+                            <div class="flex flex-col gap-3">
+                                <p class="text-base font-bold text-gray-800">{{ tab.title }}</p>
+                                <div class="flex flex-col gap-2">
+                                    @for (subItem of tab.items; track $index) {
+                                    <div class="flex flex-row items-center gap-2">
+                                        <a href="#" class="text-sm text-gray-500 font-medium hover:text-red-600 transition-colors">{{ subItem.name }}</a>
+                                        
+                                        @if(subItem.badge){
+                                        <span class="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded leading-none">
+                                            {{ subItem.badge }}
+                                        </span>
+                                        }
+                                    </div>
+                                    }
+                                </div>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </li>
+                }
+            </ul>
+        </nav>
+    </div>
+</mat-dialog-content>

@@ -16,6 +16,6 @@ public record ProductViewDetail(
     ICollection<ImageDTO> ProductImages,
     ICollection<SpecificationDTO> ProductSpecification,
     ICollection<string> Commitments,
-    ICollection<ColorDTO> ColorDTOs,
+    ICollection<cellPhoneS_backend.DTOs.Responses.ColorDTO> ColorDTOs,
     ICollection<StoreHouseDTO> StoreHouseDTOs
 );

@@ -30,11 +30,10 @@ namespace cellphones_backend.Controllers.User
         // GET: api/series/{seriesId}
         // Retrieves series details by ID for public viewing
         [HttpGet("{seriesId}")]
-        public async Task<ActionResult<ApiResponse<object>>> GetSeriesById(long seriesId)
-        {
-            // TODO: Implement the business logic to retrieve series details here. I will develop this part.
-            
-            return Ok(new ApiResponse<object>(SeriesView>>> GetSeriesById(long seriesId)
+        public async Task<ActionResult<ApiResponse<SeriesView>>> GetSeriesById(long seriesId)
         {
             var result = await _seriesService.GetSeriesById(seriesId);
-            return HandleResult(result
+            return HandleResult(result);
+        }
+    }
+}
