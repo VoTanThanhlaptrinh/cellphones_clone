@@ -24,7 +24,7 @@ namespace cellphones_backend.Controllers
             return HandleResult(await _userService.GetUsers(page, pageSize));
         }
         [HttpGet("{userId}")]
-        public async Task<ActionResult<ApiResponse<User>>> GetDetails(string userId)
+        public async Task<ActionResult<ApiResponse<cellphones_backend.Models.User>>> GetDetails(string userId)
         {
             return HandleResult(await _userService.GetDetails(userId));
         }

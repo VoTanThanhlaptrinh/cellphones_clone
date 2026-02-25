@@ -30,20 +30,19 @@ namespace cellphones_backend.Controllers.User
         // GET: api/brands/{brandId}
         // Retrieves brand details by ID including logo and series for public viewing
         [HttpGet("{brandId}")]
-        public async Task<ActionResult<ApiResponse<object>>> GetBrandById(long brandId)
-        {
-            // TODO: Implement the business logic to retrieve brand details here. I will develop this part.
-            
-            return Ok(new ApiResponse<object>(BrandView>>> GetBrandById(long brandId)
+        public async Task<ActionResult<ApiResponse<BrandView>>> GetBrandById(long brandId)
         {
             var result = await _brandService.GetBrandById(brandId);
-            return HandleResult(resulttrieves all brands across all categories for public viewing
+            return HandleResult(result);
+        }
+
+        // GET: api/brands
+        // Retrieves all brands across all categories for public viewing
         [HttpGet]
         public async Task<ActionResult<ApiResponse<List<BrandView>>>> GetAllBrands()
         {
-            // TODO: Implement the business logic to retrieve all brands here. I will develop this part.
-            
-            return Ok(new ApiResponse<List<BrandView>>(
-                "All brands retrieval endpoint is ready but not yet implemented",
             var result = await _brandService.GetAllBrands();
-            return HandleResult(result
+            return HandleResult(result);
+        }
+    }
+}

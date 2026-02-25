@@ -1,0 +1,26 @@
+<h2 mat-dialog-title class="text-center font-bold">Xác nhận hành động</h2>
+
+<mat-dialog-content>
+    <div class="flex flex-col py-2 px-4 items-center">
+        <p class="text-red-600 text-2xl text-center font-medium mt-2">Smember</p>
+        <img src="assets/images/modal_login.png" class="h-20 w-12 object-contain mt-2" alt="Smember">
+        <p class="text-black text-center font-medium text-normal mt-4">
+            Vui lòng đăng nhập tài khoản Smember để xem ưu đãi và thanh toán dễ dàng hơn.
+        </p>
+    </div>
+</mat-dialog-content>
+
+<mat-dialog-actions  class="pb-4">
+    <div class="w-full gap-x-4 flex justify-center mt-2 px-4">
+        <a (click)="navigate('/register')"
+           mat-dialog-close
+           class="flex items-center justify-center bg-white text-red-600 border-2 rounded-xl border-red-600 hover:scale-105 duration-300 w-40 h-12 text-lg font-medium cursor-pointer">
+            Đăng ký
+        </a>
+        <a (click)="navigate('/login')"
+           mat-dialog-close
+           class="flex items-center justify-center bg-red-600 text-white border rounded-xl border-transparent hover:scale-105 duration-300 w-40 h-12 text-lg font-medium cursor-pointer">
+            Đăng nhập
+        </a>
+    </div>
+</mat-dialog-actions>

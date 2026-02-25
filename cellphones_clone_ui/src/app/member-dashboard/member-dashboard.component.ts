@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HeaderMemberDashboardComponent } from "../header-member-dashboard/header-member-dashboard.component";
 import { MemberTabsComponent } from "./member-tabs/member-tabs.component";
+import { HeaderMemberDashboardComponent } from '../shared/header-member-dashboard/header-member-dashboard.component';
 
 interface UserInfo {
   name: string;

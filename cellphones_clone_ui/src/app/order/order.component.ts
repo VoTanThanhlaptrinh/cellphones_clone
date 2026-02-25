@@ -1,5 +1,5 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnInit } from '@angular/core';
-import { HeaderCartOrderComponent } from "../header-cart-order/header-cart-order.component";
+
 import { CartService } from '../services/cart.service';
 import { MatTabsModule } from '@angular/material/tabs';
 import { CommonModule, CurrencyPipe } from '@angular/common';
@@ -9,6 +9,7 @@ import { PaymentInforComponent } from "../payment-infor/payment-infor.component"
 import { StoreView } from '../core/models/store.model';
 import { OrderService } from '../services/order.service';
 import { NotifyService } from '../services/notify.service';
+import { HeaderCartOrderComponent } from '../shared/header-cart-order/header-cart-order.component';
 @Component({
   selector: 'app-order',
   imports: [HeaderCartOrderComponent, MatTabsModule, CommonModule, FormsModule, ReactiveFormsModule, PaymentComponent, PaymentInforComponent],

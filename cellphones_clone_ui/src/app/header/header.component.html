@@ -245,7 +245,7 @@
                         stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
                 </svg>
                 <nav class="md:flex p-0">
-                    <a class="block text-gray-100" onclick="my_modal_2.showModal()">Danh mục</a>
+                    <a class="block text-gray-100" (click)="openCategoryModal()">Danh mục</a>
                 </nav>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M6.7041 9L12.7041 15L18.7041 9" stroke="white" stroke-width="1.5" stroke-linecap="round"
@@ -339,7 +339,7 @@
 
             </div>
             <div class="flex gap-3 font-medium">
-                <a onclick="login_modal.showModal()" aria-current="page"
+                <a aria-current="page" (click)="openRequireLoginModal()"
                     class="px-4 py-2 gap-x-2 flex text-sm items-center hover:bg-red-700 rounded-lg text-white">
                     <span class="hidden md:block">Giỏ hàng</span>
                     <div class="relative">
@@ -406,79 +406,5 @@
             </div>
         </div>
     </section>
-    <section>
-        <dialog id="login_modal" class="modal">
-            <div class="modal-box max-w-90 rounded-xl bg-white">
-                <div class="flex flex-col py-2 px-4 items-center">
-                    <p class="text-red-600 text-2xl text-center font-medium mt-2">Smember</p>
-                    <img src="assets/images/modal_login.png" class="h-20 w-12 items-center">
-                    <p class="text-black text-center font-medium text-normal mt-2">Vui lòng đăng nhập tài khoản Smember
-                        để xem ưu đãi và thanh toán dễ dàng hơn.</p>
-                    <div class="w-full gap-x-2 items-center flex justify-between mt-2">
-                        <a routerLink="/register"
-                            class="btn bg-white text-red-600 border-2 rounded-xl border-red-600 hover:scale-105 duration-500 text-center w-40 h-12 text-lg font-medium">Đăng
-                            ký</a>
-                        <a routerLink="/login"
-                            class="btn bg-red-600 text-white border rounded-xl border-transparent hover:scale-105 duration-500 text-center w-40 h-12 text-lg font-medium">Đăng
-                            nhập</a>
-                    </div>
-                </div>
-            </div>
-            <form method="dialog" class="modal-backdrop">
-                <button type="reset">close</button>
-            </form>
-        </dialog>
-    </section>
-    <section>
-        <dialog id="my_modal_2" class="modal">
-            <div
-                class="modal-box top-22 left-37 absolute bg-white flex max-w-250 shadow-sm rounded-lg font-light text-gray-700">
-                <nav>
-                    <ul class="flex flex-col md:px-2 md:py-2 md:space-y-2 md:text-xs w-57.5 space-y-1">
-                        @for (item of categories; track $index) {
-                        <li class="relative group">
-                            <div class="flex justify-between items-center space-x-2 font-semibold overflow-x-hidden">
-                                <img class="img-fluid w-7 h-6" src="{{ item.src }}" alt="smartphone--v2" />
-                                @for (x of item.name; track x) {
-                                <a class="hover:text-red-700" href="#">{{ x }}</a>
-                                }
 
-                                <svg height="15" class="ml-auto" xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 320 512">
-                                    <path
-                                        d="M96 480c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L242.8 256L73.38 86.63c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l192 192c12.5 12.5 12.5 32.75 0 45.25l-192 192C112.4 476.9 104.2 480 96 480z">
-                                    </path>
-                                </svg>
-                            </div>
-                            <div
-                                class="hidden fixed transition duration-150 group-hover:block opacity-0 group-hover:opacity-100 bg-white top-0 left-57 max-w-250 px-4 py-2 rounded-lg z-9999">
-                                <div class="flex flex-row w-full">
-                                    @for (tab of item.tabs; track tab.title) {
-                                    <div class="flex flex-col gap-2">
-                                        <p class="text-base font-medium">{{ tab.title }}</p>
-                                        @for (item of tab.items; track $index) {
-                                        <div class="flex flex-row items-center gap-2">
-                                            <a href="#" class="text-sm text-gray-500 font-base hover:text-red-500">{{
-                                                item.name }}</a>
-                                            @if(item.badge){
-                                            <p class="bg-red-500 text-white font-medium">
-                                                {{ item.badge }}
-                                            </p>
-                                            }
-                                        </div>
-                                        }
-                                    </div>
-                                    }
-                                </div>
-                            </div>
-                        </li>
-                        }
-                    </ul>
-                </nav>
-            </div>
-            <form method="dialog" class="modal-backdrop">
-                <button type="reset">close</button>
-            </form>
-        </dialog>
-    </section>
 </header>

@@ -13,9 +13,8 @@ using System.Text;
 using cellphones_backend.Repositories;
 using cellPhoneS_backend.Services.Interface;
 using StackExchange.Redis;
-using cellPhoneS_backend.Services.Implement;
 
-internal class Program
+internal partial class Program
 {
     private async static Task Main(string[] args)
     {
