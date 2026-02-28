@@ -119,7 +119,7 @@
         </div>
       </div>
 
-      <div class="flex flex-col gap-3 w-full">
+      <div class="flex flex-col gap-3 w-150">
         <!-- Slider chính -->
         @if (isBrowser) {
         <swiper-container class="group border border-gray-300 rounded-lg overflow-hidden bg-white" navigation="true"
@@ -360,18 +360,20 @@
       </div>
       <div class="w-full relative">
         @if (isBrowser) {
-        <swiper-container navigation="true" thumbs-swiper=".thumbs" navigation-next-el=".custom-next-button"
-          navigation-prev-el=".custom-prev-button">
-          @for (src of slides; track $index) {
-          <swiper-slide>
-            <div>
-              <img [src]="src" alt="Ảnh sản phẩm" class="img-fluid object-contain rounded-lg" />
-            </div>
-          </swiper-slide>
-          }
-          <!-- Ẩn/hiện mũi tên khi hover (dùng ::part) -->
-          <div slot="container-end"></div>
-        </swiper-container>
+        <div class="w-150">
+          <swiper-container navigation="true" thumbs-swiper=".thumbs" navigation-next-el=".custom-next-button"
+            navigation-prev-el=".custom-prev-button">
+            @for (src of slides; track $index) {
+            <swiper-slide>
+              <div>
+                <img [src]="src" alt="Ảnh sản phẩm" class="img-fluid object-contain rounded-lg" />
+              </div>
+            </swiper-slide>
+            }
+            <!-- Ẩn/hiện mũi tên khi hover (dùng ::part) -->
+            <div slot="container-end"></div>
+          </swiper-container>
+        </div>
         }
 
         <div slot="container-end" class="pointer-events-none">

@@ -7,7 +7,7 @@ namespace cellPhoneS_backend.Services;
 
 public interface JwtTokenService
 {
-    string GenerateJwtToken(User user);
+    Task<string> GenerateJwtToken(User user);
     string ExtractUserId(string token);
     string HashToken(string token);
     Task<ServiceResult<string>> RefreshJwtToken(HttpRequest request);

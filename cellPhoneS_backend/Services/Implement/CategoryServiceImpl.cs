@@ -29,9 +29,17 @@ public class CategoryServiceImpl : CategoryService
         throw new NotImplementedException();
     }
 
-    public async  Task<ServiceResult<CategoryDetailView>> GetCategoryDetail(long categoryId, int page)
+    public async  Task<ServiceResult<CategoryDetailView>> GetCategoryDetail(long categoryId)
     {
-        var res =  await _categoryRepository.GetCategoryDetail(categoryId, size ,page);
+        var res =  await _categoryRepository.GetCategoryDetail(categoryId, size);
+        if(res == null)
+            return ServiceResult<CategoryDetailView>.Fail("No category found for the specified category");
+        return ServiceResult<CategoryDetailView>.Success(res,"Success");
+    }
+
+    public async Task<ServiceResult<CategoryDetailView>> GetCategoryDetailBySlug(string slugName)
+    {
+                var res =  await _categoryRepository.GetCategoryDetailBySlug(slugName, size);
         if(res == null)
             return ServiceResult<CategoryDetailView>.Fail("No category found for the specified category");
         return ServiceResult<CategoryDetailView>.Success(res,"Success");

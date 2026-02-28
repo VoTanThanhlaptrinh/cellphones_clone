@@ -55,6 +55,7 @@
 
   <ItemGroup>
     <Folder Include="Utils\" />
+    <Folder Include="Validation\Extension\" />
   </ItemGroup>
 
 </Project>

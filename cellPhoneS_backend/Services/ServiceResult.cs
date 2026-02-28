@@ -19,8 +19,14 @@ public class ServiceResult<T>
 public enum ServiceErrorType
 {
     General,
-    NotFound,
+    InternalError,
     BadRequest,
+    ValidationFailed,
+    NotFound,
+    Conflict,
+    TooManyRequests,
     Unauthorized,
     Forbidden,
+    Timeout,
+    NotImplemented
 }

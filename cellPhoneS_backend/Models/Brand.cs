@@ -14,6 +14,9 @@ public class Brand
     public Category? Category { get; set; }
     [Required]
     public string? Name { get; set; }
+    [Required]
+    [MaxLength(255)]
+    public string SlugName { get; set; }
     public long? ImageId { get; set; }
     [ForeignKey(nameof(ImageId))]
     [DeleteBehavior(DeleteBehavior.Restrict)]

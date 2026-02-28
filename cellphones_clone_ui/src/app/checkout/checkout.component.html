@@ -1,92 +1,59 @@
-<div class="flex flex-col static">
-    <app-header-cart-order [totalQuantity]="this.totalQuantity" [Username]="'Thành'" />
+<div class="flex flex-col static bg-gray-100 min-h-screen">
+    <!-- Header -->
+    <app-header-cart-order [totalQuantity]="0" [Username]="'Khách'" />
 
-    <div class="bg-gray-100 min-h-160 overflow-x-auto static">
-        <div class="mx-auto max-w-150 p-2 gap-y-4 flex flex-col">
-            <!-- Header -->
-            <div class="flex flex-row items-center justify-between w-full p-2">
-                <svg routerLink="/cart" class="cursor-pointer" width="20" height="17" viewBox="0 0 20 17" fill="none"
+    <!-- Success Content -->
+    <div class="grow flex items-center justify-center p-4 py-12">
+        <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full p-8 md:p-10 text-center flex flex-col items-center">
+
+            <!-- Success Icon -->
+            <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6 shadow-inner">
+                <svg class="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg">
-                    <path d="M19 8.5L1 8.5M1 8.5L8 1M1 8.5L8 16" stroke="#121219" stroke-width="1.5"
-                        stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
                 </svg>
-                <p class="text-center text-black text-lg font-medium">Thanh toán</p>
-                <div></div>
             </div>
-            <hr class="grow border-t border-gray-200 mb-2" />
 
-            @if (isLoading) {
-            <div class="flex justify-center items-center py-10">
-                <p class="text-gray-500">Đang tạo đơn hàng...</p>
-            </div>
-            } @else if (order) {
+            <h1 class="text-3xl font-extrabold text-gray-900 mb-2 font-sans tracking-tight">Đặt hàng thành công!</h1>
 
-            <!-- Order Summary -->
-            <div class="bg-white rounded-lg shadow p-4 flex flex-col gap-y-4">
-                <h2 class="text-lg font-medium text-black">Tóm tắt đơn hàng</h2>
-                <div class="flex flex-col gap-y-3">
-                    @for (item of order.orderDetails; track item.id) {
-                    <div class="flex flex-row justify-between items-center bg-gray-50 p-2 rounded">
-                        <div class="flex flex-col">
-                            <p class="text-black font-medium">{{ item.product?.productName || 'Sản phẩm' }}</p>
-                            <p class="text-sm text-gray-500">Màu: {{ item.color?.colorName || 'Mặc định' }} x {{
-                                item.quantity }}</p>
-                        </div>
-                        <p class="text-red-600 font-medium">{{ convertPriceVnd(item.price) }}</p>
+            <p class="text-gray-500 mb-8 text-lg">
+                Cảm ơn bạn đã mua sắm tại Cellphones Clone. Đơn hàng của bạn đang được xử lý.
+            </p>
+
+            <!-- Order Details Box -->
+            <div class="w-full bg-gray-50 rounded-xl p-5 mb-8 border border-gray-100">
+                <div class="flex flex-col gap-3 text-left">
+                    <div class="flex justify-between items-center pb-3 border-b border-gray-200">
+                        <span class="text-gray-500 font-medium">Mã đơn hàng:</span>
+                        <span class="font-bold text-gray-900 text-lg">#{{ orderId() }}</span>
                     </div>
-                    }
-                </div>
-                <hr class="border-t border-gray-200" />
-                <div class="flex flex-row justify-between items-center">
-                    <p class="text-black font-medium">Tổng tiền ({{ totalQuantity }} sản phẩm):</p>
-                    <p class="text-red-700 font-bold text-lg">{{ convertPriceVnd(totalPrice) }}</p>
-                </div>
-            </div>
-
-            <!-- Payment Method -->
-            <div class="bg-white rounded-lg shadow p-4 flex flex-col gap-y-4">
-                <h2 class="text-lg font-medium text-black">Phương thức thanh toán</h2>
-
-                <div class="flex flex-col gap-y-3">
-                    <label class="flex items-center p-3 border rounded cursor-pointer hover:bg-gray-50"
-                        [ngClass]="{'border-red-500 bg-red-50': paymentMethod === 'COD', 'border-gray-200': paymentMethod !== 'COD'}">
-                        <input type="radio" name="paymentMethod" value="COD" [(ngModel)]="paymentMethod"
-                            class="w-5 h-5 text-red-600 focus:ring-red-500">
-                        <div class="ml-3 flex flex-col">
-                            <span class="text-black font-medium">Thanh toán khi nhận hàng (COD)</span>
-                            <span class="text-sm text-gray-500">Thanh toán bằng tiền mặt khi giao hàng</span>
-                        </div>
-                    </label>
-
-                    <label class="flex items-center p-3 border rounded cursor-pointer hover:bg-gray-50"
-                        [ngClass]="{'border-red-500 bg-red-50': paymentMethod === 'ONLINE', 'border-gray-200': paymentMethod !== 'ONLINE'}">
-                        <input type="radio" name="paymentMethod" value="ONLINE" [(ngModel)]="paymentMethod"
-                            class="w-5 h-5 text-red-600 focus:ring-red-500">
-                        <div class="ml-3 flex flex-col">
-                            <span class="text-black font-medium">Thanh toán trực tuyến</span>
-                            <span class="text-sm text-gray-500">Thanh toán qua ví điện tử hoặc thẻ ngân hàng</span>
-                        </div>
-                    </label>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-500 font-medium">Trạng thái:</span>
+                        <span
+                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                            Đã xác nhận
+                        </span>
+                    </div>
                 </div>
             </div>
-            }
+
+            <!-- Actions -->
+            <div class="flex flex-col sm:flex-row gap-4 w-full justify-center">
+                <button routerLink="/order"
+                    class="flex-1 bg-white border-2 border-red-600 text-red-600 hover:bg-red-50 font-bold py-3 px-6 rounded-lg transition-colors focus:ring-4 focus:ring-red-100">
+                    Theo dõi đơn hàng
+                </button>
+                <button routerLink="/home"
+                    class="flex-1 bg-linear-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all transform hover:-translate-y-0.5 focus:ring-4 focus:ring-red-200">
+                    Tiếp tục mua sắm
+                </button>
+            </div>
+
+            <!-- Support Note -->
+            <p class="mt-8 text-sm text-gray-400">
+                Mọi thắc mắc vui lòng liên hệ tổng đài <a href="tel:18002097"
+                    class="text-red-600 font-semibold hover:underline">1800.2097</a>
+            </p>
         </div>
-        <div class="min-h-[15vh]"></div>
-
-        <!-- Bottom Sticky Bar -->
-        @if (!isLoading && order) {
-        <div
-            class="fixed flex bottom-0 sm:w-full bg-white left-115 items-center pb-2 pt-2 flex-col rounded-sm shadow-[0_-4px_20px_-1px_rgba(40,124,234,.15)] px-2 max-w-150 w-150 rounded-t-lg z-50">
-            <div class="flex flex-row justify-between w-full px-2 pb-2">
-                <p class="text-black font-medium">Tổng thanh toán:</p>
-                <p class="text-red-700 font-bold text-lg">{{ convertPriceVnd(totalPrice) }}</p>
-            </div>
-            <button
-                class="btn bg-red-700 rounded-lg border-transparent text-white h-12 w-full px-2 py-1 font-medium text-lg uppercase"
-                (click)="confirmPayment()">
-                Xác nhận mua hàng
-            </button>
-        </div>
-        }
     </div>
 </div>

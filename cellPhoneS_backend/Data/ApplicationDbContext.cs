@@ -87,6 +87,11 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, string>
             entity.HasNoKey();
             entity.ToView("mv_ProductSearch");
         });
+
+        modelBuilder.Entity<Category>(entity =>
+        {
+           entity.HasIndex(c => c.SlugName).IsUnique(); 
+        });
     }
 }
 

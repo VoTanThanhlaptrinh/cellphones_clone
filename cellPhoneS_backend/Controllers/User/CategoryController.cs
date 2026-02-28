@@ -16,10 +16,10 @@ namespace cellPhoneS_backend.Controllers.User
         {
             _categoryService = categoryService;
         }
-        [HttpGet("{id}/{page}")]
-        public async Task<ActionResult<ApiResponse<CategoryDetailView>>> GetCategories(long id, int page)
+        [HttpGet("{slugName}")]
+        public async Task<ActionResult<ApiResponse<CategoryDetailView>>> GetCategories(string slugName)
         {
-            var res = await _categoryService.GetCategoryDetail(id, page);
+            var res = await _categoryService.GetCategoryDetailBySlug(slugName);
             return HandleResult(res);
         }
         [HttpGet("loadMore/{id}/{page}")]

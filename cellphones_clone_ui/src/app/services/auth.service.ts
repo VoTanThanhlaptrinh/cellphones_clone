@@ -124,11 +124,20 @@ export class AuthService {
   private decodeAndSetUser(token: string): void {
     try {
       const decoded: any = jwtDecode(token);
+
+      const idClaim = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier';
+      const nameClaim = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name';
+      const roleClaim = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role';
+      const amountCartClaim = 'amountCart';
+      const rolesData = decoded[roleClaim] || decoded.role;
+
       const user: User = {
-        id: decoded.nameid,
-        fullName: decoded.unique_name,
-        roles: decoded.role ? (Array.isArray(decoded.role) ? decoded.role : [decoded.role]) : []
+        id: decoded[idClaim],
+        fullName: decoded[nameClaim],
+        roles: rolesData ? (Array.isArray(rolesData) ? rolesData : [rolesData]) : [],
+        amountCart: decoded[amountCartClaim],
       };
+
       this.currentUser.set(user);
     } catch (error) {
       this.currentUser.set(null);

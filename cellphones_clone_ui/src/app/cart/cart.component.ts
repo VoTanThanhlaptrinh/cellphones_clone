@@ -114,8 +114,9 @@ export class CartComponent implements OnInit {
   }
   goToCheckout() {
     let cartDetailIds = this.selectedItems.map(i => this.cartDetails[i].cartDetailId);
+    let selectedCartItems = this.selectedItems.map(i => this.cartDetails[i]);
     if (cartDetailIds.length > 0) {
-      this.router.navigate(['/checkout'], { state: { cartDetailIds: cartDetailIds } });
+      this.router.navigate(['/order'], { state: { cartDetailIds: cartDetailIds, cartItems: selectedCartItems } });
     }
   }
 }

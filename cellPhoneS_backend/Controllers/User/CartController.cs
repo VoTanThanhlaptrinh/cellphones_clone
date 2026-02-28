@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using cellphones_backend.DTOs.Responses;
 using cellPhoneS_backend.Controllers;
 using cellPhoneS_backend.DTOs.Requests;
@@ -20,33 +21,41 @@ namespace cellphones_backend.Controllers
         [HttpGet("{page}")]
         public async Task<ActionResult<ApiResponse<List<CartDetailView>>>> ListCart(int page)
         {
-            var userId = "98a4fdb1-44a7-49d1-b9a0-03f9ff71e3c9";
-            return HandleResult(await _cartService.GetCartItems(page,userId));
+            var userId = await GetUserId();
+            return HandleResult(await _cartService.GetCartItems(page, userId));
         }
         [HttpPost()]
         public async Task<ActionResult<ApiResponse<bool>>> AddProductToCart(CartRequest request)
         {
-            return HandleResult(await _cartService.AddToCart(request));
+            var userId = await GetUserId();
+            return HandleResult(await _cartService.AddToCart(request, userId));
         }
         [HttpDelete("{cartDetailId}")]
         public async Task<ActionResult<ApiResponse<bool>>> DeleteProductOutCart(long cartDetailId)
         {
-             return HandleResult(await _cartService.RemoveFromCart(cartDetailId));
+            var userId = await GetUserId();
+             return HandleResult(await _cartService.RemoveFromCart(cartDetailId, userId));
         }
         [HttpPatch("plusQuantity/{cartDetailId}")]
         public async Task<ActionResult<ApiResponse<int>>> PlusQuantity(long cartDetailId)
         {
-            return HandleResult(await _cartService.PlusQuantity(cartDetailId));
+            var userId = await GetUserId();
+            return HandleResult(await _cartService.PlusQuantity(cartDetailId, userId));
         }
         [HttpPatch("minusQuantity/{cartDetailId}")]
         public async Task<ActionResult<ApiResponse<int>>> MinusQuantity(long cartDetailId)
         {
-            return HandleResult(await _cartService.MinusQuantity(cartDetailId));
+            var userId = await GetUserId();
+            return HandleResult(await _cartService.MinusQuantity(cartDetailId, userId));
         }
-        [HttpGet("getStoreViews")]
-        public async Task<ActionResult<ApiResponse<List<StoreView>>>> GetStoreViews()
+
+        private async Task<string> GetUserId()
         {
-            return HandleResult(await _cartService.GetAllCity());
+            if(User == null || !User.Identity!.IsAuthenticated)
+            {
+                throw new UnauthorizedAccessException("User is not authenticated");
+            }
+            return User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
         }
     }
 

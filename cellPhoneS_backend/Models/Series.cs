@@ -14,6 +14,9 @@ public class Series
     public Brand? Brand { get; set; }
     [Required]
     public string? Name { get; set; }
+    [Required]
+    [MaxLength(255)]
+    public string SlugName { get; set; }
     public string? Status { get; set; }         // trạng thái (active/inactive/deleted...)
     public DateTime CreateDate { get; set; }  // ngày tạo
     public DateTime UpdateDate { get; set; }  // ngày cập nhật

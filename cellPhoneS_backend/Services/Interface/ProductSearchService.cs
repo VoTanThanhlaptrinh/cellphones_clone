@@ -7,4 +7,7 @@ public interface ProductSearchService
 {
     public  Task<List<ProductSearchResult>> SearchAsync(string keyword);
     public  Task<List<ProductSearchResult>> InitializeAsync();
+
+    public Task<string> updateSlugNamesAsync();
+    public Task<string> updateAllSlugNamesAsync();
 }

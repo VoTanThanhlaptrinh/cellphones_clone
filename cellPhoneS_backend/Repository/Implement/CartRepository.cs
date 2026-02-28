@@ -24,6 +24,11 @@ public class CartRepository : BaseRepository<Cart>, ICartRepository
         return cart;
     }
 
+    public async Task<int> GetAmountCart(string userId)
+    {
+        return await _context.Carts.Where(c => c.CreateBy == userId).Select(c => c.CartDetails).SelectMany(cd => cd).CountAsync();
+    }
+
     public async Task<Cart?> GetCartByUserIdIfNotThenCreate(string userId)
     {
         var res  = await _context.Carts.FirstOrDefaultAsync(c => c.CreateBy == userId);

@@ -41,6 +41,7 @@ public class OrderServiceImpl : OrderService
             return ServiceResult<Order>.Fail("Cart item IDs cannot be null or empty");
         }
         var cartDetails = _cartDetailService.GetCartDetails(userId, cartItemIds).Result;
+        Console.WriteLine($"Cart details count: {cartDetails.ToString()}");
         if (cartDetails == null || cartDetails.Count == 0)
         {
             return ServiceResult<Order>.Fail("No cart items found for the user");
@@ -52,7 +53,9 @@ public class OrderServiceImpl : OrderService
             Price = cartDetail.Product!.SalePrice,
             ColorId = cartDetail.ColorId,
             CreateBy = userId,
-            CreateDate = DateTime.UtcNow
+            CreateDate = DateTime.UtcNow,
+            UpdateBy = userId,
+            UpdateDate = DateTime.UtcNow
         }).ToList();
 
         var order = new Order

@@ -14,5 +14,6 @@ public interface CategoryService
     Task<ServiceResult<string>> UpdateCategory(CategoryRequest categoryRequest);
     Task<ServiceResult<string>> DeleteCategory(long categoryId);
     Task<ServiceResult<List<ProductView>>> GetProductOfCategory(long categoryId, int page);
-    Task<ServiceResult<CategoryDetailView>> GetCategoryDetail(long category, int page);
+    Task<ServiceResult<CategoryDetailView>> GetCategoryDetail(long category);
+    Task<ServiceResult<CategoryDetailView>> GetCategoryDetailBySlug(string slugName);
 }

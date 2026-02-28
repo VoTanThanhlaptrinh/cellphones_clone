@@ -226,176 +226,118 @@ namespace cellPhoneS_backend.Services.Implement
                 return "";
             }
         }
-        public async Task CleanAndUploadPipelineAsync(string localFolderPath)
+        public async Task MigrateCloudinaryToCloudflareAsync()
         {
-            Console.WriteLine("=== BƯỚC 1: LẤY TOÀN BỘ DỮ LIỆU TỪ DATABASE ===");
+            Console.WriteLine("--- BẮT ĐẦU QUÁ TRÌNH MIGRATE ---");
 
-            // 1. Lấy URL từ bảng Images (Chỉ cần có chứa link ảnh là lấy)
-            var imageUrls = await _dbContext.Images
-                .AsNoTracking()
-                .Where(i => i.BlobUrl != null)
-                .Select(i => i.BlobUrl)
+            // 1. FIX: Ép kiểu ToLower() để tránh lỗi phân biệt chữ hoa chữ thường
+            var imagesToMigrate = await _dbContext.Images
+                .Where(i => i.BlobUrl != null && i.BlobUrl.ToLower().Contains("cloudinary"))
                 .ToListAsync();
 
-            // 2. Lấy URL từ bảng Products (Chỉ cần có chứa link ảnh là lấy)
-            var productUrls = await _dbContext.Products
-                .AsNoTracking()
-                .Where(p => p.ImageUrl != null)
-                .Select(p => p.ImageUrl)
-                .ToListAsync();
-
-            // 3. Gộp lại và tạo danh sách TÊN FILE HỢP LỆ (Bỏ đuôi .webp, .png...)
-            var validNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var url in imageUrls.Concat(productUrls))
+            if (!imagesToMigrate.Any())
             {
-                string fullFileName = GetFileNameFromUrl(url!);
-                if (!string.IsNullOrEmpty(fullFileName))
-                {
-                    validNames.Add(Path.GetFileNameWithoutExtension(fullFileName));
-                }
-            }
-
-            Console.WriteLine($"=> Tổng hợp được {validNames.Count} tên file hợp lệ cần giữ lại.");
-
-            Console.WriteLine("\n=== BƯỚC 2: DỌN DẸP THƯ MỤC LOCAL ===");
-            if (!Directory.Exists(localFolderPath))
-            {
-                Console.WriteLine($"[Lỗi] Không tìm thấy thư mục: {localFolderPath}");
+                Console.WriteLine("⚠️ Không tìm thấy ảnh nào có chứa từ 'cloudinary' trong BlobUrl.");
                 return;
             }
 
-            var localFiles = Directory.GetFiles(localFolderPath, "*.*", SearchOption.AllDirectories);
-            int deleteCount = 0;
-
-            foreach (var filePath in localFiles)
-            {
-                string localNameOnly = Path.GetFileNameWithoutExtension(filePath);
-
-                // Nếu file dưới máy tính KHÔNG nằm trong danh sách DB -> Tiêu diệt
-                if (!validNames.Contains(localNameOnly))
-                {
-                    File.Delete(filePath);
-                    deleteCount++;
-                }
-            }
-            Console.WriteLine($"=> Đã xóa {deleteCount} file rác.");
-            Console.WriteLine($"=> Giữ lại {localFiles.Length - deleteCount} file chuẩn bị upload.");
-
-            Console.WriteLine("\n=== BƯỚC 3: UPLOAD LÊN CLOUDFLARE R2 ===");
-            // Tới đây folder của bạn đã sạch 100%, gọi lại hàm Upload 
-            await UploadMissingFilesToR2Async(localFolderPath);
-
-            Console.WriteLine("\n=== HOÀN TẤT CHIẾN DỊCH! ===");
-        }
-        public async Task UploadMissingFilesToR2Async(string localFolderPath)
-        {
-            // 1. Setup AWS S3 Client (Đúng chuẩn cấu trúc của bạn)
+            // 2. Khởi tạo S3 Client
             var credentials = new BasicAWSCredentials(r2AccessKey, r2SecretKey);
-            var config = new AmazonS3Config
-            {
-                ServiceURL = r2ServiceUrl,
-                ForcePathStyle = true
-            };
+            var config = new AmazonS3Config { ServiceURL = r2ServiceUrl };
 
             using var s3Client = new AmazonS3Client(credentials, config);
-            using var fileTransferUtility = new TransferUtility(s3Client);
-            var contentTypeProvider = new FileExtensionContentTypeProvider();
+            using var httpClient = new HttpClient();
 
-            if (!Directory.Exists(localFolderPath))
+            int successCount = 0;
+            int errorCount = 0;
+
+            Console.WriteLine($"Tìm thấy {imagesToMigrate.Count} hình ảnh. Bắt đầu xử lý...");
+
+            foreach (var img in imagesToMigrate)
             {
-                Console.WriteLine($"Thư mục không tồn tại: {localFolderPath}");
-                return;
-            }
-
-            // 2. Lấy danh sách các file ĐÃ TỒN TẠI trên R2 để loại trừ
-            Console.WriteLine("Đang lấy danh sách file trên Cloudflare R2...");
-            var existingKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            string? continuationToken = null;
-
-            do
-            {
-                var request = new Amazon.S3.Model.ListObjectsV2Request
+                try
                 {
-                    BucketName = bucketName,
-                    ContinuationToken = continuationToken
-                };
+                    // 3. FIX: Nếu OriginUrl rỗng, lấy chính BlobUrl (chứa link cloudinary) để tải về
+                    string downloadUrl = !string.IsNullOrEmpty(img.OriginUrl) ? img.OriginUrl : img.BlobUrl;
 
-                var response = await s3Client.ListObjectsV2Async(request);
-
-                foreach (var obj in response.S3Objects)
-                {
-                    existingKeys.Add(obj.Key); // Lưu lại tên file
-                }
-                continuationToken = response.NextContinuationToken;
-
-            } while (!string.IsNullOrEmpty(continuationToken));
-
-            Console.WriteLine($"R2: Đã load được {existingKeys.Count} file.");
-
-            // 3. Quét folder local và lọc ra những file CHƯA CÓ trên R2
-            var localFiles = Directory.GetFiles(localFolderPath, "*.*", SearchOption.AllDirectories);
-            var filesToUpload = new List<string>();
-
-            foreach (var filePath in localFiles)
-            {
-                string fileName = Path.GetFileName(filePath);
-                // Nếu tên file dưới máy tính chưa có trong HashSet của R2 -> Thêm vào list cần upload
-                if (!existingKeys.Contains(fileName))
-                {
-                    filesToUpload.Add(filePath);
-                }
-            }
-
-            Console.WriteLine($"Tìm thấy {localFiles.Length} files trong folder local (bao gồm cả folder con).");
-            Console.WriteLine($"Cần upload mới: {filesToUpload.Count} files. Sẽ bỏ qua: {localFiles.Length - filesToUpload.Count} files trùng.");
-
-            if (filesToUpload.Count == 0)
-            {
-                Console.WriteLine("Tuyệt vời! Tất cả ảnh đã có mặt trên R2. Không cần upload thêm.");
-                return;
-            }
-
-            // 4. CHIA BATCH ĐỂ XỬ LÝ UPLOAD (Sử dụng luồng như code của bạn)
-            int batchSize = 50;
-            var fileBatches = filesToUpload.Chunk(batchSize);
-
-            int totalSuccess = 0;
-            int totalError = 0;
-
-            foreach (var batch in fileBatches)
-            {
-                await Parallel.ForEachAsync(batch, new ParallelOptions { MaxDegreeOfParallelism = 10 }, async (filePath, token) =>
-                {
-                    try
+                    if (string.IsNullOrEmpty(downloadUrl))
                     {
-                        string localFileName = Path.GetFileName(filePath);
-
-                        if (!contentTypeProvider.TryGetContentType(filePath, out string mimeType))
-                            mimeType = "application/octet-stream";
-
-                        var uploadRequest = new TransferUtilityUploadRequest
-                        {
-                            InputStream = File.OpenRead(filePath),
-                            Key = localFileName,
-                            BucketName = bucketName,
-                            ContentType = mimeType,
-                            DisablePayloadSigning = true
-                        };
-
-                        await fileTransferUtility.UploadAsync(uploadRequest);
-
-                        Interlocked.Increment(ref totalSuccess);
-                        Console.WriteLine($"[R2 Uploaded] {localFileName}");
+                        Console.WriteLine($"[Bỏ qua] Ảnh ID {img.Id}: Cả OriginUrl và BlobUrl đều rỗng.");
+                        continue;
                     }
-                    catch (Exception ex)
+
+                    Console.WriteLine($"[Đang tải] ID {img.Id} từ: {downloadUrl}");
+
+                    // Tải ảnh về
+                    using var imageResponse = await httpClient.GetAsync(downloadUrl);
+                    imageResponse.EnsureSuccessStatusCode();
+                    using var imageStream = await imageResponse.Content.ReadAsStreamAsync();
+
+                    string fileExtension = GetExtensionFromMimeType(img.MimeType);
+                    string objectKey = $"migrated_images/{img.Id}_{Guid.NewGuid().ToString("N")[..8]}{fileExtension}";
+
+                    var putRequest = new Amazon.S3.Model.PutObjectRequest
                     {
-                        Interlocked.Increment(ref totalError);
-                        Console.WriteLine($"[R2 Error] {filePath}: {ex.Message}");
+                        BucketName = bucketName,
+                        Key = objectKey,
+                        InputStream = imageStream,
+                        ContentType = img.MimeType,
+                        DisablePayloadSigning = true
+                    };
+
+                    await s3Client.PutObjectAsync(putRequest);
+
+                    // 4. FIX: Cập nhật thông tin (KHÔNG sửa trường UpdateBy để tránh lỗi Foreign Key)
+                    img.BlobUrl = $"{r2PublicDomain}/{objectKey}";
+                    img.UpdateDate = DateTime.UtcNow;
+
+                    successCount++;
+                    Console.WriteLine($"✅ [Thành công] ID {img.Id} -> {img.BlobUrl}");
+
+                    // Lưu theo lô 50 ảnh
+                    if (successCount % 50 == 0)
+                    {
+                        await _dbContext.SaveChangesAsync();
+                        Console.WriteLine($"💾 Đã lưu DB {successCount} ảnh...");
                     }
-                });
+                }
+                catch (DbUpdateException dbEx)
+                {
+                    errorCount++;
+                    Console.WriteLine($"❌ [Lỗi Database] ID {img.Id}: {dbEx.InnerException?.Message ?? dbEx.Message}");
+                }
+                catch (Exception ex)
+                {
+                    errorCount++;
+                    Console.WriteLine($"❌ [Lỗi Tải/Upload] ID {img.Id}: {ex.Message}");
+                }
             }
 
-            Console.WriteLine($"HOÀN TẤT UPLOAD TOÀN BỘ! Thành công: {totalSuccess}, Lỗi: {totalError}");
+            // Lưu những ảnh lẻ còn lại ở cuối vòng lặp
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ [Lỗi lưu DB cuối cùng]: {ex.InnerException?.Message ?? ex.Message}");
+            }
+
+            Console.WriteLine($"--- HOÀN TẤT! Thành công: {successCount}, Lỗi: {errorCount} ---");
+        }
+
+        // Hàm phụ trợ lấy đuôi file từ MimeType (bạn có thể tự điều chỉnh theo MimeType thực tế đang lưu)
+        private string GetExtensionFromMimeType(string mimeType)
+        {
+            return mimeType switch
+            {
+                "image/png" => ".png",
+                "image/jpeg" => ".jpg",
+                "image/webp" => ".webp",
+                "image/gif" => ".gif",
+                _ => ".jpg" // Mặc định
+            };
         }
     }
+
 }
