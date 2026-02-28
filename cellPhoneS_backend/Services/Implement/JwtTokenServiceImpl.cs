@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using cellphones_backend.Models;
+using cellphones_backend.Repositories;
 using cellPhoneS_backend.Models;
 using cellPhoneS_backend.Services;
 using Microsoft.AspNetCore.Identity;
@@ -17,31 +18,35 @@ public class JwtTokenServiceImpl : JwtTokenService
     private readonly UserService _userService;
     private readonly IDatabase _redisDb;
     private readonly UserManager<User> _userManager;
+    private readonly CartService _cartService;
     public JwtTokenServiceImpl(
         IConfiguration configuration,
         UserService userService,
         IConnectionMultiplexer redis,
-        UserManager<User> userManager)
+        UserManager<User> userManager,
+        CartService cartService)
     {
+        _cartService = cartService;
         _configuration = configuration;
         _userService = userService;
         _redisDb = redis.GetDatabase();
         _userManager = userManager;
     }
 
-    public string GenerateJwtToken(User user)
+    public async Task<string> GenerateJwtToken(User user)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"]!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         // Thêm JTI (Token ID) để quản lý Blacklist
         var jti = Guid.NewGuid().ToString();
-
+        var amountCartResult = await _cartService.GetAmountCart(user.Id);
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id),
             new Claim(JwtRegisteredClaimNames.Jti, jti),
             new Claim(ClaimTypes.Name, user.Fullname ?? ""),
+            new Claim("amountCart", amountCartResult.Data.ToString())
         };
 
         var rolesResult = _userService.GetRole(user).Result;
@@ -178,7 +183,7 @@ public class JwtTokenServiceImpl : JwtTokenService
             return ServiceResult<string>.Fail("User no longer exists.", ServiceErrorType.Unauthorized);
         }
 
-        var newAccessToken = GenerateJwtToken(user);
+        var newAccessToken = await GenerateJwtToken(user);
         return ServiceResult<string>.Success(newAccessToken, "Token refreshed successfully.");
     }
     public string ExtractUserId(string token)

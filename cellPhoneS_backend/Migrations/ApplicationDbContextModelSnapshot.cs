@@ -203,6 +203,11 @@ namespace cellPhoneS_backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("SlugName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text");
@@ -351,6 +356,11 @@ namespace cellPhoneS_backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("SlugName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text");
@@ -485,6 +495,11 @@ namespace cellPhoneS_backend.Migrations
                     b.Property<long?>("ParentCategoryId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("SlugName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
                     b.Property<string>("Status")
                         .HasColumnType("text");
 
@@ -500,6 +515,9 @@ namespace cellPhoneS_backend.Migrations
                     b.HasIndex("CreateBy");
 
                     b.HasIndex("ParentCategoryId");
+
+                    b.HasIndex("SlugName")
+                        .IsUnique();
 
                     b.HasIndex("UpdateBy");
 
@@ -1135,6 +1153,11 @@ namespace cellPhoneS_backend.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("SlugName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<string>("Status")
                         .HasColumnType("text");

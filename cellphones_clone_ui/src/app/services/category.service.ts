@@ -14,13 +14,13 @@ export class CategoryService {
   constructor(private http: HttpClient) {
   }
 
-  GetCategoryDetail(categoryId: number): Observable<CategoryDetailView | null> {
-    return this.http.get<ApiResponse<CategoryDetailView>>(`${this.baseUrl}/category/${categoryId}/${1}`).pipe(
+  GetCategoryDetail(slugName: string): Observable<CategoryDetailView | null> {
+    return this.http.get<ApiResponse<CategoryDetailView>>(`${this.baseUrl}/category/${slugName}`).pipe(
       map(response => response.data || null)
     );
   }
-  LoadMoreProduct(categoryId: number, page: number): Observable<ProductView[] | null> {
-    return this.http.get<ApiResponse<ProductView[]>>(`${this.baseUrl}/category/loadMore/${categoryId}/${page}`).pipe(
+  LoadMoreProduct(slugName: string, page: number): Observable<ProductView[] | null> {
+    return this.http.get<ApiResponse<ProductView[]>>(`${this.baseUrl}/category/loadMore/${slugName}/${page}`).pipe(
       map(response => response.data || null)
     );
   }

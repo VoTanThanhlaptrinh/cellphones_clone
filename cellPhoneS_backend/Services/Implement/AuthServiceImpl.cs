@@ -17,11 +17,13 @@ namespace cellphones_backend.Services.Implement;
 public class AuthServiceImpl : AuthService
 {
     private readonly UserManager<User> _userManager;
+    private readonly RoleManager<Role> _roleManager;
     private readonly JwtTokenService _jwtTokenService;
 
-    public AuthServiceImpl(UserManager<User> userManager, JwtTokenService jwtTokenService)
+    public AuthServiceImpl(UserManager<User> userManager, RoleManager<Role> roleManager, JwtTokenService jwtTokenService)
     {
         _userManager = userManager;
+        _roleManager = roleManager;
         _jwtTokenService = jwtTokenService;
     }
 
@@ -42,7 +44,7 @@ public class AuthServiceImpl : AuthService
     public async Task<string> GenerateJwtToken(User user)
     {
         // JwtTokenService reverted to string return
-        return  _jwtTokenService.GenerateJwtToken(user);
+        return await _jwtTokenService.GenerateJwtToken(user);
     }
 
     public async Task<ServiceResult<string>> Login(LoginDTO loginDTO, HttpContext context)
@@ -72,7 +74,7 @@ public class AuthServiceImpl : AuthService
             IsUsed = false,
             CreatedAt = DateTime.UtcNow
         };
-        
+
         await _jwtTokenService.SaveRefreshTokenToRedisAsync(refreshToken, tokenModel, TimeSpan.FromDays(7));
 
         var cookieOptions = new CookieOptions
@@ -110,9 +112,23 @@ public class AuthServiceImpl : AuthService
             Birth = register.BirthDay,
             CreateDate = DateTime.UtcNow,
             UpdateDate = DateTime.UtcNow,
-            Status = "active"
+            Status = "active",
+
         };
-        this._userManager.CreateAsync(newUser, register.Password).Wait();
+        await this._userManager.CreateAsync(newUser, register.Password);
+        if (!await _roleManager.RoleExistsAsync("USER"))
+        {
+            var role = new Role()
+            {
+                Name = "USER",
+                Status = "active",
+                CreateDate = DateTime.UtcNow,
+                UpdateDate = DateTime.UtcNow
+            };
+            await _roleManager.CreateAsync(role);
+        }
+        await this._userManager.AddToRoleAsync(newUser, "USER");
+
         return ServiceResult<VoidResponse>.Success(new VoidResponse(), "User registered successfully");
     }
 
@@ -169,11 +185,6 @@ public class AuthServiceImpl : AuthService
 
     public Task<ServiceResult<string>> IsLoggedIn(string userId, HttpContext context)
     {
-        var user = _userManager.FindByIdAsync(userId).Result;
-        // if (user == null)
-        // {
-        //     return Task.FromResult(ServiceResult<string>.Fail("User not logged in", ServiceErrorType.BadRequest));
-        // }
         return _jwtTokenService.RefreshJwtToken(context.Request);
     }
 }

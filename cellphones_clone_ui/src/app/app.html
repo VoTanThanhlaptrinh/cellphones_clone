@@ -1,5 +1,5 @@
 @defer { @if(!isHideHeader){
-<app-header></app-header>
+<app-header [amountCart]="onAmountCart()"></app-header>
 } }
 <ngx-spinner bdColor="rgba(255, 255, 255, 0.8)" size="medium" color="#d70018" type="ball-scale-multiple"
     [fullScreen]="true">

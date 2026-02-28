@@ -7,10 +7,16 @@ import { ProductDetailComponent } from './product-detail/product-detail.componen
 import { CategoryComponent } from './category/category.component';
 import { CartComponent } from './cart/cart.component';
 import { CheckoutComponent } from './checkout/checkout.component';
+
 import { AutocompleteInputComponent } from './shared/custom/autocomplete-input/autocomplete-input.component';
 import { MemberDashboardComponent } from './member-dashboard/member-dashboard.component';
 
 export const routes: Routes = [
+    {
+        path: '',
+        redirectTo: 'home',
+        pathMatch: 'full'
+    },
     {
         path: 'home',
         component: HomeComponent
@@ -32,7 +38,7 @@ export const routes: Routes = [
         component: ProductDetailComponent,
     },
     {
-        path: 'category/:id',
+        path: 'category/:slug',
         component: CategoryComponent
     },
     {
@@ -43,6 +49,7 @@ export const routes: Routes = [
         path: 'checkout',
         component: CheckoutComponent
     },
+
     {
         path: 'autocomplete',
         component: AutocompleteInputComponent

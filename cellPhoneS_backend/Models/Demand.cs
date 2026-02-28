@@ -15,6 +15,9 @@ public class Demand
     public Category? Category { get; set; }
     [Required]
     public string? Name { get; set; }
+    [Required]
+    [MaxLength(255)]
+    public string SlugName { get; set; }
     // Navigations
     public string Status { get; set; } = "active";         // trạng thái (active/inactive/deleted...)
     [Required]

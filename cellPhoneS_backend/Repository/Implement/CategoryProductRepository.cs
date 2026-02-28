@@ -36,6 +36,29 @@ public class CategoryProductRepository : BaseRepository<CategoryProduct>, ICateg
             ).Skip(page * pageSize).Take(pageSize).ToListAsync();
     }
 
+    public async Task<IEnumerable<ProductView>> GetProductsByCategorySlugNameForInfinityScroll(string slugName, long? cursor, int size)
+    {
+        var query = _context.CategoryProducts
+        .OrderBy(cp => cp.Product!.Id)
+        .Where(cp => cp.Category!.SlugName == slugName)
+        .Where(cp => cp.Product!.Status != "deleted");
+        if (cursor == null)
+        {
+            query = query.Where(cp => cp.Product!.Id > 0);
+        }
+        else
+        {
+            query = query.Where(cp => cp.Product!.Id > cursor);
+        }
+
+        return await query.OrderBy(cp => cp.Product!.Id)
+            .Select(cp => cp.Product)
+            .Select(p => new ProductView(p!.Id, p.ImageUrl, p.Name,
+                p.BasePrice,
+                p.SalePrice)
+            ).Take(size).ToListAsync();
+    }
+
     public async Task<IEnumerable<ProductView>> GetProductsBySeriesId(long seriesId, int page, int pageSize)
     {
         return await _context.CategoryProducts
@@ -46,7 +69,7 @@ public class CategoryProductRepository : BaseRepository<CategoryProduct>, ICateg
             .Select(p => new ProductView(p!.Id, p.ImageUrl, p.Name,
                 p.BasePrice,
                 p.SalePrice)
-                
+
             ).Skip(page * pageSize).Take(pageSize).ToListAsync();
     }
 }

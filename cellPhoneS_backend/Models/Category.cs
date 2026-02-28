@@ -11,6 +11,9 @@ public class Category
     public long Id { get; set; }
     [Required]
     public string? Name { get; set; }
+    [Required]
+    [MaxLength(255)]
+    public string SlugName { get; set; }
 
     // Self-reference (parent_category)
     public long? ParentCategoryId { get; set; }

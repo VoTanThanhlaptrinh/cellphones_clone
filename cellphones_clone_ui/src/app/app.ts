@@ -14,6 +14,7 @@ import { BackToTopComponent } from './back-to-top/back-to-top.component';
 import { NotifyService } from './services/notify.service';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { LoadingService } from './core/services/loading.service';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -27,14 +28,15 @@ export class App implements OnInit {
   protected title = 'cellphones-clone-ui';
   isHideHeader = false;
   isHideFooter = false;
-  urlForHideHeadFooter: string[] = ['/login', '/register', '/cart', '/order', '/member-dashboard'];
+  urlForHideHeadFooter: string[] = ['/login', '/register', '/cart', '/order', '/member-dashboard', '/checkout', '/order-review'];
 
   constructor(
     private router: Router,
     private viewportScroller: ViewportScroller,
     private notifyService: NotifyService,
     private spinner: NgxSpinnerService,
-    private loadingService: LoadingService
+    private loadingService: LoadingService,
+    private authService: AuthService
   ) { 
     effect(() =>{
       if(this.loadingService.isLoading()){
@@ -62,5 +64,8 @@ export class App implements OnInit {
   }
   onScrollToTop() {
     this.viewportScroller.scrollToPosition([0, 0]);
+  }
+  onAmountCart() : number | undefined{
+    return this.authService.currentUser()?.amountCart;
   }
 }

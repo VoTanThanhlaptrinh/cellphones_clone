@@ -17,11 +17,9 @@ public class CartServiceImpl : CartService
     private readonly IColorRepository _colorRepository;
     private readonly IConfiguration _configuration;
     private readonly IStoreRepository _storeRepository;
-    private readonly IStoreHouseRepository _storeHouseRepository;
     private int _pageSize;
-    private string userId = "98a4fdb1-44a7-49d1-b9a0-03f9ff71e3c9";
     public CartServiceImpl(ICartRepository cartRepository, ICartDetailRepository cartDetailRepository
-    , IColorRepository colorRepository, IConfiguration configuration, IStoreRepository storeRepository, IStoreHouseRepository storeHouseRepository)
+    , IColorRepository colorRepository, IConfiguration configuration, IStoreRepository storeRepository)
     {
         _cartRepository = cartRepository;
         _cartDetailRepository = cartDetailRepository;
@@ -29,10 +27,9 @@ public class CartServiceImpl : CartService
         _configuration = configuration;
         _pageSize = _configuration.GetValue<int>("DefaultSetting:PageSize");
         _storeRepository = storeRepository;
-        _storeHouseRepository = storeHouseRepository;
     }
 
-    public async Task<ServiceResult<bool>> AddToCart([FromBody] CartRequest request)
+    public async Task<ServiceResult<bool>> AddToCart([FromBody] CartRequest request, string userId)
     {
 
         var cart = await _cartRepository.GetCartByUserIdIfNotThenCreate(userId);
@@ -77,12 +74,10 @@ public class CartServiceImpl : CartService
         return ServiceResult<bool>.Success(true, "Product added to cart successfully");
     }
 
-    public async Task<ServiceResult<List<StoreView>>> GetAllCity()
+    public async Task<ServiceResult<int>> GetAmountCart(string userId)
     {
-        var res = await _storeHouseRepository.GetStoreViews();
-        if(res == null)
-            return ServiceResult<List<StoreView>>.Fail("No store found", ServiceErrorType.NotFound);
-       return ServiceResult<List<StoreView>>.Success(res, "Store retrieved successfully");
+        var amount = await _cartRepository.GetAmountCart(userId);
+        return ServiceResult<int>.Success(amount, "Amount cart retrieved successfully");
     }
 
     public async Task<ServiceResult<List<CartDetailView>>> GetCartItems(int page, string userId)
@@ -95,9 +90,9 @@ public class CartServiceImpl : CartService
         return ServiceResult<List<CartDetailView>>.Success(cartItems, "Cart items retrieved successfully");
     }
 
-    public async Task<ServiceResult<int>> MinusQuantity(long cartDetailId)
+    public async Task<ServiceResult<int>> MinusQuantity(long cartDetailId, string userId)
     {
-        var cartDetail = await _cartDetailRepository.GetByIdAsync(cartDetailId);
+            var cartDetail = await _cartDetailRepository.GetByIdAsync(cartDetailId);
         if (cartDetail == null)
             return ServiceResult<int>.Fail("Cart detail not found", ServiceErrorType.BadRequest);
         if (cartDetail.Quantity < 2)
@@ -108,7 +103,7 @@ public class CartServiceImpl : CartService
         return ServiceResult<int>.Success(cartDetail.Quantity, "Minus success");
     }
 
-    public async Task<ServiceResult<int>> PlusQuantity(long cartDetailId)
+    public async Task<ServiceResult<int>> PlusQuantity(long cartDetailId, string userId)
     {
         var cartDetail = await _cartDetailRepository.GetByIdAsync(cartDetailId);
         if (cartDetail == null)
@@ -122,7 +117,7 @@ public class CartServiceImpl : CartService
         return ServiceResult<int>.Success(cartDetail.Quantity, "Plus success");
     }
 
-    public async Task<ServiceResult<bool>> RemoveFromCart(long cartDetailId)
+    public async Task<ServiceResult<bool>> RemoveFromCart(long cartDetailId, string userId)
     {
         var result = await _cartDetailRepository.RemoveCartItems(cartDetailId);
         if (!result)

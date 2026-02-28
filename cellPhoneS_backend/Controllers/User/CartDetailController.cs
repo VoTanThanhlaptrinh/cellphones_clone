@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using cellphones_backend.DTOs.Responses;
 using cellphones_backend.Models;
 using cellPhoneS_backend.Controllers;
@@ -13,7 +14,7 @@ namespace cellphones_backend.Controllers
     public class CartDetailController : BaseController
     {
         private readonly CartService _cartService;
-        private  string userId;
+        private string userId;
         public CartDetailController(CartService cartService)
         {
             this._cartService = cartService;
@@ -29,8 +30,16 @@ namespace cellphones_backend.Controllers
         [HttpDelete("{cartDetailId}")]
         public async Task<ActionResult<ApiResponse<bool>>> RemoveFromCart(long cartDetailId)
         {
-            // Placeholder logic to remove product from cart
-            return HandleResult(await _cartService.RemoveFromCart(cartDetailId));
+            var userId = await GetUserId();
+            return HandleResult(await _cartService.RemoveFromCart(cartDetailId, userId));
+        }
+        private async Task<string> GetUserId()
+        {
+            if (User == null || !User.Identity!.IsAuthenticated)
+            {
+                throw new UnauthorizedAccessException("User is not authenticated");
+            }
+            return User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
         }
     }
 }

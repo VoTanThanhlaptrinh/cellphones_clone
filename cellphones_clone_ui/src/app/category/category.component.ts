@@ -9,12 +9,13 @@ import {
   PLATFORM_ID,
 } from '@angular/core';
 import { CategoryService } from '../services/category.service';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Route, Router, RouterLink } from '@angular/router';
 import { CategoryDetailView, CategoryView } from '../core/models/category_view.model';
 import { ProductCardComponent } from "../product-card/product-card.component";
 import { ProductView } from '../core/models/product.model';
 import { delay } from 'rxjs';
 import { NotifyService } from '../services/notify.service';
+import { ProductService } from '../services/product.service';
 @Component({
   selector: 'app-category',
   imports: [ProductCardComponent],
@@ -24,7 +25,7 @@ import { NotifyService } from '../services/notify.service';
 })
 export class CategoryComponent implements OnInit {
   isBrowser = false;
-  categoryId: number = 0;
+  slugName: string | null = null;
   products: ProductView[] = [];
   page: number = 1;               // Trang hiện tại
   isLoading = false;        // Biến cờ để hiện Skeleton
@@ -34,12 +35,18 @@ export class CategoryComponent implements OnInit {
   constructor(@Inject(PLATFORM_ID) platformId: Object, private cdr: ChangeDetectorRef,
     private categoryService: CategoryService,
     private activatedRoute: ActivatedRoute,
-    private notifyService: NotifyService) {
+    private notifyService: NotifyService,
+    private productService: ProductService,
+    private router: Router) {
     this.isBrowser = isPlatformBrowser(platformId);
   }
   ngOnInit(): void {
-    this.categoryId = Number(this.activatedRoute.snapshot.paramMap.get('id'))
-    this.categoryService.GetCategoryDetail(this.categoryId).subscribe({
+    this.slugName = this.activatedRoute.snapshot.paramMap.get('slug')
+    if (this.slugName == null) {
+      this.router.navigate(['/home'])
+      return;
+    }
+    this.categoryService.GetCategoryDetail(this.slugName).subscribe({
       next: response => {
         delay(2000);
         if (response && response.products) {
@@ -73,10 +80,12 @@ export class CategoryComponent implements OnInit {
     'https://cdn2.cellphones.com.vn/insecure/rs:fill:595:100/q:100/plain/https://dashboard.cellphones.com.vn/storage/595x100_iPhone_17_Pro_opensale_v3.png',
   ];
   loadMore() {
-    this.page += 1
-    this.categoryService.LoadMoreProduct(this.categoryId, this.page).subscribe({
+    if (this.slugName == null) {
+      this.router.navigate(['/home'])
+      return;
+    }
+    this.productService.LoadMoreProduct('category', this.slugName, this.products[this.products.length - 1].id).subscribe({
       next: res => {
-
         if (res && res.length > 0) {
           this.products = [...this.products, ...res];
           this.total = this.total - res.length;
@@ -98,5 +107,4 @@ export class CategoryComponent implements OnInit {
   getRemainingCount() {
     return this.total
   }
-
 }

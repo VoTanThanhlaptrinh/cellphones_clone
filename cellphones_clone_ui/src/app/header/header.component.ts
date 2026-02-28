@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, HostListener, inject, Inject, NgModule, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, inject, Inject, Input, NgModule, OnInit, signal, ViewChild } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { ProductService } from '../services/product.service';
 import { ProductView } from '../core/models/product.model';
@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, Subject, Subscription, switchMap } from 'rxjs';
 import { ModalAskLoginComponent } from '../shared/modal-ask-login/modal-ask-login.component';
-import { MatDialog, MatDialogContent, MatDialogModule } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { ModalCategoriesComponent } from '../shared/modal-categories/modal-categories.component';
 
 
@@ -20,15 +20,14 @@ import { ModalCategoriesComponent } from '../shared/modal-categories/modal-categ
 
 export class HeaderComponent implements OnInit {
   keyword: string = '';
+  @Input() amountCart: number | undefined = 0;
   private searchSubject = new Subject<string>();
   private searchSubscription?: Subscription;
   isCalled = false;
   showTab = false;
   i = 0;
   useSearch = false;
-  searchResults: ProductView[] = [];
-
-
+  searchResults = signal<ProductView[]>([]);
   isLoggedIn$ = this.authService.isLoggedIn$;
   private dialog = inject(MatDialog);
   constructor(
@@ -67,7 +66,7 @@ export class HeaderComponent implements OnInit {
         return this.productService.searchProducts(keyword);
       })
     ).subscribe(results => {
-      this.searchResults = results;
+      this.searchResults.set(results);
       this.isCalled = true;
       this.useSearch = true;
     });

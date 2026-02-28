@@ -2,7 +2,6 @@
 
 using cellphones_backend.Data;
 using cellphones_backend.Resources;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using cellphones_backend.Models;
 using Microsoft.Extensions.Azure;
@@ -13,6 +12,7 @@ using System.Text;
 using cellphones_backend.Repositories;
 using cellPhoneS_backend.Services.Interface;
 using StackExchange.Redis;
+using Microsoft.AspNetCore.Identity;
 
 internal partial class Program
 {
@@ -21,7 +21,7 @@ internal partial class Program
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(builder.Configuration.GetConnectionString("cloud")));
+            options.UseNpgsql(builder.Configuration.GetConnectionString("local")));
         builder.Services.AddMemoryCache();
         builder.Services.AddIdentity<User, cellphones_backend.Models.Role>(options =>
         {
@@ -34,10 +34,12 @@ internal partial class Program
             .AddDefaultTokenProviders();
         builder.Services.AddCors(options =>
         {
-            options.AddPolicy("CorsPolicy", builder =>
+            options.AddPolicy("CorsPolicy", policyBuilder =>
             {
-                builder.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("http://localhost:4200");
-                builder.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("https://cellphonesclonethanh.vercel.app");
+                policyBuilder.AllowAnyHeader()
+                             .AllowAnyMethod()
+                             .AllowCredentials()
+                             .WithOrigins("http://localhost:4200", "https://cellphonesclonethanh.vercel.app");
             });
         });
         string redisConnectionString = builder.Configuration.GetConnectionString("Redis")!;
@@ -54,7 +56,14 @@ internal partial class Program
         // builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
         //     ConnectionMultiplexer.Connect(configuration));
 
-        builder.Services.AddAuthentication().AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, jwtOptions =>
+        builder.Services.AddAuthentication(options =>
+        {
+            // BẮT BUỘC: Báo cho hệ thống biết hãy dùng JWT để xác thực mặc định
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(jwtOptions =>
         {
             jwtOptions.TokenValidationParameters = new TokenValidationParameters
             {
@@ -64,12 +73,10 @@ internal partial class Program
                 ValidateIssuerSigningKey = true,
                 ValidAudience = builder.Configuration["Jwt:Audience"],
                 ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)
-            )
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
             };
-        });
-        builder.Services.AddAuthentication().AddGoogle(googleOptions =>
+        })
+        .AddGoogle(googleOptions =>
         {
             googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
             googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
@@ -104,6 +111,7 @@ internal partial class Program
                 Console.WriteLine("Lỗi Init Cache: " + ex.Message);
             }
         }
+        app.UseHttpsRedirection();
         app.UseRouting();
         app.UseCors("CorsPolicy");
         app.UseHttpsRedirection();

@@ -42,7 +42,7 @@ namespace cellPhoneS_backend.Auth
                     return;
                 }
 
-                if (policy.RequiredRoles.Any())
+                if (policy.RequiredRoles.Count() > 0)
                 {
                     var hasRole = policy.RequiredRoles.Any(role => context.User.IsInRole(role));
                     if (!hasRole)

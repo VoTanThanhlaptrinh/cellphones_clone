@@ -47,7 +47,13 @@ namespace cellphones_backend.Controllers
             var res = await _productService.GetProductsByCategory(categoryId, page, size);
             return HandleResult(res);
         }
-        
+        [HttpGet("{tag}/{slugName}")]
+        public async Task<ActionResult<ApiResponse<List<ProductView>>>> GetProductsForInfinityScroll(string tag, string slugName, [FromQuery] long? cursor = null)
+        {
+                var res = await _productService.GetProductsForInfinityScroll(tag, slugName, cursor);
+                return HandleResult(res);
+        }
+
         [HttpGet("{productId}")]
         public async Task<ActionResult<ApiResponse<ProductViewDetail>>> GetProduct(long productId)
         {

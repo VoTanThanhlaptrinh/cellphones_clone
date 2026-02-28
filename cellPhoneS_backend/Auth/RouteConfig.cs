@@ -34,15 +34,15 @@ namespace cellPhoneS_backend.Auth
                 new RoutePolicy { UrlPattern = "/api/search", AllowAnonymous = true },
 
                 // Admin Routes - More specific first
-                new RoutePolicy { UrlPattern = "/api/admin/*", RequiredRoles = new List<string> { "Admin" } },
+                new RoutePolicy { UrlPattern = "/api/admin/*", RequiredRoles = new List<string> { "ADMIN" } },
 
                 // Authenticated User Routes (and Admin usually)
                 // Note: If you want Admin to access User routes, include "Admin" in the roles list
-                new RoutePolicy { UrlPattern = "/api/carts/*", RequiredRoles = new List<string> { "User", "Admin" } },
-                new RoutePolicy { UrlPattern = "/api/orders/*", RequiredRoles = new List<string> { "User", "Admin" } },
-                new RoutePolicy { UrlPattern = "/api/payments/*", RequiredRoles = new List<string> { "User", "Admin" } },
-                new RoutePolicy { UrlPattern = "/api/user/*", RequiredRoles = new List<string> { "User", "Admin" } },
-
+                new RoutePolicy { UrlPattern = "/api/carts/*", RequiredRoles = new List<string> { "USER" } },
+                new RoutePolicy { UrlPattern = "/api/orders/*", RequiredRoles = new List<string> { "USER" } },
+                new RoutePolicy { UrlPattern = "/api/payments/*", RequiredRoles = new List<string> { "USER" } },
+                new RoutePolicy { UrlPattern = "/api/user/*", RequiredRoles = new List<string> { "USER" } },
+                
                 // Catch-all: Require authentication for any other API route
                 new RoutePolicy { UrlPattern = "/api/*", RequiredRoles = new List<string>() } 
             };

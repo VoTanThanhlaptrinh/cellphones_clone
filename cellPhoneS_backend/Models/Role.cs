@@ -11,4 +11,6 @@ public class Role : IdentityRole
     [Required]
     public DateTime CreateDate { get; set; }  // ngày tạo
     public DateTime UpdateDate { get; set; }  // ngày cập nhật
+
+    public Role() : base() { }
 }

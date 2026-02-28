@@ -158,8 +158,8 @@
     </div>
     <section class="container sticky top-0 z-9999 main-color mx-auto py-4 ps-2">
         <div class="flex flex-row gap-2 lg:max-w-350 mx-auto items-center justify-center md:gap-x-4  ">
-            <svg class="hidden lg:block" (click)="goHome()" width="169" height="28" viewBox="0 0 169 28" fill="none"
-                xmlns="http://www.w3.org/2000/svg">
+            <svg class="hidden lg:block cursor-pointer" (click)="goHome()" width="169" height="28" viewBox="0 0 169 28"
+                fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                     d="M4.41629 20.9623H4.40528C0.348454 20.6122 -0.0258864 18.2113 0.00127161 17.1954V17.1638V10.1468V10.1365C0.24863 6.97884 3.82982 6.94287 3.98176 6.94287H12.6151V9.75923H5.48719C4.79356 9.75923 4.28563 9.91924 3.97882 10.2356C3.60668 10.6187 3.62136 11.1443 3.6265 11.3175C3.6265 11.3373 3.62724 11.3535 3.62724 11.366V16.6405C3.62724 18.0417 5.55913 18.129 5.57821 18.129H12.6143V20.963H4.41482L4.41629 20.9623Z"
                     fill="white"></path>
@@ -216,8 +216,8 @@
                     d="M148.322 24.5623V17.7926L150.864 20.868H160.847V17.7309L156.328 12.5496L156.641 12.1356L164.54 15.8658V24.5623H148.322Z"
                     fill="white"></path>
             </svg>
-            <svg class="block md:block lg:hidden" (click)="goHome()" width="38" height="43" viewBox="0 0 38 43"
-                fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg class="block md:block lg:hidden cursor-pointer" (click)="goHome()" width="38" height="43"
+                viewBox="0 0 38 43" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                     d="M0 0.000732422V42.7224H37.4543V0.000732422H0ZM37.1273 42.3943H0.327035V0.327775H37.1273V42.3943Z"
                     fill="white"></path>
@@ -311,7 +311,7 @@
                     @if (useSearch) {
                     @if(searchResults.length > 0){
                     <div class="absolute flex flex-col bg-white top-12 left-0 w-full rounded-lg p-4 min-h-20 gap-4">
-                        @for (item of searchResults; track $index) {
+                        @for (item of searchResults(); track $index) {
                         <div class=" hover:bg-gray-100 rounded-lg cursor-pointer flex items-center">
                             <a class="flex flex-row gap-x-2">
                                 <img [src]="item.imgUrl" alt="" class="w-15 h-15 object-cover rounded-md shrink-0" />
@@ -355,7 +355,7 @@
                                 stroke="white" stroke-width="1.5" stroke-linecap="round"></path>
                         </svg>
                         <p class="absolute -top-1.25 -right-1.25 grid place-items-center w-4.25 h-3.75  rounded-lg border border-white
-                     bg-orange-400 text-white text-center text-xs">0</p>
+                     bg-orange-400 text-white text-center text-xs">{{amountCart}}</p>
                     </div>
                 </a>
                 @if (isLoggedIn$ | async) {

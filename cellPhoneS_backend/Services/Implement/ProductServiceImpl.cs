@@ -11,10 +11,15 @@ public class ProductServiceImpl : ProductService
 {
     private readonly IProductRepository _productDBcontext;
     private readonly ICategoryProductRepository _categoryProductDBcontext;
-    public ProductServiceImpl(IProductRepository productDBcontext, ICategoryProductRepository categoryProductDBcontext)
+    private readonly IConfiguration _configuration;
+    private int _size;
+    public ProductServiceImpl(IProductRepository productDBcontext
+    , ICategoryProductRepository categoryProductDBcontext, IConfiguration configuration)
     {
         _productDBcontext = productDBcontext;
         _categoryProductDBcontext = categoryProductDBcontext;
+        _configuration = configuration;
+        _size = _configuration.GetValue<int>("DefaultSetting:PageSize");
     }
 
     public async Task<ServiceResult<string>> CreateProduct(AddProductRequest productRequest, string userId)
@@ -299,6 +304,21 @@ public class ProductServiceImpl : ProductService
             return ServiceResult<List<ProductView>>.Fail("No products found", ServiceErrorType.NotFound);
         }
         return ServiceResult<List<ProductView>>.Success(productViews.ToList(), "success");
+    }
+
+    public async Task<ServiceResult<List<ProductView>>> GetProductsForInfinityScroll(string tag, string slugName, long? countCursor)
+    {
+        switch (tag.ToLower())
+        {
+            case "category":
+                var productViews = await _categoryProductDBcontext.GetProductsByCategorySlugNameForInfinityScroll(slugName, countCursor, _size);
+                if (productViews == null || !productViews.Any())                {
+                    return ServiceResult<List<ProductView>>.Fail("No products found", ServiceErrorType.NotFound);
+                }
+                return ServiceResult<List<ProductView>>.Success(productViews.ToList(), "success");
+            default:
+                throw new ArgumentException("Invalid tag for infinity scroll. Expected 'brand', 'series', or 'category'.");
+        }
     }
 
     public Task<ServiceResult<List<ProductView>>> SearchProducts(string keyword, int page, int pageSize)
