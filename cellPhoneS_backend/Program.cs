@@ -21,7 +21,7 @@ internal partial class Program
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(builder.Configuration.GetConnectionString("local")));
+            options.UseNpgsql(builder.Configuration.GetConnectionString("cloud")));
         builder.Services.AddMemoryCache();
         builder.Services.AddIdentity<User, cellphones_backend.Models.Role>(options =>
         {
