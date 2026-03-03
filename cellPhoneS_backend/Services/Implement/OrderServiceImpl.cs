@@ -1,6 +1,8 @@
 using System;
 using cellphones_backend.Models;
 using cellphones_backend.Repositories;
+using cellPhoneS_backend.DTOs;
+using cellPhoneS_backend.DTOs.Responses;
 using cellPhoneS_backend.Services.Interface;
 
 namespace cellPhoneS_backend.Services.Implement;
@@ -34,17 +36,16 @@ public class OrderServiceImpl : OrderService
         return ServiceResult<string>.Success("", "Order checked out successfully");
     }
 
-    public async Task<ServiceResult<Order>> CreateOrder(string userId, List<long> cartItemIds)
+    public async Task<ServiceResult<OrderView>> CreateOrder(string userId, List<long> cartItemIds)
     {
         if (cartItemIds == null || cartItemIds.Count == 0)
         {
-            return ServiceResult<Order>.Fail("Cart item IDs cannot be null or empty");
+            return ServiceResult<OrderView>.Fail("Cart item IDs cannot be null or empty");
         }
         var cartDetails = _cartDetailService.GetCartDetails(userId, cartItemIds).Result;
-        Console.WriteLine($"Cart details count: {cartDetails.ToString()}");
         if (cartDetails == null || cartDetails.Count == 0)
         {
-            return ServiceResult<Order>.Fail("No cart items found for the user");
+            return ServiceResult<OrderView>.Fail("No cart items found for the user");
         }
         var orderDetails = cartDetails.Select(cartDetail => new OrderDetail
         {
@@ -69,7 +70,21 @@ public class OrderServiceImpl : OrderService
         };
         await _orderRepository.AddAsync(order);
         await _orderRepository.SaveChangesAsync();
-        return ServiceResult<Order>.Success(order, "Order created successfully");
+
+       
+        var orderView = new OrderView
+        {
+            Id = order.Id,
+            CreateDate = order.CreateDate,
+            OrderDetails = orderDetails.Select(od => new OrderDetailView(new ProductView(
+                od.Product.Id,
+                od.Product.Name,
+                od.Product.ImageUrl,
+                od.Product.BasePrice,
+                od.Product.SalePrice
+            ), od.ColorId, od.Color != null ? od.Color.Name : null, od.Color != null ? od.Color.Image.BlobUrl : null, od.Quantity)).ToList()
+        };
+        return ServiceResult<OrderView>.Success(orderView, "Order created successfully");
     }
 
     public async Task<ServiceResult<string>> DeleteOrder(string userId, long orderId)

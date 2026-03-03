@@ -1,6 +1,7 @@
 using cellphones_backend.DTOs.Responses;
+using cellphones_backend.Models;
 using cellphones_backend.Repositories;
-using cellPhoneS_backend.DTOs;
+using cellPhoneS_backend.DTOs.Requests;
 using cellPhoneS_backend.DTOs.Responses;
 using cellPhoneS_backend.Services;
 
@@ -19,72 +20,130 @@ public class SeriesServiceImpl : SeriesService
 
     public async Task<ServiceResult<long>> CreateSeries(CreateSeriesRequest request, string userId)
     {
-        // TODO: Implement business logic using the request and userId here
-        // 1. Verify brand exists using _brandRepository.GetByIdAsync()
-        // 2. If not found, return ServiceResult<long>.Fail with NotFound error
-        // 3. Check if series with same name already exists for this brand
-        // 4. Create Series entity
-        // 5. Set BrandId, Name from request
-        // 6. Set Status = request.Status ?? "active"
-        // 7. Set CreateDate = UpdateDate = DateTime.UtcNow
-        // 8. Set CreateBy = UpdateBy = userId
-        // 6. Save to database using _seriesRepository.AddAsync()
-        // 7. Return ServiceResult<long>.Success with new Series ID
-        
-        throw new NotImplementedException();
+        var brand = await _brandRepository.GetByIdAsync(request.BrandId);
+        if (brand == null || brand.Status == "deleted")
+            return ServiceResult<long>.Fail("Brand not found");
+
+        var existingNames = await _seriesRepository.FindAsync(s => s.Name == request.Name && s.BrandId == request.BrandId && s.Status != "deleted");
+        if (existingNames.Any())
+            return ServiceResult<long>.Fail("Series with same name already exists in this brand");
+
+        var series = new Series
+        {
+            BrandId = request.BrandId,
+            Name = request.Name,
+            SlugName = SlugHelper.GenerateSlug(request.Name),
+            Status = request.Status ?? "active",
+            CreateDate = DateTime.Now,
+            UpdateDate = DateTime.Now,
+            CreateBy = userId,
+            UpdateBy = userId
+        };
+
+        await _seriesRepository.AddAsync(series);
+        await _seriesRepository.SaveChangesAsync();
+
+        return ServiceResult<long>.Success(series.Id, "Series created successfully");
     }
 
-    public async Task<ServiceResult<string>> UpdateSeries(long seriesId, CreateSeriesRequest request, string userId)
+    public async Task<ServiceResult<string>> UpdateSeries(long seriesId, UpdateSeriesRequest request, string userId)
     {
-        // TODO: Implement business logic using the request and userId here
-        // 1. Find series by ID using _seriesRepository.GetByIdAsync()
-        // 2. If not found, return ServiceResult<string>.Fail with NotFound error
-        // 3. If BrandId changed, verify new brand exists
-        // 4. Update Name, BrandId, Status if provided
-        // 5. Update UpdateDate = DateTime.UtcNow
-        // 6. Update UpdateBy = userId
-        // 5. Save changes using _seriesRepository.UpdateAsync()
-        // 6. Return ServiceResult<string>.Success
-        
-        throw new NotImplementedException();
+        var series = await _seriesRepository.GetByIdAsync(seriesId);
+        if (series == null || series.Status == "deleted")
+            return ServiceResult<string>.Fail("Series not found");
+
+        if (request.BrandId.HasValue && request.BrandId != series.BrandId)
+        {
+            var brand = await _brandRepository.GetByIdAsync(request.BrandId.Value);
+            if (brand == null || brand.Status == "deleted")
+                return ServiceResult<string>.Fail("New brand not found");
+            series.BrandId = request.BrandId.Value;
+        }
+
+        if (!string.IsNullOrEmpty(request.Name) && request.Name != series.Name)
+        {
+            var existingNames = await _seriesRepository.FindAsync(s => s.Name == request.Name && s.BrandId == series.BrandId && s.Id != seriesId && s.Status != "deleted");
+            if (existingNames.Any())
+                return ServiceResult<string>.Fail("Series with same name already exists in this brand");
+
+            series.Name = request.Name;
+            series.SlugName = SlugHelper.GenerateSlug(request.Name);
+        }
+
+        if (request.Status != null)
+        {
+            series.Status = request.Status;
+        }
+
+        series.UpdateDate = DateTime.Now;
+        series.UpdateBy = userId;
+
+        await _seriesRepository.UpdateAsync(series);
+        await _seriesRepository.SaveChangesAsync();
+
+        return ServiceResult<string>.Success("", "Series updated successfully");
     }
 
     public async Task<ServiceResult<string>> DeleteSeries(long seriesId, string userId)
     {
-        // TODO: Implement business logic using the userId here
-        // 1. Find series by ID using _seriesRepository.GetByIdAsync()
-        // 2. If not found, return ServiceResult<string>.Fail with NotFound error
-        // 3. Check if series has products (consider navigation properties)
-        // 4. If has dependencies, return error or handle cascade soft delete
-        // 5. Set Status = "deleted"
-        // 6. Update UpdateDate = DateTime.UtcNow
-        // 7. Update UpdateBy = userId
-        // 7. Save changes using _seriesRepository.UpdateAsync()
-        // 8. Return ServiceResult<string>.Success
-        
-        throw new NotImplementedException();
+        var series = await _seriesRepository.GetByIdAsync(seriesId);
+        if (series == null || series.Status == "deleted")
+            return ServiceResult<string>.Fail("Series not found");
+
+        series.Status = "deleted";
+        series.UpdateDate = DateTime.Now;
+        series.UpdateBy = userId;
+
+        await _seriesRepository.UpdateAsync(series);
+        await _seriesRepository.SaveChangesAsync();
+
+        return ServiceResult<string>.Success("", "Series deleted successfully");
     }
 
-    public async Task<ServiceResult<List<SeriesView>>> GetSeriesByBrand(long brandId)
+    public async Task<ServiceResult<PagedResult<SeriesResponse>>> GetAllSeries(int pageIndex, int pageSize, string? status = "active")
     {
-        // TODO: Implement business logic here
-        // 1. Verify brand exists using _brandRepository
-        // 2. Query series for this brand where Status != "deleted"
-        // 3. Project to SeriesView DTOs
-        // 4. If no series found, return empty list or NotFound based on business rules
-        // 5. Return ServiceResult<List<SeriesView>>.Success with series list
+        var query = await _seriesRepository.FindAsync(s => status == null || s.Status == status);
         
-        throw new NotImplementedException();
+        var seriesList = query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
+        var totalCount = query.Count();
+
+        if (!seriesList.Any())
+            return ServiceResult<PagedResult<SeriesResponse>>.Fail("No series found");
+
+        var resultItems = new List<SeriesResponse>();
+        foreach (var s in seriesList)
+        {
+            var b = await _brandRepository.GetByIdAsync(s.BrandId);
+            resultItems.Add(new SeriesResponse(s.Id, s.Name, s.BrandId, b?.Name, s.Status));
+        }
+
+        var pagedResult = new PagedResult<SeriesResponse>(resultItems, totalCount, pageIndex, pageSize);
+        return ServiceResult<PagedResult<SeriesResponse>>.Success(pagedResult, "Series retrieved successfully");
     }
 
-    public async Task<ServiceResult<SeriesView>> GetSeriesById(long seriesId)
+    public async Task<ServiceResult<List<SeriesResponse>>> GetSeriesByBrand(long brandId)
     {
-        // TODO: Implement business logic here
-        // 1. Find series by ID with related data (Brand) using _seriesRepository
-        // 2. If not found or Status = "deleted", return ServiceResult<SeriesView>.Fail with NotFound error
-        // 3. Project to SeriesView DTO
-        // 4. Return ServiceResult<SeriesView>.Success
-        
-        throw new NotImplementedException();
+        var brand = await _brandRepository.GetByIdAsync(brandId);
+        if (brand == null || brand.Status == "deleted")
+            return ServiceResult<List<SeriesResponse>>.Fail("Brand not found");
+
+        var seriesList = await _seriesRepository.FindAsync(s => s.BrandId == brandId && s.Status != "deleted");
+        if (!seriesList.Any())
+            return ServiceResult<List<SeriesResponse>>.Fail("No series found in this brand");
+
+        var result = seriesList.Select(s => new SeriesResponse(s.Id, s.Name, s.BrandId, brand.Name, s.Status)).ToList();
+        return ServiceResult<List<SeriesResponse>>.Success(result, "Series retrieved successfully");
+    }
+
+    public async Task<ServiceResult<SeriesResponse>> GetSeriesById(long seriesId)
+    {
+        var series = await _seriesRepository.GetByIdAsync(seriesId);
+        if (series == null || series.Status == "deleted")
+            return ServiceResult<SeriesResponse>.Fail("Series not found");
+
+        var brand = await _brandRepository.GetByIdAsync(series.BrandId);
+
+        var result = new SeriesResponse(series.Id, series.Name, series.BrandId, brand?.Name, series.Status);
+        return ServiceResult<SeriesResponse>.Success(result, "Series retrieved successfully");
     }
 }

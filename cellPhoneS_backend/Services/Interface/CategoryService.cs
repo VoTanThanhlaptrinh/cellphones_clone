@@ -1,19 +1,21 @@
-using System;
-using cellphones_backend.DTOs.Responses;
-using cellphones_backend.Models;
+
 using cellPhoneS_backend.DTOs;
+using cellPhoneS_backend.DTOs.Requests;
 using cellPhoneS_backend.DTOs.Responses;
-using cellPhoneS_backend.J2O;
-using cellPhoneS_backend.Services;
+
 
 namespace cellPhoneS_backend.Services;
 
 public interface CategoryService
 {
-    Task<ServiceResult<string>> AddCategory(CategoryRequest categoryRequest);
-    Task<ServiceResult<string>> UpdateCategory(CategoryRequest categoryRequest);
-    Task<ServiceResult<string>> DeleteCategory(long categoryId);
+    // Admin operations
+    Task<ServiceResult<long>> CreateCategory(CreateCategoryRequest request, string userId);
+    Task<ServiceResult<string>> UpdateCategory(long categoryId, UpdateCategoryRequest request, string userId);
+    Task<ServiceResult<string>> DeleteCategory(long categoryId, string userId);
+    
+    // Public/User operations
+    Task<ServiceResult<PagedResult<CategoryResponse>>> GetAllCategories(int pageIndex, int pageSize, string? status = "active");
     Task<ServiceResult<List<ProductView>>> GetProductOfCategory(long categoryId, int page);
-    Task<ServiceResult<CategoryDetailView>> GetCategoryDetail(long category);
-    Task<ServiceResult<CategoryDetailView>> GetCategoryDetailBySlug(string slugName);
+    Task<ServiceResult<CategoryDetailResponse>> GetCategoryDetail(long category);
+    Task<ServiceResult<CategoryDetailResponse>> GetCategoryDetailBySlug(string slugName);
 }

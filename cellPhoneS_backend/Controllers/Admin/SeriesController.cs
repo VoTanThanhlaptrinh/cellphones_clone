@@ -1,7 +1,8 @@
 using cellphones_backend.DTOs.Responses;
 using cellphones_backend.Services;
 using cellPhoneS_backend.Controllers;
-using cellPhoneS_backend.DTOs;
+using cellPhoneS_backend.DTOs.Requests;
+using cellPhoneS_backend.DTOs.Responses;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -38,7 +39,7 @@ namespace cellphones_backend.Controllers.Admin
         [HttpPut("{seriesId}")]
         public async Task<ActionResult<ApiResponse<string>>> UpdateSeries(
             long seriesId, 
-            [FromBody] CreateSeriesRequest updateSeriesRequest)
+            [FromBody] UpdateSeriesRequest updateSeriesRequest)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
@@ -46,7 +47,14 @@ namespace cellphones_backend.Controllers.Admin
                 return Unauthorized(new ApiResponse<string>("User not authenticated", null!));
             }
             
+            // Prevent ID tampering
+            if (seriesId != updateSeriesRequest.Id)
+            {
+                return BadRequest(new ApiResponse<string>("Series ID in URL does not match ID in request body", null!));
+            }
+            
             var result = await _seriesService.UpdateSeries(seriesId, updateSeriesRequest, userId);
+            
             return HandleResult(result);
         }
 

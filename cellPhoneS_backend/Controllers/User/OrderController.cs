@@ -36,7 +36,7 @@ namespace cellphones_backend.Controllers
 
         // POST: api/orders
         [HttpPost]
-        public async Task<ActionResult<ApiResponse<Order>>> CreateOrder(List<long> cartDetailIds)
+        public async Task<ActionResult<ApiResponse<OrderView>>> CreateOrder(List<long> cartDetailIds)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var result = await _orderService.CreateOrder(userId!, cartDetailIds);

@@ -1,6 +1,3 @@
-using System;
-using System.Collections.ObjectModel;
-
 namespace cellPhoneS_backend.DTOs.Responses;
 
 public record StoreView(string? City, List<DistrictView>? Districts);

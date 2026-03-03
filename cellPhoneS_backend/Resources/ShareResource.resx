@@ -278,4 +278,64 @@
   <value>Brand ID is required.</value>
   <comment/>
 </data>
+<data name="BrandNameRequired" xml:space="preserve">
+  <value>Brand name is required.</value>
+  <comment/>
+</data>
+<data name="BrandNameMaxLength" xml:space="preserve">
+  <value>Brand name must not exceed 255 characters.</value>
+  <comment/>
+</data>
+<data name="ImageIdMustBeGreaterThanZero" xml:space="preserve">
+  <value>Image ID must be greater than 0.</value>
+  <comment/>
+</data>
+<data name="DemandNameRequired" xml:space="preserve">
+  <value>Demand name is required.</value>
+  <comment/>
+</data>
+<data name="DemandNameMaxLength" xml:space="preserve">
+  <value>Demand name must not exceed 255 characters.</value>
+  <comment/>
+</data>
+<data name="SeriesNameRequired" xml:space="preserve">
+  <value>Series name is required.</value>
+  <comment/>
+</data>
+<data name="SeriesNameMaxLength" xml:space="preserve">
+  <value>Series name must not exceed 255 characters.</value>
+  <comment/>
+</data>
+<data name="StreetRequired" xml:space="preserve">
+  <value>Street is required.</value>
+  <comment/>
+</data>
+<data name="StreetMaxLength" xml:space="preserve">
+  <value>Street must not exceed 255 characters.</value>
+  <comment/>
+</data>
+<data name="DistrictRequired" xml:space="preserve">
+  <value>District is required.</value>
+  <comment/>
+</data>
+<data name="DistrictMaxLength" xml:space="preserve">
+  <value>District must not exceed 255 characters.</value>
+  <comment/>
+</data>
+<data name="CityRequired" xml:space="preserve">
+  <value>City is required.</value>
+  <comment/>
+</data>
+<data name="CityMaxLength" xml:space="preserve">
+  <value>City must not exceed 255 characters.</value>
+  <comment/>
+</data>
+<data name="CategoryNameRequired" xml:space="preserve">
+  <value>Category name is required.</value>
+  <comment/>
+</data>
+<data name="CategoryNameMaxLength" xml:space="preserve">
+  <value>Category name must not exceed 255 characters.</value>
+  <comment/>
+</data>
 </root>

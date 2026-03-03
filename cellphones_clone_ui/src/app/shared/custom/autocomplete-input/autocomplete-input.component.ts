@@ -16,15 +16,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   ]
 })
 export class AutocompleteInputComponent implements OnInit, ControlValueAccessor, OnChanges {
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['original']) {
-      this.filtered = [...this.original];
-      if (this.data && !this.original.includes(this.data)) {
-        this.data = ''
-        this.onChange('')
-      }
-    }
-  }
+
   @Output() dataChosen = new EventEmitter<object>();
   data: string = ''
   @Input()
@@ -39,14 +31,16 @@ export class AutocompleteInputComponent implements OnInit, ControlValueAccessor,
 
   ngOnInit(): void {
     this.filtered = [... this.original]
-    // Don't set data to original[0] by default if using CVA, let writeValue handle it
+  }
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['original']) {
+      // Chỉ cập nhật lại danh sách hiển thị, tuyệt đối KHÔNG can thiệp xóa this.data
+      this.filtered = [...this.original];
+    }
   }
 
-  // CVA Implementation
   writeValue(value: any): void {
     this.data = value || '';
-    if (!this.data && this.original.length > 0) {
-    }
   }
   registerOnChange(fn: any): void {
     this.onChange = fn

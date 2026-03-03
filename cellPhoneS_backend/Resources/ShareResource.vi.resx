@@ -278,4 +278,64 @@
   <value>Mã thương hiệu là bắt buộc.</value>
   <comment/>
 </data>
+<data name="BrandNameRequired" xml:space="preserve">
+  <value>Tên thương hiệu là bắt buộc.</value>
+  <comment/>
+</data>
+<data name="BrandNameMaxLength" xml:space="preserve">
+  <value>Tên thương hiệu không được vượt quá 255 ký tự.</value>
+  <comment/>
+</data>
+<data name="ImageIdMustBeGreaterThanZero" xml:space="preserve">
+  <value>Mã ảnh phải lớn hơn 0.</value>
+  <comment/>
+</data>
+<data name="DemandNameRequired" xml:space="preserve">
+  <value>Tên nhu cầu là bắt buộc.</value>
+  <comment/>
+</data>
+<data name="DemandNameMaxLength" xml:space="preserve">
+  <value>Tên nhu cầu không được vượt quá 255 ký tự.</value>
+  <comment/>
+</data>
+<data name="SeriesNameRequired" xml:space="preserve">
+  <value>Tên dòng sản phẩm là bắt buộc.</value>
+  <comment/>
+</data>
+<data name="SeriesNameMaxLength" xml:space="preserve">
+  <value>Tên dòng sản phẩm không được vượt quá 255 ký tự.</value>
+  <comment/>
+</data>
+<data name="StreetRequired" xml:space="preserve">
+  <value>Đường phố là bắt buộc.</value>
+  <comment/>
+</data>
+<data name="StreetMaxLength" xml:space="preserve">
+  <value>Đường phố không được vượt quá 255 ký tự.</value>
+  <comment/>
+</data>
+<data name="DistrictRequired" xml:space="preserve">
+  <value>Quận huyện là bắt buộc.</value>
+  <comment/>
+</data>
+<data name="DistrictMaxLength" xml:space="preserve">
+  <value>Quận huyện không được vượt quá 255 ký tự.</value>
+  <comment/>
+</data>
+<data name="CityRequired" xml:space="preserve">
+  <value>Thành phố là bắt buộc.</value>
+  <comment/>
+</data>
+<data name="CityMaxLength" xml:space="preserve">
+  <value>Thành phố không được vượt quá 255 ký tự.</value>
+  <comment/>
+</data>
+<data name="CategoryNameRequired" xml:space="preserve">
+  <value>Tên danh mục là bắt buộc.</value>
+  <comment/>
+</data>
+<data name="CategoryNameMaxLength" xml:space="preserve">
+  <value>Tên danh mục không được vượt quá 255 ký tự.</value>
+  <comment/>
+</data>
 </root>

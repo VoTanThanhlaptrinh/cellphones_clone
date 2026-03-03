@@ -1,5 +1,6 @@
+using cellphones_backend.Models;
 using cellphones_backend.Repositories;
-using cellPhoneS_backend.DTOs;
+using cellPhoneS_backend.DTOs.Requests;
 using cellPhoneS_backend.DTOs.Responses;
 using cellPhoneS_backend.Services;
 
@@ -23,83 +24,140 @@ public class BrandServiceImpl : BrandService
 
     public async Task<ServiceResult<long>> CreateBrand(CreateBrandRequest request, string userId)
     {
-        // TODO: Implement business logic using the request and userId here
-        // 1. Verify category exists using _categoryRepository.GetByIdAsync()
-        // 2. If ImageId provided, verify image exists using _imageRepository.GetByIdAsync()
-        // 3. Check if brand with same name already exists in this category
-        // 4. Create Brand entity
-        // 5. Set CategoryId, Name, ImageId, Status from request
-        // 6. Set CreateDate = UpdateDate = DateTime.UtcNow
-        // 7. Set CreateBy = UpdateBy = userId
-        // 7. Save to database using _brandRepository.AddAsync()
-        // 8. Return ServiceResult<long>.Success with new Brand ID
-        
-        throw new NotImplementedException();
+        var category = await _categoryRepository.GetByIdAsync(request.CategoryId);
+        if (category == null)
+            return ServiceResult<long>.Fail("Category not found");
+
+        if (request.ImageId.HasValue)
+        {
+            var image = await _imageRepository.GetByIdAsync(request.ImageId.Value);
+            if (image == null)
+                return ServiceResult<long>.Fail("Image not found");
+        }
+
+        var existingNames = await _brandRepository.FindAsync(b => b.Name == request.Name && b.CategoryId == request.CategoryId && b.Status != "deleted");
+        if (existingNames.Any())
+            return ServiceResult<long>.Fail("Brand with same name already exists in this category");
+
+        var brand = new Brand
+        {
+            CategoryId = request.CategoryId,
+            Name = request.Name,
+            SlugName = SlugHelper.GenerateSlug(request.Name),
+            ImageId = request.ImageId,
+            Status = request.Status ?? "active",
+            CreateDate = DateTime.Now,
+            UpdateDate = DateTime.Now,
+            CreateBy = userId,
+            UpdateBy = userId
+        };
+
+        await _brandRepository.AddAsync(brand);
+        await _brandRepository.SaveChangesAsync();
+
+        return ServiceResult<long>.Success(brand.Id, "Brand created successfully");
     }
 
-    public async Task<ServiceResult<string>> UpdateBrand(long brandId, CreateBrandRequest request, string userId)
+    public async Task<ServiceResult<string>> UpdateBrand(long brandId, UpdateBrandRequest request, string userId)
     {
-        // TODO: Implement business logic using the request and userId here
-        // 1. Find brand by ID using _brandRepository.GetByIdAsync()
-        // 2. If not found, return ServiceResult<string>.Fail with NotFound error
-        // 3. If CategoryId changed, verify new category exists
-        // 4. If ImageId changed, verify new image exists
-        // 5. Update Name, CategoryId, ImageId, Status if provided
-        // 6. Update UpdateDate = DateTime.UtcNow
-        // 7. Update UpdateBy = userId
-        // 5. Save changes using _brandRepository.UpdateAsync()
-        // 6. Return ServiceResult<string>.Success
-        
-        throw new NotImplementedException();
+        var brand = await _brandRepository.GetByIdAsync(brandId);
+        if (brand == null || brand.Status == "deleted")
+            return ServiceResult<string>.Fail("Brand not found");
+
+        if (request.CategoryId.HasValue && request.CategoryId != brand.CategoryId)
+        {
+            var category = await _categoryRepository.GetByIdAsync(request.CategoryId.Value);
+            if (category == null)
+                return ServiceResult<string>.Fail("New category not found");
+            brand.CategoryId = request.CategoryId.Value;
+        }
+
+        if (request.ImageId.HasValue && request.ImageId != brand.ImageId)
+        {
+            var image = await _imageRepository.GetByIdAsync(request.ImageId.Value);
+            if (image == null)
+                return ServiceResult<string>.Fail("New image not found");
+            brand.ImageId = request.ImageId.Value;
+        }
+
+        if (!string.IsNullOrEmpty(request.Name) && request.Name != brand.Name)
+        {
+            var existingNames = await _brandRepository.FindAsync(b => b.Name == request.Name && b.CategoryId == brand.CategoryId && b.Id != brandId && b.Status != "deleted");
+            if (existingNames.Any())
+                return ServiceResult<string>.Fail("Brand with same name already exists in this category");
+
+            brand.Name = request.Name;
+            brand.SlugName = SlugHelper.GenerateSlug(request.Name);
+        }
+
+        if (request.Status != null)
+        {
+            brand.Status = request.Status;
+        }
+
+        brand.UpdateDate = DateTime.Now;
+        brand.UpdateBy = userId;
+
+        await _brandRepository.UpdateAsync(brand);
+        await _brandRepository.SaveChangesAsync();
+
+        return ServiceResult<string>.Success("", "Brand updated successfully");
     }
 
     public async Task<ServiceResult<string>> DeleteBrand(long brandId, string userId)
     {
-        // TODO: Implement business logic using the userId here
-        // 1. Find brand by ID using _brandRepository.GetByIdAsync()
-        // 2. If not found, return ServiceResult<string>.Fail with NotFound error
-        // 3. Check if brand has series or products (consider navigation properties)
-        // 4. If has dependencies, return error or handle cascade soft delete
-        // 5. Set Status = "deleted"
-        // 6. Update UpdateDate = DateTime.UtcNow
-        // 7. Update UpdateBy = userId
-        // 7. Save changes using _brandRepository.UpdateAsync()
-        // 8. Return ServiceResult<string>.Success
-        
-        throw new NotImplementedException();
+        var brand = await _brandRepository.GetByIdAsync(brandId);
+        if (brand == null || brand.Status == "deleted")
+            return ServiceResult<string>.Fail("Brand not found");
+
+        // Simple soft delete
+        brand.Status = "deleted";
+        brand.UpdateDate = DateTime.Now;
+        brand.UpdateBy = userId;
+
+        await _brandRepository.UpdateAsync(brand);
+        await _brandRepository.SaveChangesAsync();
+
+        return ServiceResult<string>.Success("", "Brand deleted successfully");
     }
 
-    public async Task<ServiceResult<List<BrandView>>> GetAllBrands()
+    public async Task<ServiceResult<PagedResult<BrandResponse>>> GetAllBrands(int pageIndex, int pageSize, string? status = "active")
     {
-        // TODO: Implement business logic here
-        // 1. Query all brands where Status != "deleted" using _brandRepository
-        // 2. Project to BrandView DTOs
-        // 3. If no brands found, return ServiceResult<List<BrandView>>.Fail with NotFound error
-        // 4. Return ServiceResult<List<BrandView>>.Success with brand list
+        var query = await _brandRepository.FindAsync(b => status == null || b.Status == status);
         
-        throw new NotImplementedException();
+        var brands = query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
+        var totalCount = query.Count();
+
+        if (!brands.Any())
+            return ServiceResult<PagedResult<BrandResponse>>.Fail("No brands found");
+
+        var resultItems = brands.Select(b => new BrandResponse(b.Id, b.Name!, b.SlugName)).ToList();
+        var pagedResult = new PagedResult<BrandResponse>(resultItems, totalCount, pageIndex, pageSize);
+
+        return ServiceResult<PagedResult<BrandResponse>>.Success(pagedResult, "Brands retrieved successfully");
     }
 
-    public async Task<ServiceResult<List<BrandView>>> GetBrandsByCategory(long categoryId)
+    public async Task<ServiceResult<List<BrandResponse>>> GetBrandsByCategory(long categoryId)
     {
-        // TODO: Implement business logic here
-        // 1. Verify category exists using _categoryRepository
-        // 2. Query brands for this category where Status != "deleted"
-        // 3. Project to BrandView DTOs
-        // 4. If no brands found, return ServiceResult<List<BrandView>>.Fail with NotFound error
-        // 5. Return ServiceResult<List<BrandView>>.Success with brand list
-        
-        throw new NotImplementedException();
+        var category = await _categoryRepository.GetByIdAsync(categoryId);
+        if (category == null || category.Status == "deleted")
+            return ServiceResult<List<BrandResponse>>.Fail("Category not found");
+
+        var brands = await _brandRepository.FindAsync(b => b.CategoryId == categoryId && b.Status != "deleted");
+        if (!brands.Any())
+            return ServiceResult<List<BrandResponse>>.Fail("No brands found in this category");
+
+        var result = brands.Select(b => new BrandResponse(b.Id, b.Name, b.SlugName)).ToList();
+        return ServiceResult<List<BrandResponse>>.Success(result, "Brands retrieved successfully");
     }
 
-    public async Task<ServiceResult<BrandView>> GetBrandById(long brandId)
+    public async Task<ServiceResult<BrandResponse>> GetBrandById(long brandId)
     {
-        // TODO: Implement business logic here
-        // 1. Find brand by ID with related data (Image, Category) using _brandRepository
-        // 2. If not found or Status = "deleted", return ServiceResult<BrandView>.Fail with NotFound error
-        // 3. Project to BrandView DTO
-        // 4. Return ServiceResult<BrandView>.Success
-        
-        throw new NotImplementedException();
+        var brand = await _brandRepository.GetByIdAsync(brandId);
+        if (brand == null || brand.Status == "deleted")
+            return ServiceResult<BrandResponse>.Fail("Brand not found");
+
+        var result = new BrandResponse(brand.Id, brand.Name, brand.SlugName);
+        return ServiceResult<BrandResponse>.Success(result, "Brand retrieved successfully");
     }
 }

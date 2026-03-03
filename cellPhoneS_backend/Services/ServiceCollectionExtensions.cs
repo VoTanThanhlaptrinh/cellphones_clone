@@ -1,6 +1,7 @@
 using System;
 using cellphones_backend.Services;
 using cellphones_backend.Services.Implement;
+using cellphones_backend.Services.Interface;
 using cellPhoneS_backend.Services.Implement;
 using cellPhoneS_backend.Services.Interface;
 
@@ -30,7 +31,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<GhtkApiService>();
         // Domain entity services
         services.AddScoped<BrandService, BrandServiceImpl>();
+        services.AddScoped<DemandService, DemandServiceImpl>();
         services.AddScoped<SeriesService, SeriesServiceImpl>();
+        services.AddScoped<StoreHouseService, StoreHouseServiceImpl>();
         services.AddScoped<ImageService, ImageServiceImpl>();
         services.AddScoped<SpecificationService, SpecificationServiceImpl>();
         services.AddScoped<CommitmentService, CommitmentServiceImpl>();

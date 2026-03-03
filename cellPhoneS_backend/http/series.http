@@ -1,0 +1,43 @@
+@cellPhoneS_backend_HostAddress = http://localhost:5169
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjcxODc4ODM3LTE3YTYtNDQ1ZC1hOWE1LWM3MDAwMzkzOWE3OSIsImp0aSI6IjliN2M0NGI2LTFkZTUtNDQ1Yi05NjYwLTcxNWJmYzE3YjBiMSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJUZXN0IFVzZXIiLCJhbW91bnRDYXJ0IjoiMSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IlVTRVIiLCJleHAiOjE3NzIxNzQyNTIsImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0OjcxMjMiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo3MTIzIn0.UMAJqJF8196jJ62hd9NVvg35PV4TgmZgtzTz3iIW3c8
+@userId = 98a4fdb1-44a7-49d1-b9a0-03f9ff71e3c9
+
+### Get All Series (Paged)
+GET {{cellPhoneS_backend_HostAddress}}/api/series?pageIndex=1&pageSize=5&status=active
+Accept: application/json
+
+### Get Series by ID
+GET {{cellPhoneS_backend_HostAddress}}/api/series/1
+Accept: application/json
+
+### Get Series by Brand
+GET {{cellPhoneS_backend_HostAddress}}/api/series/brand/1
+Accept: application/json
+
+### Create Series (Admin)
+POST {{cellPhoneS_backend_HostAddress}}/api/admin/series
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "brandId": 1,
+  "name": "iPhone 15 Series",
+  "status": "active"
+}
+
+### Update Series (Admin)
+PUT {{cellPhoneS_backend_HostAddress}}/api/admin/series/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "id": 1,
+  "brandId": 1,
+  "name": "iPhone 15 Pro Series",
+  "status": "active"
+}
+
+### Delete Series (Admin)
+DELETE {{cellPhoneS_backend_HostAddress}}/api/admin/series/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
