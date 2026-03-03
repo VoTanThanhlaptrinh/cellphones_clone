@@ -22,7 +22,6 @@ export class HeaderComponent implements OnInit {
   keyword: string = '';
   @Input() amountCart: number | undefined = 0;
   private searchSubject = new Subject<string>();
-  private searchSubscription?: Subscription;
   isCalled = false;
   showTab = false;
   i = 0;
@@ -56,7 +55,7 @@ export class HeaderComponent implements OnInit {
     }
   }
   ngOnInit() {
-    this.searchSubscription = this.searchSubject.pipe(
+    this.searchSubject.pipe(
       debounceTime(300),
       distinctUntilChanged(),
       switchMap((keyword) => {

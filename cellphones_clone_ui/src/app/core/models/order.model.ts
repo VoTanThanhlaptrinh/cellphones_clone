@@ -1,22 +1,16 @@
-export interface Order {
-    id: number;
-    orderDetails: OrderDetail[];
-    status: string;
-    createDate: string;
-    updateDate: string;
-    createBy?: string;
-    updateBy?: string;
-    // createUser and updateUser omitted for simplicity unless needed
+import { ProductView } from "./product.model";
+
+export interface OrderDetailView {
+  product?: ProductView | null;
+  colorId?: number | null;
+  colorName?: string | null;
+  colorImageUrl?: string | null;
+  price: number;
+  quantity: number;
 }
 
-export interface OrderDetail {
-    id: number;
-    productOrderDetailId: number;
-    product: any; // Use appropriate Product interface if available
-    colorId: number;
-    color: any; // Use appropriate Color interface if available
-    price: number;
-    quantity: number;
-    createDate: string;
-    updateDate: string;
+export interface OrderView {
+  id: number;
+  createDate: string | Date; 
+  orderDetails: OrderDetailView[];
 }

@@ -68,6 +68,8 @@ export class AuthService {
       }),
       catchError(() => {
         this.clearLocalState();
+        this.logout();
+        this.router.navigate(['/home'])
         return of(null);
       })
     );

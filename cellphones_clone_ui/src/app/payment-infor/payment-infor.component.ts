@@ -1,127 +1,86 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { UserView } from '../core/models/user_response.model';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormGroup, FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { AutocompleteInputComponent } from "../shared/custom/autocomplete-input/autocomplete-input.component";
 import { Router } from '@angular/router';
-import { CartView } from '../core/models/cart_request.model';
-import { CheckoutService, PaymentInfo } from '../services/checkout.service';
-import { StoreView, StreetView } from '../core/models/store.model';
-import { CartService } from '../services/cart.service';
-
 import { InputComponent } from "../shared/custom/input/input.component";
+import { OrderService } from '../services/order.service';
+import { StoreFormComponent } from "../store-form/store-form.component";
+import { ShipFormComponent } from "../ship-form/ship-form.component";
+import { CartView } from '../core/models/cart_request.model';
+import { PaymentFormData } from '../core/models/payment.model';
 
 @Component({
   selector: 'app-payment-infor',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, AutocompleteInputComponent, InputComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, InputComponent, StoreFormComponent, ShipFormComponent],
   templateUrl: './payment-infor.component.html',
   styleUrl: './payment-infor.component.css',
 })
 export class PaymentInforComponent implements OnInit {
-  @Input() storeViews?: StoreView[]
-  get deliveryMethod() {
-    return this.paymentInfoForm?.get('deliveryMethod')?.value;
-  }
-
-  @Output() isPaymentInfor = new EventEmitter<boolean>();
-
-  paymentInfoForm!: FormGroup;
-
-  cartItem?: CartView[]
+  paymentForm!: FormGroup;
   private currency = inject(CurrencyPipe);
   private fb = inject(FormBuilder);
-  private checkoutService = inject(CheckoutService);
-  citySelected?: string;
-  districtSelected?: string;
+  private cdr = inject(ChangeDetectorRef);
+  cartDetails: CartView[] = [];
   city: string[] = [];
-  district: string[] = [];
-  street: string[] = [];
   districtLabel = 'Chọn tỉnh/thành phố'
   user?: UserView = {
     name: "Võ Tấn Thành", mobile: "0796692184", email: "votanthanh32004@gmail.com"
   };
-
-  constructor(private router: Router, private cartService: CartService) { }
+  constructor(private router: Router, private orderService: OrderService) { }
 
   ngOnInit(): void {
-    this.initForm();
-    this.city = this.storeViews?.map(store => store.city) || [];
-  }
-
-  initForm() {
-    this.paymentInfoForm = this.fb.group({
-      name: [this.user?.name, [Validators.required]],
-      phone: [this.user?.mobile, [Validators.required, Validators.pattern(/(84|0[3|5|7|8|9])+([0-9]{8})\b/)]],
-      email: [this.user?.email, [Validators.required, Validators.email]],
-      deliveryMethod: ['at-store', [Validators.required]],
-      // At store fields
-      city: [''],
-      district: [''],
-      storeId: [''],
-      // Ship key fields
-      receiverName: [''],
-      receiverPhone: [''],
-      shipCity: [''],
-      shipDistrict: [''],
-      shipWard: [''],
-      address: [''],
-      note: [''],
-      // Invoice
-      requestInvoice: [false],
-      companyName: [''],
-      companyAddress: [''],
-      taxCode: ['']
-    });
-
-    // Subscribe to delivery method changes to validation logic if needed
-    this.paymentInfoForm.get('deliveryMethod')?.valueChanges.subscribe(val => {
-      this.updateValidators(val);
-    });
-    this.updateValidators('at-store'); // Initial state
-  }
-
-  updateValidators(method: string) {
-    const cityControl = this.paymentInfoForm.get('city');
-    const districtControl = this.paymentInfoForm.get('district');
-    const storeIdControl = this.paymentInfoForm.get('storeId');
-
-    const receiverNameControl = this.paymentInfoForm.get('receiverName');
-    const receiverPhoneControl = this.paymentInfoForm.get('receiverPhone');
-    const shipCityControl = this.paymentInfoForm.get('shipCity');
-    const shipDistrictControl = this.paymentInfoForm.get('shipDistrict');
-    const addressControl = this.paymentInfoForm.get('address');
-
-    if (method === 'at-store') {
-      cityControl?.setValidators([Validators.required]);
-      districtControl?.setValidators([Validators.required]);
-      storeIdControl?.setValidators([Validators.required]);
-
-      receiverNameControl?.clearValidators();
-      receiverPhoneControl?.clearValidators();
-      shipCityControl?.clearValidators();
-      shipDistrictControl?.clearValidators();
-      addressControl?.clearValidators();
+    const state = history.state;
+    if (state && state.cartDetails) {
+      this.cartDetails = state.cartDetails;
     } else {
-      cityControl?.clearValidators();
-      districtControl?.clearValidators();
-      storeIdControl?.clearValidators();
-
-      receiverNameControl?.setValidators([Validators.required]);
-      receiverPhoneControl?.setValidators([Validators.required, Validators.pattern(/(84|0[3|5|7|8|9])+([0-9]{8})\b/)]);
-      shipCityControl?.setValidators([Validators.required]);
-      shipDistrictControl?.setValidators([Validators.required]);
-      addressControl?.setValidators([Validators.required]);
+      this.router.navigate(['/home']);
     }
+    this.initForm();
+    this.restoreFormData();
+    this.listenToDeliveryMethod();
+  }
+  initForm() {
+    this.paymentForm = this.fb.group({
+      // 1. Phân loại
+      deliveryMethod: ['at-store'],
 
-    // Refresh validity
-    cityControl?.updateValueAndValidity();
-    districtControl?.updateValueAndValidity();
-    storeIdControl?.updateValueAndValidity();
-    receiverNameControl?.updateValueAndValidity();
-    receiverPhoneControl?.updateValueAndValidity();
-    shipCityControl?.updateValueAndValidity();
-    shipDistrictControl?.updateValueAndValidity();
-    addressControl?.updateValueAndValidity();
+      // 2. Thông tin dùng chung
+      email: [this.user?.email, [Validators.required, Validators.email]],
+      note: [''],
+
+      // 3. Form Con 1 (Nhận tại quán)
+      storeInfo: this.fb.group({
+        city: ['', Validators.required],
+        district: ['', Validators.required],
+        storeId: ['', Validators.required],
+        streetName: ['']
+      }),
+
+      // 4. Form Con 2 (Giao hàng)
+      shipInfo: this.fb.group({
+        receiverName: [this.user?.name, Validators.required],
+        receiverPhone: [this.user?.mobile, [Validators.required, Validators.pattern(/(84|0[3|5|7|8|9])+([0-9]{8})\b/)]],
+        shipCity: ['', Validators.required],
+        shipDistrict: ['', Validators.required],
+        shipWard: [''],
+        address: ['', Validators.required]
+      })
+    });
+
+    // Vừa vào thì tắt Form Giao hàng đi
+    this.paymentForm.get('shipInfo')?.disable();
+  }
+  listenToDeliveryMethod() {
+    this.paymentForm.get('deliveryMethod')?.valueChanges.subscribe(method => {
+      if (method === 'at-store') {
+        this.paymentForm.get('shipInfo')?.disable(); // Tắt validate ship
+        this.paymentForm.get('storeInfo')?.enable(); // Bật validate store
+      } else {
+        this.paymentForm.get('storeInfo')?.disable();
+        this.paymentForm.get('shipInfo')?.enable();
+      }
+    });
   }
 
   convertPriceVnd(price: number | null | undefined): string {
@@ -131,55 +90,72 @@ export class PaymentInforComponent implements OnInit {
   }
 
   deleteMail() {
-    this.paymentInfoForm.patchValue({ email: '' });
+    this.paymentForm.patchValue({ email: '' });
   }
 
   goPayment() {
-    if (this.paymentInfoForm.invalid) {
-      this.paymentInfoForm.markAllAsTouched();
+    if (this.paymentForm.invalid) {
+      this.paymentForm.markAllAsTouched();
+      console.log('Form bị lỗi ở các trường:', this.findInvalidControls());
       return;
     }
-
-    const val = this.paymentInfoForm.value;
-    let address = '';
-    let name = this.user?.name || '';
-    let phone = this.user?.mobile || '';
-
-    if (val.deliveryMethod === 'at-store') {
-      address = `Cửa hàng: ${val.storeId || ''}, ${val.district}, ${val.city}`;
-    } else {
-      address = `${val.address}, ${val.shipWard}, ${val.shipDistrict}, ${val.shipCity}`;
-      name = val.receiverName;
-      phone = val.receiverPhone;
-    }
-
-    const info: PaymentInfo = {
-      name: name,
-      phone: phone,
-      email: val.email || this.user?.email || '',
-      address: address,
-      deliveryMethod: val.deliveryMethod,
-      note: val.note,
-      city: val.deliveryMethod === 'at-store' ? val.city : val.shipCity,
-      district: val.deliveryMethod === 'at-store' ? val.district : val.shipDistrict
-    };
-
-    this.checkoutService.updatePaymentInfo(info);
-    this.isPaymentInfor.emit(false);
+    this.saveDataBeforeLeave()
+    this.orderService.setAppear(false);
   }
 
   goCart() {
     this.router.navigate(['/cart']);
   }
-  onCityChosen(event: any) {
-    this.citySelected = event;
-    this.district = this.storeViews?.filter(store =>
-      store.city === event).map(store => store.districts)[0]?.map(d => d.district) || [];
+  calculateTotals() {
+    if (this.cartDetails && this.cartDetails.length > 0) {
+      return this.cartDetails.reduce((acc, cart) => acc + ((cart.salePrice || 0) * (cart.quantity || 0)), 0);
+    } else {
+      return 0;
+    }
   }
-  onDistrictChosen(event: any) {
-    this.districtSelected = event;
-    this.street = this.storeViews?.filter(store =>
-      store.city === this.citySelected).map(store => store.districts)[0]
-          .filter(d => d.district === event)[0].streets.map(s => s.street) || [];
+  public findInvalidControls() {
+    const invalid = [];
+    // Kiểm tra form cha
+    const controls = this.paymentForm.controls;
+    for (const name in controls) {
+      if (controls[name].invalid) {
+        invalid.push(name);
+      }
+    }
+
+    // Soi chi tiết vào trong storeInfo
+    const storeGroup = this.paymentForm.get('storeInfo') as FormGroup;
+    if (storeGroup && storeGroup.invalid) {
+      for (const name in storeGroup.controls) {
+        if (storeGroup.controls[name].invalid) {
+          console.log(`Lỗi ở trường con của storeInfo: ${name}`);
+        }
+      }
+    }
+    return invalid;
   }
-}
+  saveDataBeforeLeave() {
+    const formValue: PaymentFormData = this.paymentForm.getRawValue();
+    this.orderService.setPaymentData(formValue);
+  }
+
+  restoreFormData() {
+    const savedData = this.orderService.getPaymentData();
+
+    if (savedData) {
+      this.paymentForm.get('deliveryMethod')?.setValue(savedData.deliveryMethod, { emitEvent: false });
+
+      if (savedData.deliveryMethod === 'at-store') {
+        this.paymentForm.get('storeInfo')?.enable();
+        this.paymentForm.get('shipInfo')?.disable();
+      } else {
+        this.paymentForm.get('shipInfo')?.enable();
+        this.paymentForm.get('storeInfo')?.disable();
+      }
+      setTimeout(() => {
+        this.paymentForm.patchValue(savedData, { emitEvent: false });
+        this.cdr.detectChanges();
+      }, 0); // 0 miligiây là đủ để Angular đẩy việc này xuống cuối hàng đợi render
+    }
+  }
+} 

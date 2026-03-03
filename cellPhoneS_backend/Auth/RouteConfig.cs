@@ -22,6 +22,8 @@ namespace cellPhoneS_backend.Auth
                 new RoutePolicy { UrlPattern = "/api/health/healthcheck", AllowAnonymous = true },
                 new RoutePolicy { UrlPattern = "/api/img/*", AllowAnonymous = true }, // Images usually public
                 new RoutePolicy { UrlPattern = "/api/auth/isLoggedIn", AllowAnonymous = true },
+                new RoutePolicy { UrlPattern = "/api/storeHouses", AllowAnonymous = true },
+
 
                 // Product Public Read
                 new RoutePolicy { UrlPattern = "/api/products/list/*", AllowAnonymous = true },
@@ -32,6 +34,7 @@ namespace cellPhoneS_backend.Auth
                 
                 new RoutePolicy { UrlPattern = "/api/category/*", AllowAnonymous = true },
                 new RoutePolicy { UrlPattern = "/api/search", AllowAnonymous = true },
+                new RoutePolicy { UrlPattern = "/api/stores/*", AllowAnonymous = true },
 
                 // Admin Routes - More specific first
                 new RoutePolicy { UrlPattern = "/api/admin/*", RequiredRoles = new List<string> { "ADMIN" } },

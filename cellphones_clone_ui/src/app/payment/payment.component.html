@@ -1,162 +1,100 @@
-<div class="flex flex-col static bg-gray-100 min-h-screen">
-  <app-header-cart-order [totalQuantity]="0" [Username]="'Khách'" />
-
-  <div class="mx-auto max-w-6xl w-full p-4 mt-6">
-    <div class="mb-6 flex flex-row items-center cursor-pointer text-gray-600 hover:text-black" (click)="null">
-      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-      </svg>
-      <span>Quay lại Order Review (Không hiển thị thực tế trên UI vì chỉ có luồng tiến tới)</span>
+<div class="w-full sm:w-160 mx-auto px-2 md:px-4">
+  <!-- 1. THE HEADER SECTION -->
+  <div class="flex justify-between w-full mx-auto mt-2">
+    <svg (click)="goPaymentInfor()" width="20" height="17" viewBox="0 0 20 17" fill="none"
+      xmlns="http://www.w3.org/2000/svg" class="cursor-pointer">
+      <path d="M19 8.5L1 8.5M1 8.5L8 1M1 8.5L8 16" stroke="#121219" stroke-width="1.5" stroke-linecap="round"
+        stroke-linejoin="round"></path>
+    </svg>
+    <p class="text-center text-black text-lg font-medium">Thanh toán</p>
+    <div class="w-5"></div> <!-- Spacer to keep the title perfectly centered -->
+  </div>
+  <hr class="border-t border-gray-200 mb-2 w-full mx-auto" />
+  <div class="grid grid-cols-2 gap-x-2 mx-auto mt-2 text-base font-bold font-sans px-2 py-4">
+    <div class="text-gray-400 flex-col items-center cursor-pointer" (click)="goPaymentInfor()">
+      <p class="text-center uppercase">1. Thông tin</p>
+      <hr class="border-2 mt-2 mx-auto" />
     </div>
+    <div class="text-red-700 flex-col items-center">
+      <p class="text-center uppercase">2. Thanh toán</p>
+      <hr class="border-2 mt-2 mx-auto border-red-700" />
+    </div>
+  </div>
 
-    <!-- Hết thời gian -->
-    @if (timeLeft() === 0) {
-    <div class="bg-white rounded-xl shadow-lg p-10 flex flex-col items-center justify-center text-center">
-      <div class="w-20 h-20 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-6">
-        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+  <!-- 2. THE BODY (PAYMENT METHODS) -->
+  <div class="flex flex-col w-full mx-auto mt-4 gap-y-4">
+    <h2 class="text-base uppercase font-bold text-gray-800 px-2 lg:px-0 mt-2">Chọn phương thức thanh toán</h2>
+
+    <div class="flex flex-col gap-y-3 bg-white shadow rounded-lg p-4 mx-2 lg:mx-0">
+
+      <!-- Option A: Cash on Delivery -->
+      <label class="flex items-center gap-x-3 cursor-pointer p-4 border rounded-lg transition-colors"
+        [ngClass]="{'border-red-500 bg-red-50': selectedMethod() === 'COD', 'border-gray-200 hover:bg-gray-50': selectedMethod() !== 'COD'}">
+        <input type="radio" name="paymentMethod" value="COD" [ngModel]="selectedMethod()"
+          (ngModelChange)="selectedMethod.set($event)"
+          class="w-5 h-5 text-red-600 focus:ring-red-500 accent-red-600 cursor-pointer">
+        <span class="text-gray-800 font-medium text-base">Thanh toán khi nhận hàng</span>
+      </label>
+
+      <!-- Option B: Online Payment -->
+      <label class="flex items-center gap-x-3 cursor-pointer p-4 border rounded-lg transition-colors"
+        [ngClass]="{'border-red-500 bg-red-50': selectedMethod() === 'ONLINE', 'border-gray-200 hover:bg-gray-50': selectedMethod() !== 'ONLINE'}">
+        <input type="radio" name="paymentMethod" value="ONLINE" [ngModel]="selectedMethod()"
+          (ngModelChange)="selectedMethod.set($event)"
+          class="w-5 h-5 text-red-600 focus:ring-red-500 accent-red-600 cursor-pointer">
+        <span class="text-gray-800 font-medium text-base">Thanh toán Online</span>
+      </label>
+
+      <!-- Dynamic UI for Option B -->
+      @if (selectedMethod() === 'ONLINE') {
+      <div
+        class="mt-2 flex flex-col items-center justify-center p-6 bg-gray-50 border border-gray-200 rounded-lg animate-fade-in">
+        <p class="text-sm text-gray-600 text-center mb-4">
+          Mở ứng dụng ngân hàng hoặc ví điện tử để quét mã QR và tiến hành thanh toán.
+        </p>
+        <div
+          class="w-48 h-48 border-2 border-dashed border-gray-300 rounded-xl bg-white flex items-center justify-center overflow-hidden shadow-inner mb-3">
+          <!-- Dummy QR Code placeholder -->
+          <img src="https://via.placeholder.com/200x200.png?text=QR+Code" alt="Dummy QR Code"
+            class="object-cover w-full h-full scale-90">
+        </div>
+        <p class="text-xs text-center text-gray-400 font-medium">Bạn sẽ tự động được chuyển hướng sau khi thanh toán
+          thành công.</p>
+      </div>
+      }
+    </div>
+  </div>
+
+  <!-- Spacer to avoid overlapping with fixed footer scroll -->
+  <div class="h-[20vh] sm:h-[18vh]"></div>
+
+  <!-- 3. THE FOOTER (ORDER SUBMISSION) -->
+  <div
+    class="fixed z-20 left-1/2 -translate-x-1/2 bottom-0 w-full sm:w-160 h-auto bg-white rounded-t-xl shadow-[0_-4px_20px_-1px_rgba(40,124,234,.15)] px-4 py-5">
+    <div class="flex flex-col items-center justify-center w-full h-full gap-y-4 font-semibold">
+
+      <div class="flex w-full justify-between items-center px-1 text-base">
+        <p class="text-gray-800 font-medium">Tổng tiền thanh toán:</p>
+        <p class="text-red-700 text-xl font-bold">{{ convertPriceVnd(calculateTotals()) }}</p>
+      </div>
+
+      <button type="button" (click)="createOrder()"
+        class="bg-red-600 hover:bg-red-700 active:bg-red-800 transition-colors rounded-lg border-transparent text-white text-lg h-12 w-full px-4 py-2 font-medium flex justify-center items-center shadow-md disabled:bg-gray-400"
+        [disabled]="isLoading()">
+        @if (isLoading()) {
+        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+          viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+          </path>
         </svg>
-      </div>
-      <h2 class="text-2xl font-bold text-gray-800 mb-2">Đã hết thời gian thanh toán</h2>
-      <p class="text-gray-500 mb-6">Mã QR đã hết hạn. Vui lòng quay lại giỏ hàng và thử lại.</p>
-      <button class="bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-8 rounded-lg transition-colors"
-        routerLink="/cart">
-        Quay lại giỏ hàng
+        Đang xử lý...
+        } @else {
+        Tạo Đơn Hàng
+        }
       </button>
-    </div>
-    } @else {
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
-
-      <!-- Cột Trái: Phương thức thanh toán -->
-      <div class="md:col-span-5 flex flex-col gap-4">
-        <div class="bg-white rounded-xl shadow-sm p-6">
-          <h2 class="text-xl font-bold text-gray-800 mb-6 font-sans">Chọn phương thức thanh toán</h2>
-
-          <div class="flex flex-col gap-4">
-            <!-- Bank Transfer -->
-            <label class="flex items-center p-4 border rounded-lg cursor-pointer transition-all"
-              [ngClass]="{'border-red-500 bg-red-50': selectedMethod() === 'BANK', 'border-gray-200 hover:bg-gray-50': selectedMethod() !== 'BANK'}">
-              <input type="radio" name="paymentMethod" value="BANK" [ngModel]="selectedMethod()"
-                (ngModelChange)="selectedMethod.set($event)" class="w-5 h-5 text-red-600 focus:ring-red-500 mr-4">
-              <div class="flex items-center gap-4 w-full">
-                <div class="w-10 h-10 bg-blue-100 rounded flex items-center justify-center">
-                  <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
-                  </svg>
-                </div>
-                <div>
-                  <h3 class="font-medium text-gray-900">Chuyển khoản Ngân hàng</h3>
-                  <p class="text-sm text-gray-500">Quét mã VietQR</p>
-                </div>
-              </div>
-            </label>
-
-            <!-- MoMo -->
-            <label class="flex items-center p-4 border rounded-lg cursor-pointer transition-all"
-              [ngClass]="{'border-red-500 bg-red-50': selectedMethod() === 'MOMO', 'border-gray-200 hover:bg-gray-50': selectedMethod() !== 'MOMO'}">
-              <input type="radio" name="paymentMethod" value="MOMO" [ngModel]="selectedMethod()"
-                (ngModelChange)="selectedMethod.set($event)" class="w-5 h-5 text-red-600 focus:ring-red-500 mr-4">
-              <div class="flex items-center gap-4 w-full">
-                <div class="w-10 h-10 bg-[#a50064] rounded flex items-center justify-center">
-                  <span class="text-white font-bold text-xs">MoMo</span>
-                </div>
-                <div>
-                  <h3 class="font-medium text-gray-900">Ví MoMo</h3>
-                  <p class="text-sm text-gray-500">Quét mã bằng ứng dụng MoMo</p>
-                </div>
-              </div>
-            </label>
-
-            <!-- ZaloPay -->
-            <label class="flex items-center p-4 border rounded-lg cursor-pointer transition-all"
-              [ngClass]="{'border-red-500 bg-red-50': selectedMethod() === 'ZALOPAY', 'border-gray-200 hover:bg-gray-50': selectedMethod() !== 'ZALOPAY'}">
-              <input type="radio" name="paymentMethod" value="ZALOPAY" [ngModel]="selectedMethod()"
-                (ngModelChange)="selectedMethod.set($event)" class="w-5 h-5 text-red-600 focus:ring-red-500 mr-4">
-              <div class="flex items-center gap-4 w-full">
-                <div class="w-10 h-10 bg-blue-500 rounded flex items-center justify-center">
-                  <span class="text-white font-bold text-xs">ZaloPay</span>
-                </div>
-                <div>
-                  <h3 class="font-medium text-gray-900">Ví ZaloPay</h3>
-                  <p class="text-sm text-gray-500">Quét mã bằng ứng dụng ZaloPay</p>
-                </div>
-              </div>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Cột Phải: Thông tin thanh toán (Mã QR, Timer) -->
-      <div class="md:col-span-7 flex flex-col h-full">
-        <div class="bg-white rounded-xl shadow-sm p-8 h-full flex flex-col items-center">
-
-          <!-- Countdown Timer -->
-          <div class="w-full bg-red-50 rounded-lg p-4 mb-8 flex justify-between items-center border border-red-100">
-            <span class="text-red-800 font-medium">Thời gian thanh toán còn lại</span>
-            <span class="text-red-600 font-bold text-xl font-mono">{{ formattedTime() }}</span>
-          </div>
-
-          <h3 class="text-lg font-bold text-gray-800 mb-2">Thanh toán qua {{ selectedMethod() === 'BANK' ? 'Ngân hàng' :
-            selectedMethod() === 'MOMO' ? 'MoMo' : 'ZaloPay' }}</h3>
-          <p class="text-gray-500 text-sm mb-6 text-center">Sử dụng App {{ selectedMethod() === 'BANK' ? 'Ngân hàng' :
-            selectedMethod() === 'MOMO' ? 'MoMo' : 'ZaloPay' }} hoặc ứng dụng Camera hỗ trợ QR code để quét mã</p>
-
-          <!-- QR Code Placeholder -->
-          <div
-            class="w-64 h-64 border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center mb-8 relative bg-gray-50">
-            <svg class="w-20 h-20 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z">
-              </path>
-            </svg>
-            <!-- Lớp mờ giả lập đang load hoặc placeholder -->
-            <div class="absolute inset-0 flex items-center justify-center">
-              <span class="bg-black bg-opacity-60 text-white px-3 py-1 rounded text-sm font-medium">QR Mẫu</span>
-            </div>
-          </div>
-
-          <!-- Transaction Info -->
-          <div class="w-full max-w-sm space-y-4">
-            <div class="flex justify-between pb-3 border-b border-gray-100">
-              <span class="text-gray-500">Mã giao dịch</span>
-              <span class="font-medium text-gray-900">{{ transactionId }}</span>
-            </div>
-            <div class="flex justify-between pb-3 border-b border-gray-100">
-              <span class="text-gray-500">Tổng tiền</span>
-              <span class="font-bold text-red-600 text-lg">{{ convertPriceVnd(totalPrice) }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-500">Nội dung chuyển khoản</span>
-              <span class="font-medium text-gray-900">{{ transferContent }}</span>
-            </div>
-          </div>
-
-          <!-- Simulate Success Button -->
-          <button
-            class="mt-10 w-full max-w-sm bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50"
-            [disabled]="isLoading()" (click)="simulateSuccess()">
-            @if (isLoading()) {
-            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
-              viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-              </path>
-            </svg>
-            Đang xử lý...
-            } @else {
-            Giả lập Thanh toán Thành công
-            }
-          </button>
-
-        </div>
-      </div>
 
     </div>
-    }
   </div>
 </div>

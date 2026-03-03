@@ -1,17 +1,8 @@
 <div class="flex flex-col static bg-gray-100 gap-y-2">
-  <app-header-cart-order
-    [totalQuantity]="this.totalQuantity"
-    [Username]="'Thành'"
-    class="w-full"
-  />
-  @if(this.isAppear){
-  <app-payment-infor
-    [storeViews]="this.storeViews"
-    (isPaymentInfor)="allowAppear($event)"
-  />
+  <app-header-cart-order [totalQuantity]="this.totalQuantity" [Username]="'Thành'" class="w-full" />
+  @if(this.isAppear()){
+  <app-payment-infor />
   }@else {
-  <app-payment
-    (isPaymentInfor)="allowAppear($event)"
-  />
+  <app-payment />
   }
 </div>
