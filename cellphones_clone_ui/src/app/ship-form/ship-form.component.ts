@@ -1,23 +1,33 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, effect, inject, Input, OnInit } from '@angular/core';
 import { InputComponent } from "../shared/custom/input/input.component";
 import { AutocompleteInputComponent } from "../shared/custom/autocomplete-input/autocomplete-input.component";
 
-import { FormGroup } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { VietnamProvinceDto } from '../core/models/store.model';
+import { StoreService } from '../services/store.service';
 
 @Component({
   selector: 'app-ship-form',
-  imports: [InputComponent, AutocompleteInputComponent],
+  imports: [InputComponent, AutocompleteInputComponent, ReactiveFormsModule],
   templateUrl: './ship-form.component.html',
   styleUrl: './ship-form.component.css',
 })
 export class ShipFormComponent implements OnInit {
   @Input() group!: FormGroup | any;
-  private http = inject(HttpClient);
 
   // Lưu trữ toàn bộ dữ liệu gốc từ API
-  vnLocations: any[] = [];
-
+  vnLocations: VietnamProvinceDto[] = [];
+  constructor(private storeService: StoreService) {
+    effect(() => {
+      this.vnLocations = this.storeService.vietNamProvince()
+      if (this.vnLocations && this.vnLocations.length > 0) {
+        // Giả sử province model của bạn có thuộc tính 'name'
+        this.cities = this.vnLocations
+          .map(province => province.name)
+          .filter((name): name is string => !!name); // Lọc bỏ các giá trị null/undefined nếu có
+      }
+    })
+  }
   // Các mảng string để truyền vào Input
   cities: string[] = [];
   districts: string[] = [];
@@ -28,18 +38,9 @@ export class ShipFormComponent implements OnInit {
   }
 
   fetchVietNamLocations() {
-    // Đổi từ 'https://provinces.open-api.vn/api/?depth=3' thành:
-    const apiUrl = '/api/provinces/?depth=3';
-
-    this.http.get<any[]>(apiUrl).subscribe({
-      next: (data) => {
-        this.vnLocations = data;
-        this.cities = data.map(p => p.name);
-      },
-      error: (err) => {
-        console.error('Lỗi khi tải dữ liệu địa giới hành chính:', err);
-      }
-    });
+    if (this.storeService.vietNamProvince().length === 0) {
+      this.storeService.initVietnamLocations()
+    }
   }
 
   onCityChosen(event: any) {

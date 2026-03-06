@@ -14,19 +14,8 @@ export class OrderService {
   private baseUrl = environment.apiUrl;
   private appear = signal<boolean>(true);
   orderView = signal<OrderView | null>(null)
-  storeViews = signal<StoreView[]>([]);
   private paymentData: PaymentFormData | null = null;
   constructor(private http: HttpClient, private notifyServce: NotifyService) {
-  }
-  initStoreView() {
-    if (this.storeViews().length === 0) {
-      this.http.get<ApiResponse<StoreView[]>>(`${this.baseUrl}/stores/views`).subscribe({
-        next: (res) => {
-          this.storeViews.set(res.data)
-        },
-        error: (err) => console.error('Lỗi lấy cửa hàng:', err)
-      });
-    }
   }
     // Lưu data vào Service
   setPaymentData(data: PaymentFormData) {

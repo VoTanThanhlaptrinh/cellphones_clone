@@ -1,0 +1,12 @@
+@cellPhoneS_backend_HostAddress = http://localhost:5169
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjcxODc4ODM3LTE3YTYtNDQ1ZC1hOWE1LWM3MDAwMzkzOWE3OSIsImp0aSI6IjI5YTdmOWNlLThkY2MtNGM3NC04ODJjLTBiYzQ4NTJhZjU5MyIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJUZXN0IFVzZXIiLCJhbW91bnRDYXJ0IjoiMiIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IlVTRVIiLCJleHAiOjE3NzI2MTYyMDQsImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0OjcxMjMiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo3MTIzIn0.nFfJOZC3c6Ji8GOC6XQnrIHRC_g3Rvks3-Ien37J8TU
+### Calculate Shipping Fee (GHTK)
+POST {{cellPhoneS_backend_HostAddress}}/api/shipping-fee
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "cartDetailsIds": [4, 5],
+  "provinceName": "Hồ Chí Minh",
+  "districtName": "Quận 1"
+}

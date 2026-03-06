@@ -4,6 +4,7 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { AutocompleteInputComponent } from "../shared/custom/autocomplete-input/autocomplete-input.component";
 import { InputComponent } from "../shared/custom/input/input.component";
 import { OrderService } from '../services/order.service';
+import { StoreService } from '../services/store.service';
 
 @Component({
   selector: 'app-store-form',
@@ -19,9 +20,9 @@ export class StoreFormComponent implements OnInit {
   districtList: string[] = [];
   streetList: string[] = [];
 
-  constructor(private orderService: OrderService) {
+  constructor(private storeService: StoreService, private orderService: OrderService) {
     effect(() => {
-      const stores = this.orderService.storeViews();
+      const stores = this.storeService.storeViews();
 
       if (stores && stores.length > 0) {
         this.cityList = [...new Set(stores.map(s => s.city))];
@@ -44,13 +45,13 @@ export class StoreFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.orderService.initStoreView();
+    this.storeService.initStoreView();
   }
 
   onCityChosen(event: any) {
     this.group.patchValue({ city: event, district: '', storeId: '', streetName: '' });
 
-    const stores = this.orderService.storeViews();
+    const stores = this.storeService.storeViews();
     const selectedStore = stores.find(s => s.city === event);
 
     this.districtList = selectedStore ? [...new Set(selectedStore.districts.map(d => d.district))] : [];
@@ -61,7 +62,7 @@ export class StoreFormComponent implements OnInit {
     this.group.patchValue({ district: event, storeId: '', streetName: '' });
 
     const currentCity = this.group.get('city')?.value;
-    const stores = this.orderService.storeViews();
+    const stores = this.storeService.storeViews();
 
     const selectedStore = stores.find(s => s.city === currentCity);
     const selectedDistrict = selectedStore?.districts.find(d => d.district === event);
@@ -72,7 +73,7 @@ export class StoreFormComponent implements OnInit {
   onStreetChosen(event: any) {
     const currentCity = this.group.get('city')?.value;
     const currentDistrict = this.group.get('district')?.value;
-    const stores = this.orderService.storeViews();
+    const stores = this.storeService.storeViews();
 
     const selectedStore = stores.find(s => s.city === currentCity);
     const selectedDistrict = selectedStore?.districts.find(d => d.district === currentDistrict);

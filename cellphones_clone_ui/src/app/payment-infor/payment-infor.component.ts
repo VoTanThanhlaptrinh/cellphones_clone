@@ -47,14 +47,13 @@ export class PaymentInforComponent implements OnInit {
 
       // 2. Thông tin dùng chung
       email: [this.user?.email, [Validators.required, Validators.email]],
-      note: [''],
-
       // 3. Form Con 1 (Nhận tại quán)
       storeInfo: this.fb.group({
         city: ['', Validators.required],
         district: ['', Validators.required],
         storeId: ['', Validators.required],
-        streetName: ['']
+        streetName: [''],
+        note: [''],
       }),
 
       // 4. Form Con 2 (Giao hàng)
@@ -64,7 +63,8 @@ export class PaymentInforComponent implements OnInit {
         shipCity: ['', Validators.required],
         shipDistrict: ['', Validators.required],
         shipWard: [''],
-        address: ['', Validators.required]
+        address: ['', Validators.required],
+        note: [''],
       })
     });
 

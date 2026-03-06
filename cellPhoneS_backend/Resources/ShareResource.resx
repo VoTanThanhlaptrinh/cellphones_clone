@@ -79,6 +79,18 @@
 <data name="FrontFaceCardRequired" xml:space="preserve"><value>Please upload the front side of the card.</value><comment/></data>
 <data name="BehindFaceCardRequired" xml:space="preserve"><value>Please upload the back side of the card.</value><comment/></data>
 <data name="FileExceed2Mb" xml:space="preserve"><value>File size must not exceed 2 MB.</value><comment/></data>
+<data name="CartDetailsRequired" xml:space="preserve">
+    <value>Please select at least one product in your cart.</value>
+    <comment>Lỗi khi danh sách sản phẩm rỗng</comment>
+  </data>
+  <data name="ProvinceRequired" xml:space="preserve">
+    <value>Please select a province or city.</value>
+    <comment>Lỗi khi chưa chọn Tỉnh/Thành phố</comment>
+  </data>
+  <data name="DistrictRequired" xml:space="preserve">
+    <value>Please select a district.</value>
+    <comment>Lỗi khi chưa chọn Quận/Huyện</comment>
+  </data>
 <!-- AddProductRequest -->
 <data name="ProductNameRequired" xml:space="preserve">
   <value>Product name is required.</value>
@@ -338,4 +350,32 @@
   <value>Category name must not exceed 255 characters.</value>
   <comment/>
 </data>
+<data name="DistrictRequired" xml:space="preserve">
+    <value>Please select a delivery district.</value>
+    <comment>Error when district is not selected</comment>
+  </data>
+  <data name="CartDetailsRequired" xml:space="preserve">
+    <value>Cart details list cannot be empty.</value>
+  </data>
+  <data name="CartDetailsMustHaveAtLeastOne" xml:space="preserve">
+    <value>Please select at least one product to order.</value>
+  </data>
+  <data name="StoreHouseIdRequired" xml:space="preserve">
+    <value>Please select a store to pick up.</value>
+  </data>
+  <data name="StoreHouseIdInvalid" xml:space="preserve">
+    <value>Selected store is invalid.</value>
+  </data>
+  <data name="ProvinceRequired" xml:space="preserve">
+    <value>Please select a province/city.</value>
+  </data>
+  <data name="WardRequired" xml:space="preserve">
+    <value>Please select a ward.</value>
+  </data>
+  <data name="StreetRequired" xml:space="preserve">
+    <value>Please enter your street address.</value>
+  </data>
+  <data name="ShippingFeeInvalid" xml:space="preserve">
+    <value>Shipping fee is invalid.</value>
+  </data>
 </root>
