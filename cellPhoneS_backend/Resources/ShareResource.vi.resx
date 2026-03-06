@@ -338,4 +338,46 @@
   <value>Tên danh mục không được vượt quá 255 ký tự.</value>
   <comment/>
 </data>
+<data name="CartDetailsRequired" xml:space="preserve">
+    <value>Vui lòng chọn ít nhất một sản phẩm để tính phí vận chuyển.</value>
+    <comment>Lỗi khi danh sách sản phẩm rỗng</comment>
+  </data>
+  <data name="ProvinceRequired" xml:space="preserve">
+    <value>Vui lòng chọn Tỉnh/Thành phố giao hàng.</value>
+    <comment>Lỗi khi chưa chọn Tỉnh/Thành phố</comment>
+  </data>
+  <data name="DistrictRequired" xml:space="preserve">
+    <value>Vui lòng chọn Quận/Huyện giao hàng.</value>
+    <comment>Lỗi khi chưa chọn Quận/Huyện</comment>
+  </data>
+  <data name="DistrictRequired" xml:space="preserve">
+    <value>Vui lòng chọn Quận/Huyện giao hàng.</value>
+    <comment>Lỗi khi chưa chọn Quận/Huyện</comment>
+  </data>
+  <data name="CartDetailsRequired" xml:space="preserve">
+    <value>Danh sách giỏ hàng không được để trống.</value>
+    <comment>Lỗi khi List CartDetailIds là null</comment>
+  </data>
+  <data name="CartDetailsMustHaveAtLeastOne" xml:space="preserve">
+    <value>Vui lòng chọn ít nhất một sản phẩm để đặt hàng.</value>
+    <comment>Lỗi khi mảng sản phẩm rỗng</comment>
+  </data>
+  <data name="StoreHouseIdRequired" xml:space="preserve">
+    <value>Vui lòng chọn cửa hàng bạn muốn đến lấy.</value>
+  </data>
+  <data name="StoreHouseIdInvalid" xml:space="preserve">
+    <value>Cửa hàng đã chọn không hợp lệ.</value>
+  </data>
+  <data name="ProvinceRequired" xml:space="preserve">
+    <value>Vui lòng chọn Tỉnh/Thành phố giao hàng.</value>
+  </data>
+  <data name="WardRequired" xml:space="preserve">
+    <value>Vui lòng chọn Phường/Xã giao hàng.</value>
+  </data>
+  <data name="StreetRequired" xml:space="preserve">
+    <value>Vui lòng nhập số nhà, tên đường.</value>
+  </data>
+  <data name="ShippingFeeInvalid" xml:space="preserve">
+    <value>Phí vận chuyển không hợp lệ.</value>
+  </data>
 </root>

@@ -1,4 +1,4 @@
-<div class="flex flex-col p-2 bg-white w-full gap-y-2 rounded-lg">
+<div class="flex flex-col p-2 bg-white w-full gap-y-2 rounded-lg" [formGroup]="group">
     <div class="grid grid-cols-2 gap-x-4 px-4">
         <div class="group">
             <app-input formControlName="receiverName" label="Tên người nhận" name="receiverName"
