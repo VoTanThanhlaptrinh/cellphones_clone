@@ -14,7 +14,7 @@ public class Order
     public string Status { get; set; } = "Pending";      // trạng thái (active/inactive/deleted...)
     [Required]
     public string Type { get; set; } = default!; // loại đơn hàng (pickup/delivery)
-    public decimal FeeId { get; set; }  // tổng giá trị đơn hàng
+    public long FeeId { get; set; }  // tổng giá trị đơn hàng
     [ForeignKey(nameof(FeeId))]
     public Fee Fee { get; set; } = default!; // phí vận chuyển (nếu có)
     [Required]

@@ -11,6 +11,18 @@ export interface OrderDetailView {
 
 export interface OrderView {
   id: number;
-  createDate: string | Date; 
+  createDate: string | Date;
   orderDetails: OrderDetailView[];
+}
+
+export interface PickupOrderRequest {
+  cartDetailIds: number[];
+  storeHouseId: number;
+}
+
+export interface DeliveryOrderRequest {
+  cartDetailIds: number[];
+  provinceName: string;
+  districtName: string;
+  street: string;
 }

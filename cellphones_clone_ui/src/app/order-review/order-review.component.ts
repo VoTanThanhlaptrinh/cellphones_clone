@@ -68,29 +68,29 @@ export class OrderReviewComponent implements OnInit {
     }
 
     proceed() {
-        if (this.fulfillmentMethod === 'PAY_ON_PICKUP') {
-            if (!this.selectedStore) {
-                this.notifyService.error('Vui lòng chọn cửa hàng để nhận hàng!');
-                return;
-            }
-            this.isLoading.set(true);
-            // Create order and go to success
-            this.orderService.createOrder(this.cartDetailIds).subscribe({
-                next: (response) => {
-                    this.notifyService.success('Đặt hàng thành công!');
-                    this.router.navigate(['/checkout'], { state: { orderId: response.data.id, success: true } });
-                },
-                error: (err) => {
-                    this.notifyService.error('Có lỗi xảy ra khi tạo đơn hàng');
-                    this.isLoading.set(false);
-                },
-                complete: () => {
-                    this.isLoading.set(false);
-                }
-            });
-        } else {
-            // Navigate to Payment Processing
-            this.router.navigate(['/payment'], { state: { cartDetailIds: this.cartDetailIds, totalPrice: this.totalPrice } });
-        }
+        // if (this.fulfillmentMethod === 'PAY_ON_PICKUP') {
+        //     if (!this.selectedStore) {
+        //         this.notifyService.error('Vui lòng chọn cửa hàng để nhận hàng!');
+        //         return;
+        //     }
+        //     this.isLoading.set(true);
+        //     // Create order and go to success
+        //     this.orderService.createOrder(this.cartDetailIds).subscribe({
+        //         next: (response) => {
+        //             this.notifyService.success('Đặt hàng thành công!');
+        //             this.router.navigate(['/checkout'], { state: { orderId: response.data.id, success: true } });
+        //         },
+        //         error: (err) => {
+        //             this.notifyService.error('Có lỗi xảy ra khi tạo đơn hàng');
+        //             this.isLoading.set(false);
+        //         },
+        //         complete: () => {
+        //             this.isLoading.set(false);
+        //         }
+        //     });
+        // } else {
+        //     // Navigate to Payment Processing
+        //     this.router.navigate(['/payment'], { state: { cartDetailIds: this.cartDetailIds, totalPrice: this.totalPrice } });
+        // }
     }
 }

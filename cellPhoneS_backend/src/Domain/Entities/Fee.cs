@@ -8,5 +8,5 @@ public class Fee
     [Required]
     [Key]
     public long Id { get; set; }
-    public List<FeeDetail> FeeDetails { get; set; } = default!;
+    public ICollection<FeeDetail> FeeDetails { get; set; } = new List<FeeDetail>();
 }
