@@ -19,11 +19,11 @@ public class PayOSServiceImpl : PayOSService
     public PayOSServiceImpl(IConfiguration configuration)
     {
         _configuration = configuration;
-        PS_CliENT_ID = _configuration["PS_CLIENT_ID"]!;
-        PS_API_KEY = _configuration["PS_API_KEY"]!;
-        PS_CHECKSUM_KEY = _configuration["PS_CHECKSUM_KEY"]!;
-        PS_CALL_BACK_URL = _configuration["PS_CALL_BACK_URL"]!;
-        PS_CANCEL_URL = _configuration["PS_CANCEL_URL"]!;
+        PS_CliENT_ID = _configuration["PayOS:clientId"]!;
+        PS_API_KEY = _configuration["PayOS:apiKey"]!;
+        PS_CHECKSUM_KEY = _configuration["PayOS:checksumKey"]!;
+        PS_CALL_BACK_URL = _configuration["PayOS:callBackUrl"]!;
+        PS_CANCEL_URL = _configuration["PayOS:cancelUrl"]!;
         _payOSClient = new PayOSClient(
             PS_CliENT_ID,
             PS_API_KEY,
@@ -45,21 +45,27 @@ public class PayOSServiceImpl : PayOSService
         return paymentLink.CheckoutUrl;
     }
 
-public async Task<string> GenerateQRCode(long orderId, long amount, string description)
+    public async Task<ServiceResult<string>> GenerateQRCode(long orderId, long amount, string description)
     {
-        var paymentRequest = new CreatePaymentLinkRequest
+        try
         {
-            OrderCode = orderId,
-            Amount = amount,
-            Description = description,
-            CancelUrl = PS_CANCEL_URL,
-            ReturnUrl = PS_CALL_BACK_URL,
-        };
+            var paymentRequest = new CreatePaymentLinkRequest
+            {
+                OrderCode = orderId,
+                Amount = amount,
+                Description = description,
+                CancelUrl = PS_CANCEL_URL,
+                ReturnUrl = PS_CALL_BACK_URL,
+            };
 
-        var paymentLink = await _payOSClient.PaymentRequests.CreateAsync(paymentRequest);
-        
-        // Trả về chuỗi dữ liệu mã QR (dạng chuỗi text VietQR) thay vì URL chuyển hướng
-        return paymentLink.QrCode; 
+            var paymentLink = await _payOSClient.PaymentRequests.CreateAsync(paymentRequest);
+            return ServiceResult<string>.Success(paymentLink.QrCode, "QR code generated successfully");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error generating QR code: {ex.Message}");
+            return ServiceResult<string>.Fail("Failed to generate QR code");
+        }
     }
 
     public async Task<bool> VerifyPayment(Webhook webhook)

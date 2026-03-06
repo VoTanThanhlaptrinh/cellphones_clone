@@ -49,17 +49,26 @@
       @if (selectedMethod() === 'ONLINE') {
       <div
         class="mt-2 flex flex-col items-center justify-center p-6 bg-gray-50 border border-gray-200 rounded-lg animate-fade-in">
-        <p class="text-sm text-gray-600 text-center mb-4">
-          Mở ứng dụng ngân hàng hoặc ví điện tử để quét mã QR và tiến hành thanh toán.
-        </p>
-        <div
-          class="w-48 h-48 border-2 border-dashed border-gray-300 rounded-xl bg-white flex items-center justify-center overflow-hidden shadow-inner mb-3">
-          <!-- Dummy QR Code placeholder -->
-          <img src="https://via.placeholder.com/200x200.png?text=QR+Code" alt="Dummy QR Code"
-            class="object-cover w-full h-full scale-90">
-        </div>
-        <p class="text-xs text-center text-gray-400 font-medium">Bạn sẽ tự động được chuyển hướng sau khi thanh toán
-          thành công.</p>
+        
+        @if (qrCodeUrl()) {
+          <p class="text-sm text-green-600 font-medium text-center mb-4">
+            Đơn hàng đã được tạo. Vui lòng quét mã QR dưới đây để thanh toán.
+          </p>
+          <div class="w-64 h-64 border-2 border-green-500 rounded-xl bg-white flex items-center justify-center overflow-hidden shadow-md mb-3 p-2">
+            <img [src]="qrCodeUrl()" alt="Mã QR Thanh Toán" class="object-contain w-full h-full">
+          </div>
+          <p class="text-xs text-center text-gray-500 font-medium">Bạn sẽ tự động được chuyển hướng sau khi thanh toán thành công.</p>
+        } @else {
+          <p class="text-sm text-gray-600 text-center mb-4">
+            Mở ứng dụng ngân hàng hoặc ví điện tử để quét mã QR và tiến hành thanh toán.
+          </p>
+          <div
+            class="w-48 h-48 border-2 border-dashed border-gray-300 rounded-xl bg-white flex items-center justify-center overflow-hidden shadow-inner mb-3">
+            <img src="https://via.placeholder.com/200x200.png?text=QR+Code" alt="Dummy QR Code"
+              class="object-cover w-full h-full scale-90">
+          </div>
+          <p class="text-xs text-center text-gray-400 font-medium">Mã QR sẽ xuất hiện sau khi tạo đơn hàng.</p>
+        }
       </div>
       }
     </div>

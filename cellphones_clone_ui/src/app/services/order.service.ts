@@ -3,9 +3,10 @@ import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { StoreView } from '../core/models/store.model';
 import { ApiResponse } from '../core/models/api-response.model';
-import { OrderView } from '../core/models/order.model';
+import { OrderView, PickupOrderRequest, DeliveryOrderRequest } from '../core/models/order.model';
 import { NotifyService } from './notify.service';
 import { PaymentFormData } from '../core/models/payment.model';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +18,7 @@ export class OrderService {
   private paymentData: PaymentFormData | null = null;
   constructor(private http: HttpClient, private notifyServce: NotifyService) {
   }
-    // Lưu data vào Service
+  // Lưu data vào Service
   setPaymentData(data: PaymentFormData) {
     this.paymentData = data;
   }
@@ -31,8 +32,12 @@ export class OrderService {
   clearPaymentData() {
     this.paymentData = null;
   }
-  createOrder(cartDetailIds: number[]) {
-    return this.http.post<ApiResponse<OrderView>>(`${this.baseUrl}/orders`, cartDetailIds)
+  createPickupOrder(payload: PickupOrderRequest): Observable<ApiResponse<OrderView>> {
+    return this.http.post<ApiResponse<OrderView>>(`${this.baseUrl}/orders/pickup`, payload);
+  }
+
+  createDeliveryOrder(payload: DeliveryOrderRequest): Observable<ApiResponse<OrderView>> {
+    return this.http.post<ApiResponse<OrderView>>(`${this.baseUrl}/orders/delivery`, payload);
   }
   get IsAppear(): boolean {
     return this.appear();

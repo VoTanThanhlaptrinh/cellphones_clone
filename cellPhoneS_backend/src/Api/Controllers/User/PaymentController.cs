@@ -1,6 +1,7 @@
 using cellphones_backend.DTOs.Responses;
 using cellphones_backend.Models;
 using cellphones_backend.Repositories;
+using cellPhoneS_backend.Controllers;
 using cellPhoneS_backend.Services.Interface;
 using Microsoft.AspNetCore.Mvc;
 using PayOS.Models.Webhooks;
@@ -9,7 +10,7 @@ namespace cellphones_backend.Controllers
 {
     [Route("api/payment")]
     [ApiController]
-    public class PaymentController : ControllerBase
+    public class PaymentController : BaseController
     {
         private readonly IPaymentRepository _paymentRepository;
         private readonly PayOSService _payOSService;
@@ -40,9 +41,9 @@ namespace cellphones_backend.Controllers
             }
         }
         [HttpGet("qr-payment/{orderId}")]
-        public Task<ActionResult<ApiResponse<string>>> GenerateQRPaymentLink(long orderId)
+        public async Task<ActionResult<ApiResponse<string>>> GenerateQRPaymentLink(long orderId)
         {
-            return null!; // TODO: implement QR code payment link generation
+            return HandleResult(await _payOSService.GenerateQRCode(orderId, 1000, "Thử nghiệm thanh toán")); // TODO: implement QR code payment link generation
         }
 
     }

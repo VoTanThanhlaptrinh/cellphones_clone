@@ -5,6 +5,8 @@ import { CurrencyPipe, NgClass } from '@angular/common';
 import { NotifyService } from '../services/notify.service';
 import { FormsModule } from '@angular/forms';
 import { CartView } from '../core/models/cart_request.model';
+import { DeliveryOrderRequest, PickupOrderRequest } from '../core/models/order.model';
+import { PaymentService } from '../services/payment.service';
 
 @Component({
   selector: 'app-payment',
@@ -20,12 +22,14 @@ export class PaymentComponent implements OnInit {
 
   selectedMethod = signal<'COD' | 'ONLINE'>('COD');
   isLoading = signal<boolean>(false);
+  qrCodeUrl = signal<string | null>(null);
 
   private currency = inject(CurrencyPipe);
 
   constructor(
     private router: Router,
     private orderService: OrderService,
+    private paymentService: PaymentService,
     private notifyService: NotifyService) { }
 
   ngOnInit() {
@@ -43,32 +47,67 @@ export class PaymentComponent implements OnInit {
 
   createOrder() {
     this.isLoading.set(true);
+    const paymentData = this.orderService.getPaymentData();
 
-    // Simulate API call and success for either COD or ONLINE payment
-    setTimeout(() => {
+    if (!paymentData) {
+      this.notifyService.error('Không tìm thấy thông tin giao hàng!');
       this.isLoading.set(false);
-      this.notifyService.success(this.selectedMethod() === 'ONLINE' ? 'Chuyển hướng đến cổng thanh toán...' : 'Tạo đơn hàng thành công!');
+      return;
+    }
 
-      // Simulate redirection to checkout success view
-      this.router.navigate(['/checkout'], { state: { success: true } });
-    }, 1500);
+    const cartIds = this.cartDetails.map(c => c.cartDetailId);
 
-    // If using the real API, uncomment the following and adapt cart details payload:
-    /*
-    this.orderService.createOrder(this.cartDetails.map(c => c.id)).subscribe({
-      next: (response) => {
-        this.notifyService.success('Thanh toán thành công!');
-        this.router.navigate(['/checkout'], { state: { orderId: response.data.id, success: true } });
-      },
-      error: (err) => {
-        this.notifyService.error('Có lỗi xảy ra khi tạo đơn hàng');
-        this.isLoading.set(false);
-      },
-      complete: () => {
-        this.isLoading.set(false);
-      }
-    });
-    */
+    if (paymentData.deliveryMethod === 'at-store') {
+      const payload: PickupOrderRequest = {
+        cartDetailIds: cartIds,
+        storeHouseId: Number(paymentData.storeInfo?.storeId)
+      };
+
+      this.orderService.createPickupOrder(payload).subscribe({
+        next: (response) => this.handleOrderSuccess(response.data.id),
+        error: (err) => this.handleOrderError(err)
+      });
+    } else {
+      const payload: DeliveryOrderRequest = {
+        cartDetailIds: cartIds,
+        provinceName: paymentData.shipInfo?.shipCity || '',
+        districtName: paymentData.shipInfo?.shipDistrict || '',
+        street: paymentData.shipInfo?.address || ''
+      };
+
+      this.orderService.createDeliveryOrder(payload).subscribe({
+        next: (response) => this.handleOrderSuccess(response.data.id),
+        error: (err) => this.handleOrderError(err)
+      });
+    }
+  }
+
+  private handleOrderSuccess(orderId: number) {
+    if (this.selectedMethod() === 'ONLINE') {
+      this.notifyService.success('Đang tạo mã thanh toán QR...');
+      this.paymentService.generateQRPaymentLink(orderId).subscribe({
+        next: (response) => {
+          this.qrCodeUrl.set(response.data);
+          this.isLoading.set(false);
+          this.orderService.clearPaymentData();
+          // Keep user on the page to scan the QR
+        },
+        error: (err) => {
+          this.notifyService.error('Lỗi khi tạo mã QR thanh toán.');
+          this.isLoading.set(false);
+        }
+      });
+    } else {
+      this.notifyService.success('Tạo đơn hàng thành công!');
+      this.isLoading.set(false);
+      this.orderService.clearPaymentData();
+      this.router.navigate(['/checkout'], { state: { orderId: orderId, success: true } });
+    }
+  }
+
+  private handleOrderError(err: any) {
+    this.notifyService.error(err.error?.message || 'Có lỗi xảy ra khi tạo đơn hàng');
+    this.isLoading.set(false);
   }
 
   convertPriceVnd(price: number): string {

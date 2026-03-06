@@ -43,6 +43,7 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, string>
     public DbSet<Payment> Payments { get; set; }
     public DbSet<ProductColorStockView> ProductColorStockView { get; set; }
     public DbSet<ProductSearchResult> ProductSearchResults { get; set; }
+    public DbSet<Fee> Fees { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -92,6 +93,7 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, string>
         {
            entity.HasIndex(c => c.SlugName).IsUnique(); 
         });
+
     }
 }
 
