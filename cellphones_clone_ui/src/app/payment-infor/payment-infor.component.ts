@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import { UserView } from '../core/models/user_response.model';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormGroup, FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
@@ -9,6 +9,9 @@ import { StoreFormComponent } from "../store-form/store-form.component";
 import { ShipFormComponent } from "../ship-form/ship-form.component";
 import { CartView } from '../core/models/cart_request.model';
 import { PaymentFormData } from '../core/models/payment.model';
+import { DeliveryOrderRequest, PickupOrderRequest } from '../core/models/order.model';
+import { PaymentService } from '../services/payment.service';
+import { NotifyService } from '../services/notify.service';
 
 @Component({
   selector: 'app-payment-infor',
@@ -21,13 +24,16 @@ export class PaymentInforComponent implements OnInit {
   private currency = inject(CurrencyPipe);
   private fb = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
+  isLoading = signal<boolean>(false);
   cartDetails: CartView[] = [];
   city: string[] = [];
   districtLabel = 'Chọn tỉnh/thành phố'
   user?: UserView = {
     name: "Võ Tấn Thành", mobile: "0796692184", email: "votanthanh32004@gmail.com"
   };
-  constructor(private router: Router, private orderService: OrderService) { }
+  constructor(private router: Router, private orderService: OrderService,
+    private paymentService: PaymentService,
+    private notifyService: NotifyService) { }
 
   ngOnInit(): void {
     const state = history.state;
@@ -101,6 +107,7 @@ export class PaymentInforComponent implements OnInit {
     }
     this.saveDataBeforeLeave()
     this.orderService.setAppear(false);
+    this.createOrder();
   }
 
   goCart() {
@@ -158,4 +165,46 @@ export class PaymentInforComponent implements OnInit {
       }, 0); // 0 miligiây là đủ để Angular đẩy việc này xuống cuối hàng đợi render
     }
   }
+  createOrder() {
+    this.isLoading.set(true);
+    const paymentData = this.orderService.getPaymentData();
+
+    if (!paymentData) {
+      this.notifyService.error('Không tìm thấy thông tin giao hàng!');
+      this.isLoading.set(false);
+      return;
+    }
+
+    const cartIds = this.cartDetails.map(c => c.cartDetailId);
+
+    if (paymentData.deliveryMethod === 'at-store') {
+      const payload: PickupOrderRequest = {
+        cartDetailIds: cartIds,
+        storeHouseId: Number(paymentData.storeInfo?.storeId)
+      };
+
+      this.orderService.createPickupOrder(payload).subscribe({
+        next: (response) => this.orderService.setOrderId(response.data.id),
+        error: (err) => this.handleOrderError(err)
+      });
+    } else {
+      const payload: DeliveryOrderRequest = {
+        cartDetailIds: cartIds,
+        provinceName: paymentData.shipInfo?.shipCity || '',
+        districtName: paymentData.shipInfo?.shipDistrict || '',
+        street: paymentData.shipInfo?.address || ''
+      };
+
+      this.orderService.createDeliveryOrder(payload).subscribe({
+        next: (response) => this.orderService.setOrderId(response.data.id),
+        error: (err) => this.handleOrderError(err)
+      });
+    }
+  }
+
+  private handleOrderError(err: any) {
+    this.notifyService.error(err.error?.message || 'Có lỗi xảy ra khi tạo đơn hàng');
+    this.isLoading.set(false);
+  }
+
 } 

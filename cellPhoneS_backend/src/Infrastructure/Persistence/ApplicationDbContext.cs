@@ -44,6 +44,7 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, string>
     public DbSet<ProductColorStockView> ProductColorStockView { get; set; }
     public DbSet<ProductSearchResult> ProductSearchResults { get; set; }
     public DbSet<Fee> Fees { get; set; }
+    public DbSet<FeeDetail> FeeDetails { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -91,9 +92,25 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, string>
 
         modelBuilder.Entity<Category>(entity =>
         {
-           entity.HasIndex(c => c.SlugName).IsUnique(); 
+            entity.HasIndex(c => c.SlugName).IsUnique();
+        });
+        // Cấu hình bảng Fee
+        modelBuilder.Entity<Fee>(entity =>
+        {
+            entity.HasKey(e => e.Id);
         });
 
+        // Cấu hình bảng FeeDetail
+        modelBuilder.Entity<FeeDetail>(entity =>
+        {
+            // PHẢI dùng Id làm Key, không được dùng FeeId (trừ khi bạn muốn quan hệ 1-1)
+            entity.HasKey(e => e.Id);
+
+            entity.HasOne(d => d.Fee)
+                  .WithMany(p => p.FeeDetails)
+                  .HasForeignKey(d => d.FeeId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
     }
 }
 

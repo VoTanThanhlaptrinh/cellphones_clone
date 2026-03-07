@@ -15,11 +15,12 @@ public class CartDetailServiceImpl : CartDetailService
 
     public async Task DeleteRangeAsync(List<CartDetail> cartDetails)
     {
-        await _cartDetailRepository.RemoveRangeAsync(cartDetails);
+        await _cartDetailRepository.RemoveRangeAsync(cartDetails, isHardDelete: true);
     }
 
     public async Task<List<CartDetail>> GetCartDetails(string userId, List<long> cartItemIds)
     {
         return await _cartDetailRepository.GetCartDetails(userId, cartItemIds);
     }
+
 }

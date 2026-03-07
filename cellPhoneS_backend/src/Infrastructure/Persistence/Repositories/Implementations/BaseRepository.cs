@@ -46,18 +46,31 @@ public class BaseRepository<T> : IRepository<T> where T : class
     }
 
     public virtual Task RemoveAsync(T entity, CancellationToken cancellationToken = default)
-    {   
+    {
         return UpdateAsync(entity, cancellationToken);
     }
 
-    public virtual Task RemoveRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default)
+    public virtual Task RemoveRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default, bool isHardDelete = false)
     {
-        _dbSet.UpdateRange(entities);
+        if (isHardDelete)
+        {
+            _dbSet.RemoveRange(entities);
+        }
+        else
+        {
+            _dbSet.UpdateRange(entities);
+        }
         return Task.CompletedTask;
     }
 
     public Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         return _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public Task UpdateRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default)
+    {
+        _dbSet.UpdateRange(entities);
+        return Task.CompletedTask;
     }
 }

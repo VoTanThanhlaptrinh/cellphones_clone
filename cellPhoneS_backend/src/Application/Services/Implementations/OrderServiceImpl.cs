@@ -1,4 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using cellphones_backend.Data;
 using cellphones_backend.Models;
 using cellphones_backend.Repositories;
@@ -7,6 +11,7 @@ using cellPhoneS_backend.DTOs.Requests;
 using cellPhoneS_backend.DTOs.Responses;
 using cellPhoneS_backend.Models;
 using cellPhoneS_backend.Services.Interface;
+using Microsoft.EntityFrameworkCore;
 
 namespace cellPhoneS_backend.Services.Implement;
 
@@ -18,7 +23,31 @@ public class OrderServiceImpl : OrderService
     private readonly ShippingFeeService _shippingFeeService;
     private readonly IStoreService _storeService;
     private readonly ApplicationDbContext _context;
-    public OrderServiceImpl(IOrderRepository orderRepository, CartDetailService cartDetailService, IOrderDetailRepository orderDetailRepository, ShippingFeeService shippingFeeService, IStoreService storeService, ApplicationDbContext context)
+
+    #region Constants
+    private static class OrderStatuses
+    {
+        public const string Pending = "Pending";
+        public const string Paid = "Paid";
+        public const string Completed = "Completed";
+        public const string Shipping = "Shipping";
+        public const string Cancelled = "Cancelled";
+    }
+
+    private static class OrderTypes
+    {
+        public const string Delivery = "delivery";
+        public const string Pickup = "pickup";
+    }
+    #endregion
+
+    public OrderServiceImpl(
+        IOrderRepository orderRepository,
+        CartDetailService cartDetailService,
+        IOrderDetailRepository orderDetailRepository,
+        ShippingFeeService shippingFeeService,
+        IStoreService storeService,
+        ApplicationDbContext context)
     {
         _orderRepository = orderRepository;
         _cartDetailService = cartDetailService;
@@ -28,26 +57,23 @@ public class OrderServiceImpl : OrderService
         _context = context;
     }
 
+    #region PUBLIC APIs (Nghiệp vụ chính)
+
     public async Task<ServiceResult<string>> Checkout(string userId, long orderId)
     {
         var order = await _orderRepository.GetByIdAsync(orderId);
-        if (order == null)
-        {
-            return ServiceResult<string>.Fail("Order not found");
-        }
-        if (order.CreateBy != userId)
-        {
-            return ServiceResult<string>.Fail("User is not authorized to checkout this order");
-        }
-        order.Status = "Completed";
+        if (order == null) return ServiceResult<string>.Fail("Order not found");
+        if (order.CreateBy != userId) return ServiceResult<string>.Fail("User is not authorized to checkout this order");
+
+        order.Status = OrderStatuses.Paid;
         await _orderRepository.UpdateAsync(order);
         await _orderRepository.SaveChangesAsync();
+
         return ServiceResult<string>.Success("", "Order checked out successfully");
     }
 
     public async Task<ServiceResult<OrderView>> CreateDeliveryOrder(string userId, DeliveryOrderRequest payload)
     {
-        // 1. Validate payload
         if (payload.CartDetailIds == null || !payload.CartDetailIds.Any())
             return ServiceResult<OrderView>.Fail("Cart item IDs cannot be null or empty");
 
@@ -55,88 +81,67 @@ public class OrderServiceImpl : OrderService
         if (cartDetails == null || !cartDetails.Any())
             return ServiceResult<OrderView>.Fail("No cart items found for the user");
 
-        // 2. Fetch inventory data
-        var allPotentialStores = await _storeService.AllocateAllStockAsync(cartDetails, payload.ProvinceName);
+        var allPotentialStores = await _storeService.AllocateAllStockAsync(cartDetails);
         if (allPotentialStores == null || !allPotentialStores.Any())
             throw new ArgumentException("No store found containing these products.");
 
-        // 3. Allocate inventory to optimal stores
-        var finalOrderDetails = AllocateDeliveryInventory(cartDetails, allPotentialStores, payload.ProvinceName, userId);
+        // Sử dụng hàm Core đã gộp: Ưu tiên kho nằm trong cùng Province
+        var finalOrderDetails = await AllocateInventoryCoreAsync(
+            cartDetails,
+            allPotentialStores,
+            s => s.City == payload.ProvinceName,
+            userId);
 
-        // 4. Calculate shipping fee
         long totalShippingFee = await CalculateDeliveryShippingFeeAsync(finalOrderDetails, allPotentialStores, payload.ProvinceName, payload.DistrictName);
 
-        // 5. Begin DB Transaction
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
-            // 5.1. Save Order and Details
-            var order = await SaveOrderAsync(userId, "delivery", finalOrderDetails, totalShippingFee);
+            var order = await SaveOrderAsync(userId, OrderTypes.Delivery, finalOrderDetails, totalShippingFee);
 
-            // 5.2. Clear purchased items from cart
-            await _cartDetailService.DeleteRangeAsync(cartDetails);
+            await _cartDetailService.DeleteRangeAsync(cartDetails); // IsHardDelete = true bên trong
             await _context.SaveChangesAsync();
-
-            // 5.3. Commit transaction
             await transaction.CommitAsync();
 
-            // 6. Map to View
-            var orderView = MapToOrderView(order);
-
-            return ServiceResult<OrderView>.Success(orderView, "Delivery order created successfully");
+            return ServiceResult<OrderView>.Success(MapToOrderView(order), "Delivery order created successfully");
         }
         catch (Exception ex)
         {
-            // Rollback on failure
             await transaction.RollbackAsync();
-
-            // TODO: Add _logger.LogError here
             return ServiceResult<OrderView>.Fail($"Failed to create delivery order: {ex.Message}");
         }
     }
 
     public async Task<ServiceResult<OrderView>> CreatePickupOrder(string userId, PickupOrderRequest payload)
     {
-        // 1. Validate payload
         if (payload.CartDetailIds == null || !payload.CartDetailIds.Any())
             return ServiceResult<OrderView>.Fail("Cart item IDs cannot be null or empty");
 
-        // 2. Fetch cart details
         var cartDetails = await _cartDetailService.GetCartDetails(userId, payload.CartDetailIds);
         if (cartDetails == null || !cartDetails.Any())
             return ServiceResult<OrderView>.Fail("No cart items found for the user");
 
-        // 3. Gọi StoreService để lấy Tồn kho của cửa hàng này (Giao tiếp giữa các Service)
-        // Cần tạo hàm này bên StoreService để query trực tiếp theo danh sách ProductId và StoreHouseId
-        var storeInventory = await _storeService.GetInventoryForStoreAsync(cartDetails, payload.StoreHouseId);
-
+        var storeInventory = await _storeService.AllocateAllStockAsync(cartDetails);
         if (storeInventory == null || !storeInventory.Any())
             throw new ArgumentException("Cửa hàng này hiện không có sẵn các sản phẩm trong giỏ.");
 
-        // 4. Begin DB Transaction
         using var transaction = await _context.Database.BeginTransactionAsync();
-
         try
         {
-            // 5. Allocate inventory (Xử lý hoàn toàn trong RAM)
-            var finalOrderDetails = AllocatePickupInventory(cartDetails, storeInventory, payload.StoreHouseId, userId);
+            // Sử dụng hàm Core đã gộp: Ưu tiên kho có StoreHouseId trùng với khách chọn
+            var finalOrderDetails = await AllocateInventoryCoreAsync(
+                cartDetails,
+                storeInventory,
+                s => s.StoreHouseId == payload.StoreHouseId,
+                userId);
 
-            // 6. Save Order and Details (Fee = 0)
-            var order = await SaveOrderAsync(userId, "pickup", finalOrderDetails, 0);
+            var order = await SaveOrderAsync(userId, OrderTypes.Pickup, finalOrderDetails, 0);
 
-            // 7. Clear purchased items from cart
             await _cartDetailService.DeleteRangeAsync(cartDetails);
-
-            // 8. Lưu tất cả thay đổi (Lúc này EF Core sẽ tracking list storeInventory và update CSDL)
             await _context.SaveChangesAsync();
-
-            // 9. Commit transaction
             await transaction.CommitAsync();
 
-            // 10. Map to View
-            var orderView = MapToOrderView(order);
-
-            return ServiceResult<OrderView>.Success(orderView, "Pickup order created successfully");
+            return ServiceResult<OrderView>.Success(MapToOrderView(order), "Pickup order created successfully");
         }
         catch (Exception ex)
         {
@@ -148,34 +153,108 @@ public class OrderServiceImpl : OrderService
     public async Task<ServiceResult<string>> DeleteOrder(string userId, long orderId)
     {
         var order = await _orderRepository.GetByIdAsync(orderId);
-        if (order == null)
+        if (order == null) return ServiceResult<string>.Fail("Không tìm thấy đơn hàng.");
+        if (order.CreateBy != userId) return ServiceResult<string>.Fail("Bạn không có quyền hủy đơn hàng này.");
+
+        if (order.Status == OrderStatuses.Completed || order.Status == OrderStatuses.Cancelled)
+            return ServiceResult<string>.Fail($"Không thể hủy đơn hàng đang ở trạng thái: {order.Status}");
+
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try
         {
-            return ServiceResult<string>.Fail("Order not found");
+            if (order.OrderDetails != null && order.OrderDetails.Any())
+            {
+                await RestoreInventoryAsync(order.OrderDetails.ToList());
+            }
+
+            bool isRefundSuccessful = await ProcessRefundIfNecessaryAsync(order);
+            if (!isRefundSuccessful)
+            {
+                throw new Exception("Quá trình hoàn tiền thất bại. Hệ thống tự động hủy thao tác.");
+            }
+
+            order.Status = OrderStatuses.Cancelled;
+            order.UpdateDate = DateTime.UtcNow;
+            order.UpdateBy = userId;
+
+            await _orderRepository.UpdateAsync(order);
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return ServiceResult<string>.Success("", "Hủy đơn hàng thành công.");
         }
-        if (order.CreateBy != userId)
+        catch (Exception ex)
         {
-            return ServiceResult<string>.Fail("User is not authorized to delete this order");
+            await transaction.RollbackAsync();
+            return ServiceResult<string>.Fail($"Lỗi khi hủy đơn hàng: {ex.Message}");
         }
-        await _orderRepository.RemoveAsync(order);
-        await _orderRepository.SaveChangesAsync();
-        return ServiceResult<string>.Success("", "Order deleted successfully");
     }
 
-    public Task<ServiceResult<string>> GetOrderById(string orderId)
+    #endregion
+
+    #region PRIVATE HELPERS (Logic nền tảng)
+
+    /// <summary>
+    /// Hàm lõi dùng chung để chia kho cho cả Pickup và Delivery, loại bỏ lặp code.
+    /// </summary>
+    private async Task<List<OrderDetail>> AllocateInventoryCoreAsync(
+        List<CartDetail> cartDetails,
+        List<StoreInventoryDTO> storeInventory,
+        Func<StoreInventoryDTO, bool> primarySortCondition,
+        string userId)
     {
-        throw new NotImplementedException();
+        var finalOrderDetails = new List<OrderDetail>();
+        var modifiedStores = new HashSet<StoreInventoryDTO>();
+
+        foreach (var cartItem in cartDetails)
+        {
+            var candidateStores = storeInventory
+                .Where(s => s.ProductId == cartItem.ProductCartDetailId && s.ColorId == cartItem.ColorId)
+                .OrderByDescending(primarySortCondition) // Động: Tỉnh thành (Delivery) hoặc ID Kho (Pickup)
+                .ThenByDescending(s => s.Quantity)
+                .ToList();
+
+            int remainingQty = cartItem.Quantity;
+
+            foreach (var store in candidateStores)
+            {
+                if (remainingQty <= 0) break;
+
+                int takeQty = Math.Min(store.Quantity, remainingQty);
+
+                finalOrderDetails.Add(new OrderDetail
+                {
+                    ProductOrderDetailId = cartItem.ProductCartDetailId,
+                    ColorId = cartItem.ColorId,
+                    Quantity = takeQty,
+                    StoreHouseId = store.StoreHouseId,
+                    Price = cartItem.Product!.SalePrice,
+                    CreateBy = userId,
+                    CreateDate = DateTime.UtcNow,
+                    Product = cartItem.Product,
+                    Color = cartItem.Color,
+                    UpdateBy = userId,
+                    UpdateDate = DateTime.UtcNow
+                });
+
+                remainingQty -= takeQty;
+                store.Quantity -= takeQty;
+                modifiedStores.Add(store);
+            }
+
+            if (remainingQty > 0)
+                throw new Exception($"Sản phẩm {cartItem.Product?.Name} màu {cartItem.Color?.Name} hiện không đủ số lượng!");
+        }
+
+        if (modifiedStores.Any())
+        {
+            await _storeService.UpdateStores(modifiedStores.ToList());
+        }
+
+        return finalOrderDetails;
     }
 
-    public Task<ServiceResult<string>> GetOrderByUserId(string userId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<ServiceResult<string>> GetOrders(int page, int pageSize)
-    {
-        throw new NotImplementedException();
-    }
-    // 1. Hàm lưu Database dùng chung
     private async Task<Order> SaveOrderAsync(string userId, string orderType, List<OrderDetail> orderDetails, long? shippingFee)
     {
         Fee fee = null;
@@ -184,9 +263,9 @@ public class OrderServiceImpl : OrderService
             fee = new Fee
             {
                 FeeDetails = new List<FeeDetail>
-            {
-                new FeeDetail { Value = shippingFee.Value, Name = "Shipping fee calculated by GHTK" }
-            }
+                {
+                    new FeeDetail { Value = shippingFee.Value, Name = "Shipping fee calculated by GHTK", Status = "active", CreateDate = DateTime.UtcNow, UpdateDate = DateTime.UtcNow }
+                }
             };
         }
 
@@ -197,7 +276,7 @@ public class OrderServiceImpl : OrderService
             CreateDate = DateTime.UtcNow,
             Type = orderType,
             Fee = fee,
-            Status = "Pending",
+            Status = OrderStatuses.Pending,
             UpdateBy = userId,
             UpdateDate = DateTime.UtcNow
         };
@@ -208,7 +287,6 @@ public class OrderServiceImpl : OrderService
         return order;
     }
 
-    // 2. Hàm Map ra View dùng chung
     private OrderView MapToOrderView(Order order)
     {
         return new OrderView
@@ -228,69 +306,19 @@ public class OrderServiceImpl : OrderService
                 od.Color?.Image?.BlobUrl,
                 od.Quantity
             )).ToList(),
-            Fee = order.Fee?.FeeDetails?.Select(fd => new FeeView { Name = fd.Name, Value = fd.Value }).ToList()
-                  ?? new List<FeeView>()
+            Fee = order.Fee?.FeeDetails?.Select(fd => new FeeView { Name = fd.Name, Value = fd.Value }).ToList() ?? new List<FeeView>()
         };
     }
-    // 3. Logic chia kho gom hàng (Chỉ dành cho Delivery)
-    private List<OrderDetail> AllocateDeliveryInventory(List<CartDetail> cartDetails, List<Store> allPotentialStores, string provinceName, string userId)
+
+    private async Task<long> CalculateDeliveryShippingFeeAsync(List<OrderDetail> orderDetails, List<StoreInventoryDTO> allPotentialStores, string destProvince, string destDistrict)
     {
-        var finalOrderDetails = new List<OrderDetail>();
-
-        foreach (var cartItem in cartDetails)
-        {
-            var candidateStores = allPotentialStores
-                .Where(s => s.ProductId == cartItem.ProductCartDetailId && s.ColorId == cartItem.ColorId)
-                .OrderByDescending(s => s.StoreHouse?.City == provinceName)
-                .ThenByDescending(s => s.Quantity)
-                .ToList();
-
-            int remainingQty = cartItem.Quantity;
-
-            foreach (var store in candidateStores)
-            {
-                if (remainingQty <= 0) break;
-
-                int takeQty = Math.Min(store.Quantity, remainingQty);
-
-                finalOrderDetails.Add(new OrderDetail
-                {
-                    ProductOrderDetailId = cartItem.ProductCartDetailId,
-                    ColorId = cartItem.ColorId,
-                    Quantity = takeQty,
-                    StoreHouseId = store.StoreHouseId,
-                    Price = cartItem.Product.SalePrice,
-                    CreateBy = userId,
-                    CreateDate = DateTime.UtcNow,
-                    // QUAN TRỌNG: Phải gán 2 Object này để lát nữa hàm MapToOrderView không bị lỗi NullReference
-                    Product = cartItem.Product,
-                    Color = cartItem.Color
-                });
-
-                remainingQty -= takeQty;
-                store.Quantity -= takeQty;
-            }
-
-            if (remainingQty > 0)
-            {
-                throw new Exception($"Sản phẩm {cartItem.Product.Name} màu {cartItem.Color?.Name} không đủ hàng!");
-            }
-        }
-
-        return finalOrderDetails;
-    }
-
-    // 4. Logic gọi API tính phí ship (Chỉ dành cho Delivery)
-    private async Task<long> CalculateDeliveryShippingFeeAsync(List<OrderDetail> orderDetails, List<Store> allPotentialStores, string destProvince, string destDistrict)
-    {
-        // Lưu ý: Code cũ của bạn bị mất cái * 500 gram, mình đã thêm lại để GHTK không báo lỗi cân nặng
         int defaultWeight = 500;
 
         var packagesToShip = orderDetails
             .GroupBy(od => od.StoreHouseId)
             .Select(group =>
             {
-                var storeInfo = allPotentialStores.First(s => s.StoreHouseId == group.Key).StoreHouse;
+                var storeInfo = allPotentialStores.First(s => s.StoreHouseId == group.Key);
                 int totalWeight = group.Sum(od => od.Quantity) * defaultWeight;
                 return new PackageToShip(storeInfo.City, storeInfo.District, totalWeight);
             })
@@ -298,56 +326,58 @@ public class OrderServiceImpl : OrderService
 
         return await _shippingFeeService.CalculateAccurateShippingFee(packagesToShip, destProvince, destDistrict);
     }
-    private List<OrderDetail> AllocatePickupInventory(List<CartDetail> cartDetails, List<Store> storeInventory, long storeHouseId, string userId)
+
+    private async Task RestoreInventoryAsync(List<OrderDetail> orderDetails)
     {
-        var finalOrderDetails = new List<OrderDetail>();
+        if (orderDetails == null || !orderDetails.Any()) return;
 
-        foreach (var cartItem in cartDetails)
+        const int chunkSize = 50; // Mỗi đợt ta chỉ gửi 50 câu lệnh UPDATE
+
+        for (int i = 0; i < orderDetails.Count; i += chunkSize)
         {
-            // TÌM VÀ SẮP XẾP KHO:
-            var candidateStores = storeInventory
-                .Where(s => s.ProductId == cartItem.ProductCartDetailId && s.ColorId == cartItem.ColorId)
-                // ƯU TIÊN 1: Kho khách hàng chọn đến lấy sẽ được đẩy lên đầu tiên
-                .OrderByDescending(s => s.StoreHouseId == storeHouseId)
-                // ƯU TIÊN 2: Các kho khác, kho nào nhiều hàng hơn thì rút trước
-                .ThenByDescending(s => s.Quantity)
-                .ToList();
+            // Cắt ra một "lát" (chunk) gồm tối đa 50 phần tử
+            var currentChunk = orderDetails.Skip(i).Take(chunkSize).ToList();
 
-            int remainingQty = cartItem.Quantity;
+            var sqlBatch = new StringBuilder();
+            var currentTime = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
 
-            foreach (var store in candidateStores)
+            foreach (var od in currentChunk)
             {
-                if (remainingQty <= 0) break;
-
-                int takeQty = Math.Min(store.Quantity, remainingQty);
-
-                // Tạo OrderDetail
-                finalOrderDetails.Add(new OrderDetail
-                {
-                    ProductOrderDetailId = cartItem.ProductCartDetailId,
-                    ColorId = cartItem.ColorId,
-                    Quantity = takeQty,
-                    StoreHouseId = store.StoreHouseId, // QUAN TRỌNG: Lưu ID kho THỰC TẾ bị trừ hàng để sau này shop biết đường luân chuyển
-                    Price = cartItem.Product!.SalePrice,
-                    CreateBy = userId,
-                    CreateDate = DateTime.UtcNow,
-                    Product = cartItem.Product,
-                    Color = cartItem.Color
-                });
-
-                remainingQty -= takeQty;
-
-                // Trừ số lượng ảo trong RAM
-                store.Quantity -= takeQty;
+                sqlBatch.Append($@"
+                    UPDATE ""Stores"" 
+                    SET ""Quantity"" = ""Quantity"" + {od.Quantity}, 
+                        ""UpdateDate"" = '{currentTime}'
+                    WHERE ""StoreHouseId"" = {od.StoreHouseId} 
+                      AND ""ProductId"" = {od.ProductOrderDetailId} 
+                      AND ""ColorId"" = {od.ColorId};
+                ");
             }
 
-            // Nếu đã vét sạch tất cả các kho trên hệ thống mà vẫn không đủ số lượng
-            if (remainingQty > 0)
-            {
-                throw new Exception($"Sản phẩm {cartItem.Product?.Name} màu {cartItem.Color?.Name} hiện không đủ số lượng trên toàn hệ thống!");
-            }
+            // Gửi từng đợt xuống Database
+            await _context.Database.ExecuteSqlRawAsync(sqlBatch.ToString());
         }
-
-        return finalOrderDetails;
     }
+
+    private async Task<bool> ProcessRefundIfNecessaryAsync(Order order)
+    {
+        return true;
+    }
+    #endregion
+
+    #region NOT IMPLEMENTED YET
+    public Task<ServiceResult<string>> GetOrderById(string orderId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<ServiceResult<string>> GetOrderByUserId(string userId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<ServiceResult<string>> GetOrders(int page, int pageSize)
+    {
+        throw new NotImplementedException();
+    }
+    #endregion
 }

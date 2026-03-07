@@ -16,6 +16,7 @@ export class OrderService {
   private appear = signal<boolean>(true);
   orderView = signal<OrderView | null>(null)
   private paymentData: PaymentFormData | null = null;
+  private orderId = signal<number | null>(null);
   constructor(private http: HttpClient, private notifyServce: NotifyService) {
   }
   // Lưu data vào Service
@@ -44,5 +45,11 @@ export class OrderService {
   }
   setAppear(b: boolean) {
     this.appear.set(b);
+  }
+  setOrderId(id: number) {
+    this.orderId.set(id);
+  }
+  getOrderId(): number | null {
+    return this.orderId();
   }
 }
