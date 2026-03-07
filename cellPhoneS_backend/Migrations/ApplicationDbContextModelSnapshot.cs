@@ -312,7 +312,7 @@ namespace cellPhoneS_backend.Migrations
 
                     b.HasIndex("FeeId");
 
-                    b.ToTable("FeeDetail");
+                    b.ToTable("FeeDetails");
                 });
 
             modelBuilder.Entity("cellPhoneS_backend.Models.ProductImage", b =>

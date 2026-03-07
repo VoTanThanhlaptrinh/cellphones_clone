@@ -14,7 +14,9 @@ namespace cellPhoneS_backend.Services.Interface
         /// </summary>
         /// <returns>A service result containing a list of store views</returns>
         Task<ServiceResult<List<StoreView>>> GetStoreViewsAsync();
-        Task<List<Store>> AllocateAllStockAsync(List<CartDetail> cartItems, string customerProvince);
-        Task<List<Store>> GetInventoryForStoreAsync(List<CartDetail> cartItems, long storeHouseId);
+        Task<List<StoreInventoryDTO>> AllocateAllStockAsync(List<CartDetail> cartItems);
+
+        Task UpdateStores(List<StoreInventoryDTO> stores);
+        Task<List<Store>> GetStoresAsync(List<OrderDetail> orderDetails);
     }
 }

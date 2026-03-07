@@ -7,7 +7,6 @@ namespace cellPhoneS_backend.Models;
 public class FeeDetail
 {
     [Required]
-    [Key]
     public long Id { get; set; }
     [Required]
     public string Name { get; set; } = default!;

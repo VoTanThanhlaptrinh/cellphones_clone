@@ -15,18 +15,23 @@ public class StoreServiceImpl : IStoreService
         _storeRepository = storeRepository;
         _storeHouseRepository = storeHouseRepository;
     }
-    public Task<List<Store>> AllocateAllStockAsync(List<CartDetail> cartItems, string customerProvince)
+    public Task<List<StoreInventoryDTO>> AllocateAllStockAsync(List<CartDetail> cartItems)
     {
-        return _storeRepository.AllocateAllStockAsync(cartItems, customerProvince);
+        return _storeRepository.AllocateAllStockAsync(cartItems);
     }
 
-    public Task<List<Store>> GetInventoryForStoreAsync(List<CartDetail> cartItems, long storeHouseId)
+    public Task<List<Store>> GetStoresAsync(List<OrderDetail> orderDetails)
     {
-        return _storeRepository.GetInventoryForStoreAsync(cartItems, storeHouseId);
+        throw new NotImplementedException();
     }
 
     public async Task<ServiceResult<List<StoreView>>> GetStoreViewsAsync()
     {
         return ServiceResult<List<StoreView>>.Success(await _storeHouseRepository.GetStoreViewsAsync(), "Store views retrieved successfully");
+    }
+
+    public async Task UpdateStores(List<StoreInventoryDTO> stores)
+    {
+        await _storeRepository.UpdateRangeAsync(stores);
     }
 }

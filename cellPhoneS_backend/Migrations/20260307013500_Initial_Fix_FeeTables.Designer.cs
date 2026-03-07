@@ -12,8 +12,8 @@ using cellphones_backend.Data;
 namespace cellPhoneS_backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260123032816_InitialCreate_Postgres")]
-    partial class InitialCreate_Postgres
+    [Migration("20260307013500_Initial_Fix_FeeTables")]
+    partial class Initial_Fix_FeeTables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -206,6 +206,11 @@ namespace cellPhoneS_backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("SlugName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text");
@@ -265,7 +270,7 @@ namespace cellPhoneS_backend.Migrations
                     b.ToTable("DemandImages");
                 });
 
-            modelBuilder.Entity("cellPhoneS_backend.Models.JwtRotation", b =>
+            modelBuilder.Entity("cellPhoneS_backend.Models.Fee", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -273,40 +278,44 @@ namespace cellPhoneS_backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<DateTime?>("ExprireAt")
+                    b.HasKey("Id");
+
+                    b.ToTable("Fees");
+                });
+
+            modelBuilder.Entity("cellPhoneS_backend.Models.FeeDetail", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreateDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("ReplaceByTokenHash")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                    b.Property<long>("FeeId")
+                        .HasColumnType("bigint");
 
-                    b.Property<DateTime?>("RevokeAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("SessionId")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("TokenHash")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
-
-                    b.Property<string>("UserId")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("Value")
+                        .HasColumnType("bigint");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("ExprireAt");
+                    b.HasIndex("FeeId");
 
-                    b.HasIndex("SessionId");
-
-                    b.HasIndex("TokenHash")
-                        .IsUnique();
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("JwtRotations");
+                    b.ToTable("FeeDetails");
                 });
 
             modelBuilder.Entity("cellPhoneS_backend.Models.ProductImage", b =>
@@ -348,6 +357,31 @@ namespace cellPhoneS_backend.Migrations
                     b.ToTable("ProductImages");
                 });
 
+            modelBuilder.Entity("cellPhoneS_backend.Models.ProductSearchResult", b =>
+                {
+                    b.Property<double>("BasePrice")
+                        .HasColumnType("double precision");
+
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<double>("SalePrice")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("SearchVector")
+                        .HasColumnType("text");
+
+                    b.ToTable((string)null);
+
+                    b.ToView("mv_ProductSearch", (string)null);
+                });
+
             modelBuilder.Entity("cellphones_backend.Models.Brand", b =>
                 {
                     b.Property<long>("Id")
@@ -372,6 +406,11 @@ namespace cellPhoneS_backend.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("SlugName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -507,6 +546,11 @@ namespace cellPhoneS_backend.Migrations
                     b.Property<long?>("ParentCategoryId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("SlugName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
                     b.Property<string>("Status")
                         .HasColumnType("text");
 
@@ -522,6 +566,9 @@ namespace cellPhoneS_backend.Migrations
                     b.HasIndex("CreateBy");
 
                     b.HasIndex("ParentCategoryId");
+
+                    b.HasIndex("SlugName")
+                        .IsUnique();
 
                     b.HasIndex("UpdateBy");
 
@@ -892,7 +939,14 @@ namespace cellPhoneS_backend.Migrations
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<long>("FeeId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -907,6 +961,8 @@ namespace cellPhoneS_backend.Migrations
 
                     b.HasIndex("CreateBy");
 
+                    b.HasIndex("FeeId");
+
                     b.HasIndex("UpdateBy");
 
                     b.ToTable("Orders");
@@ -919,6 +975,9 @@ namespace cellPhoneS_backend.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<long>("ColorId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("CreateBy")
                         .IsRequired()
@@ -939,9 +998,8 @@ namespace cellPhoneS_backend.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<long>("StoreHouseId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("UpdateBy")
                         .IsRequired()
@@ -952,11 +1010,15 @@ namespace cellPhoneS_backend.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ColorId");
+
                     b.HasIndex("CreateBy");
 
                     b.HasIndex("OrderId");
 
                     b.HasIndex("ProductOrderDetailId");
+
+                    b.HasIndex("StoreHouseId");
 
                     b.HasIndex("UpdateBy");
 
@@ -1156,6 +1218,11 @@ namespace cellPhoneS_backend.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("SlugName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<string>("Status")
                         .HasColumnType("text");
@@ -1727,15 +1794,15 @@ namespace cellPhoneS_backend.Migrations
                     b.Navigation("UpdateUser");
                 });
 
-            modelBuilder.Entity("cellPhoneS_backend.Models.JwtRotation", b =>
+            modelBuilder.Entity("cellPhoneS_backend.Models.FeeDetail", b =>
                 {
-                    b.HasOne("cellphones_backend.Models.User", "UserRef")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                    b.HasOne("cellPhoneS_backend.Models.Fee", "Fee")
+                        .WithMany("FeeDetails")
+                        .HasForeignKey("FeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("UserRef");
+                    b.Navigation("Fee");
                 });
 
             modelBuilder.Entity("cellPhoneS_backend.Models.ProductImage", b =>
@@ -2102,6 +2169,12 @@ namespace cellPhoneS_backend.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("cellPhoneS_backend.Models.Fee", "Fee")
+                        .WithMany()
+                        .HasForeignKey("FeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("cellphones_backend.Models.User", "UpdateUser")
                         .WithMany()
                         .HasForeignKey("UpdateBy")
@@ -2110,11 +2183,19 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Navigation("CreateUser");
 
+                    b.Navigation("Fee");
+
                     b.Navigation("UpdateUser");
                 });
 
             modelBuilder.Entity("cellphones_backend.Models.OrderDetail", b =>
                 {
+                    b.HasOne("cellphones_backend.Models.Color", "Color")
+                        .WithMany()
+                        .HasForeignKey("ColorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("cellphones_backend.Models.User", "CreateUser")
                         .WithMany()
                         .HasForeignKey("CreateBy")
@@ -2131,15 +2212,25 @@ namespace cellPhoneS_backend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("cellphones_backend.Models.StoreHouse", "StoreHouse")
+                        .WithMany()
+                        .HasForeignKey("StoreHouseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("cellphones_backend.Models.User", "UpdateUser")
                         .WithMany()
                         .HasForeignKey("UpdateBy")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.Navigation("Color");
+
                     b.Navigation("CreateUser");
 
                     b.Navigation("Product");
+
+                    b.Navigation("StoreHouse");
 
                     b.Navigation("UpdateUser");
                 });
@@ -2414,6 +2505,11 @@ namespace cellPhoneS_backend.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("UpdateUser");
+                });
+
+            modelBuilder.Entity("cellPhoneS_backend.Models.Fee", b =>
+                {
+                    b.Navigation("FeeDetails");
                 });
 
             modelBuilder.Entity("cellphones_backend.Models.Brand", b =>
