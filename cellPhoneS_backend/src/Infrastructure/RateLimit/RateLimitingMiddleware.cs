@@ -30,43 +30,43 @@ namespace cellPhoneS_backend.RateLimit
             if (matchedRule != null)
             {
                 // TODO: Check if the IP is in the Redis blocklist
-                // var db = _redis.GetDatabase();
-                // var blockKey = $"ratelimit:block:{clientIp}";
-                // var isBlocked = await db.KeyExistsAsync(blockKey);
-                // if (isBlocked)
-                // {
-                //     context.Response.StatusCode = 403;
-                //     await context.Response.WriteAsync("IP address is blocked due to rate limit violations");
-                //     return;
-                // }
+                var db = _redis.GetDatabase();
+                var blockKey = $"ratelimit:block:{clientIp}";
+                var isBlocked = await db.KeyExistsAsync(blockKey);
+                if (isBlocked)
+                {
+                    context.Response.StatusCode = 403;
+                    await context.Response.WriteAsync("IP address is blocked due to rate limit violations");
+                    return;
+                }
 
                 // TODO: Increment the request counter in Redis with a 1-minute TTL
-                // var counterKey = $"ratelimit:{matchedRule.Policy}:{clientIp}";
-                // var requestCount = await db.StringIncrementAsync(counterKey);
-                // if (requestCount == 1)
-                // {
-                //     await db.KeyExpireAsync(counterKey, TimeSpan.FromMinutes(1));
-                // }
+                var counterKey = $"ratelimit:{matchedRule.Policy}:{clientIp}";
+                var requestCount = await db.StringIncrementAsync(counterKey);
+                if (requestCount == 1)
+                {
+                    await db.KeyExpireAsync(counterKey, TimeSpan.FromMinutes(1));
+                }
 
                 // TODO: Check if the limit is exceeded and apply penalties
-                // var limit = GetLimitForPolicy(matchedRule.Policy);
-                // if (requestCount > limit)
-                // {
-                //     if (matchedRule.Policy == RateLimitPolicyType.Sensitive)
-                //     {
-                //         // Block IP for 15 minutes on sensitive endpoint violation
-                //         await db.StringSetAsync(blockKey, "1", TimeSpan.FromMinutes(15));
-                //         context.Response.StatusCode = 403;
-                //         await context.Response.WriteAsync("IP address blocked due to rate limit violation on sensitive endpoint");
-                //     }
-                //     else
-                //     {
-                //         // Return 429 Too Many Requests for non-sensitive endpoints
-                //         context.Response.StatusCode = 429;
-                //         await context.Response.WriteAsync("Rate limit exceeded. Please try again later.");
-                //     }
-                //     return;
-                // }
+                var limit = GetLimitForPolicy(matchedRule.Policy);
+                if (requestCount > limit)
+                {
+                    if (matchedRule.Policy == RateLimitPolicyType.Sensitive)
+                    {
+                        // Block IP for 15 minutes on sensitive endpoint violation
+                        await db.StringSetAsync(blockKey, "1", TimeSpan.FromMinutes(15));
+                        context.Response.StatusCode = 403;
+                        await context.Response.WriteAsync("IP address blocked due to rate limit violation on sensitive endpoint");
+                    }
+                    else
+                    {
+                        // Return 429 Too Many Requests for non-sensitive endpoints
+                        context.Response.StatusCode = 429;
+                        await context.Response.WriteAsync("Rate limit exceeded. Please try again later.");
+                    }
+                    return;
+                }
             }
 
             // Continue to the next middleware

@@ -41,13 +41,13 @@ namespace cellPhoneS_backend.RateLimit
                 // OAuth2 Authentication
                 new RateLimitRule
                 {
-                    UrlPattern = "/api/auth/Oauth2-google",
+                    UrlPattern = "/api/auth/oauth2-google",
                     Method = "POST",
                     Policy = RateLimitPolicyType.Sensitive
                 },
                 new RateLimitRule
                 {
-                    UrlPattern = "/api/auth/oauth2Zalo",
+                    UrlPattern = "/api/auth/oauth2-zalo",
                     Method = "POST",
                     Policy = RateLimitPolicyType.Sensitive
                 },
