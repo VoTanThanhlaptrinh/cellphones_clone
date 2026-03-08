@@ -13,8 +13,9 @@ public interface AuthService
     Task<ServiceResult<string>> TeacherRegister(TeacherRegisterDTO register);
     Task<ServiceResult<string>> Login(LoginDTO loginDTO, HttpContext context);
     Task<string> GenerateJwtToken(User user);
-    Task<ServiceResult<Oauth2GoogleCallBackResponse>> GetInfoAfterLoginByGoogle(HttpContext httpContext);
+    Task<string> GetInfoAfterLoginByGoogle(HttpContext httpContext);
     Task<ServiceResult<VoidResponse>> Logout(HttpContext context);
     Task<ServiceResult<string>> RefreshToken(HttpContext context);
     Task<ServiceResult<string>> IsLoggedIn(string userId, HttpContext context);
+    Task<string> GetUrlCallbackGoogle();
 }
