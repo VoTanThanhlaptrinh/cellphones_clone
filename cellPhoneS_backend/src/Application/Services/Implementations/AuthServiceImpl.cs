@@ -19,12 +19,14 @@ public class AuthServiceImpl : AuthService
     private readonly UserManager<User> _userManager;
     private readonly RoleManager<Role> _roleManager;
     private readonly JwtTokenService _jwtTokenService;
+    private readonly IConfiguration _configuration;
 
-    public AuthServiceImpl(UserManager<User> userManager, RoleManager<Role> roleManager, JwtTokenService jwtTokenService)
+    public AuthServiceImpl(UserManager<User> userManager, RoleManager<Role> roleManager, JwtTokenService jwtTokenService, IConfiguration configuration)
     {
         _userManager = userManager;
         _roleManager = roleManager;
         _jwtTokenService = jwtTokenService;
+        _configuration = configuration;
     }
 
     private async Task<User> ReturnUserIfExistEmail(string email)
@@ -142,27 +144,64 @@ public class AuthServiceImpl : AuthService
         throw new NotImplementedException();
     }
 
-    public async Task<ServiceResult<Oauth2GoogleCallBackResponse>> GetInfoAfterLoginByGoogle(HttpContext context)
+    public async Task<string> GetInfoAfterLoginByGoogle(HttpContext context)
     {
         var user = context.User;
         var email = user.FindFirst(ClaimTypes.Email)?.Value;
         var fullName = user.FindFirst(ClaimTypes.Name)?.Value;
         var userLogin = await ReturnUserIfExistEmail(email!);
-        if (userLogin != null)
+        if(userLogin == null)
         {
-            var cookieOptions = new CookieOptions
+            var newUser = new User
             {
-                HttpOnly = true, // JavaScript can't read inside
-                Secure = true, // Just pass through HTTPS
-                SameSite = SameSiteMode.Strict, // Against CSRF
-                Expires = DateTime.UtcNow.AddDays(10) // Time life
+                UserName = email,
+                Email = email,
+                Fullname = fullName,
+                CreateDate = DateTime.UtcNow,
+                UpdateDate = DateTime.UtcNow,
+                Status = "active",
             };
-            var jwtToken = await GenerateJwtToken(userLogin);
-            string refreshToken = Guid.NewGuid().ToString();
-            context.Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
-            return ServiceResult<Oauth2GoogleCallBackResponse>.Success(new Oauth2GoogleCallBackResponse(null, null, true), "Login successful");
+            await this._userManager.CreateAsync(newUser);
+            if (!await _roleManager.RoleExistsAsync("USER"))
+            {
+                var role = new Role()
+                {
+                    Name = "USER",
+                    Status = "active",
+                    CreateDate = DateTime.UtcNow,
+                    UpdateDate = DateTime.UtcNow
+                };
+                await _roleManager.CreateAsync(role);
+            }
+            await this._userManager.AddToRoleAsync(newUser, "USER");
+            userLogin = newUser;
         }
-        return ServiceResult<Oauth2GoogleCallBackResponse>.Fail("User not found, need to register", ServiceErrorType.NotFound);
+        var userAgent = context.Request.Headers["User-Agent"].ToString();
+        var ipAddress = context.Connection.RemoteIpAddress?.ToString();
+        var refreshToken = Guid.NewGuid().ToString();
+        var sessionId = Guid.NewGuid().ToString();
+
+        var tokenModel = new JwtRefreshes
+        {
+            UserId = userLogin.Id,
+            SessionId = sessionId,
+            UserAgent = userAgent,
+            IpAddress = ipAddress,
+            IsUsed = false,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        await _jwtTokenService.SaveRefreshTokenToRedisAsync(refreshToken, tokenModel, TimeSpan.FromDays(7));
+
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = false,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTime.UtcNow.AddDays(7)
+        };
+        context.Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
+        return _configuration["Authentication:Google:scRedirectUri"] ?? "https://cellphonesclonethanh.vercel.app/home";
     }
 
     public Task<ServiceResult<VoidResponse>> Logout(HttpContext context)
@@ -186,5 +225,10 @@ public class AuthServiceImpl : AuthService
     public Task<ServiceResult<string>> IsLoggedIn(string userId, HttpContext context)
     {
         return _jwtTokenService.RefreshJwtToken(context.Request);
+    }
+
+    public Task<string> GetUrlCallbackGoogle()
+    {
+        return Task.FromResult(_configuration["Authentication:Google:callbackUri"] ?? "http://localhost:5169/api/auth/callbackGoogle");
     }
 }

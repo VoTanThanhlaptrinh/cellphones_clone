@@ -47,11 +47,11 @@ namespace cellphones_backend.Controllers
             return HandleResult(await _authService.Login(loginDTO, HttpContext));
         }
         [HttpGet("oauth2-google")]
-        public Task Oauth2Google()
+        public async Task Oauth2Google()
         {
-            return HttpContext.ChallengeAsync("Google", new AuthenticationProperties
+            await HttpContext.ChallengeAsync("Google", new AuthenticationProperties
             {
-                RedirectUri = "http://localhost:4434/auth-handler",
+                RedirectUri = await _authService.GetUrlCallbackGoogle(),
             });
         }
         [HttpGet("oauth2-zalo")]
@@ -69,11 +69,11 @@ namespace cellphones_backend.Controllers
         {
             return null!;
         }
-        [HttpGet("callBack/google")]
-        [Authorize] // makesure users have to login to get permission access
-        public async Task<ActionResult<ApiResponse<Oauth2GoogleCallBackResponse>>> GetInfoAfterLoginByGoogle()
+        [HttpGet("callbackGoogle")]
+        public async Task GetInfoAfterLoginByGoogle()
         {
-            return HandleResult(await _authService.GetInfoAfterLoginByGoogle(HttpContext));
+            string redirectUrl = await _authService.GetInfoAfterLoginByGoogle(HttpContext);
+            HttpContext.Response.Redirect(redirectUrl);
         }
         [HttpGet("logout")]
         public async Task<ActionResult<ApiResponse<VoidResponse>>> Logout()
