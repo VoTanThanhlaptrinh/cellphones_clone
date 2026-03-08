@@ -72,6 +72,16 @@ internal partial class Program
             {
                 googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
                 googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+                googleOptions.Events = new Microsoft.AspNetCore.Authentication.OAuth.OAuthEvents
+                {
+                    OnRemoteFailure = context =>
+                    {
+                        context.HandleResponse();
+                        context.Response.Redirect("http://localhost:4200/login");
+
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
         var cs = builder.Configuration.GetConnectionString("StorageAccount");
@@ -124,10 +134,12 @@ internal partial class Program
             }
         }
 
-        app.UseHttpsRedirection();
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseHttpsRedirection();
+        }
         app.UseRouting();
         app.UseCors("CorsPolicy");
-        app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseMiddleware<cellPhoneS_backend.Auth.CentralizedAuthMiddleware>(cellPhoneS_backend.Auth.RouteConfig.GetPolicies());
         app.UseAuthorization();

@@ -46,7 +46,7 @@ namespace cellphones_backend.Controllers
 
             return HandleResult(await _authService.Login(loginDTO, HttpContext));
         }
-        [HttpGet("Oauth2-google")]
+        [HttpGet("oauth2-google")]
         public Task Oauth2Google()
         {
             return HttpContext.ChallengeAsync("Google", new AuthenticationProperties
@@ -54,7 +54,7 @@ namespace cellphones_backend.Controllers
                 RedirectUri = "http://localhost:4434/auth-handler",
             });
         }
-        [HttpGet("oauth2Zalo")]
+        [HttpGet("oauth2-zalo")]
         public IActionResult Oauth2Zalo()
         {
             return Ok();

@@ -1,6 +1,6 @@
-<main class="container w-full text-black mx-auto">
+<div class="min-h-screen w-full">
   <div class="w-full flex justify-center items-stretch">
-    <div class="flex-5 min-h-screen bg-neutral-50 flex justify-center items-center px-1 py-2 md:px-4 md:py-8">
+    <div class="flex-5 min-h-screen bg-neutral-100 flex justify-center items-center px-1 py-2 md:px-4 md:py-8">
       <div class="w-full max-w-210">
         <div class="w-full flex flex-col justify-center items-center gap-large md:gap-3xl relative space-y-">
           <div class="w-full flex flex-col justify-center items-center gap-2 md:gap-4">
@@ -147,14 +147,14 @@
         </div>
       </div>
     </div>
-    <div class="hidden md:block flex-4 min-h-screen pxl py-4xl justify-center">
+    <div class="hidden md:block flex-4 min-h-screen pxl py-4xl justify-center bg-white">
       <div class="w-full flex justify-center">
         <div class="w-full h-full max-w-110 flex flex-col items-center pt-7.5">
           <div class="w-full flex flex-col gap-4 md:gap-2xl justify-between items-center">
             <div class="w-full flex flex-col gap-4 md:gap-2xl">
-              <h1 class="hidden md:block text-3xl lg:text-4xl text-center main-text-color font-bold">
+              <p class="hidden md:block text-3xl xl:text-4xl text-center main-text-color font-bold">
                 Đăng nhập SMEMBER
-              </h1>
+              </p>
               <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="w-full flex flex-col gap-4 md:gap-1xl">
                 <div class="md:flex md:gap-2 md:group md:flex-col">
                   <label data-slot="label"
@@ -164,7 +164,7 @@
                     <div
                       class="md:p-1 rounded-lg md:flex md:items-center md:gap-2 md:min-w-0 md:border md:transition-colors md:data-[disabled=true]:bg-neutral-100 md:data-[disabled=true]:cursor-not-allowed md:border-neutral-300 md:focus-within:border-neutral-600 md:data-[disabled=true]:border-neutral-200 md:text-base md:min-h-12 md:rounded-lg md:pl-medium">
                       <input formControlName="email" data-slot="input" type="email"
-                        class="md:w-full md:h-full md:bg-transparent rounded-lg md:border-none md:outline-none md:shadow-none md:ring-0 md:focus:outline-none md:focus:border-none md:focus:ring-0 md:focus-visible:outline-none md:focus-visible:border-none md:focus-visible:ring-0 md:placeholder:text-neutral-300 md:placeholder:select-none md:disabled:opacity-80 md:disabled:cursor-not-allowed md:disabled:text-neutral-500 md:disabled:placeholder:text-neutral-400 md:overflow-hidden md:text-ellipsis md:whitespace-nowrap"
+                        class="px-2 md:w-full md:h-full md:bg-transparent md:border-none md:outline-none md:shadow-none md:ring-0 md:focus:outline-none md:focus:border-none md:focus:ring-0 md:focus-visible:outline-none md:focus-visible:border-none md:focus-visible:ring-0 md:placeholder:text-neutral-300 md:placeholder:select-none md:disabled:opacity-80 md:disabled:cursor-not-allowed md:disabled:text-neutral-500 md:disabled:placeholder:text-neutral-400 md:overflow-hidden md:text-ellipsis md:whitespace-nowrap"
                         placeholder="Nhập email của bạn" />
                     </div>
                     <div *ngIf="f['email'].touched && f['email'].errors" class="text-red-500 text-sm mt-1">
@@ -182,7 +182,7 @@
                     <div
                       class="md:p-1 rounded-lg md:flex md:items-center md:gap-2 md:min-w-0 md:border md:transition-colors md:data-[disabled=true]:bg-neutral-100 md:data-[disabled=true]:cursor-not-allowed md:border-neutral-300 md:focus-within:border-neutral-600 md:data-[disabled=true]:border-neutral-200 md:text-base md:min-h-12 md:rounded-lg md:pl-medium">
                       <input formControlName="password" data-slot="input"
-                        class="md:w-full md:h-full md:bg-transparent md:border-none md:outline-none md:shadow-none md:ring-0 md:focus:outline-none md:focus:border-none md:focus:ring-0 md:focus-visible:outline-none md:focus-visible:border-none md:focus-visible:ring-0 md:placeholder:text-neutral-300 md:placeholder:select-none md:disabled:opacity-80 md:disabled:cursor-not-allowed md:disabled:text-neutral-500 md:disabled:placeholder:text-neutral-400 md:overflow-hidden md:text-ellipsis md:whitespace-nowrap md:[&amp;::-ms-reveal]:hidden md:[&amp;::-ms-clear]:hidden md:appearance-none md:-webkit-appearance-none"
+                        class="px-2 md:w-full md:h-full md:bg-transparent md:border-none md:outline-none md:shadow-none md:ring-0 md:focus:outline-none md:focus:border-none md:focus:ring-0 md:focus-visible:outline-none md:focus-visible:border-none md:focus-visible:ring-0 md:placeholder:text-neutral-300 md:placeholder:select-none md:disabled:opacity-80 md:disabled:cursor-not-allowed md:disabled:text-neutral-500 md:disabled:placeholder:text-neutral-400 md:overflow-hidden md:text-ellipsis md:whitespace-nowrap md:[&amp;::-ms-reveal]:hidden md:[&amp;::-ms-clear]:hidden md:appearance-none md:-webkit-appearance-none"
                         autocomplete="off" spellcheck="false" placeholder="Nhập mật khẩu của bạn" type="password"
                         value="" />
                       <button type="button" tabindex="-1"
@@ -200,10 +200,6 @@
                       <span *ngIf="f['password'].errors['required']">Mật khẩu không được để trống</span>
                     </div>
                   </div>
-                </div>
-                <div class="w-full text-xs p-1 border border-info bg-text-experience rounded-lg text-neutral-800">
-                  Trải nghiệm đăng nhập liền mạch giữa CellphoneS và Điện Thoại
-                  Vui, ưu tiên dùng tài khoản CellphoneS (nếu có)
                 </div>
                 <div class="w-full">
                   <button data-slot="button"
@@ -243,12 +239,12 @@
                 </button>
               </div>
             </div>
-            <div class="w-full flex items-center justify-center mt-7.5">
+            <div class="w-full flex items-center justify-center mt-7.5 text-base">
               <span class="shrink-0 text-medium text-neutral-500">Bạn chưa có tài khoản?</span><a data-slot="button"
                 class="main-text-color md:flex md:items-center md:justify-center md:gap-2 md:cursor-pointer md:disabled:cursor-not-allowed md:border md:text-medium md:px-4 md:py-1 md:min-h-12 md:rounded-lg md:border-pure-white md:main-text-color md:bg-pure-white md:hover:border-neutral-50 md:hover:bg-neutral-50 lg:hover:bg-white md:disabled:border-pure-white md:disabled:text-black-300 md:disabled:bg-pure-white font-medium px-1 lg:border-none hover:border-none hover:underline"
-                type="button" href="/register">Đăng ký ngay</a>
+                type="button" routerLink="/register">Đăng ký ngay</a>
             </div>
-            <div class="w-full flex items-center justify-center text-neutral-500 text-medium text-center">
+            <div class="w-full flex items-center justify-center text-neutral-500 text-medium text-center text-base">
               <span>Mua sắm, sửa chữa tại <br /><a class="main-text-color font-medium hover:underline"
                   routerLink="/home">cellphones.com.vn</a>
                 và
@@ -259,4 +255,4 @@
       </div>
     </div>
   </div>
-</main>
+</div>

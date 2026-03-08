@@ -19,7 +19,7 @@ namespace cellPhoneS_backend.Controllers
         [HttpGet()]
         public async Task<ActionResult<ApiResponse<HomeViewModel>>> InitHome()
         {
-            return HandleResult(await _initService.InitHomePage()); ;
+            return HandleResult(await _initService.InitHomePage());
         }
 
     }

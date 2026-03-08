@@ -1,0 +1,27 @@
+/* Red tick checkbox styling */
+.red-checkbox {
+  width: 20px;
+  height: 20px;
+  accent-color: #dc2626;
+  cursor: pointer;
+  border: 2px solid #d1d5db;
+  border-radius: 4px;
+  appearance: auto;
+  -webkit-appearance: auto;
+}
+
+.red-checkbox:checked {
+  accent-color: #dc2626;
+  background-color: #dc2626;
+  border-color: #dc2626;
+}
+
+.red-checkbox:focus {
+  outline: 2px solid #dc2626;
+  outline-offset: 2px;
+}
+
+.red-checkbox:hover {
+  border-color: #dc2626;
+  box-shadow: 0 0 4px rgba(220, 38, 38, 0.5);
+}
