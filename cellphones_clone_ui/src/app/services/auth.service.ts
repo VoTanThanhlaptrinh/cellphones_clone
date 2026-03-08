@@ -122,7 +122,9 @@ export class AuthService {
       })
     );
   }
-
+  onOAuth2Google() {
+    window.location.href = environment.oauth2Google;
+  }
   private decodeAndSetUser(token: string): void {
     try {
       const decoded: any = jwtDecode(token);
