@@ -42,8 +42,15 @@ namespace cellPhoneS_backend.RateLimit
 
                 // TODO: Increment the request counter in Redis with a 1-minute TTL
                 var counterKey = $"ratelimit:{matchedRule.Policy}:{clientIp}";
+
+                // 1. Tăng giá trị
                 var requestCount = await db.StringIncrementAsync(counterKey);
-                if (requestCount == 1)
+
+                // 2. Kiểm tra TTL: 
+                // Nếu là 1 (mới tạo) HOẶC TTL bằng -1 (lỗi từ lần trước khiến key không có hạn dùng)
+                var currentTtl = await db.KeyTimeToLiveAsync(counterKey);
+
+                if (requestCount == 1 || currentTtl == null || currentTtl.Value.TotalSeconds < 0)
                 {
                     await db.KeyExpireAsync(counterKey, TimeSpan.FromMinutes(1));
                 }
@@ -115,7 +122,7 @@ namespace cellPhoneS_backend.RateLimit
             return policy switch
             {
                 RateLimitPolicyType.Sensitive => 5,        // 5 requests per minute
-                RateLimitPolicyType.Public => 60,          // 60 requests per minute
+                RateLimitPolicyType.Public => 120,          // 120 requests per minute
                 RateLimitPolicyType.Authenticated => 120,  // 120 requests per minute
                 _ => 60
             };
