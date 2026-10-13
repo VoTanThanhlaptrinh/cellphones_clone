@@ -93,45 +93,20 @@ docnet_workspace/
 ├── .vscode/
 │   └── settings.json                    # Workspace settings
 │
-├── cellPhoneS_backend/                  # 🔧 ASP.NET Core 9.0 Backend API
-│   ├── Auth/
-│   │   ├── RouteConfig.cs              # Centralized authorization policies
-│   │   └── CentralizedAuthMiddleware.cs # JWT & role-based access control
-│   ├── Controllers/
-│   │   ├── AuthController.cs           # Login, Register, OAuth2, JWT refresh
-│   │   ├── User/
-│   │   │   ├── ProductController.cs    # Product catalog endpoints
-│   │   │   ├── ProductSearchController.cs # Fuzzy search with caching
-│   │   │   ├── CartController.cs       # Shopping cart management
-│   │   │   ├── OrderController.cs      # Order creation & checkout
-│   │   │   ├── CategoryController.cs   # Category browsing
-│   │   │   └── HomeController.cs       # Homepage data
-│   │   └── Admin/
-│   │       └── (Admin-only controllers) # Product/order/user management
-│   ├── Services/
-│   │   ├── Implement/
-│   │   │   ├── ProductSearchServiceImpl.cs # In-memory fuzzy search
-│   │   │   ├── JwtTokenServiceImpl.cs  # Token generation & refresh
-│   │   │   ├── JwtBlacklistServiceImpl.cs # Revoked token tracking
-│   │   │   ├── OrderServiceImpl.cs     # Order processing logic
-│   │   │   ├── ShippingFeeServiceImpl.cs # GHTK shipping API integration
-│   │   │   └── AzuriteServiceImpl.cs   # Azure Blob Storage
-│   │   └── Interface/                  # Service contracts
-│   ├── Repository/
-│   │   ├── Implement/
-│   │   │   ├── CartRepository.cs       # Cart data access
-│   │   │   ├── CartDetailRepository.cs # Cart item operations
-│   │   │   └── (Other repositories)
-│   │   └── Interface/                  # Repository contracts
-│   ├── Models/                         # Entity models (Product, Order, Cart, User, etc.)
-│   ├── Data/
-│   │   └── ApplicationDbContext.cs     # EF Core DbContext with materialized views
-│   ├── DTOs/
-│   │   ├── Requests/                   # API request models
-│   │   └── Responses/
-│   │       ├── ApiResponse.cs          # Standardized API response wrapper
-│   │       ├── HomeViewModel.cs        # Homepage data structure
-│   │       └── ShippingFeeResponse.cs  # Shipping calculation response
+├── cellPhoneS_backend/                  # 🔧 ASP.NET Core 9.0 Backend API (Clean Architecture)
+│   ├── src/
+│   │   ├── Api/                        # Lớp API (Controllers, Middlewares, Program.cs config)
+│   │   │   ├── Controllers/            # Endpoints (Product, Auth, Order, etc.)
+│   │   │   └── Middlewares/            # CentralizedAuthMiddleware, RateLimiting
+│   │   ├── Application/                # Lớp Use Cases (Business Logic)
+│   │   │   ├── Services/               # Implementations & Contracts (ProductService, etc.)
+│   │   │   └── DTOs/                   # Requests & Responses models
+│   │   ├── Domain/                     # Lớp Core (Entities)
+│   │   │   └── Models/                 # Product, User, Order, Cart, Review
+│   │   ├── Infrastructure/             # Lớp Cơ Sở Hạ Tầng (Database, External Services)
+│   │   │   ├── Data/                   # ApplicationDbContext
+│   │   │   └── Repositories/           # Implementations & Contracts
+│   │   └── Shared/                     # Lớp dùng chung (Constants, Helpers)
 │   ├── Resources/
 │   │   └── ShareResource.resx          # Localization (vi/en)
 │   ├── Migrations/                     # EF Core database migrations

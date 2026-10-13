@@ -151,6 +151,13 @@
                                     </path>
                                 </svg>Mật khẩu tối thiểu 6 ký tự, có ít nhất 1 chữ số và 1 số
                             </div>
+                            <!-- === BEGIN NEW FEATURE: PASSWORD POLICY === -->
+                            <div *ngIf="f['password'].touched && f['password'].errors" class="text-red-500 text-sm mt-1">
+                                <span *ngIf="f['password'].errors['required']">Mật khẩu là bắt buộc</span>
+                                <span *ngIf="f['password'].errors['minlength']">Mật khẩu phải dài ít nhất 8 ký tự</span>
+                                <span *ngIf="f['password'].errors['pattern']">Mật khẩu phải chứa ít nhất 1 chữ in hoa và 1 ký tự đặc biệt</span>
+                            </div>
+                            <!-- === END NEW FEATURE: PASSWORD POLICY === -->
                         </div>
                     </div>
                     <div class="md:flex md:gap-2  md:flex-col"><label data-slot="label" for="input-confirmPassword"

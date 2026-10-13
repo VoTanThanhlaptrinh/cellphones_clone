@@ -33,6 +33,10 @@ export class RegisterComponent {
       confirmPassword: ['', Validators.required],
       termsAccepted: [false, Validators.requiredTrue]
     }, { validators: this.passwordMatchValidator });
+
+    // === BEGIN NEW FEATURE: PASSWORD POLICY ===
+    this.registerForm.get('password')?.addValidators(Validators.pattern(/^(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).*$/));
+    // === END NEW FEATURE: PASSWORD POLICY ===
   }
 
   // Custom cross-field validator

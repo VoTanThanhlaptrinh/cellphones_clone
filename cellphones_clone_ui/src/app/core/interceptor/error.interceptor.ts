@@ -15,6 +15,13 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     ];
     return next(req).pipe(
         catchError((error: HttpErrorResponse) => {
+            // === BEGIN NEW FEATURE: RATE LIMITING ===
+            if (error.status === 429) {
+                notifyService.warning('Bạn đang thao tác quá nhanh. Vui lòng thử lại sau 1 phút.');
+                return throwError(() => error);
+            }
+            // === END NEW FEATURE: RATE LIMITING ===
+
             const isSilentApi = silentApis.some(url => req.url.includes(url));
             if (isSilentApi) {
                 return throwError(() => error);

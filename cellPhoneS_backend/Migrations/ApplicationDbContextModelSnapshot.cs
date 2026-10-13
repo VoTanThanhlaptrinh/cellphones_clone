@@ -1158,6 +1158,39 @@ namespace cellPhoneS_backend.Migrations
                     b.ToTable("ProductSpecifications");
                 });
 
+            modelBuilder.Entity("cellphones_backend.Models.Review", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("ProductId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Reviews");
+                });
+
             modelBuilder.Entity("cellphones_backend.Models.Role", b =>
                 {
                     b.Property<string>("Id")
@@ -2303,6 +2336,25 @@ namespace cellPhoneS_backend.Migrations
                     b.Navigation("Specification");
 
                     b.Navigation("UpdateUser");
+                });
+
+            modelBuilder.Entity("cellphones_backend.Models.Review", b =>
+                {
+                    b.HasOne("cellphones_backend.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("cellphones_backend.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("cellphones_backend.Models.Series", b =>

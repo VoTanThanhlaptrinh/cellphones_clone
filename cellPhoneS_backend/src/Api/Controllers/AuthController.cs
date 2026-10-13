@@ -12,11 +12,13 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace cellphones_backend.Controllers
 {
     [Route("api/auth")]
     [ApiController]
+    [EnableRateLimiting("AuthLimit")]
     public class AuthController : BaseController
     {
         private readonly AuthService _authService;

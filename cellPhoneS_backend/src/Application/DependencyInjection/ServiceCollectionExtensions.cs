@@ -40,6 +40,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IStoreService, StoreServiceImpl>();
         services.AddScoped<IVietnamLocationService, VietnamLocationServiceImpl>();
         services.AddScoped<ShippingFeeService, ShippingFeeServiceImpl>();
+        services.AddScoped<IEmailService, EmailServiceImpl>();
+        // === BEGIN NEW FEATURE: PRODUCT REVIEWS ===
+        services.AddScoped<IReviewService, ReviewServiceImpl>();
+        // === END NEW FEATURE: PRODUCT REVIEWS ===
         return services;
     }
 }

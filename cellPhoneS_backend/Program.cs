@@ -11,6 +11,9 @@ using Microsoft.Extensions.Azure;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
 using System.Text;
+using Microsoft.AspNetCore.RateLimiting;
+using Hangfire;
+using Hangfire.PostgreSql;
 
 internal partial class Program
 {
@@ -24,9 +27,9 @@ internal partial class Program
         builder.Services.AddIdentity<User, cellphones_backend.Models.Role>(options =>
         {
             options.Password.RequireDigit = true;
-            options.Password.RequiredLength = 6;
-            options.Password.RequireUppercase = false;
-            options.Password.RequireNonAlphanumeric = false;
+            options.Password.RequiredLength = 8;
+            options.Password.RequireUppercase = true;
+            options.Password.RequireNonAlphanumeric = true;
         })
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
@@ -41,6 +44,32 @@ internal partial class Program
                     .WithOrigins("http://localhost:4200", "https://cellphonesclonethanh.vercel.app");
             });
         });
+
+        builder.Services.AddRateLimiter(options =>
+        {
+            options.AddFixedWindowLimiter("GlobalLimit", opt =>
+            {
+                opt.Window = TimeSpan.FromMinutes(1);
+                opt.PermitLimit = 100;
+                opt.QueueLimit = 2;
+                opt.QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst;
+            });
+
+            options.AddFixedWindowLimiter("AuthLimit", opt =>
+            {
+                opt.Window = TimeSpan.FromMinutes(1);
+                opt.PermitLimit = 5;
+                opt.QueueLimit = 0;
+            });
+        });
+
+        builder.Services.AddHangfire(config => config
+            .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UsePostgreSqlStorage(c => c.UseNpgsqlConnection(builder.Configuration.GetConnectionString("db"))));
+
+        builder.Services.AddHangfireServer();
 
         string redisConnectionString = builder.Configuration.GetConnectionString("Redis")!;
         var configuration = ConfigurationOptions.Parse(redisConnectionString, true);
@@ -78,7 +107,6 @@ internal partial class Program
                     {
                         context.HandleResponse();
                         context.Response.Redirect("http://localhost:4200/login");
-
                         return Task.CompletedTask;
                     }
                 };
@@ -140,9 +168,11 @@ internal partial class Program
         }
         app.UseRouting();
         app.UseCors("CorsPolicy");
+        app.UseRateLimiter();
         app.UseAuthentication();
         app.UseMiddleware<cellPhoneS_backend.Auth.CentralizedAuthMiddleware>(cellPhoneS_backend.Auth.RouteConfig.GetPolicies());
         app.UseAuthorization();
+        app.UseHangfireDashboard("/hangfire");
         app.UseRequestLocalization(app.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<RequestLocalizationOptions>>().Value);
         app.MapControllers();
         app.Run();

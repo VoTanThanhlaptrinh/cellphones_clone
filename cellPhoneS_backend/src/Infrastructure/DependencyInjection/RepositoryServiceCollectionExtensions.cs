@@ -38,6 +38,9 @@ public static class RepositoryServiceCollectionExtensions
         services.AddScoped<IProductImageRepository, ProductImageRepository>();
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IFeeRepository, FeeRepository>();
+        // === BEGIN NEW FEATURE: PRODUCT REVIEWS ===
+        services.AddScoped<IReviewRepository, ReviewRepository>();
+        // === END NEW FEATURE: PRODUCT REVIEWS ===
         return services;
     }
 }

@@ -45,6 +45,7 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, string>
     public DbSet<ProductSearchResult> ProductSearchResults { get; set; }
     public DbSet<Fee> Fees { get; set; }
     public DbSet<FeeDetail> FeeDetails { get; set; }
+    public DbSet<Review> Reviews { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
