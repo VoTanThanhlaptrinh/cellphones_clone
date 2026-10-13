@@ -80,7 +80,6 @@
               "node_modules/ngx-spinner/animations/ball-scale-multiple.css"
             ],
             "scripts": [
-              "node_modules/flowbite/dist/flowbite.js",
               "./node_modules/hammerjs/hammer.min.js"
             ],
             "prerender": false,
@@ -151,7 +150,6 @@
             "styles": [
               "@angular/material/prebuilt-themes/azure-blue.css",
               "src/styles.css",
-              "node_modules/igniteui-angular/styles/igniteui-angular.css",
               "node_modules/ngx-toastr/toastr.css"
             ],
             "stylePreprocessorOptions": {

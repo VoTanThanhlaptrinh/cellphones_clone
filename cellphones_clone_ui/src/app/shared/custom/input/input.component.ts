@@ -15,6 +15,10 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   ]
 })
 export class InputComponent implements ControlValueAccessor {
+  private static nextId = 0;
+  /** Id duy nhất cho mỗi instance để label/aria gắn đúng input. */
+  readonly inputId = `app-input-${InputComponent.nextId++}`;
+
   @Input() label: string = '';
   @Input() placeholder: string = '';
   @Input() helperText: string = '';

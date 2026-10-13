@@ -25,14 +25,14 @@
                             <p class="text-black font-medium">{{ item.productName || 'Sản phẩm' }}</p>
                             <p class="text-sm text-gray-500">Màu/Phiên bản mặc định x {{ item.quantity }}</p>
                         </div>
-                        <p class="text-red-600 font-medium">{{ convertPriceVnd(item.salePrice) }}</p>
+                        <p class="text-red-600 font-medium">{{ item.salePrice | vnd }}</p>
                     </div>
                     }
                 </div>
                 <hr class="border-t border-gray-200" />
                 <div class="flex flex-row justify-between items-center">
                     <p class="text-black font-medium">Tổng tiền ({{ totalQuantity }} sản phẩm):</p>
-                    <p class="text-red-700 font-bold text-lg">{{ convertPriceVnd(totalPrice) }}</p>
+                    <p class="text-red-700 font-bold text-lg">{{ totalPrice | vnd:false }}</p>
                 </div>
             </div>
 
@@ -84,7 +84,7 @@
             class="fixed flex bottom-0 sm:w-full bg-white left-115 items-center pb-2 pt-2 flex-col rounded-sm shadow-[0_-4px_20px_-1px_rgba(40,124,234,.15)] px-2 max-w-150 w-150 rounded-t-lg z-50">
             <div class="flex flex-row justify-between w-full px-2 pb-2">
                 <p class="text-black font-medium">Tổng thanh toán:</p>
-                <p class="text-red-700 font-bold text-lg">{{ convertPriceVnd(totalPrice) }}</p>
+                <p class="text-red-700 font-bold text-lg">{{ totalPrice | vnd:false }}</p>
             </div>
 
             <button

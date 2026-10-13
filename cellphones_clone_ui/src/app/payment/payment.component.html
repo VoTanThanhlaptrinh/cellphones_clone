@@ -84,7 +84,7 @@
 
       <div class="flex w-full justify-between items-center px-1 text-base">
         <p class="text-gray-800 font-medium">Tổng tiền thanh toán:</p>
-        <p class="text-red-700 text-xl font-bold">{{ convertPriceVnd(calculateTotals()) }}</p>
+        <p class="text-red-700 text-xl font-bold">{{ calculateTotals() | vnd:false }}</p>
       </div>
 
       <button type="button" 

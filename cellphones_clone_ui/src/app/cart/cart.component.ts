@@ -2,13 +2,14 @@ import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CartService } from '../services/cart.service';
 import { CartView } from '../core/models/cart_request.model';
-import { CurrencyPipe, NgClass } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { NotifyService } from '../services/notify.service';
 import { HeaderCartOrderComponent } from '../shared/header-cart-order/header-cart-order.component';
+import { VndPipe } from '../shared/pipes/vnd.pipe';
 
 @Component({
   selector: 'app-cart',
-  imports: [NgClass, HeaderCartOrderComponent],
+  imports: [NgClass, HeaderCartOrderComponent, VndPipe],
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.css',
 })
@@ -22,7 +23,6 @@ export class CartComponent implements OnInit {
   cartDetails: CartView[] = [];
   isLoadding: boolean = true;
   hasMore: boolean = false;
-  private currency = inject(CurrencyPipe);
   constructor(private cartService: CartService, private router: Router,
     private cdr: ChangeDetectorRef,
     private notifyService: NotifyService
@@ -40,11 +40,6 @@ export class CartComponent implements OnInit {
         this.updateCommon();
       }
     })
-  }
-  convertPriceVnd(price: number | null | undefined): string {
-    if (price == null) return 'Đang cập nhật';
-    const formatted = this.currency.transform(price, 'VND', 'symbol', '1.0-0') ?? '';
-    return formatted.replace('₫', 'đ');
   }
   goProductDetail(id: number) {
     this.router.navigate(['/product', id]);

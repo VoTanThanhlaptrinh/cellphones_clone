@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import { UserView } from '../core/models/user_response.model';
-import { CommonModule, CurrencyPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormGroup, FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { InputComponent } from "../shared/custom/input/input.component";
@@ -12,16 +12,16 @@ import { PaymentFormData } from '../core/models/payment.model';
 import { DeliveryOrderRequest, PickupOrderRequest } from '../core/models/order.model';
 import { PaymentService } from '../services/payment.service';
 import { NotifyService } from '../services/notify.service';
+import { VndPipe } from '../shared/pipes/vnd.pipe';
 
 @Component({
   selector: 'app-payment-infor',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, InputComponent, StoreFormComponent, ShipFormComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, InputComponent, StoreFormComponent, ShipFormComponent, VndPipe],
   templateUrl: './payment-infor.component.html',
   styleUrl: './payment-infor.component.css',
 })
 export class PaymentInforComponent implements OnInit {
   paymentForm!: FormGroup;
-  private currency = inject(CurrencyPipe);
   private fb = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
   isLoading = signal<boolean>(false);
@@ -89,11 +89,6 @@ export class PaymentInforComponent implements OnInit {
     });
   }
 
-  convertPriceVnd(price: number | null | undefined): string {
-    if (price == null) return 'Đang cập nhật';
-    const formatted = this.currency.transform(price, 'VND', 'symbol', '1.0-0') ?? '';
-    return formatted.replace('₫', 'đ');
-  }
 
   deleteMail() {
     this.paymentForm.patchValue({ email: '' });

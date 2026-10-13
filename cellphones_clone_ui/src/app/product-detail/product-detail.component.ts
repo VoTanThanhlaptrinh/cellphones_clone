@@ -1,4 +1,4 @@
-import { CommonModule, CurrencyPipe, isPlatformBrowser } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, Inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
@@ -8,10 +8,24 @@ import { ProductService } from '../services/product.service';
 import { ProductViewDetail } from '../core/models/product.model';
 import { CartService } from '../services/cart.service';
 import { NotifyService } from '../services/notify.service';
+
+// === BEGIN NEW FEATURE: PRODUCT REVIEWS ===
+import { FormsModule } from '@angular/forms';
+import { ReviewService } from '../services/review.service';
+import { AuthService } from '../services/auth.service';
+import { ReviewResponse } from '../core/models/review.model';
+// === END NEW FEATURE: PRODUCT REVIEWS ===
+import { VndPipe } from '../shared/pipes/vnd.pipe';
+
 @Component({
   selector: 'app-product-detail',
-  imports: [CommonModule],
-  providers: [CurrencyPipe],
+  imports: [
+    CommonModule,
+    // === BEGIN NEW FEATURE: PRODUCT REVIEWS ===
+    FormsModule,
+    // === END NEW FEATURE: PRODUCT REVIEWS ===
+    VndPipe
+  ],
   standalone: true,
   templateUrl: './product-detail.component.html',
   styleUrls: ['./product-detail.component.css'],
@@ -21,6 +35,16 @@ export class ProductDetailComponent implements OnInit {
   isBrowser: boolean;
   product = signal<ProductViewDetail | null>(null);
   selected_color = signal<number | null>(null);
+
+  // === BEGIN NEW FEATURE: PRODUCT REVIEWS ===
+  reviews = signal<ReviewResponse[]>([]);
+  averageRating = signal<number>(0);
+  newReviewRating = signal<number>(5);
+  newReviewComment = signal<string>('');
+  private readonly reviewService = inject(ReviewService);
+  public readonly authService = inject(AuthService);
+  // === END NEW FEATURE: PRODUCT REVIEWS ===
+
   private readonly fallbackImages = [
     'assets/images/12_5_119.webp',
     'assets/images/14_2_122.webp',
@@ -34,7 +58,6 @@ export class ProductDetailComponent implements OnInit {
   ];
   isLoading = false;
   errorMessage = '';
-  private currency = inject(CurrencyPipe);
   constructor(
     @Inject(PLATFORM_ID) platformId: Object,
     private readonly route: ActivatedRoute,
@@ -74,6 +97,9 @@ export class ProductDetailComponent implements OnInit {
           this.product.update(p => p = detail);
           this.selected_color.update(c => detail.colorDTOs?.[0]?.colorId ?? null);
           this.images = this.buildImageGallery(detail);
+          // === BEGIN NEW FEATURE: PRODUCT REVIEWS ===
+          this.loadReviews(detail.id);
+          // === END NEW FEATURE: PRODUCT REVIEWS ===
         } else {
           this.images = [...this.fallbackImages];
           this.errorMessage = 'Không tìm thấy thông tin sản phẩm hoặc có lỗi xảy ra.';
@@ -121,15 +147,77 @@ export class ProductDetailComponent implements OnInit {
     else
       this.notifyService.warning('Vui lòng chọn màu sắc sản phẩm');
   }
-  convertPriceVnd(price: number | null | undefined): string {
-    if (price == null) return 'Đang cập nhật';
-    const formatted = this.currency.transform(price, 'VND', 'symbol', '1.0-0') ?? '';
-    return formatted.replace('₫', 'đ');
-  }
   onRadioChange(event: any) {
     const value = Number(event?.target?.value);
     this.selected_color.update(c => {
       return Number.isFinite(c) ? c : null;
     });
   }
+
+  // === BEGIN NEW FEATURE: PRODUCT REVIEWS ===
+  loadReviews(productId: number): void {
+    this.reviewService.getReviews(productId).subscribe({
+      next: (data) => {
+        this.reviews.set(data);
+      },
+      error: (err) => {
+        console.error('Failed to load reviews:', err);
+      }
+    });
+
+    this.reviewService.getAverageRating(productId).subscribe({
+      next: (avg) => {
+        this.averageRating.set(avg);
+      },
+      error: (err) => {
+        console.error('Failed to load average rating:', err);
+      }
+    });
+  }
+
+  setRating(rating: number): void {
+    this.newReviewRating.set(rating);
+  }
+
+  submitReview(): void {
+    const prodId = this.product()?.id;
+    if (!prodId) {
+      this.notifyService.error('Không tìm thấy thông tin sản phẩm');
+      return;
+    }
+
+    if (this.newReviewRating() < 1 || this.newReviewRating() > 5) {
+      this.notifyService.warning('Vui lòng chọn số sao từ 1 đến 5');
+      return;
+    }
+
+    const comment = this.newReviewComment().trim();
+    if (!comment) {
+      this.notifyService.warning('Vui lòng nhập nhận xét của bạn');
+      return;
+    }
+
+    const request = {
+      productId: prodId,
+      rating: this.newReviewRating(),
+      comment: comment
+    };
+
+    this.reviewService.createReview(request).subscribe({
+      next: (res) => {
+        this.notifyService.success('Đánh giá sản phẩm thành công!');
+        this.newReviewComment.set('');
+        this.newReviewRating.set(5);
+        this.loadReviews(prodId);
+      },
+      error: (err) => {
+        console.error('Failed to submit review:', err);
+      }
+    });
+  }
+
+  getReviewsCountByStar(star: number): number {
+    return this.reviews().filter(r => r.rating === star).length;
+  }
+  // === END NEW FEATURE: PRODUCT REVIEWS ===
 }

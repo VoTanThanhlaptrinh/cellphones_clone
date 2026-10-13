@@ -1,23 +1,99 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   Design tokens – xem DESIGN.md §2. Chỉ dùng token, không tự đặt mã màu mới.
+   ========================================================================== */
+@theme {
+  --font-sans: "Roboto", "Helvetica Neue", Arial, sans-serif;
+
+  /* Màu thương hiệu CellphoneS */
+  --color-primary: #d70018;
+  --color-primary-50: #fff1f2;
+  --color-primary-100: #ffe0e3;
+  --color-primary-200: #ffc6cc;
+  --color-primary-300: #ff9aa5;
+  --color-primary-400: #e45464;
+  --color-primary-500: #d70018; /* màu thương hiệu */
+  --color-primary-600: #c40016; /* hover */
+  --color-primary-700: #a50012; /* active/pressed */
+  --color-primary-800: #87000f;
+  --color-primary-900: #6b000c;
+
+  /* Màu ngữ nghĩa */
+  --color-info: #3b82f6;
+  --color-success: #16a34a;
+  --color-warning: #f59e0b;
+  --color-danger: #dc2626;
+  --color-rating: #fbbf24;
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.06), 0 2px 6px rgb(0 0 0 / 0.08);
+  --shadow-sticky: 0 -4px 16px rgb(0 0 0 / 0.08);
+}
+
+/* Khung trang chuẩn (DESIGN.md §4) */
+@utility container-page {
+  width: 100%;
+  max-width: 75rem;
+  margin-inline: auto;
+  padding-inline: 0.75rem;
+  @media (width >= 48rem) {
+    padding-inline: 1rem;
+  }
+}
+
+/* Nút (DESIGN.md §5.1) */
+@layer components {
+  .btn {
+    @apply inline-flex h-10 select-none items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium
+      transition-colors duration-150
+      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300 focus-visible:ring-offset-2
+      disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700;
+  }
+  .btn-outline {
+    @apply border border-primary-500 bg-white text-primary-500 hover:bg-primary-50;
+  }
+  .btn-info {
+    @apply border border-info bg-white text-info hover:bg-blue-50;
+  }
+  .btn-ghost {
+    @apply bg-transparent text-gray-700 hover:bg-gray-100;
+  }
+  .btn-sm {
+    @apply h-8 px-3 text-xs;
+  }
+  .btn-lg {
+    @apply h-12 px-6 text-base;
+  }
+  .btn-block {
+    @apply w-full;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Class cũ – alias sang token để đồng nhất một màu đỏ.
+   Sẽ xoá dần khi các template được chuyển sang class Tailwind (P1–P3).
+   -------------------------------------------------------------------------- */
 .main-color {
-  background-color: #da152b;
+  background-color: var(--color-primary-500);
 }
 .main-text-color {
-  color: #da152b;
+  color: var(--color-primary-500);
 }
 .button-bg {
-  background-color: #e45464;
+  background-color: var(--color-primary-400);
   cursor: pointer;
 }
 .button-bg:hover {
-  background-color: #d02437;
+  background-color: var(--color-primary-600);
 }
 .navbar-bg {
-  background-color: #e45464;
+  background-color: var(--color-primary-400);
 }
 .navbar-bg:hover {
-  background-color: #d02437;
+  background-color: var(--color-primary-600);
 }
 .marquee {
   width: 100%;
@@ -42,7 +118,7 @@ html,
 body {
   height: 100%;
   margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-family: var(--font-sans);
   background-color: white;
 }
 
@@ -51,7 +127,7 @@ html {
 }
 
 .banner-bg-color {
-  background-color: #d7263a;
+  background-color: var(--color-primary-500);
 }
 .slick-prev,
 .slick-next {
@@ -106,7 +182,12 @@ html {
   color: #ebf3fe;
 }
 .font-input-file {
-  font-family: Inter, Inter Fallback, Roboto, Arial, sans-serif;
+  font-family:
+    Inter,
+    Inter Fallback,
+    Roboto,
+    Arial,
+    sans-serif;
 }
 @layer components {
   /* trạng thái bình thường của thumb */
@@ -119,7 +200,9 @@ html {
     @apply border-2 border-amber-500 ring-2 ring-amber-400;
   }
   swiper-container.thumbs .swiper-slide img {
-    transition: box-shadow 0.15s, border-color 0.15s;
+    transition:
+      box-shadow 0.15s,
+      border-color 0.15s;
   }
 }
 .primary-bg {

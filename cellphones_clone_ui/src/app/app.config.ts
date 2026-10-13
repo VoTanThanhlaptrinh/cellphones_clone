@@ -4,7 +4,7 @@ import { routes } from './app.routes';
 import { BrowserModule, provideClientHydration, withEventReplay, } from '@angular/platform-browser';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { LOCALE_ID, DEFAULT_CURRENCY_CODE } from '@angular/core';
-import { CurrencyPipe, registerLocaleData } from '@angular/common';
+import { registerLocaleData } from '@angular/common';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { DefaultGlobalConfig, provideToastr } from 'ngx-toastr';
 import localeVi from '@angular/common/locales/vi';
@@ -31,7 +31,6 @@ export const appConfig: ApplicationConfig = {
 		provideHttpClient(withFetch(), withInterceptors([loadingInterceptor, authInterceptor, errorInterceptor])),
 		{ provide: LOCALE_ID, useValue: 'vi-VN' },
 		{ provide: DEFAULT_CURRENCY_CODE, useValue: 'VND' },
-		CurrencyPipe,
 		provideAppInitializer(() => {
 			const authService = inject(AuthService);
 			return authService.initializeAuth();

@@ -2,7 +2,7 @@ import { Component, computed, CUSTOM_ELEMENTS_SCHEMA, effect, inject, OnInit, si
 
 import { CartService } from '../services/cart.service';
 import { MatTabsModule } from '@angular/material/tabs';
-import { CommonModule, CurrencyPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PaymentComponent } from "../payment/payment.component";
 import { PaymentInforComponent } from "../payment-infor/payment-infor.component";

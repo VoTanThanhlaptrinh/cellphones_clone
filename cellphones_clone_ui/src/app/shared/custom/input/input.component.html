@@ -2,8 +2,10 @@
   <input
     #inputEl
     type="text"
-    id="input"
+    [id]="inputId"
     [attr.required]="required"
+    [attr.aria-invalid]="errorMessage ? 'true' : null"
+    [attr.aria-describedby]="(helperText || errorMessage) ? inputId + '-hint' : null"
     [disabled]="disabled"
     [value]="value"
     (input)="onInput($event)"
@@ -12,21 +14,26 @@
     class="peer w-full border-none border-b-2 text-base border-gray-300 bg-transparent px-0 py-1.5 outline-none transition-all duration-300 ease-in-out focus:border-transparent placeholder-transparent"
   />
   <label
-    for="input"
-    [for]="inputEl.id"
-    class="pointer-events-none absolute left-0 top-0 text-gray-400 transition-all duration-300 ease-in-out peer-focus:-top-5 peer-focus:text-xs peer-focus:text-blue-600 peer-valid:-top-5 peer-valid:text-xs peer-valid:text-gray-400"
+    [for]="inputId"
+    class="pointer-events-none absolute left-0 top-0 transition-all duration-300 ease-in-out peer-focus:-top-5 peer-focus:text-xs peer-focus:text-primary-500 peer-valid:-top-5 peer-valid:text-xs"
+    [class.text-gray-400]="!errorMessage"
+    [class.text-danger]="errorMessage"
   >
     {{ this.label }}
   </label>
   <!-- Underline gray (nền) -->
-  <div class="absolute bottom-0 left-0 h-1/24 w-full bg-gray-300"></div>
-  <!-- Underline blue (tràn vào) -->
+  <div class="absolute bottom-0 left-0 h-1/24 w-full" [class.bg-gray-300]="!errorMessage" [class.bg-danger]="errorMessage"></div>
+  <!-- Underline đỏ thương hiệu (tràn vào khi focus) -->
   <div
-    class="absolute bottom-0 left-0 h-1/24 w-full origin-left scale-x-0 bg-blue-600 transition-transform duration-500 ease-in-out peer-focus:scale-x-100"
+    class="absolute bottom-0 left-0 h-1/24 w-full origin-left scale-x-0 bg-primary-500 transition-transform duration-500 ease-in-out peer-focus:scale-x-100"
   ></div>
   @if(helperText || errorMessage){
   <p
-    class="mt-1 text-xs transition-all duration-200 text-gray-500 peer-focus:text-blue-600 peer-valid:text-green-600 peer-invalid:text-red-500 peer-invalid:font-medium">
+    [id]="inputId + '-hint'"
+    class="mt-1 text-xs transition-all duration-200"
+    [class.text-gray-500]="!errorMessage"
+    [class.text-danger]="errorMessage"
+    [class.font-medium]="errorMessage">
     {{ errorMessage || helperText }}
   </p>
   }

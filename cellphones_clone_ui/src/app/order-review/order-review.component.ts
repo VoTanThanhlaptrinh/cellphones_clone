@@ -1,21 +1,21 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { OrderService } from '../services/order.service';
-import { CurrencyPipe, NgClass } from '@angular/common';
+import { NgClass } from '@angular/common';
 
 import { NotifyService } from '../services/notify.service';
 import { FormsModule } from '@angular/forms';
 import { HeaderCartOrderComponent } from '../shared/header-cart-order/header-cart-order.component';
 import { AuthService } from '../services/auth.service';
 import { CartView } from '../core/models/cart_request.model';
+import { VndPipe } from '../shared/pipes/vnd.pipe';
 
 @Component({
     selector: 'app-order-review',
     standalone: true,
-    imports: [NgClass, HeaderCartOrderComponent, FormsModule, RouterLink],
+    imports: [NgClass, HeaderCartOrderComponent, FormsModule, RouterLink, VndPipe],
     templateUrl: './order-review.component.html',
     styleUrl: './order-review.component.css',
-    providers: [CurrencyPipe]
 })
 export class OrderReviewComponent implements OnInit {
     cartDetailIds: number[] = [];
@@ -33,7 +33,6 @@ export class OrderReviewComponent implements OnInit {
         { id: '3', name: 'Showroom Lê Hồng Phong, Đà Nẵng' }
     ];
 
-    private currency = inject(CurrencyPipe);
 
     constructor(
         private router: Router,
@@ -61,11 +60,6 @@ export class OrderReviewComponent implements OnInit {
         }
     }
 
-    convertPriceVnd(price: number | null | undefined): string {
-        if (price == null) return 'Đang cập nhật';
-        const formatted = this.currency.transform(price, 'VND', 'symbol', '1.0-0') ?? '';
-        return formatted.replace('₫', 'đ');
-    }
 
     proceed() {
         // if (this.fulfillmentMethod === 'PAY_ON_PICKUP') {

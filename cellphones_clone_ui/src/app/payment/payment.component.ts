@@ -1,20 +1,20 @@
 import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { OrderService } from '../services/order.service';
-import { CurrencyPipe, NgClass } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { NotifyService } from '../services/notify.service';
 import { FormsModule } from '@angular/forms';
 import { CartView } from '../core/models/cart_request.model';
 import { DeliveryOrderRequest, PickupOrderRequest } from '../core/models/order.model';
 import { PaymentService } from '../services/payment.service';
+import { VndPipe } from '../shared/pipes/vnd.pipe';
 
 @Component({
   selector: 'app-payment',
   standalone: true,
-  imports: [NgClass, FormsModule],
+  imports: [NgClass, FormsModule, VndPipe],
   templateUrl: './payment.component.html',
   styleUrl: './payment.component.css',
-  providers: [CurrencyPipe]
 })
 export class PaymentComponent implements OnInit {
   cartDetails: CartView[] = [];
@@ -23,7 +23,6 @@ export class PaymentComponent implements OnInit {
   isLoading = signal<boolean>(false);
   qrCodeUrl = this.paymentService.getQr();
 
-  private currency = inject(CurrencyPipe);
 
   constructor(
     private router: Router,
@@ -54,10 +53,6 @@ export class PaymentComponent implements OnInit {
   }
 
 
-  convertPriceVnd(price: number): string {
-    const formatted = this.currency.transform(price, 'VND', 'symbol', '1.0-0') ?? '';
-    return formatted.replace('₫', 'đ');
-  }
 
   calculateTotals() {
     if (this.cartDetails && this.cartDetails.length > 0) {

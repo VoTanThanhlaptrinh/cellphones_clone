@@ -29,10 +29,10 @@
           <h3>{{item.productName}}</h3>
           <div class="flex flex-row gap-x-2">
             <p class="text-red-500">
-              {{ convertPriceVnd(item.salePrice) }}
+              {{ item.salePrice | vnd }}
             </p>
             <p class="text-gray-600 line-through">
-              {{ convertPriceVnd(item.basePrice) }}
+              {{ item.basePrice | vnd }}
             </p>
           </div>
         </div>
@@ -49,7 +49,7 @@
           <app-input formControlName="email" label="Email" [required]="true"></app-input>
 
           <button type="button" id="remove" (click)="deleteMail()" aria-label="remove"
-            class="absolute btn hover:bg-gray-200 hover:rounded-full hidden peer-valid:block items-center justify-center top-1/3 right-0 p-1">
+            class="absolute hover:bg-gray-200 hover:rounded-full hidden peer-valid:block items-center justify-center top-1/3 right-0 p-1">
             <svg version="1.1" id="svg2" xmlns:dc="http://purl.org/dc/elements/1.1/"
               xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
               xmlns:svg="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -124,7 +124,7 @@
       <div class="flex flex-col items-center justify-center w-full h-full gap-y-2 font-semibold">
         <div class="flex w-full justify-between px-2 text-base">
           <p class="text-black">Tổng tiền tạm tính:</p>
-          <p class="text-red-700">{{ convertPriceVnd(calculateTotals()) }}</p>
+          <p class="text-red-700">{{ calculateTotals() | vnd:false }}</p>
         </div>
         <button type="button"
           class="btn bg-red-600 rounded-sm border-transparent text-white h-10 w-full px-2 py-1 font-normal"

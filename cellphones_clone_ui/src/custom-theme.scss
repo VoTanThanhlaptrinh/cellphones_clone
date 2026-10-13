@@ -6,11 +6,16 @@ html {
   @include mat.theme((
     color: (
       theme-type: light,
-      primary: mat.$azure-palette,
+      primary: mat.$red-palette,
       tertiary: mat.$blue-palette,
     ),
     typography: Roboto,
     density: 0,
+  ));
+  // Màu thương hiệu CellphoneS (DESIGN.md §10)
+  @include mat.theme-overrides((
+    primary: #d70018,
+    on-primary: #ffffff,
   ));
 }
 body {
