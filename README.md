@@ -6,6 +6,12 @@ A full-stack e-commerce platform that clones the CellphoneS website, built for e
 
 This is a full-stack e-commerce platform that clones the CellphoneS website, built for educational purposes. The application allows users to browse products (phones, tablets, laptops, accessories), search for items, manage shopping carts, and place orders. It includes user authentication with JWT tokens, role-based access control (Admin/User), and integration with Redis for caching product search results. The backend is deployed on Render, while the frontend is hosted on Vercel.
 
+## Deployment
+
+**Backend**: https://cellphones-clone.onrender.com (Render)
+
+**Frontend**: https://cellphonesclonethanh.vercel.app/home (Vercel)
+
 ### Key Architecture Notes:
 
 **🔧 Backend (`cellPhoneS_backend/`)**
@@ -26,12 +32,6 @@ This is a full-stack e-commerce platform that clones the CellphoneS website, bui
 - **UI**: TailAdmin template with Tailwind CSS v4
 - **Features**: Dashboard, tables, forms, charts, invoice management
 - **Purpose**: Product/Order/User administration
-
-## Deployment
-
-**Backend**: https://cellphones-clone.onrender.com (Render)
-
-**Frontend**: https://cellphonesclonethanh.vercel.app/home (Vercel)
 
 > **Note**: The backend is hosted on a free tier service, which spins down after 15 minutes of inactivity. If you experience a delay upon the first visit, please wait about 30–60 seconds for the server to wake up.
 
