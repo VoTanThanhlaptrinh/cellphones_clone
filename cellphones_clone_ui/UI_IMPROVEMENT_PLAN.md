@@ -158,6 +158,13 @@ Thứ tự: **P0 → P1 → P2 → P3 → P4**. P0 là điều kiện tiên quy�
 
 ### P4 — Hiệu năng, SEO, a11y
 
+> **Trạng thái: ✅ HOÀN THÀNH (13/10/2026)** – `ng build` sạch; đã kiểm tra trên trình duyệt (6 trang: trang chủ, danh mục, sản phẩm, đăng nhập, đăng ký, thành viên).
+> Ghi chú thực hiện:
+> - **P4.1 Lazy route + tiêu đề:** mọi route trừ trang chủ dùng `loadComponent`; gỡ route `/autocomplete`. Bundle khởi tạo giảm từ **1,02MB → 773KB** (truyền tải ~252KB → ~203KB). `AppTitleStrategy` ghép "… | CellphoneS Clone"; trang sản phẩm/danh mục đặt lại title + meta description theo dữ liệu thật.
+> - **P4.2 Ảnh:** `NgOptimizedImage` cho thẻ sản phẩm, banner chính (`priority`), ảnh ưu đãi, gallery sản phẩm (ảnh đầu `priority`, đã xác nhận `fetchpriority=high` + `eager`, các ảnh sau `lazy`). Ảnh trong giỏ hàng/kết quả tìm kiếm giữ `<img>` có `width/height` + lazy vì `ngSrc` lỗi khi API trả URL rỗng. Footer đã có `width/height`.
+> - **P4.3 Icon:** `<app-icon>` (13 icon: cart, search, user, grid, chevron-*, arrow-left, trash, x, eye, eye-off, check-circle, box) thay các SVG lặp ở 11 template. Chưa gom: 5 ngôi sao ở trang sản phẩm (có class động theo điểm) và SVG trong `order-review`/`checkout`.
+> - **P4.4 A11y:** **không chạy Lighthouse/axe** (chưa tải công cụ về máy); thay bằng bộ kiểm tra DOM tự viết trên 6 trang. Đã sửa: tương phản màu chữ (`--color-info` #3b82f6 → #2563eb; giá gốc, ngày đánh giá, chữ địa chỉ footer), trang chủ thiếu `h1`, heading nhảy cấp h2→h4 ở khối đánh giá, thiếu `<main>` ở đăng nhập/đăng ký/đặt hàng/đặt hàng thành công, link nhỏ < 24px. Kết quả cuối: 0 lỗi tương phản (≈1.000 đoạn chữ/trang), đúng 1 `h1` + 1 `<main>`, 0 ảnh thiếu `alt`, 0 nút/link/ô nhập thiếu tên-nhãn, 0 id trùng. **Chưa kiểm tra**: focus ring bằng bàn phím trên toàn bộ trang, trang giỏ hàng/thanh toán (cần đăng nhập), điểm Lighthouse thật.
+
 | Task | File | Việc cần làm | Hoàn thành khi |
 |---|---|---|---|
 | P4.1 Lazy routes | `src/app/app.routes.ts` | Đổi sang `loadComponent` cho mọi route trừ `home`. Gỡ route thử nghiệm `/autocomplete`. Thêm `title` cho từng route. | Bundle khởi tạo nhỏ đi (so sánh output của `ng build`). |

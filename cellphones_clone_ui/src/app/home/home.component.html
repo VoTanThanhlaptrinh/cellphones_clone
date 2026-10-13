@@ -1,4 +1,5 @@
 <div class="bg-gray-100 pb-8">
+  <h1 class="sr-only">CellphoneS - Điện thoại, laptop, phụ kiện chính hãng</h1>
   <!-- Danh mục + banner + ưu đãi -->
   <main class="container-page py-3">
     <div class="grid gap-3 md:grid-cols-[minmax(0,1fr)_14rem] lg:grid-cols-[14.5rem_minmax(0,1fr)_14rem]">
@@ -13,10 +14,7 @@
               <a [routerLink]="['/category', category.slugName]" (mouseover)="i = catIndex" (focus)="i = catIndex"
                 class="flex items-center justify-between gap-2 px-3 py-2 text-gray-900 hover:bg-gray-100 hover:text-primary-500 focus-visible:bg-gray-100 focus-visible:outline-none">
                 <span class="truncate">{{ category.name }}</span>
-                <svg class="size-4 shrink-0 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="m9 6 6 6-6 6" />
-                </svg>
+                <app-icon name="chevron-right" svgClass="size-4 shrink-0 text-gray-400" [strokeWidth]="2" />
               </a>
               }
               }
@@ -65,29 +63,31 @@
           autoplay-disable-on-interaction="true">
           @for (banner of banners; track banner.alt; let b = $index) {
           <swiper-slide>
-            <img [src]="banner.img" [alt]="banner.alt" class="w-full object-cover"
-              [attr.loading]="b === 0 ? 'eager' : 'lazy'" [attr.fetchpriority]="b === 0 ? 'high' : null" />
+            <img [ngSrc]="banner.img" [alt]="banner.alt" width="690" height="300" class="w-full object-cover"
+              [priority]="b === 0" />
           </swiper-slide>
           }
         </swiper-container>
         } @else {
-        <img [src]="banners[0].img" [alt]="banners[0].alt" class="w-full rounded-xl object-cover shadow-card" />
+        <img [ngSrc]="banners[0].img" [alt]="banners[0].alt" width="690" height="300" priority
+          class="w-full rounded-xl object-cover shadow-card" />
         }
       </section>
 
       <!-- Ưu đãi bên phải -->
       <aside aria-label="Ưu đãi khác" class="hidden flex-col gap-2 md:flex">
-        <img src="assets/images/watch-series11.png" alt="Apple Watch Series 11"
+        <img ngSrc="assets/images/watch-series11.png" alt="Apple Watch Series 11" width="690" height="300"
           class="w-full rounded-xl object-cover shadow-card" />
-        <img src="assets/images/giam-gia.png" alt="Ưu đãi giảm giá laptop" class="w-full rounded-xl object-cover shadow-card" />
+        <img ngSrc="assets/images/giam-gia.png" alt="Ưu đãi giảm giá laptop" width="690" height="300"
+          class="w-full rounded-xl object-cover shadow-card" />
       </aside>
     </div>
   </main>
 
   <div class="container-page hidden md:block">
-    <img alt="Ưu đãi sinh viên S-Student S-Teacher" loading="lazy" width="1200" height="75" decoding="async"
+    <img alt="Ưu đãi sinh viên S-Student S-Teacher" width="1200" height="75"
       class="mx-auto w-full rounded-xl object-contain shadow-card"
-      src="https://cdn2.cellphones.com.vn/insecure/rs:fill:1200:75/q:90/plain/https://dashboard.cellphones.com.vn/storage/s-edu-2-0-special-desk.gif" />
+      ngSrc="https://cdn2.cellphones.com.vn/insecure/rs:fill:1200:75/q:90/plain/https://dashboard.cellphones.com.vn/storage/s-edu-2-0-special-desk.gif" />
   </div>
 
   <!-- Sản phẩm theo danh mục -->
@@ -96,7 +96,7 @@
     <div class="mb-3 flex items-center justify-between">
       <h2 [id]="'category-title-' + category.id" class="text-lg font-bold text-gray-900 md:text-xl">{{ category.name }}</h2>
       @if (category.slugName) {
-      <a [routerLink]="['/category', category.slugName]" class="text-sm text-info hover:underline">Xem tất cả</a>
+      <a [routerLink]="['/category', category.slugName]" class="inline-flex min-h-8 items-center text-sm text-info hover:underline">Xem tất cả</a>
       }
     </div>
 
@@ -145,8 +145,7 @@
     <ul class="grid grid-cols-3 gap-2 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-9">
       @for (phu_kien of item.list_phukien; track phu_kien.name) {
       <li class="flex flex-col items-center gap-2 rounded-xl bg-white p-2 text-center shadow-card">
-        <img [src]="phu_kien.src" alt="" aria-hidden="true" width="72" height="60" loading="lazy"
-          class="h-15 w-18 object-contain" />
+        <img [ngSrc]="phu_kien.src" alt="" aria-hidden="true" width="72" height="60" class="h-15 w-18 object-contain" />
         <span class="text-xs font-medium text-gray-900">{{ phu_kien.name }}</span>
       </li>
       }

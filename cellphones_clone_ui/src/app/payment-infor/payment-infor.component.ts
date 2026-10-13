@@ -14,10 +14,11 @@ import { PaymentService } from '../services/payment.service';
 import { NotifyService } from '../services/notify.service';
 import { VndPipe } from '../shared/pipes/vnd.pipe';
 import { AuthService } from '../services/auth.service';
+import { IconComponent } from '../shared/icons/icon.component';
 
 @Component({
   selector: 'app-payment-infor',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, InputComponent, StoreFormComponent, ShipFormComponent, VndPipe],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, InputComponent, StoreFormComponent, ShipFormComponent, VndPipe, IconComponent],
   templateUrl: './payment-infor.component.html',
   styleUrl: './payment-infor.component.css',
 })

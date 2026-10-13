@@ -7,11 +7,12 @@ import { CartView } from '../core/models/cart_request.model';
 import { DeliveryOrderRequest, PickupOrderRequest } from '../core/models/order.model';
 import { PaymentService } from '../services/payment.service';
 import { VndPipe } from '../shared/pipes/vnd.pipe';
+import { IconComponent } from '../shared/icons/icon.component';
 
 @Component({
   selector: 'app-payment',
   standalone: true,
-  imports: [FormsModule, VndPipe],
+  imports: [FormsModule, VndPipe, IconComponent],
   templateUrl: './payment.component.html',
   styleUrl: './payment.component.css',
 })

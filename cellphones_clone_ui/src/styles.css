@@ -20,7 +20,7 @@
   --color-primary-900: #6b000c;
 
   /* Màu ngữ nghĩa */
-  --color-info: #3b82f6;
+  --color-info: #2563eb; /* 5.2:1 trên nền trắng (đạt AA cho chữ nhỏ) */
   --color-success: #16a34a;
   --color-warning: #f59e0b;
   --color-danger: #dc2626;

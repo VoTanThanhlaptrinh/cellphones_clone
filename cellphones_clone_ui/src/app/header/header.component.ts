@@ -11,11 +11,12 @@ import { ModalAskLoginComponent } from '../shared/modal-ask-login/modal-ask-logi
 import { MatDialog } from '@angular/material/dialog';
 import { ModalCategoriesComponent } from '../shared/modal-categories/modal-categories.component';
 import { VndPipe } from '../shared/pipes/vnd.pipe';
+import { IconComponent } from '../shared/icons/icon.component';
 
 
 @Component({
   selector: 'app-header',
-  imports: [RouterLink, CommonModule, FormsModule, VndPipe],
+  imports: [RouterLink, CommonModule, FormsModule, VndPipe, IconComponent],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })

@@ -19,6 +19,8 @@ import { ProductView } from '../core/models/product.model';
 import { catchError, map, of, switchMap, tap } from 'rxjs';
 import { NotifyService } from '../services/notify.service';
 import { ProductService } from '../services/product.service';
+import { Meta, Title } from '@angular/platform-browser';
+import { APP_NAME } from '../core/app-title.strategy';
 @Component({
   selector: 'app-category',
   imports: [ProductCardComponent, ProductSkeletonComponent, RouterLink],
@@ -28,6 +30,8 @@ import { ProductService } from '../services/product.service';
 })
 export class CategoryComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
+  private titleService = inject(Title);
+  private meta = inject(Meta);
   isBrowser = false;
   slugName: string | null = null;
   products: ProductView[] = [];
@@ -72,6 +76,8 @@ export class CategoryComponent implements OnInit {
     ).subscribe(response => {
       if (response && response.products) {
         this.data = response;
+        this.titleService.setTitle(`${response.name} | ${APP_NAME}`);
+        this.meta.updateTag({ name: 'description', content: `${response.name} chính hãng, giá tốt, giao nhanh tại ${APP_NAME}.` });
         this.products = [...response.products];
         this.total = Math.max(response.total - response.products.length, 0);
         this.hasMore = this.total > 0;

@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { IconComponent } from '../shared/icons/icon.component';
 
 type MemberTab = 'overview' | 'orders' | 'account';
 
@@ -11,7 +12,7 @@ type MemberTab = 'overview' | 'orders' | 'account';
 @Component({
   selector: 'app-member-dashboard',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, IconComponent],
   templateUrl: './member-dashboard.component.html',
 })
 export class MemberDashboardComponent {

@@ -1,4 +1,4 @@
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { CommonModule, isPlatformBrowser, NgOptimizedImage } from '@angular/common';
 import {
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
@@ -12,13 +12,14 @@ import { RouterModule } from '@angular/router';
 import { ProductService } from '../services/product.service';
 import { HomeView } from '../core/models/home_view.model';
 import { ProductCardComponent } from "../product-card/product-card.component";
+import { IconComponent } from '../shared/icons/icon.component';
 @Component({
   selector: 'app-home',
   imports: [
     CommonModule,
     RouterModule,
-    ProductCardComponent
-  ],
+    ProductCardComponent,
+    NgOptimizedImage, IconComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

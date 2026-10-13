@@ -1,3 +1,4 @@
+import { NgOptimizedImage } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ProductView } from '../core/models/product.model';
@@ -5,7 +6,7 @@ import { VndPipe } from '../shared/pipes/vnd.pipe';
 
 @Component({
   selector: 'app-product-card',
-  imports: [RouterLink, VndPipe],
+  imports: [RouterLink, VndPipe, NgOptimizedImage],
   templateUrl: './product-card.component.html',
   styleUrl: './product-card.component.css'
 })

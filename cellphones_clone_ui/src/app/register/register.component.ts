@@ -3,6 +3,7 @@ import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validator
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { NotifyService } from '../services/notify.service';
+import { IconComponent } from '../shared/icons/icon.component';
 
 interface RegisterField {
   name: string;
@@ -15,7 +16,7 @@ interface RegisterField {
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, IconComponent],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
 })

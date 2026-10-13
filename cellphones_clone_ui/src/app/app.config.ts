@@ -1,6 +1,7 @@
 import { ApplicationConfig, importProvidersFrom, inject, provideAppInitializer, provideBrowserGlobalErrorListeners, provideZoneChangeDetection, } from '@angular/core';
-import { provideRouter, withInMemoryScrolling } from '@angular/router';
+import { provideRouter, TitleStrategy, withInMemoryScrolling } from '@angular/router';
 import { routes } from './app.routes';
+import { AppTitleStrategy } from './core/app-title.strategy';
 import { BrowserModule, provideClientHydration, withEventReplay, } from '@angular/platform-browser';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { LOCALE_ID, DEFAULT_CURRENCY_CODE } from '@angular/core';
@@ -21,6 +22,7 @@ export const appConfig: ApplicationConfig = {
 		provideRouter(routes, withInMemoryScrolling({
 			scrollPositionRestoration: 'top',
 		})),
+		{ provide: TitleStrategy, useExisting: AppTitleStrategy },
 		provideClientHydration(withEventReplay()),
 		importProvidersFrom(BrowserModule),
 		provideAnimations(),

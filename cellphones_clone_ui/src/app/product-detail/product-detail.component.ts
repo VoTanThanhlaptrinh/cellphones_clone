@@ -1,4 +1,4 @@
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { CommonModule, isPlatformBrowser, NgOptimizedImage } from '@angular/common';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, Inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -16,8 +16,11 @@ import { AuthService } from '../services/auth.service';
 import { ReviewResponse } from '../core/models/review.model';
 // === END NEW FEATURE: PRODUCT REVIEWS ===
 import { VndPipe } from '../shared/pipes/vnd.pipe';
+import { Meta, Title } from '@angular/platform-browser';
+import { APP_NAME } from '../core/app-title.strategy';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalAskLoginComponent } from '../shared/modal-ask-login/modal-ask-login.component';
+import { IconComponent } from '../shared/icons/icon.component';
 
 @Component({
   selector: 'app-product-detail',
@@ -27,8 +30,8 @@ import { ModalAskLoginComponent } from '../shared/modal-ask-login/modal-ask-logi
     FormsModule,
     // === END NEW FEATURE: PRODUCT REVIEWS ===
     VndPipe,
-    RouterLink
-  ],
+    RouterLink,
+    NgOptimizedImage, IconComponent],
   standalone: true,
   templateUrl: './product-detail.component.html',
   styleUrls: ['./product-detail.component.css'],
@@ -62,6 +65,8 @@ export class ProductDetailComponent implements OnInit {
   isLoading = false;
   isAdding = signal(false);
   private readonly router = inject(Router);
+  private readonly titleService = inject(Title);
+  private readonly meta = inject(Meta);
   private readonly dialog = inject(MatDialog);
   errorMessage = '';
   constructor(
@@ -103,6 +108,10 @@ export class ProductDetailComponent implements OnInit {
           this.product.update(p => p = detail);
           this.selected_color.update(c => detail.colorDTOs?.[0]?.colorId ?? null);
           this.images = this.buildImageGallery(detail);
+          if (detail.name) {
+            this.titleService.setTitle(`${detail.name} | ${APP_NAME}`);
+            this.meta.updateTag({ name: 'description', content: `Mua ${detail.name} chính hãng tại ${APP_NAME}, giao nhanh, bảo hành đầy đủ.` });
+          }
           // === BEGIN NEW FEATURE: PRODUCT REVIEWS ===
           this.loadReviews(detail.id);
           // === END NEW FEATURE: PRODUCT REVIEWS ===

@@ -42,7 +42,7 @@ Token được khai báo trong `@theme` của `src/styles.css`. Tailwind v4 tự
   --color-primary-900: #6b000c;
 
   /* Màu ngữ nghĩa */
-  --color-info: #3b82f6;     /* trả góp, yêu thích, link phụ */
+  --color-info: #2563eb;     /* trả góp, link phụ – 5.2:1 trên nền trắng (AA) */
   --color-success: #16a34a;  /* thành công, còn hàng */
   --color-warning: #f59e0b;  /* cảnh báo */
   --color-danger: #dc2626;   /* lỗi form, xoá – KHÔNG dùng thay màu thương hiệu */
@@ -402,7 +402,8 @@ export class VndPipe implements PipeTransform {
 - Kích thước: `size-4` (16px) trong text, `size-5` (20px) trong nút, `size-6` (24px) cho icon độc lập.
 - Icon trang trí phải có `aria-hidden="true"`. Icon đứng một mình trong nút thì nút cần `aria-label`.
 - `id` bên trong SVG (`clipPath`, `mask`, `linearGradient`) phải duy nhất trên trang. Tốt nhất là không dùng các phần tử này cho icon đơn giản.
-- Icon lặp lại từ 2 nơi trở lên nên được tách thành component dùng chung trong `src/app/shared/icons/`.
+- **Dùng `<app-icon>`** (`src/app/shared/icons/icon.component.ts`) cho icon đã có trong danh sách: `<app-icon name="cart" svgClass="size-5 text-gray-500" />`. Class kích thước/màu truyền qua `svgClass` (host là `display: contents`). Thêm icon mới = thêm một `@case` vào component, không copy SVG vào template.
+- Icon lặp lại từ 2 nơi trở lên bắt buộc đi qua component này. Logo thương hiệu là ngoại lệ (SVG riêng trong header).
 
 ---
 
@@ -445,6 +446,7 @@ export class VndPipe implements PipeTransform {
 | flowbite (JS global) | **Chờ gỡ** | Không dùng `data-*` của flowbite |
 | igniteui-angular | **Chờ gỡ** | Không được dùng trong `src` |
 | Bootstrap class | **Cấm** | Dự án không có Bootstrap |
+| CSS reset ngoài Tailwind (minireset, normalize…) | **Cấm** | CSS không nằm trong `@layer` sẽ thắng mọi utility của Tailwind (từng làm mất `p-*`, `font-bold`, `h-*` trên `p/ul/li/h1–h6/img`). Tailwind preflight đã đủ |
 
 Không thêm thư viện UI mới khi chưa cập nhật bảng này.
 
@@ -462,6 +464,20 @@ html {
 
 ---
 
+### 10.1 Route và tiêu đề trang
+
+- Trang chủ tải ngay; mọi route khác dùng `loadComponent` trong `app.routes.ts`. Không import component trang vào `app.routes.ts`.
+- Mỗi route có `title` ngắn gọn bằng tiếng Việt; `AppTitleStrategy` tự ghép hậu tố " | CellphoneS Clone". Trang sản phẩm/danh mục đặt lại tiêu đề + `meta description` theo dữ liệu thật sau khi tải.
+- Mỗi trang có đúng một `h1` và một landmark `<main>`.
+
+### 10.2 Ảnh
+
+- Ảnh nội dung có URL luôn tồn tại dùng `NgOptimizedImage` (`ngSrc` + `width`/`height`). Ảnh LCP (banner đầu trang, ảnh chính của sản phẩm) thêm `priority`; ảnh khác để mặc định (lazy).
+- `ngSrc` **không** nhận chuỗi rỗng hoặc `data:` URL: nếu dữ liệu có thể thiếu ảnh thì bọc `@if (url) { … } @else { khung giữ chỗ }`.
+- Ảnh còn lại phải có `width`/`height` (gợi ý tỷ lệ) để không gây dịch chuyển bố cục.
+
+---
+
 ## 11. Checklist trước khi merge thay đổi UI
 
 - [ ] Chỉ dùng token trong file này. Không có mã hex mới, không dùng `neutral-*`, không dùng class không tồn tại.
@@ -469,7 +485,8 @@ html {
 - [ ] Giá hiển thị qua pipe `vnd`. Ngày hiển thị qua `DatePipe`.
 - [ ] Không có dữ liệu hard-code hoặc placeholder (tên người dùng, % giảm, rating, tồn kho…).
 - [ ] Mọi phần tử bấm được là `button`/`a` và dùng được bằng bàn phím. Có focus ring.
-- [ ] Ảnh có `alt`. Icon trang trí có `aria-hidden`.
+- [ ] Ảnh có `alt` và `width`/`height`. Icon dùng `<app-icon>` (đã `aria-hidden`).
+- [ ] Một `h1`, một `<main>`, không nhảy cấp heading. Chữ nhỏ đạt tương phản ≥ 4.5:1 (đặc biệt chữ xám nhạt, `text-info`, chữ trên nền `primary-50`).
 - [ ] Toàn bộ chữ là tiếng Việt và đúng giọng văn ở §9.
 - [ ] Có trạng thái loading, rỗng và lỗi cho mọi khối gọi API.
 - [ ] `npm run build` chạy thành công.

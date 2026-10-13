@@ -5,10 +5,11 @@ import { CartView } from '../core/models/cart_request.model';
 import { NotifyService } from '../services/notify.service';
 import { HeaderCartOrderComponent } from '../shared/header-cart-order/header-cart-order.component';
 import { VndPipe } from '../shared/pipes/vnd.pipe';
+import { IconComponent } from '../shared/icons/icon.component';
 
 @Component({
   selector: 'app-cart',
-  imports: [RouterLink, HeaderCartOrderComponent, VndPipe],
+  imports: [RouterLink, HeaderCartOrderComponent, VndPipe, IconComponent],
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.css',
 })

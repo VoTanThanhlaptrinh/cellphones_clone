@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-white md:flex md:items-center md:justify-center md:bg-gray-100 md:p-6">
+<main class="min-h-screen bg-white md:flex md:items-center md:justify-center md:bg-gray-100 md:p-6">
   <div class="mx-auto grid w-full max-w-5xl overflow-hidden bg-white md:grid-cols-2 md:rounded-2xl md:shadow-card">
     <!-- Quyền lợi thành viên (từ màn hình md trở lên) -->
     <section aria-labelledby="benefit-title"
@@ -15,11 +15,7 @@
       <ul class="space-y-3 text-sm text-gray-700">
         @for (benefit of benefits; track benefit.highlight) {
         <li class="flex items-start gap-2">
-          <svg class="mt-0.5 size-5 shrink-0 text-primary-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="9" />
-            <path d="m8.5 12.5 2.5 2.5 4.5-5" />
-          </svg>
+          <app-icon name="check-circle" svgClass="mt-0.5 size-5 shrink-0 text-primary-500" [strokeWidth]="2" />
           <span><strong>{{ benefit.highlight }}</strong> {{ benefit.text }}</span>
         </li>
         }
@@ -61,15 +57,7 @@
             <button type="button" (click)="togglePasswordVisibility()"
               [attr.aria-label]="showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'" [attr.aria-pressed]="showPassword"
               class="absolute right-1 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full text-gray-500 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300">
-              <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                @if (showPassword) {
-                <path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.1A9.8 9.8 0 0 1 12 5c5 0 8.5 4.5 9.5 7a13 13 0 0 1-2.6 3.7M6.1 6.1A13 13 0 0 0 2.5 12C3.5 14.5 7 19 12 19c1.5 0 2.8-.4 4-1" />
-                } @else {
-                <path d="M2.5 12C3.5 9.5 7 5 12 5s8.5 4.5 9.5 7c-1 2.5-4.5 7-9.5 7s-8.5-4.5-9.5-7Z" />
-                <circle cx="12" cy="12" r="3" />
-                }
-              </svg>
+              <app-icon [name]="showPassword ? 'eye-off' : 'eye'" svgClass="size-5" />
             </button>
           </div>
           @if (f['password'].touched && f['password'].errors) {
@@ -100,11 +88,11 @@
 
       <p class="text-center text-sm text-gray-600">
         Bạn chưa có tài khoản?
-        <a routerLink="/register" class="font-bold text-primary-500 hover:underline">Đăng ký ngay</a>
+        <a routerLink="/register" class="inline-flex min-h-8 items-center font-bold text-primary-500 hover:underline">Đăng ký ngay</a>
       </p>
       <p class="text-center text-sm text-gray-500">
-        Mua sắm tại <a routerLink="/home" class="font-medium text-primary-500 hover:underline">cellphones.com.vn</a>
+        Mua sắm tại <a routerLink="/home" class="inline-flex min-h-8 items-center font-medium text-primary-500 hover:underline">cellphones.com.vn</a>
       </p>
     </section>
   </div>
-</div>
+</main>
