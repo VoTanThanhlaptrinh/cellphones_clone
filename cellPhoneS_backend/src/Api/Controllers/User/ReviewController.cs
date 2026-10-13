@@ -35,7 +35,7 @@ namespace cellphones_backend.Controllers.User
             }
 
             var result = await _reviewService.CreateReviewAsync(request, userId);
-            return HandleResult(result);
+            return Ok(new ApiResponse<ReviewResponse>("Review submitted successfully", result));
         }
 
         // GET: api/reviews/product/{productId}
@@ -44,7 +44,7 @@ namespace cellphones_backend.Controllers.User
         public async Task<ActionResult<ApiResponse<List<ReviewResponse>>>> GetReviewsByProduct(long productId)
         {
             var result = await _reviewService.GetReviewsByProductIdAsync(productId);
-            return HandleResult(result);
+            return Ok(new ApiResponse<List<ReviewResponse>>("Reviews retrieved successfully", result));
         }
 
         // GET: api/reviews/product/{productId}/average
@@ -53,7 +53,7 @@ namespace cellphones_backend.Controllers.User
         public async Task<ActionResult<ApiResponse<double>>> GetAverageRating(long productId)
         {
             var result = await _reviewService.GetAverageRatingAsync(productId);
-            return HandleResult(result);
+            return Ok(new ApiResponse<double>("Average rating retrieved successfully", result));
         }
     }
     // === END NEW FEATURE: PRODUCT REVIEWS ===

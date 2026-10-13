@@ -8,13 +8,13 @@ namespace cellphones_backend.Services;
 
 public interface ProductService
 {
-    Task<ServiceResult<List<ProductView>>> GetProducts(int page, int pageSize);
-    Task<ServiceResult<ProductViewDetail>> GetProductDetails(long id);
-    Task<ServiceResult<string>> UpdateProduct(long id, UpdateProductRequest request, string userId);
-    Task<ServiceResult<string>> DeleteProduct(long id, string userId);
-    Task<ServiceResult<string>> CreateProduct(AddProductRequest productRequest, string userId);
-    Task<ServiceResult<List<ProductView>>> GetProductsByCategory(long categoryId, int page, int pageSize);
-    Task<ServiceResult<List<ProductView>>> GetProductsBySeries(long seriesId, int page, int pageSize);
-    Task<ServiceResult<List<ProductView>>> GetProductsByBrand(long brandId, int page, int pageSize);
-    Task<ServiceResult<List<ProductView>>> GetProductsForInfinityScroll(string tag, string slugName, long? countCursor);
+    Task<List<ProductView>> GetProducts(int page, int pageSize);
+    Task<ProductViewDetail> GetProductDetails(long id);
+    Task UpdateProduct(long id, UpdateProductRequest request, string userId);
+    Task DeleteProduct(long id, string userId);
+    Task<string> CreateProduct(AddProductRequest productRequest, string userId);
+    Task<List<ProductView>> GetProductsByCategory(long categoryId, int page, int pageSize);
+    Task<List<ProductView>> GetProductsBySeries(long seriesId, int page, int pageSize);
+    Task<List<ProductView>> GetProductsByBrand(long brandId, int page, int pageSize);
+    Task<List<ProductView>> GetProductsForInfinityScroll(string tag, string slugName, long? countCursor);
 }

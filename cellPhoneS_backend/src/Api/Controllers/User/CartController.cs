@@ -22,31 +22,36 @@ namespace cellphones_backend.Controllers
         public async Task<ActionResult<ApiResponse<List<CartDetailView>>>> ListCart()
         {
             var userId = await GetUserId();
-            return HandleResult(await _cartService.GetCartItems(userId));
+            var result = await _cartService.GetCartItems(userId);
+            return Ok(new ApiResponse<List<CartDetailView>>("Cart items retrieved successfully", result));
         }
         [HttpPost()]
         public async Task<ActionResult<ApiResponse<bool>>> AddProductToCart(CartRequest request)
         {
             var userId = await GetUserId();
-            return HandleResult(await _cartService.AddToCart(request, userId));
+            var result = await _cartService.AddToCart(request, userId);
+            return Ok(new ApiResponse<bool>("Product added to cart successfully", result));
         }
         [HttpDelete("{cartDetailId}")]
         public async Task<ActionResult<ApiResponse<bool>>> DeleteProductOutCart(long cartDetailId)
         {
             var userId = await GetUserId();
-             return HandleResult(await _cartService.RemoveFromCart(cartDetailId, userId));
+             var result = await _cartService.RemoveFromCart(cartDetailId, userId);
+             return Ok(new ApiResponse<bool>("Product removed from cart successfully", result));
         }
         [HttpPatch("plusQuantity/{cartDetailId}")]
         public async Task<ActionResult<ApiResponse<int>>> PlusQuantity(long cartDetailId)
         {
             var userId = await GetUserId();
-            return HandleResult(await _cartService.PlusQuantity(cartDetailId, userId));
+            var result = await _cartService.PlusQuantity(cartDetailId, userId);
+            return Ok(new ApiResponse<int>("Plus success", result));
         }
         [HttpPatch("minusQuantity/{cartDetailId}")]
         public async Task<ActionResult<ApiResponse<int>>> MinusQuantity(long cartDetailId)
         {
             var userId = await GetUserId();
-            return HandleResult(await _cartService.MinusQuantity(cartDetailId, userId));
+            var result = await _cartService.MinusQuantity(cartDetailId, userId);
+            return Ok(new ApiResponse<int>("Minus success", result));
         }
 
         private async Task<string> GetUserId()

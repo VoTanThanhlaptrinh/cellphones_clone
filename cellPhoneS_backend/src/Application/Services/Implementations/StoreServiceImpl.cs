@@ -25,9 +25,9 @@ public class StoreServiceImpl : IStoreService
         throw new NotImplementedException();
     }
 
-    public async Task<ServiceResult<List<StoreView>>> GetStoreViewsAsync()
+    public async Task<List<StoreView>> GetStoreViewsAsync()
     {
-        return ServiceResult<List<StoreView>>.Success(await _storeHouseRepository.GetStoreViewsAsync(), "Store views retrieved successfully");
+        return await _storeHouseRepository.GetStoreViewsAsync();
     }
 
     public async Task UpdateStores(List<StoreInventoryDTO> stores)

@@ -9,13 +9,13 @@ namespace cellPhoneS_backend.Services;
 public interface CategoryService
 {
     // Admin operations
-    Task<ServiceResult<long>> CreateCategory(CreateCategoryRequest request, string userId);
-    Task<ServiceResult<string>> UpdateCategory(long categoryId, UpdateCategoryRequest request, string userId);
-    Task<ServiceResult<string>> DeleteCategory(long categoryId, string userId);
+    Task<long> CreateCategory(CreateCategoryRequest request, string userId);
+    Task UpdateCategory(long categoryId, UpdateCategoryRequest request, string userId);
+    Task DeleteCategory(long categoryId, string userId);
     
     // Public/User operations
-    Task<ServiceResult<PagedResult<CategoryResponse>>> GetAllCategories(int pageIndex, int pageSize, string? status = "active");
-    Task<ServiceResult<List<ProductView>>> GetProductOfCategory(long categoryId, int page);
-    Task<ServiceResult<CategoryDetailResponse>> GetCategoryDetail(long category);
-    Task<ServiceResult<CategoryDetailResponse>> GetCategoryDetailBySlug(string slugName);
+    Task<PagedResult<CategoryResponse>> GetAllCategories(int pageIndex, int pageSize, string? status = "active");
+    Task<List<ProductView>> GetProductOfCategory(long categoryId, int page);
+    Task<CategoryDetailResponse> GetCategoryDetail(long category);
+    Task<CategoryDetailResponse> GetCategoryDetailBySlug(string slugName);
 }

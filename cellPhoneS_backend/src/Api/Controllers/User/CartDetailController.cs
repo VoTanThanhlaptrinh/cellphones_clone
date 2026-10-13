@@ -24,14 +24,15 @@ namespace cellphones_backend.Controllers
         public async Task<ActionResult<ApiResponse<bool>>> AddToCart(long productId)
         {
             // Placeholder logic to add product to cart
-            // return HandleResult(await _cartService.AddToCart(productId, userId));
+            // return Ok(new ApiResponse<bool>("Product added to cart successfully", await _cartService.AddToCart(productId, userId)));
             return null!;
         }
         [HttpDelete("{cartDetailId}")]
         public async Task<ActionResult<ApiResponse<bool>>> RemoveFromCart(long cartDetailId)
         {
             var userId = await GetUserId();
-            return HandleResult(await _cartService.RemoveFromCart(cartDetailId, userId));
+            var result = await _cartService.RemoveFromCart(cartDetailId, userId);
+            return Ok(new ApiResponse<bool>("Product removed from cart successfully", result));
         }
         private async Task<string> GetUserId()
         {

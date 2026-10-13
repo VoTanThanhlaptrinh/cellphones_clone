@@ -23,7 +23,7 @@ namespace cellphones_backend.Controllers.User
         public async Task<ActionResult<ApiResponse<List<string>>>> GetProductCommitments(long productId)
         {
             var result = await _commitmentService.GetProductCommitments(productId);
-            return HandleResult(result);
+            return Ok(new ApiResponse<List<string>>("Commitments retrieved successfully", result));
         }
     }
 }

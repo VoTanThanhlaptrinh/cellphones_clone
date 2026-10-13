@@ -49,17 +49,17 @@ public class AuthServiceImpl : AuthService
         return await _jwtTokenService.GenerateJwtToken(user);
     }
 
-    public async Task<ServiceResult<string>> Login(LoginDTO loginDTO, HttpContext context)
+    public async Task<string> Login(LoginDTO loginDTO, HttpContext context)
     {
         var user = await ReturnUserIfExistEmail(loginDTO.Email);
         if (user == null)
         {
-            return ServiceResult<string>.Fail("Email not found", ServiceErrorType.Unauthorized);
+            throw new UnauthorizedException("Email not found");
         }
 
         if (!await _userManager.CheckPasswordAsync(user, loginDTO.Password))
         {
-            return ServiceResult<string>.Fail("Incorrect password", ServiceErrorType.Unauthorized);
+            throw new UnauthorizedException("Incorrect password");
         }
 
         var userAgent = context.Request.Headers["User-Agent"].ToString();
@@ -91,19 +91,19 @@ public class AuthServiceImpl : AuthService
 
         var jwtToken = await GenerateJwtToken(user);
 
-        return ServiceResult<string>.Success(jwtToken, "Login successful");
+        return jwtToken;
     }
-    public async Task<ServiceResult<VoidResponse>> Register(RegisterDTO register, HttpContext context)
+    public async Task Register(RegisterDTO register, HttpContext context)
     {
         var user = await ReturnUserIfExistPhone(register.Phone);
         if (user != null)
         {
-            return ServiceResult<VoidResponse>.Fail("Phone already exists", ServiceErrorType.BadRequest);
+            throw new BadRequestException("Phone already exists");
         }
         user = await ReturnUserIfExistEmail(register.Email);
         if (user != null)
         {
-            return ServiceResult<VoidResponse>.Fail("Email already exists", ServiceErrorType.BadRequest);
+            throw new BadRequestException("Email already exists");
         }
         var newUser = new User
         {
@@ -131,15 +131,14 @@ public class AuthServiceImpl : AuthService
         }
         await this._userManager.AddToRoleAsync(newUser, "USER");
 
-        return ServiceResult<VoidResponse>.Success(new VoidResponse(), "User registered successfully");
     }
 
-    public Task<ServiceResult<string>> StudentRegister(StudentRegisterDTO register)
+    public Task<string> StudentRegister(StudentRegisterDTO register)
     {
         throw new NotImplementedException();
     }
 
-    public Task<ServiceResult<string>> TeacherRegister(TeacherRegisterDTO register)
+    public Task<string> TeacherRegister(TeacherRegisterDTO register)
     {
         throw new NotImplementedException();
     }
@@ -204,7 +203,7 @@ public class AuthServiceImpl : AuthService
         return _configuration["Authentication:Google:scRedirectUri"] ?? "https://cellphonesclonethanh.vercel.app/home";
     }
 
-    public Task<ServiceResult<VoidResponse>> Logout(HttpContext context)
+    public Task Logout(HttpContext context)
     {
         var cookieOptions = new CookieOptions
         {
@@ -214,15 +213,15 @@ public class AuthServiceImpl : AuthService
             Expires = DateTime.UtcNow.AddDays(-1) // Expire the cookie
         };
         context.Response.Cookies.Append("refreshToken", "", cookieOptions);
-        return Task.FromResult(ServiceResult<VoidResponse>.Success(new VoidResponse(), "Logout successful"));
+        return Task.CompletedTask;
     }
 
-    public async Task<ServiceResult<string>> RefreshToken(HttpContext context)
+    public async Task<string> RefreshToken(HttpContext context)
     {
         return await _jwtTokenService.RefreshJwtToken(context.Request);
     }
 
-    public Task<ServiceResult<string>> IsLoggedIn(string userId, HttpContext context)
+    public Task<string> IsLoggedIn(string userId, HttpContext context)
     {
         return _jwtTokenService.RefreshJwtToken(context.Request);
     }

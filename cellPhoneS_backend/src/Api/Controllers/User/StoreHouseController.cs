@@ -22,7 +22,7 @@ namespace cellphones_backend.Controllers.User
         public async Task<ActionResult<ApiResponse<StoreHouseResponse>>> GetStoreHouseById(long storeHouseId)
         {
             var result = await _storeHouseService.GetStoreHouseById(storeHouseId);
-            return HandleResult(result);
+            return Ok(new ApiResponse<StoreHouseResponse>("Success", result));
         }
 
         // GET: api/storehouses
@@ -33,7 +33,7 @@ namespace cellphones_backend.Controllers.User
             [FromQuery] string? status = "active")
         {
             var result = await _storeHouseService.GetAllStoreHouses(pageIndex, pageSize, status);
-            return HandleResult(result);
+            return Ok(new ApiResponse<PagedResult<StoreHouseResponse>>("Success", result));
         }
     }
 }

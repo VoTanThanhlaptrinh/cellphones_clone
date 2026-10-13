@@ -23,7 +23,7 @@ namespace cellphones_backend.Controllers.User
         public async Task<ActionResult<ApiResponse<List<BrandResponse>>>> GetBrandsByCategory(long categoryId)
         {
             var result = await _brandService.GetBrandsByCategory(categoryId);
-            return HandleResult(result);
+            return Ok(new ApiResponse<List<BrandResponse>>("Brands retrieved successfully", result));
         }
 
         // GET: api/brands/{brandId}
@@ -32,7 +32,7 @@ namespace cellphones_backend.Controllers.User
         public async Task<ActionResult<ApiResponse<BrandResponse>>> GetBrandById(long brandId)
         {
             var result = await _brandService.GetBrandById(brandId);
-            return HandleResult(result);
+            return Ok(new ApiResponse<BrandResponse>("Brand retrieved successfully", result));
         }
 
         // GET: api/brands
@@ -44,7 +44,7 @@ namespace cellphones_backend.Controllers.User
             [FromQuery] string? status = "active")
         {
             var result = await _brandService.GetAllBrands(pageIndex, pageSize, status);
-            return HandleResult(result);
+            return Ok(new ApiResponse<PagedResult<BrandResponse>>("Brands retrieved successfully", result));
         }
     }
 }

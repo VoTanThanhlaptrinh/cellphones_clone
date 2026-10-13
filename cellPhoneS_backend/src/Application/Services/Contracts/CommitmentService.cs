@@ -7,11 +7,11 @@ namespace cellphones_backend.Services;
 public interface CommitmentService
 {
     // Admin operations
-    Task<ServiceResult<long>> CreateCommitment(CreateCommitmentRequest request, string userId);
-    Task<ServiceResult<List<long>>> CreateMultipleCommitments(CreateMultipleCommitmentsRequest request, string userId);
-    Task<ServiceResult<string>> UpdateCommitment(long commitmentId, string newContext, string userId);
-    Task<ServiceResult<string>> DeleteCommitment(long commitmentId, string userId);
+    Task<long> CreateCommitment(CreateCommitmentRequest request, string userId);
+    Task<List<long>> CreateMultipleCommitments(CreateMultipleCommitmentsRequest request, string userId);
+    Task UpdateCommitment(long commitmentId, string newContext, string userId);
+    Task DeleteCommitment(long commitmentId, string userId);
     
     // Public/User operations
-    Task<ServiceResult<List<string>>> GetProductCommitments(long productId);
+    Task<List<string>> GetProductCommitments(long productId);
 }

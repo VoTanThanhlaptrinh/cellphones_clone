@@ -30,7 +30,7 @@ namespace cellphones_backend.Controllers.Admin
             }
             
             var result = await _storeHouseService.CreateStoreHouse(createStoreHouseRequest, userId);
-            return HandleResult(result);
+            return Ok(new ApiResponse<long>("Storehouse created successfully", result));
         }
 
         // PUT: api/admin/storehouses/{storeHouseId}
@@ -51,8 +51,8 @@ namespace cellphones_backend.Controllers.Admin
                 return BadRequest(new ApiResponse<string>("StoreHouse ID in URL does not match ID in request body", null!));
             }
             
-            var result = await _storeHouseService.UpdateStoreHouse(storeHouseId, updateStoreHouseRequest, userId);
-            return HandleResult(result);
+            await _storeHouseService.UpdateStoreHouse(storeHouseId, updateStoreHouseRequest, userId);
+            return Ok(new ApiResponse<string>("Storehouse updated successfully", ""));
         }
 
         // DELETE: api/admin/storehouses/{storeHouseId}
@@ -65,8 +65,8 @@ namespace cellphones_backend.Controllers.Admin
                 return Unauthorized(new ApiResponse<string>("User not authenticated", null!));
             }
             
-            var result = await _storeHouseService.DeleteStoreHouse(storeHouseId, userId);
-            return HandleResult(result);
+            await _storeHouseService.DeleteStoreHouse(storeHouseId, userId);
+            return Ok(new ApiResponse<string>("Storehouse deleted successfully", ""));
         }
     }
 }

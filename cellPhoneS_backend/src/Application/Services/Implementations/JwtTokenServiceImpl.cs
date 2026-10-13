@@ -40,22 +40,19 @@ public class JwtTokenServiceImpl : JwtTokenService
 
         // Thêm JTI (Token ID) để quản lý Blacklist
         var jti = Guid.NewGuid().ToString();
-        var amountCartResult = await _cartService.GetAmountCart(user.Id);
+        var amountCart = await _cartService.GetAmountCart(user.Id);
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id),
             new Claim(JwtRegisteredClaimNames.Jti, jti),
             new Claim(ClaimTypes.Name, user.Fullname ?? ""),
-            new Claim("amountCart", amountCartResult.Data.ToString())
+            new Claim("amountCart", amountCart.ToString())
         };
 
-        var rolesResult = _userService.GetRole(user).Result;
-        if (rolesResult.IsSuccess && rolesResult.Data != null)
+        var roles = await _userService.GetRole(user);
+        foreach (var role in roles)
         {
-            foreach (var role in rolesResult.Data)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-            }
+            claims.Add(new Claim(ClaimTypes.Role, role));
         }
 
         var token = new JwtSecurityToken(
@@ -79,7 +76,7 @@ public class JwtTokenServiceImpl : JwtTokenService
     {
         await _redisDb.StringSetAsync($"rt:{refreshTokenGuid}", JsonSerializer.Serialize(tokenModel), expiry);
     }
-    private async Task<ServiceResult<JwtRefreshes>> ValidateRefreshTokenAsync(string refreshToken, HttpRequest request)
+    private async Task<JwtRefreshes> ValidateRefreshTokenAsync(string refreshToken, HttpRequest request)
     {
         var redisKey = $"rt:{refreshToken}";
         var jsonValue = await _redisDb.StringGetAsync(redisKey);
@@ -87,7 +84,7 @@ public class JwtTokenServiceImpl : JwtTokenService
         if (jsonValue.IsNullOrEmpty)
         {
             request.HttpContext.Response.Cookies.Delete("refreshToken");
-            return ServiceResult<JwtRefreshes>.Fail("Refresh token expired or invalid.", ServiceErrorType.BadRequest);
+            throw new BadRequestException("Refresh token expired or invalid.");
         }
 
         JwtRefreshes? storedToken;
@@ -97,19 +94,19 @@ public class JwtTokenServiceImpl : JwtTokenService
         }
         catch
         {
-            return ServiceResult<JwtRefreshes>.Fail("Token data is corrupted.", ServiceErrorType.General);
+            throw new InternalServerException("Token data is corrupted.");
         }
 
         if (storedToken == null)
         {
-            return ServiceResult<JwtRefreshes>.Fail("Invalid token data.", ServiceErrorType.BadRequest);
+            throw new BadRequestException("Invalid token data.");
         }
 
         if (storedToken.IsUsed)
         {
             await _redisDb.KeyDeleteAsync(redisKey);
             request.HttpContext.Response.Cookies.Delete("refreshToken");
-            return ServiceResult<JwtRefreshes>.Fail("Security alert: Token reuse detected!", ServiceErrorType.Forbidden);
+            throw new ForbiddenException("Security alert: Token reuse detected!");
         }
 
         var currentUserAgent = request.Headers["User-Agent"].ToString();
@@ -117,36 +114,23 @@ public class JwtTokenServiceImpl : JwtTokenService
         {
             await _redisDb.KeyDeleteAsync(redisKey);
             request.HttpContext.Response.Cookies.Delete("refreshToken");
-            return ServiceResult<JwtRefreshes>.Fail("Device mismatch detected.", ServiceErrorType.Forbidden);
+            throw new ForbiddenException("Device mismatch detected.");
         }
 
-        return ServiceResult<JwtRefreshes>.Success(storedToken, null);
+        return storedToken;
     }
-    private ServiceResult<string> GetRefreshTokenFromCookie(HttpRequest request)
+    private string GetRefreshTokenFromCookie(HttpRequest request)
     {
         if (!request.Cookies.TryGetValue("refreshToken", out var refreshToken) || string.IsNullOrEmpty(refreshToken))
         {
-            return ServiceResult<string>.Fail("No refresh token provided in cookie.", ServiceErrorType.BadRequest);
+            throw new BadRequestException("No refresh token provided in cookie.");
         }
-        return ServiceResult<string>.Success(refreshToken, null);
+        return refreshToken;
     }
-    public async Task<ServiceResult<string>> RefreshJwtToken(HttpRequest request)
+    public async Task<string> RefreshJwtToken(HttpRequest request)
     {
-        var cookieResult = GetRefreshTokenFromCookie(request);
-        if (!cookieResult.IsSuccess)
-        {
-            return ServiceResult<string>.Fail(cookieResult.Message!, cookieResult.ErrorType);
-        }
-
-        var refreshToken = cookieResult.Data!;
-        var validationResult = await ValidateRefreshTokenAsync(refreshToken, request);
-
-        if (!validationResult.IsSuccess)
-        {
-            return ServiceResult<string>.Fail(validationResult.Message!, validationResult.ErrorType);
-        }
-
-        var storedToken = validationResult.Data!;
+        var refreshToken = GetRefreshTokenFromCookie(request);
+        var storedToken = await ValidateRefreshTokenAsync(refreshToken, request);
 
         storedToken.IsUsed = true;
         await SaveRefreshTokenToRedisAsync(refreshToken, storedToken, TimeSpan.FromMinutes(2));
@@ -180,11 +164,11 @@ public class JwtTokenServiceImpl : JwtTokenService
         {
             await _redisDb.KeyDeleteAsync($"rt:{refreshToken}");
             await _redisDb.KeyDeleteAsync($"rt:{newRefreshTokenGuid}");
-            return ServiceResult<string>.Fail("User no longer exists.", ServiceErrorType.Unauthorized);
+            throw new UnauthorizedException("User no longer exists.");
         }
 
         var newAccessToken = await GenerateJwtToken(user);
-        return ServiceResult<string>.Success(newAccessToken, "Token refreshed successfully.");
+        return newAccessToken;
     }
     public string ExtractUserId(string token)
     {

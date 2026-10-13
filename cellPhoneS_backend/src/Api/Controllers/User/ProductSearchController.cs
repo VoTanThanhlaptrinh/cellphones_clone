@@ -23,10 +23,6 @@ namespace cellPhoneS_backend.Controllers.User
         public async Task<ActionResult<ApiResponse<List<ProductView>>>> SearchProducts([FromQuery] string keyword)
         {
             var results = await this._service.SearchAsync(keyword);
-            if (results.Count == 0)
-            {
-                return HandleResult(ServiceResult<List<ProductView>>.Fail("No products found matching the keyword.", ServiceErrorType.NotFound));
-            }
             var productModels = results.Select(p => new ProductView(
                 p.Id,
                 p.ImageUrl,
@@ -34,7 +30,7 @@ namespace cellPhoneS_backend.Controllers.User
                 p.BasePrice,
                 p.SalePrice)  
             ).ToList();
-            return HandleResult(ServiceResult<List<ProductView>>.Success(productModels, "Products retrieved successfully."));
+            return Ok(new ApiResponse<List<ProductView>>("Products retrieved successfully.", productModels));
         }
     }
 }

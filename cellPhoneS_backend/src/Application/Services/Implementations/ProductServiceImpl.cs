@@ -22,7 +22,7 @@ public class ProductServiceImpl : ProductService
         _size = _configuration.GetValue<int>("DefaultSetting:PageSize");
     }
 
-    public async Task<ServiceResult<string>> CreateProduct(AddProductRequest productRequest, string userId)
+    public async Task<string> CreateProduct(AddProductRequest productRequest, string userId)
     {
         // TODO: Implement business logic using the productRequest and userId here
         // Step-by-step implementation guide:
@@ -230,112 +230,91 @@ public class ProductServiceImpl : ProductService
         //     await _context.SaveChangesAsync();
         //     await transaction.CommitAsync();
         //     
-        //     return ServiceResult<string>.Success("Product created successfully", product.Id.ToString());
+        //     return product.Id.ToString();
         // }
         // catch (Exception ex)
         // {
         //     await transaction.RollbackAsync();
-        //     return ServiceResult<string>.Fail($"Failed to create product: {ex.Message}", ServiceErrorType.ServerError);
+        //     throw new InternalServerException($"Failed to create product: {ex.Message}");
         // }
         
-        // Placeholder return until implementation is complete
-        return ServiceResult<string>.Success("Product creation endpoint is ready but not yet implemented", null);
+        throw new NotImplementedException("Product creation endpoint is ready but not yet implemented");
     }
 
-    public async Task<ServiceResult<string>> DeleteProduct(long id, string userId)
+    public async Task DeleteProduct(long id, string userId)
     {
         var product = await _productDBcontext.GetByIdAsync(id);
         if (product == null)
         {
-            return ServiceResult<string>.Fail("Product not found", ServiceErrorType.NotFound);
+            throw new NotFoundException("Product not found");
         }
         product.Status = "deleted";
         product.UpdateDate = DateTime.UtcNow;
         product.UpdateBy = userId;
         await _productDBcontext.UpdateAsync(product);
-        return ServiceResult<string>.Success("Product deleted successfully", null!);
     }
 
-    public async Task<ServiceResult<ProductViewDetail>> GetProductDetails(long id)
+    public async Task<ProductViewDetail> GetProductDetails(long id)
     {
         var product = await _productDBcontext.GetProductDetails(id);
         if (product == null)
         {
-            return ServiceResult<ProductViewDetail>.Fail("Product not found", ServiceErrorType.NotFound);
+            throw new NotFoundException("Product not found");
         }
-        return ServiceResult<ProductViewDetail>.Success(product,"success");
+        return product;
     }
 
-    public async Task<ServiceResult<List<ProductView>>> GetProducts(int page, int pageSize)
+    public async Task<List<ProductView>> GetProducts(int page, int pageSize)
     {
         var productViews = await _productDBcontext.GetAllAsync(page, pageSize);
-        if (productViews == null || !productViews.Any())
-        {
-            return ServiceResult<List<ProductView>>.Fail("List product not found", ServiceErrorType.NotFound);
-        }
-        return ServiceResult<List<ProductView>>.Success(productViews.ToList(), "success");
+        return productViews?.ToList() ?? new List<ProductView>();
     }
 
-    public async Task<ServiceResult<List<ProductView>>> GetProductsByBrand(long brandId, int page, int pageSize)
+    public async Task<List<ProductView>> GetProductsByBrand(long brandId, int page, int pageSize)
     {
         var productViews = await _categoryProductDBcontext.GetProductsByBrandId(brandId, page, pageSize);
-        if (productViews == null || !productViews.Any())
-        {
-            return ServiceResult<List<ProductView>>.Fail("No products found", ServiceErrorType.NotFound);
-        }
-        return ServiceResult<List<ProductView>>.Success(productViews.ToList(), "success");
+        return productViews?.ToList() ?? new List<ProductView>();
     }
 
-    public async Task<ServiceResult<List<ProductView>>> GetProductsByCategory(long categoryId, int page, int pageSize)
+    public async Task<List<ProductView>> GetProductsByCategory(long categoryId, int page, int pageSize)
     {
         var productViews = await _categoryProductDBcontext.GetProductsByCategoryId(categoryId, page, pageSize);
-        if (productViews == null || !productViews.Any())
-        {
-            return ServiceResult<List<ProductView>>.Fail("No products found", ServiceErrorType.NotFound);
-        }
-        return ServiceResult<List<ProductView>>.Success(productViews.ToList(), "success");
+        return productViews?.ToList() ?? new List<ProductView>();
     }
 
-    public async Task<ServiceResult<List<ProductView>>> GetProductsBySeries(long seriesId, int page, int pageSize)
+    public async Task<List<ProductView>> GetProductsBySeries(long seriesId, int page, int pageSize)
     {
         var productViews = await _categoryProductDBcontext.GetProductsBySeriesId(seriesId, page, pageSize);
-        if (productViews == null || !productViews.Any())
-        {
-            return ServiceResult<List<ProductView>>.Fail("No products found", ServiceErrorType.NotFound);
-        }
-        return ServiceResult<List<ProductView>>.Success(productViews.ToList(), "success");
+        return productViews?.ToList() ?? new List<ProductView>();
     }
 
-    public async Task<ServiceResult<List<ProductView>>> GetProductsForInfinityScroll(string tag, string slugName, long? countCursor)
+    public async Task<List<ProductView>> GetProductsForInfinityScroll(string tag, string slugName, long? countCursor)
     {
         switch (tag.ToLower())
         {
             case "category":
                 var productViews = await _categoryProductDBcontext.GetProductsByCategorySlugNameForInfinityScroll(slugName, countCursor, _size);
-                if (productViews == null || !productViews.Any())                {
-                    return ServiceResult<List<ProductView>>.Fail("No products found", ServiceErrorType.NotFound);
-                }
-                return ServiceResult<List<ProductView>>.Success(productViews.ToList(), "success");
+                return productViews?.ToList() ?? new List<ProductView>();
             default:
-                throw new ArgumentException("Invalid tag for infinity scroll. Expected 'brand', 'series', or 'category'.");
+                throw new BadRequestException("Invalid tag for infinity scroll. Expected 'brand', 'series', or 'category'.");
         }
     }
 
-    public Task<ServiceResult<List<ProductView>>> SearchProducts(string keyword, int page, int pageSize)
+    public Task<List<ProductView>> SearchProducts(string keyword, int page, int pageSize)
     {
         return null!;
     }
 
-    public async Task<ServiceResult<string>> UpdateProduct(long id, UpdateProductRequest request, string userId)
+    public async Task UpdateProduct(long id, UpdateProductRequest request, string userId)
     {
         // TODO: Implement business logic using the id, request, and userId here
         // 1. Find product by ID
-        // 2. If not found, return ServiceResult<string>.Fail with NotFound error
+        // 2. If not found, return throw NotFoundException
         // 3. Update fields from request
         // 4. Update UpdateDate = DateTime.UtcNow
         // 5. Update UpdateBy = userId
         // 6. Save changes
-        // 7. Return ServiceResult<string>.Success
+        // 7. Return the result
         
         throw new NotImplementedException();
     }

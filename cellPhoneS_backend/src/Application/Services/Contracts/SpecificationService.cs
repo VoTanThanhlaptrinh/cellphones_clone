@@ -7,11 +7,11 @@ namespace cellphones_backend.Services;
 public interface SpecificationService
 {
     // Admin operations
-    Task<ServiceResult<long>> CreateSpecification(CreateSpecificationRequest request, string userId);
-    Task<ServiceResult<long>> AddSpecificationDetail(long specificationId, CreateSpecificationDetailRequest request, string userId);
-    Task<ServiceResult<string>> DeleteSpecification(long specificationId, string userId);
+    Task<long> CreateSpecification(CreateSpecificationRequest request, string userId);
+    Task<long> AddSpecificationDetail(long specificationId, CreateSpecificationDetailRequest request, string userId);
+    Task DeleteSpecification(long specificationId, string userId);
     
     // Public/User operations
-    Task<ServiceResult<List<SpecificationDTO>>> GetAllSpecifications();
-    Task<ServiceResult<SpecificationDTO>> GetSpecificationById(long specificationId);
+    Task<List<SpecificationDTO>> GetAllSpecifications();
+    Task<SpecificationDTO> GetSpecificationById(long specificationId);
 }

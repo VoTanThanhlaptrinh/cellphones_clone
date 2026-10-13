@@ -17,9 +17,9 @@ public class InitServiceImpl : InitService
         _categoryRepository = categoryRepository;
     }
 
-    public async Task<ServiceResult<HomeViewModel>> InitHomePage()
+    public async Task<HomeViewModel> InitHomePage()
     {
-        return ServiceResult<HomeViewModel>.Success(await _categoryRepository.InitHomeByCategories(), "success");
+        return await _categoryRepository.InitHomeByCategories();
     }
 }
     

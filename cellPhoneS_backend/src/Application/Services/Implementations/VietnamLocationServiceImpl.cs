@@ -47,13 +47,11 @@ public class VietnamLocationServiceImpl : IVietnamLocationService
         _staleRetentionDuration = TimeSpan.FromHours(cacheHours * 2);
     }
 
-    public async Task<ServiceResult<List<VietnamProvinceDto>>> GetLocationsAsync(int depth, CancellationToken ct = default)
+    public async Task<List<VietnamProvinceDto>> GetLocationsAsync(int depth, CancellationToken ct = default)
     {
         if (depth < _minDepth || depth > _maxDepth)
         {
-            return ServiceResult<List<VietnamProvinceDto>>.Fail(
-                $"Invalid depth. Supported range is {_minDepth} to {_maxDepth}.",
-                ServiceErrorType.BadRequest);
+            throw new BadRequestException($"Invalid depth. Supported range is {_minDepth} to {_maxDepth}.");
         }
 
         var cacheKey = BuildCacheKey(depth);
@@ -62,44 +60,37 @@ public class VietnamLocationServiceImpl : IVietnamLocationService
             var age = DateTimeOffset.UtcNow - cached.CachedAt;
             if (age <= _cacheDuration)
             {
-                return ServiceResult<List<VietnamProvinceDto>>.Success(
-                    cached.Data,
-                    "Vietnam locations retrieved successfully");
+                return cached.Data;
             }
 
             var refreshedData = await TryFetchAndCacheAsync(depth, cacheKey, ct);
             if (refreshedData is not null)
             {
-                return ServiceResult<List<VietnamProvinceDto>>.Success(
-                    refreshedData,
-                    "Vietnam locations retrieved successfully");
+                return refreshedData;
             }
 
             _logger.LogWarning("Using stale Vietnam location cache for depth {Depth}.", depth);
-            return ServiceResult<List<VietnamProvinceDto>>.Success(
-                cached.Data,
-                "Vietnam locations retrieved successfully");
+            return cached.Data;
         }
 
         var data = await TryFetchAndCacheAsync(depth, cacheKey, ct);
         if (data is null)
         {
-            return ServiceResult<List<VietnamProvinceDto>>.Fail(
-                "Failed to fetch Vietnam locations from upstream service.",
-                ServiceErrorType.InternalError);
+            throw new InternalServerException("Failed to fetch Vietnam locations from upstream service.");
         }
 
-        return ServiceResult<List<VietnamProvinceDto>>.Success(
-            data,
-            "Vietnam locations retrieved successfully");
+        return data;
     }
 
     public async Task WarmUpAsync(CancellationToken ct = default)
     {
-        var result = await GetLocationsAsync(_defaultDepth, ct);
-        if (!result.IsSuccess)
+        try
         {
-            _logger.LogWarning("Vietnam location warm-up failed for depth {Depth}: {Message}", _defaultDepth, result.Message);
+            await GetLocationsAsync(_defaultDepth, ct);
+        }
+        catch (AppException ex)
+        {
+            _logger.LogWarning("Vietnam location warm-up failed for depth {Depth}: {Message}", _defaultDepth, ex.Message);
         }
     }
 

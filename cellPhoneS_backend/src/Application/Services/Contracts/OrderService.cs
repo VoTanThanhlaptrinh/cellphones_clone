@@ -7,11 +7,11 @@ namespace cellPhoneS_backend.Services.Interface;
 
 public interface OrderService
 {
-    public Task<ServiceResult<string>> GetOrderByUserId(string userId);
-    public Task<ServiceResult<string>> GetOrderById(string orderId);
-    public Task<ServiceResult<string>> GetOrders(int page, int pageSize);
-    public Task<ServiceResult<string>> DeleteOrder(string userId, long orderId);
-    public Task<ServiceResult<string>> Checkout(string userId, long orderId);
-    Task<ServiceResult<OrderView>> CreatePickupOrder(string userId, PickupOrderRequest payload);
-    Task<ServiceResult<OrderView>> CreateDeliveryOrder(string userId, DeliveryOrderRequest payload);
+    public Task<string> GetOrderByUserId(string userId);
+    public Task<string> GetOrderById(string orderId);
+    public Task<string> GetOrders(int page, int pageSize);
+    public Task DeleteOrder(string userId, long orderId);
+    public Task Checkout(string userId, long orderId);
+    Task<OrderView> CreatePickupOrder(string userId, PickupOrderRequest payload);
+    Task<OrderView> CreateDeliveryOrder(string userId, DeliveryOrderRequest payload);
 }

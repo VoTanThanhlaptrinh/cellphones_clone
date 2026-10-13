@@ -23,7 +23,7 @@ namespace cellphones_backend.Controllers.User
         public async Task<ActionResult<ApiResponse<List<SpecificationDTO>>>> GetAllSpecifications()
         {
             var result = await _specificationService.GetAllSpecifications();
-            return HandleResult(result);
+            return Ok(new ApiResponse<List<SpecificationDTO>>("Specifications retrieved successfully", result));
         }
 
         // GET: api/specifications/{specificationId}
@@ -32,7 +32,7 @@ namespace cellphones_backend.Controllers.User
         public async Task<ActionResult<ApiResponse<SpecificationDTO>>> GetSpecificationById(long specificationId)
         {
             var result = await _specificationService.GetSpecificationById(specificationId);
-            return HandleResult(result);
+            return Ok(new ApiResponse<SpecificationDTO>("Specification retrieved successfully", result));
         }
     }
 }

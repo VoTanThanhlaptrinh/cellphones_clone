@@ -23,7 +23,7 @@ namespace cellphones_backend.Controllers.User
         public async Task<ActionResult<ApiResponse<ImageDTO>>> GetImage(long imageId)
         {
             var result = await _imageService.GetImage(imageId);
-            return HandleResult(result);
+            return Ok(new ApiResponse<ImageDTO>("Image retrieved successfully", result));
         }
     }
 }

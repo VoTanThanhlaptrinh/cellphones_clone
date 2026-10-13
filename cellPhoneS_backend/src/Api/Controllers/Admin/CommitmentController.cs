@@ -30,7 +30,7 @@ namespace cellphones_backend.Controllers.Admin
             }
             
             var result = await _commitmentService.CreateCommitment(createCommitmentRequest, userId);
-            return HandleResult(result);
+            return Ok(new ApiResponse<long>("Commitment created successfully", result));
         }
 
         // POST: api/admin/commitments/batch
@@ -45,7 +45,7 @@ namespace cellphones_backend.Controllers.Admin
             }
             
             var result = await _commitmentService.CreateMultipleCommitments(createMultipleRequest, userId);
-            return HandleResult(result);
+            return Ok(new ApiResponse<List<long>>("Commitments created successfully", result));
         }
 
         // PUT: api/admin/commitments/{commitmentId}
@@ -59,8 +59,8 @@ namespace cellphones_backend.Controllers.Admin
                 return Unauthorized(new ApiResponse<string>("User not authenticated", null!));
             }
             
-            var result = await _commitmentService.UpdateCommitment(commitmentId, newContext, userId);
-            return HandleResult(result);
+            await _commitmentService.UpdateCommitment(commitmentId, newContext, userId);
+            return Ok(new ApiResponse<string>("Commitment updated successfully", ""));
         }
 
         // DELETE: api/admin/commitments/{commitmentId}
@@ -74,8 +74,8 @@ namespace cellphones_backend.Controllers.Admin
                 return Unauthorized(new ApiResponse<string>("User not authenticated", null!));
             }
             
-            var result = await _commitmentService.DeleteCommitment(commitmentId, userId);
-            return HandleResult(result);
+            await _commitmentService.DeleteCommitment(commitmentId, userId);
+            return Ok(new ApiResponse<string>("Commitment deleted successfully", ""));
         }
     }
 }

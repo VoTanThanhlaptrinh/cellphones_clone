@@ -43,7 +43,8 @@ namespace cellphones_backend.Controllers
         [HttpGet("qr-payment/{orderId}")]
         public async Task<ActionResult<ApiResponse<string>>> GenerateQRPaymentLink(long orderId)
         {
-            return HandleResult(await _payOSService.GenerateQRCode(orderId, 1000, "Thử nghiệm thanh toán")); // TODO: implement QR code payment link generation
+            var result = await _payOSService.GenerateQRCode(orderId, 1000, "Thử nghiệm thanh toán");
+            return Ok(new ApiResponse<string>("QR code generated successfully", result)); // TODO: implement QR code payment link generation
         }
 
     }

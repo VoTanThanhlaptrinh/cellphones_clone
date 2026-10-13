@@ -8,5 +8,5 @@ public interface PayOSService
 {
     Task<string> CreatePaymentLink(long orderId, long amount, string description);
     Task<bool> VerifyPayment(Webhook webhook);
-    Task<ServiceResult<string>> GenerateQRCode(long orderId, long amount, string description);
+    Task<string> GenerateQRCode(long orderId, long amount, string description);
 }

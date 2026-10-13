@@ -30,7 +30,7 @@ namespace cellphones_backend.Controllers.Admin
             }
             
             var result = await _demandService.CreateDemand(createDemandRequest, userId);
-            return HandleResult(result);
+            return Ok(new ApiResponse<long>("Demand created successfully", result));
         }
 
         // PUT: api/admin/demands/{demandId}
@@ -51,8 +51,8 @@ namespace cellphones_backend.Controllers.Admin
                 return BadRequest(new ApiResponse<string>("Demand ID in URL does not match ID in request body", null!));
             }
             
-            var result = await _demandService.UpdateDemand(demandId, updateDemandRequest, userId);
-            return HandleResult(result);
+            await _demandService.UpdateDemand(demandId, updateDemandRequest, userId);
+            return Ok(new ApiResponse<string>("Demand updated successfully", ""));
         }
 
         // DELETE: api/admin/demands/{demandId}
@@ -65,8 +65,8 @@ namespace cellphones_backend.Controllers.Admin
                 return Unauthorized(new ApiResponse<string>("User not authenticated", null!));
             }
             
-            var result = await _demandService.DeleteDemand(demandId, userId);
-            return HandleResult(result);
+            await _demandService.DeleteDemand(demandId, userId);
+            return Ok(new ApiResponse<string>("Demand deleted successfully", ""));
         }
     }
 }

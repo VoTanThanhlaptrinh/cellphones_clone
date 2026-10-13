@@ -16,7 +16,7 @@ public class StoreHouseServiceImpl : StoreHouseService
         _storeHouseRepository = storeHouseRepository;
     }
 
-    public async Task<ServiceResult<long>> CreateStoreHouse(CreateStoreHouseRequest request, string userId)
+    public async Task<long> CreateStoreHouse(CreateStoreHouseRequest request, string userId)
     {
         var existingStore = await _storeHouseRepository.FindAsync(s => 
             s.Street == request.Street && 
@@ -25,7 +25,7 @@ public class StoreHouseServiceImpl : StoreHouseService
             s.Status != "deleted");
 
         if (existingStore.Any())
-            return ServiceResult<long>.Fail("A storehouse at this exact address already exists");
+            throw new ConflictException("A storehouse at this exact address already exists");
 
         var storeHouse = new StoreHouse
         {
@@ -42,14 +42,14 @@ public class StoreHouseServiceImpl : StoreHouseService
         await _storeHouseRepository.AddAsync(storeHouse);
         await _storeHouseRepository.SaveChangesAsync();
 
-        return ServiceResult<long>.Success(storeHouse.Id, "Storehouse created successfully");
+        return storeHouse.Id;
     }
 
-    public async Task<ServiceResult<string>> UpdateStoreHouse(long storeHouseId, UpdateStoreHouseRequest request, string userId)
+    public async Task UpdateStoreHouse(long storeHouseId, UpdateStoreHouseRequest request, string userId)
     {
         var storeHouse = await _storeHouseRepository.GetByIdAsync(storeHouseId);
         if (storeHouse == null || storeHouse.Status == "deleted")
-            return ServiceResult<string>.Fail("Storehouse not found");
+            throw new NotFoundException("Storehouse not found");
 
         if (!string.IsNullOrEmpty(request.Street)) storeHouse.Street = request.Street;
         if (!string.IsNullOrEmpty(request.District)) storeHouse.District = request.District;
@@ -63,7 +63,7 @@ public class StoreHouseServiceImpl : StoreHouseService
             s.Status != "deleted");
 
         if (existingStore.Any())
-            return ServiceResult<string>.Fail("A storehouse at this resulting address already exists");
+            throw new ConflictException("A storehouse at this resulting address already exists");
 
         if (request.Status != null)
         {
@@ -75,15 +75,13 @@ public class StoreHouseServiceImpl : StoreHouseService
 
         await _storeHouseRepository.UpdateAsync(storeHouse);
         await _storeHouseRepository.SaveChangesAsync();
-
-        return ServiceResult<string>.Success("", "Storehouse updated successfully");
     }
 
-    public async Task<ServiceResult<string>> DeleteStoreHouse(long storeHouseId, string userId)
+    public async Task DeleteStoreHouse(long storeHouseId, string userId)
     {
         var storeHouse = await _storeHouseRepository.GetByIdAsync(storeHouseId);
         if (storeHouse == null || storeHouse.Status == "deleted")
-            return ServiceResult<string>.Fail("Storehouse not found");
+            throw new NotFoundException("Storehouse not found");
 
         storeHouse.Status = "deleted";
         storeHouse.UpdateDate = DateTime.Now;
@@ -91,33 +89,28 @@ public class StoreHouseServiceImpl : StoreHouseService
 
         await _storeHouseRepository.UpdateAsync(storeHouse);
         await _storeHouseRepository.SaveChangesAsync();
-
-        return ServiceResult<string>.Success("", "Storehouse deleted successfully");
     }
 
-    public async Task<ServiceResult<PagedResult<StoreHouseResponse>>> GetAllStoreHouses(int pageIndex, int pageSize, string? status = "active")
+    public async Task<PagedResult<StoreHouseResponse>> GetAllStoreHouses(int pageIndex, int pageSize, string? status = "active")
     {
         var query = await _storeHouseRepository.FindAsync(s => status == null || s.Status == status);
         
         var storeHouses = query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
         var totalCount = query.Count();
 
-        if (!storeHouses.Any())
-            return ServiceResult<PagedResult<StoreHouseResponse>>.Fail("No storehouses found");
-
         var resultItems = storeHouses.Select(s => new StoreHouseResponse(s.Id, s.Street, s.District, s.City, s.Status)).ToList();
         var pagedResult = new PagedResult<StoreHouseResponse>(resultItems, totalCount, pageIndex, pageSize);
 
-        return ServiceResult<PagedResult<StoreHouseResponse>>.Success(pagedResult, "Success");
+        return pagedResult;
     }
 
-    public async Task<ServiceResult<StoreHouseResponse>> GetStoreHouseById(long storeHouseId)
+    public async Task<StoreHouseResponse> GetStoreHouseById(long storeHouseId)
     {
         var storeHouse = await _storeHouseRepository.GetByIdAsync(storeHouseId);
         if (storeHouse == null || storeHouse.Status == "deleted")
-            return ServiceResult<StoreHouseResponse>.Fail("Storehouse not found");
+            throw new NotFoundException("Storehouse not found");
 
         var result = new StoreHouseResponse(storeHouse.Id, storeHouse.Street, storeHouse.District, storeHouse.City, storeHouse.Status);
-        return ServiceResult<StoreHouseResponse>.Success(result, "Success");
+        return result;
     }
 }

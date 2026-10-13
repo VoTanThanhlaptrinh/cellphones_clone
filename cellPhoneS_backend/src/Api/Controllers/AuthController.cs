@@ -30,24 +30,28 @@ namespace cellphones_backend.Controllers
         public async Task<ActionResult<ApiResponse<VoidResponse>>> Register([FromBody] RegisterDTO register)
         {
 
-            return HandleResult(await _authService.Register(register, HttpContext));
+            await _authService.Register(register, HttpContext);
+            return Ok(new ApiResponse<VoidResponse>("User registered successfully", new VoidResponse()));
         }
         [HttpPost("studentRegister")]
         public async Task<ActionResult<ApiResponse<string>>> StudentRegister([FromBody] StudentRegisterDTO studentRegister)
         {
-            return HandleResult(await _authService.StudentRegister(studentRegister));
+            var result = await _authService.StudentRegister(studentRegister);
+            return Ok(new ApiResponse<string>("Student registered successfully", result));
         }
         [HttpPost("teacherRegister")]
         public async Task<ActionResult<ApiResponse<string>>> TeacherRegister([FromBody] TeacherRegisterDTO teacherRegister)
         {
-            return HandleResult(await _authService.TeacherRegister(teacherRegister));
+            var result = await _authService.TeacherRegister(teacherRegister);
+            return Ok(new ApiResponse<string>("Teacher registered successfully", result));
         }
         [HttpPost("login")]
         [EnableRateLimiting("AuthLimit")]
         public async Task<ActionResult<ApiResponse<string>>> Login(LoginDTO loginDTO)
         {
 
-            return HandleResult(await _authService.Login(loginDTO, HttpContext));
+            var token = await _authService.Login(loginDTO, HttpContext);
+            return Ok(new ApiResponse<string>("Login successful", token));
         }
         [HttpGet("oauth2-google")]
         public async Task Oauth2Google()
@@ -82,19 +86,22 @@ namespace cellphones_backend.Controllers
         public async Task<ActionResult<ApiResponse<VoidResponse>>> Logout()
         {
 
-            return HandleResult(await this._authService.Logout(HttpContext));
+            await _authService.Logout(HttpContext);
+            return Ok(new ApiResponse<VoidResponse>("Logout successful", new VoidResponse()));
         }
         [HttpPost("refresh")]
         public async Task<ActionResult<ApiResponse<string>>> RefreshToken()
         {
 
-            return HandleResult(await this._authService.RefreshToken(HttpContext));
+            var token = await _authService.RefreshToken(HttpContext);
+            return Ok(new ApiResponse<string>("Token refreshed successfully.", token));
         }
         [HttpPost("isLoggedIn")]
         public async Task<ActionResult<ApiResponse<string>>> IsLoggedIn()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return HandleResult(await this._authService.IsLoggedIn(userId!, HttpContext));
+            var token = await _authService.IsLoggedIn(userId!, HttpContext);
+            return Ok(new ApiResponse<string>("Token refreshed successfully.", token));
         }
     }
 }

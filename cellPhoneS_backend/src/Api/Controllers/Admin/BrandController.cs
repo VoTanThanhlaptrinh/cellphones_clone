@@ -31,7 +31,7 @@ namespace cellphones_backend.Controllers.Admin
             }
             
             var result = await _brandService.CreateBrand(createBrandRequest, userId);
-            return HandleResult(result);
+            return Ok(new ApiResponse<long>("Brand created successfully", result));
         }
 
         // PUT: api/admin/brands/{brandId}
@@ -53,8 +53,8 @@ namespace cellphones_backend.Controllers.Admin
                 return BadRequest(new ApiResponse<string>("Brand ID in URL does not match ID in request body", null!));
             }
             
-            var result = await _brandService.UpdateBrand(brandId, updateBrandRequest, userId);
-            return HandleResult(result);
+            await _brandService.UpdateBrand(brandId, updateBrandRequest, userId);
+            return Ok(new ApiResponse<string>("Brand updated successfully", ""));
         }
 
         // DELETE: api/admin/brands/{brandId}
@@ -68,8 +68,8 @@ namespace cellphones_backend.Controllers.Admin
                 return Unauthorized(new ApiResponse<string>("User not authenticated", null!));
             }
             
-            var result = await _brandService.DeleteBrand(brandId, userId);
-            return HandleResult(result);
+            await _brandService.DeleteBrand(brandId, userId);
+            return Ok(new ApiResponse<string>("Brand deleted successfully", ""));
         }
     }
 }

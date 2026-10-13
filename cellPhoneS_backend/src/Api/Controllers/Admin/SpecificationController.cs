@@ -30,7 +30,7 @@ namespace cellphones_backend.Controllers.Admin
             }
             
             var result = await _specificationService.CreateSpecification(createSpecificationRequest, userId);
-            return HandleResult(result);
+            return Ok(new ApiResponse<long>("Specification created successfully", result));
         }
 
         // POST: api/admin/specifications/{specificationId}/details
@@ -47,7 +47,7 @@ namespace cellphones_backend.Controllers.Admin
             }
             
             var result = await _specificationService.AddSpecificationDetail(specificationId, createDetailRequest, userId);
-            return HandleResult(result);
+            return Ok(new ApiResponse<long>("Specification detail added successfully", result));
         }
 
         // DELETE: api/admin/specifications/{specificationId}
@@ -61,8 +61,8 @@ namespace cellphones_backend.Controllers.Admin
                 return Unauthorized(new ApiResponse<string>("User not authenticated", null!));
             }
             
-            var result = await _specificationService.DeleteSpecification(specificationId, userId);
-            return HandleResult(result);
+            await _specificationService.DeleteSpecification(specificationId, userId);
+            return Ok(new ApiResponse<string>("Specification deleted successfully", ""));
         }
     }
 }

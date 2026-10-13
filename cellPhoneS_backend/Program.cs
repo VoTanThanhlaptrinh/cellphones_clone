@@ -131,7 +131,7 @@ internal partial class Program
         builder.Services.AddAzureClients(clientBuilder => clientBuilder.AddBlobServiceClient(cs));
         builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
         builder.Services.AddScoped<IResourceLocalizer, ResourceLocalizer>();
-        builder.Services.AddControllers();
+        builder.Services.AddControllers(options => options.Filters.Add<cellPhoneS_backend.Filters.ApiExceptionFilter>());
         builder.Services.AddCustomServices();
         builder.Services.AddHttpClient("VietnamAdministrativeApi", client =>
         {

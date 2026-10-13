@@ -22,22 +22,22 @@ public class BrandServiceImpl : BrandService
         _imageRepository = imageRepository;
     }
 
-    public async Task<ServiceResult<long>> CreateBrand(CreateBrandRequest request, string userId)
+    public async Task<long> CreateBrand(CreateBrandRequest request, string userId)
     {
         var category = await _categoryRepository.GetByIdAsync(request.CategoryId);
         if (category == null)
-            return ServiceResult<long>.Fail("Category not found");
+            throw new NotFoundException("Category not found");
 
         if (request.ImageId.HasValue)
         {
             var image = await _imageRepository.GetByIdAsync(request.ImageId.Value);
             if (image == null)
-                return ServiceResult<long>.Fail("Image not found");
+                throw new NotFoundException("Image not found");
         }
 
         var existingNames = await _brandRepository.FindAsync(b => b.Name == request.Name && b.CategoryId == request.CategoryId && b.Status != "deleted");
         if (existingNames.Any())
-            return ServiceResult<long>.Fail("Brand with same name already exists in this category");
+            throw new ConflictException("Brand with same name already exists in this category");
 
         var brand = new Brand
         {
@@ -55,20 +55,20 @@ public class BrandServiceImpl : BrandService
         await _brandRepository.AddAsync(brand);
         await _brandRepository.SaveChangesAsync();
 
-        return ServiceResult<long>.Success(brand.Id, "Brand created successfully");
+        return brand.Id;
     }
 
-    public async Task<ServiceResult<string>> UpdateBrand(long brandId, UpdateBrandRequest request, string userId)
+    public async Task UpdateBrand(long brandId, UpdateBrandRequest request, string userId)
     {
         var brand = await _brandRepository.GetByIdAsync(brandId);
         if (brand == null || brand.Status == "deleted")
-            return ServiceResult<string>.Fail("Brand not found");
+            throw new NotFoundException("Brand not found");
 
         if (request.CategoryId.HasValue && request.CategoryId != brand.CategoryId)
         {
             var category = await _categoryRepository.GetByIdAsync(request.CategoryId.Value);
             if (category == null)
-                return ServiceResult<string>.Fail("New category not found");
+                throw new NotFoundException("New category not found");
             brand.CategoryId = request.CategoryId.Value;
         }
 
@@ -76,7 +76,7 @@ public class BrandServiceImpl : BrandService
         {
             var image = await _imageRepository.GetByIdAsync(request.ImageId.Value);
             if (image == null)
-                return ServiceResult<string>.Fail("New image not found");
+                throw new NotFoundException("New image not found");
             brand.ImageId = request.ImageId.Value;
         }
 
@@ -84,7 +84,7 @@ public class BrandServiceImpl : BrandService
         {
             var existingNames = await _brandRepository.FindAsync(b => b.Name == request.Name && b.CategoryId == brand.CategoryId && b.Id != brandId && b.Status != "deleted");
             if (existingNames.Any())
-                return ServiceResult<string>.Fail("Brand with same name already exists in this category");
+                throw new ConflictException("Brand with same name already exists in this category");
 
             brand.Name = request.Name;
             brand.SlugName = SlugHelper.GenerateSlug(request.Name);
@@ -100,15 +100,13 @@ public class BrandServiceImpl : BrandService
 
         await _brandRepository.UpdateAsync(brand);
         await _brandRepository.SaveChangesAsync();
-
-        return ServiceResult<string>.Success("", "Brand updated successfully");
     }
 
-    public async Task<ServiceResult<string>> DeleteBrand(long brandId, string userId)
+    public async Task DeleteBrand(long brandId, string userId)
     {
         var brand = await _brandRepository.GetByIdAsync(brandId);
         if (brand == null || brand.Status == "deleted")
-            return ServiceResult<string>.Fail("Brand not found");
+            throw new NotFoundException("Brand not found");
 
         // Simple soft delete
         brand.Status = "deleted";
@@ -117,47 +115,40 @@ public class BrandServiceImpl : BrandService
 
         await _brandRepository.UpdateAsync(brand);
         await _brandRepository.SaveChangesAsync();
-
-        return ServiceResult<string>.Success("", "Brand deleted successfully");
     }
 
-    public async Task<ServiceResult<PagedResult<BrandResponse>>> GetAllBrands(int pageIndex, int pageSize, string? status = "active")
+    public async Task<PagedResult<BrandResponse>> GetAllBrands(int pageIndex, int pageSize, string? status = "active")
     {
         var query = await _brandRepository.FindAsync(b => status == null || b.Status == status);
         
         var brands = query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
         var totalCount = query.Count();
 
-        if (!brands.Any())
-            return ServiceResult<PagedResult<BrandResponse>>.Fail("No brands found");
-
         var resultItems = brands.Select(b => new BrandResponse(b.Id, b.Name!, b.SlugName)).ToList();
         var pagedResult = new PagedResult<BrandResponse>(resultItems, totalCount, pageIndex, pageSize);
 
-        return ServiceResult<PagedResult<BrandResponse>>.Success(pagedResult, "Brands retrieved successfully");
+        return pagedResult;
     }
 
-    public async Task<ServiceResult<List<BrandResponse>>> GetBrandsByCategory(long categoryId)
+    public async Task<List<BrandResponse>> GetBrandsByCategory(long categoryId)
     {
         var category = await _categoryRepository.GetByIdAsync(categoryId);
         if (category == null || category.Status == "deleted")
-            return ServiceResult<List<BrandResponse>>.Fail("Category not found");
+            throw new NotFoundException("Category not found");
 
         var brands = await _brandRepository.FindAsync(b => b.CategoryId == categoryId && b.Status != "deleted");
-        if (!brands.Any())
-            return ServiceResult<List<BrandResponse>>.Fail("No brands found in this category");
 
         var result = brands.Select(b => new BrandResponse(b.Id, b.Name, b.SlugName)).ToList();
-        return ServiceResult<List<BrandResponse>>.Success(result, "Brands retrieved successfully");
+        return result;
     }
 
-    public async Task<ServiceResult<BrandResponse>> GetBrandById(long brandId)
+    public async Task<BrandResponse> GetBrandById(long brandId)
     {
         var brand = await _brandRepository.GetByIdAsync(brandId);
         if (brand == null || brand.Status == "deleted")
-            return ServiceResult<BrandResponse>.Fail("Brand not found");
+            throw new NotFoundException("Brand not found");
 
         var result = new BrandResponse(brand.Id, brand.Name, brand.SlugName);
-        return ServiceResult<BrandResponse>.Success(result, "Brand retrieved successfully");
+        return result;
     }
 }

@@ -8,5 +8,5 @@ namespace cellPhoneS_backend.Services;
 
 public interface InitService
 {
-    Task<ServiceResult<HomeViewModel>> InitHomePage();
+    Task<HomeViewModel> InitHomePage();
 }

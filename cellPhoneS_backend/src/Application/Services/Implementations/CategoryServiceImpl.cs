@@ -19,17 +19,17 @@ public class CategoryServiceImpl : CategoryService
         size = _configuration.GetValue<int>("DefaultSetting:PageSize");
     }
     
-    public async Task<ServiceResult<long>> CreateCategory(CreateCategoryRequest request, string userId)
+    public async Task<long> CreateCategory(CreateCategoryRequest request, string userId)
     {
         var existingNames = await _categoryRepository.FindAsync(c => c.Name == request.Name && c.Status != "deleted");
         if (existingNames.Any())
-            return ServiceResult<long>.Fail("Category with same name already exists");
+            throw new ConflictException("Category with same name already exists");
 
         if (request.ParentCategoryId.HasValue)
         {
             var parent = await _categoryRepository.GetByIdAsync(request.ParentCategoryId.Value);
             if (parent == null || parent.Status == "deleted")
-                return ServiceResult<long>.Fail("Parent category not found");
+                throw new NotFoundException("Parent category not found");
         }
 
         var category = new Category
@@ -47,20 +47,20 @@ public class CategoryServiceImpl : CategoryService
         await _categoryRepository.AddAsync(category);
         await _categoryRepository.SaveChangesAsync();
 
-        return ServiceResult<long>.Success(category.Id, "Category created successfully");
+        return category.Id;
     }
 
-    public async Task<ServiceResult<string>> UpdateCategory(long categoryId, UpdateCategoryRequest request, string userId)
+    public async Task UpdateCategory(long categoryId, UpdateCategoryRequest request, string userId)
     {
         var category = await _categoryRepository.GetByIdAsync(categoryId);
         if (category == null || category.Status == "deleted")
-            return ServiceResult<string>.Fail("Category not found");
+            throw new NotFoundException("Category not found");
 
         if (!string.IsNullOrEmpty(request.Name) && request.Name != category.Name)
         {
             var existingNames = await _categoryRepository.FindAsync(c => c.Name == request.Name && c.Id != categoryId && c.Status != "deleted");
             if (existingNames.Any())
-                return ServiceResult<string>.Fail("Category with same name already exists");
+                throw new ConflictException("Category with same name already exists");
 
             category.Name = request.Name;
             category.SlugName = SlugHelper.GenerateSlug(request.Name);
@@ -75,11 +75,11 @@ public class CategoryServiceImpl : CategoryService
             else if (request.ParentCategoryId.HasValue)
             {
                 if (request.ParentCategoryId.Value == categoryId)
-                    return ServiceResult<string>.Fail("Category cannot be its own parent");
+                    throw new BadRequestException("Category cannot be its own parent");
 
                 var parent = await _categoryRepository.GetByIdAsync(request.ParentCategoryId.Value);
                 if (parent == null || parent.Status == "deleted")
-                    return ServiceResult<string>.Fail("Parent category not found");
+                    throw new NotFoundException("Parent category not found");
 
                 category.ParentCategoryId = request.ParentCategoryId.Value;
             }
@@ -95,15 +95,13 @@ public class CategoryServiceImpl : CategoryService
 
         await _categoryRepository.UpdateAsync(category);
         await _categoryRepository.SaveChangesAsync();
-
-        return ServiceResult<string>.Success("", "Category updated successfully");
     }
 
-    public async Task<ServiceResult<string>> DeleteCategory(long categoryId, string userId)
+    public async Task DeleteCategory(long categoryId, string userId)
     {
         var category = await _categoryRepository.GetByIdAsync(categoryId);
         if (category == null || category.Status == "deleted")
-            return ServiceResult<string>.Fail("Category not found");
+            throw new NotFoundException("Category not found");
 
         category.Status = "deleted";
         category.UpdateDate = DateTime.Now;
@@ -111,54 +109,44 @@ public class CategoryServiceImpl : CategoryService
 
         await _categoryRepository.UpdateAsync(category);
         await _categoryRepository.SaveChangesAsync();
-
-        return ServiceResult<string>.Success("","Category deleted successfully");
     }
 
-    public async Task<ServiceResult<PagedResult<CategoryResponse>>> GetAllCategories(int pageIndex, int pageSize, string? status = "active")
+    public async Task<PagedResult<CategoryResponse>> GetAllCategories(int pageIndex, int pageSize, string? status = "active")
     {
         var query = await _categoryRepository.FindAsync(c => status == null || c.Status == status);
         
         var categories = query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
         var totalCount = query.Count();
 
-        if (!categories.Any())
-            return ServiceResult<PagedResult<CategoryResponse>>.Fail("No categories found");
-
         var resultItems = categories.Select(c => new CategoryResponse(c.Id, c.Name, c.SlugName, null, null, null)).ToList();
         var pagedResult = new PagedResult<CategoryResponse>(resultItems, totalCount, pageIndex, pageSize);
 
-        return ServiceResult<PagedResult<CategoryResponse>>.Success(pagedResult, "Success");
+        return pagedResult;
     }
 
-    public async Task<ServiceResult<CategoryDetailResponse>> GetCategoryDetail(long categoryId)
+    public async Task<CategoryDetailResponse> GetCategoryDetail(long categoryId)
     {
         var res =  await _categoryRepository.GetCategoryDetail(categoryId, size);
         if(res == null)
-            return ServiceResult<CategoryDetailResponse>.Fail("No category found for the specified category");
+            throw new NotFoundException("No category found for the specified category");
             
         var response = new CategoryDetailResponse(res.Id, res.Name, res.SlugName, res.Demands?.Select(d => new DemandResponse(d.Id, d.Name, d.SlugName)).ToList(), res.Brands?.Select(b => new BrandResponse(b.Id, b.Name, b.SlugName)).ToList(), res.Products, res.total);
-        return ServiceResult<CategoryDetailResponse>.Success(response, "Success");
+        return response;
     }
 
-    public async Task<ServiceResult<CategoryDetailResponse>> GetCategoryDetailBySlug(string slugName)
+    public async Task<CategoryDetailResponse> GetCategoryDetailBySlug(string slugName)
     {
         var res =  await _categoryRepository.GetCategoryDetailBySlug(slugName, size);
         if(res == null)
-            return ServiceResult<CategoryDetailResponse>.Fail("No category found for the specified category");
+            throw new NotFoundException("No category found for the specified category");
             
         var response = new CategoryDetailResponse(res.Id, res.Name, res.SlugName, res.Demands?.Select(d => new DemandResponse(d.Id, d.Name, d.SlugName)).ToList(), res.Brands?.Select(b => new BrandResponse(b.Id, b.Name, b.SlugName)).ToList(), res.Products, res.total);
-        return ServiceResult<CategoryDetailResponse>.Success(response, "Success");
+        return response;
     }
 
-    public async Task<ServiceResult<List<ProductView>>> GetProductOfCategory(long categoryId, int page)
+    public async Task<List<ProductView>> GetProductOfCategory(long categoryId, int page)
     {
-       var products = await _categoryRepository.GetProductOfCategory(categoryId, size, page);
-       if (products == null || products.Count == 0)
-       {
-           return ServiceResult<List<ProductView>>.Fail("No products found for the specified category.");
-       }
-         return ServiceResult<List<ProductView>>.Success(products, "success");
-            
+        var products = await _categoryRepository.GetProductOfCategory(categoryId, size, page);
+        return products ?? new List<ProductView>();
     }
 }

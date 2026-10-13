@@ -45,7 +45,7 @@ public class PayOSServiceImpl : PayOSService
         return paymentLink.CheckoutUrl;
     }
 
-    public async Task<ServiceResult<string>> GenerateQRCode(long orderId, long amount, string description)
+    public async Task<string> GenerateQRCode(long orderId, long amount, string description)
     {
         try
         {
@@ -59,12 +59,12 @@ public class PayOSServiceImpl : PayOSService
             };
 
             var paymentLink = await _payOSClient.PaymentRequests.CreateAsync(paymentRequest);
-            return ServiceResult<string>.Success(paymentLink.QrCode, "QR code generated successfully");
+            return paymentLink.QrCode;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error generating QR code: {ex.Message}");
-            return ServiceResult<string>.Fail("Failed to generate QR code");
+            throw new InternalServerException("Failed to generate QR code");
         }
     }
 

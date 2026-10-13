@@ -15,7 +15,7 @@ public class CacheService
         _storeHouseRepository = storeHouseRepository;
     }
 
-    public async Task<ServiceResult<List<StoreView>>> GetStoreViews()
+    public async Task<List<StoreView>> GetStoreViews()
     {
         var data = await _memoryCache.GetOrCreateAsync(
             "StoreHouseInit",
@@ -27,9 +27,9 @@ public class CacheService
 
         if (data == null)
         {
-            return ServiceResult<List<StoreView>>.Fail("Fail", ServiceErrorType.NotFound);
+            throw new NotFoundException("Store views not available");
         }
 
-        return ServiceResult<List<StoreView>>.Success(data, "Success");
+        return data;
     }
 }

@@ -31,7 +31,7 @@ namespace cellphones_backend.Controllers.Admin
             }
             
             var result = await _categoryService.CreateCategory(createCategoryRequest, userId);
-            return HandleResult(result);
+            return Ok(new ApiResponse<long>("Category created successfully", result));
         }
 
         // PUT: api/admin/categories/{categoryId}
@@ -53,8 +53,8 @@ namespace cellphones_backend.Controllers.Admin
                 return BadRequest(new ApiResponse<string>("Category ID in URL does not match ID in request body", null!));
             }
             
-            var result = await _categoryService.UpdateCategory(categoryId, updateCategoryRequest, userId);
-            return HandleResult(result);
+            await _categoryService.UpdateCategory(categoryId, updateCategoryRequest, userId);
+            return Ok(new ApiResponse<string>("Category updated successfully", ""));
         }
 
         // DELETE: api/admin/categories/{categoryId}
@@ -68,8 +68,8 @@ namespace cellphones_backend.Controllers.Admin
                 return Unauthorized(new ApiResponse<string>("User not authenticated", null!));
             }
             
-            var result = await _categoryService.DeleteCategory(categoryId, userId);
-            return HandleResult(result);
+            await _categoryService.DeleteCategory(categoryId, userId);
+            return Ok(new ApiResponse<string>("Category deleted successfully", ""));
         }
     }
 }

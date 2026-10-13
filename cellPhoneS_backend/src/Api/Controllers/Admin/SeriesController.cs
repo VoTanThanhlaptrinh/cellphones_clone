@@ -31,7 +31,7 @@ namespace cellphones_backend.Controllers.Admin
             }
             
             var result = await _seriesService.CreateSeries(createSeriesRequest, userId);
-            return HandleResult(result);
+            return Ok(new ApiResponse<long>("Series created successfully", result));
         }
 
         // PUT: api/admin/series/{seriesId}
@@ -53,9 +53,8 @@ namespace cellphones_backend.Controllers.Admin
                 return BadRequest(new ApiResponse<string>("Series ID in URL does not match ID in request body", null!));
             }
             
-            var result = await _seriesService.UpdateSeries(seriesId, updateSeriesRequest, userId);
-            
-            return HandleResult(result);
+            await _seriesService.UpdateSeries(seriesId, updateSeriesRequest, userId);
+            return Ok(new ApiResponse<string>("Series updated successfully", ""));
         }
 
         // DELETE: api/admin/series/{seriesId}
@@ -69,8 +68,8 @@ namespace cellphones_backend.Controllers.Admin
                 return Unauthorized(new ApiResponse<string>("User not authenticated", null!));
             }
             
-            var result = await _seriesService.DeleteSeries(seriesId, userId);
-            return HandleResult(result);
+            await _seriesService.DeleteSeries(seriesId, userId);
+            return Ok(new ApiResponse<string>("Series deleted successfully", ""));
         }
     }
 }

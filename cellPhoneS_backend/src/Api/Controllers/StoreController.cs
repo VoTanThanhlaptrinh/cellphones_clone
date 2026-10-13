@@ -23,7 +23,8 @@ namespace cellPhoneS_backend.Controllers
         [HttpGet("views")]
         public async Task<ActionResult<ApiResponse<List<StoreView>>>> GetStoreViews()
         {
-            return HandleResult(await _storeService.GetStoreViewsAsync());
+            var result = await _storeService.GetStoreViewsAsync();
+            return Ok(new ApiResponse<List<StoreView>>("Store views retrieved successfully", result));
         }
 
         [HttpGet("provinces")]
@@ -31,7 +32,8 @@ namespace cellPhoneS_backend.Controllers
             [FromQuery] GetVietnamLocationsQuery query,
             CancellationToken cancellationToken)
         {
-            return HandleResult(await _vietnamLocationService.GetLocationsAsync(query.depth, cancellationToken));
+            var result = await _vietnamLocationService.GetLocationsAsync(query.depth, cancellationToken);
+            return Ok(new ApiResponse<List<VietnamProvinceDto>>("Vietnam locations retrieved successfully", result));
         }
     }
 }

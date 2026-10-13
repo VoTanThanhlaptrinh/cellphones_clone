@@ -22,7 +22,7 @@ namespace cellphones_backend.Controllers.User
         public async Task<ActionResult<ApiResponse<List<DemandResponse>>>> GetDemandsByCategory(long categoryId)
         {
             var result = await _demandService.GetDemandsByCategory(categoryId);
-            return HandleResult(result);
+            return Ok(new ApiResponse<List<DemandResponse>>("Success", result));
         }
 
         // GET: api/demands/{demandId}
@@ -30,7 +30,7 @@ namespace cellphones_backend.Controllers.User
         public async Task<ActionResult<ApiResponse<DemandResponse>>> GetDemandById(long demandId)
         {
             var result = await _demandService.GetDemandById(demandId);
-            return HandleResult(result);
+            return Ok(new ApiResponse<DemandResponse>("Success", result));
         }
 
         // GET: api/demands
@@ -41,7 +41,7 @@ namespace cellphones_backend.Controllers.User
             [FromQuery] string? status = "active")
         {
             var result = await _demandService.GetAllDemands(pageIndex, pageSize, status);
-            return HandleResult(result);
+            return Ok(new ApiResponse<PagedResult<DemandResponse>>("Success", result));
         }
     }
 }

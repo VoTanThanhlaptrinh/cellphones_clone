@@ -41,14 +41,14 @@ namespace cellphones_backend.Controllers
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var result = await _orderService.CreatePickupOrder(userId!, payload);
-            return HandleResult(result);
+            return Ok(new ApiResponse<OrderView>("Pickup order created successfully", result));
         }
         [HttpPost("delivery")]
         public async Task<ActionResult<ApiResponse<OrderView>>> CreateDeliveryOrder([FromBody] DeliveryOrderRequest payload)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var result = await _orderService.CreateDeliveryOrder(userId!, payload);
-            return HandleResult(result);
+            return Ok(new ApiResponse<OrderView>("Delivery order created successfully", result));
         }
 
         // PUT: api/orders/{orderId}
@@ -63,8 +63,8 @@ namespace cellphones_backend.Controllers
         public async Task<ActionResult<ApiResponse<string>>> DeleteOrder(long orderId)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var result = await _orderService.DeleteOrder(userId!, orderId);
-            return HandleResult(result);
+            await _orderService.DeleteOrder(userId!, orderId);
+            return Ok(new ApiResponse<string>("Hủy đơn hàng thành công.", ""));
         }
 
         // GET: api/orders/today
@@ -98,14 +98,15 @@ namespace cellphones_backend.Controllers
         [HttpGet("getStores")]
         public async Task<ActionResult<ApiResponse<List<StoreView>>>> GetStores(int year)
         {
-            return HandleResult(await _cacheService.GetStoreViews());
+            var result = await _cacheService.GetStoreViews();
+            return Ok(new ApiResponse<List<StoreView>>("Success", result));
         }
         [HttpGet("checkout/{orderId}")]
         public async Task<ActionResult<ApiResponse<string>>> Checkout(long orderId)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var result = await _orderService.Checkout(userId!, orderId);
-            return HandleResult(result);
+            await _orderService.Checkout(userId!, orderId);
+            return Ok(new ApiResponse<string>("Order checked out successfully", ""));
         }
     }
 }

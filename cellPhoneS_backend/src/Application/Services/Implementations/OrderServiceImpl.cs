@@ -59,31 +59,31 @@ public class OrderServiceImpl : OrderService
 
     #region PUBLIC APIs (Nghiệp vụ chính)
 
-    public async Task<ServiceResult<string>> Checkout(string userId, long orderId)
+    public async Task Checkout(string userId, long orderId)
     {
         var order = await _orderRepository.GetByIdAsync(orderId);
-        if (order == null) return ServiceResult<string>.Fail("Order not found");
-        if (order.CreateBy != userId) return ServiceResult<string>.Fail("User is not authorized to checkout this order");
+        if (order == null) throw new NotFoundException("Order not found");
+        if (order.CreateBy != userId) throw new ForbiddenException("User is not authorized to checkout this order");
 
         order.Status = OrderStatuses.Paid;
         await _orderRepository.UpdateAsync(order);
         await _orderRepository.SaveChangesAsync();
 
-        return ServiceResult<string>.Success("", "Order checked out successfully");
+        return;
     }
 
-    public async Task<ServiceResult<OrderView>> CreateDeliveryOrder(string userId, DeliveryOrderRequest payload)
+    public async Task<OrderView> CreateDeliveryOrder(string userId, DeliveryOrderRequest payload)
     {
         if (payload.CartDetailIds == null || !payload.CartDetailIds.Any())
-            return ServiceResult<OrderView>.Fail("Cart item IDs cannot be null or empty");
+            throw new BadRequestException("Cart item IDs cannot be null or empty");
 
         var cartDetails = await _cartDetailService.GetCartDetails(userId, payload.CartDetailIds);
         if (cartDetails == null || !cartDetails.Any())
-            return ServiceResult<OrderView>.Fail("No cart items found for the user");
+            throw new NotFoundException("No cart items found for the user");
 
         var allPotentialStores = await _storeService.AllocateAllStockAsync(cartDetails);
         if (allPotentialStores == null || !allPotentialStores.Any())
-            throw new ArgumentException("No store found containing these products.");
+            throw new BadRequestException("No store found containing these products.");
 
         // Sử dụng hàm Core đã gộp: Ưu tiên kho nằm trong cùng Province
         var finalOrderDetails = await AllocateInventoryCoreAsync(
@@ -103,27 +103,32 @@ public class OrderServiceImpl : OrderService
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
-            return ServiceResult<OrderView>.Success(MapToOrderView(order), "Delivery order created successfully");
+            return MapToOrderView(order);
+        }
+        catch (AppException)
+        {
+            await transaction.RollbackAsync();
+            throw;
         }
         catch (Exception ex)
         {
             await transaction.RollbackAsync();
-            return ServiceResult<OrderView>.Fail($"Failed to create delivery order: {ex.Message}");
+            throw new InternalServerException($"Failed to create delivery order: {ex.Message}");
         }
     }
 
-    public async Task<ServiceResult<OrderView>> CreatePickupOrder(string userId, PickupOrderRequest payload)
+    public async Task<OrderView> CreatePickupOrder(string userId, PickupOrderRequest payload)
     {
         if (payload.CartDetailIds == null || !payload.CartDetailIds.Any())
-            return ServiceResult<OrderView>.Fail("Cart item IDs cannot be null or empty");
+            throw new BadRequestException("Cart item IDs cannot be null or empty");
 
         var cartDetails = await _cartDetailService.GetCartDetails(userId, payload.CartDetailIds);
         if (cartDetails == null || !cartDetails.Any())
-            return ServiceResult<OrderView>.Fail("No cart items found for the user");
+            throw new NotFoundException("No cart items found for the user");
 
         var storeInventory = await _storeService.AllocateAllStockAsync(cartDetails);
         if (storeInventory == null || !storeInventory.Any())
-            throw new ArgumentException("Cửa hàng này hiện không có sẵn các sản phẩm trong giỏ.");
+            throw new BadRequestException("Cửa hàng này hiện không có sẵn các sản phẩm trong giỏ.");
 
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
@@ -141,23 +146,28 @@ public class OrderServiceImpl : OrderService
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
-            return ServiceResult<OrderView>.Success(MapToOrderView(order), "Pickup order created successfully");
+            return MapToOrderView(order);
+        }
+        catch (AppException)
+        {
+            await transaction.RollbackAsync();
+            throw;
         }
         catch (Exception ex)
         {
             await transaction.RollbackAsync();
-            return ServiceResult<OrderView>.Fail($"Failed to create pickup order: {ex.Message}");
+            throw new InternalServerException($"Failed to create pickup order: {ex.Message}");
         }
     }
 
-    public async Task<ServiceResult<string>> DeleteOrder(string userId, long orderId)
+    public async Task DeleteOrder(string userId, long orderId)
     {
         var order = await _orderRepository.GetByIdAsync(orderId);
-        if (order == null) return ServiceResult<string>.Fail("Không tìm thấy đơn hàng.");
-        if (order.CreateBy != userId) return ServiceResult<string>.Fail("Bạn không có quyền hủy đơn hàng này.");
+        if (order == null) throw new NotFoundException("Không tìm thấy đơn hàng.");
+        if (order.CreateBy != userId) throw new ForbiddenException("Bạn không có quyền hủy đơn hàng này.");
 
         if (order.Status == OrderStatuses.Completed || order.Status == OrderStatuses.Cancelled)
-            return ServiceResult<string>.Fail($"Không thể hủy đơn hàng đang ở trạng thái: {order.Status}");
+            throw new BadRequestException($"Không thể hủy đơn hàng đang ở trạng thái: {order.Status}");
 
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
@@ -182,12 +192,17 @@ public class OrderServiceImpl : OrderService
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
-            return ServiceResult<string>.Success("", "Hủy đơn hàng thành công.");
+            return;
+        }
+        catch (AppException)
+        {
+            await transaction.RollbackAsync();
+            throw;
         }
         catch (Exception ex)
         {
             await transaction.RollbackAsync();
-            return ServiceResult<string>.Fail($"Lỗi khi hủy đơn hàng: {ex.Message}");
+            throw new InternalServerException($"Lỗi khi hủy đơn hàng: {ex.Message}");
         }
     }
 
@@ -244,7 +259,7 @@ public class OrderServiceImpl : OrderService
             }
 
             if (remainingQty > 0)
-                throw new Exception($"Sản phẩm {cartItem.Product?.Name} màu {cartItem.Color?.Name} hiện không đủ số lượng!");
+                throw new BadRequestException($"Sản phẩm {cartItem.Product?.Name} màu {cartItem.Color?.Name} hiện không đủ số lượng!");
         }
 
         if (modifiedStores.Any())
@@ -365,17 +380,17 @@ public class OrderServiceImpl : OrderService
     #endregion
 
     #region NOT IMPLEMENTED YET
-    public Task<ServiceResult<string>> GetOrderById(string orderId)
+    public Task<string> GetOrderById(string orderId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<ServiceResult<string>> GetOrderByUserId(string userId)
+    public Task<string> GetOrderByUserId(string userId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<ServiceResult<string>> GetOrders(int page, int pageSize)
+    public Task<string> GetOrders(int page, int pageSize)
     {
         throw new NotImplementedException();
     }

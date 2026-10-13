@@ -21,12 +21,14 @@ namespace cellphones_backend.Controllers
         [HttpGet("list/{page}/{pageSize}")]
         public async Task<ActionResult<ApiResponse<List<UserResponse>>>> GetUsers(int page, int pageSize)
         {
-            return HandleResult(await _userService.GetUsers(page, pageSize));
+            var result = await _userService.GetUsers(page, pageSize);
+            return Ok(new ApiResponse<List<UserResponse>>("success", result));
         }
         [HttpGet("{userId}")]
         public async Task<ActionResult<ApiResponse<cellphones_backend.Models.User>>> GetDetails(string userId)
         {
-            return HandleResult(await _userService.GetDetails(userId));
+            var result = await _userService.GetDetails(userId);
+            return Ok(new ApiResponse<cellphones_backend.Models.User>("Thanh cong", result));
         }
         [HttpPut()]
         public async Task<ActionResult<ApiResponse<UserResponse>>> UpdateUser()
@@ -36,7 +38,8 @@ namespace cellphones_backend.Controllers
         [HttpDelete("{userId}")]
         public async Task<ActionResult<ApiResponse<string>>> DeleteUser(string userId)
         {
-            return HandleResult(await _userService.DeleteUser(userId));
+            await _userService.DeleteUser(userId);
+            return Ok(new ApiResponse<string>("User deleted successfully", ""));
         }
     }
 }

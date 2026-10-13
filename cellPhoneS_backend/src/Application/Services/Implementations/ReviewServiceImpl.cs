@@ -28,18 +28,18 @@ namespace cellphones_backend.Services.Implement
             _userManager = userManager;
         }
 
-        public async Task<ServiceResult<ReviewResponse>> CreateReviewAsync(CreateReviewRequest request, string userId)
+        public async Task<ReviewResponse> CreateReviewAsync(CreateReviewRequest request, string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                return ServiceResult<ReviewResponse>.Fail("User not found", ServiceErrorType.NotFound);
+                throw new NotFoundException("User not found");
             }
 
             var product = await _productRepository.GetByIdAsync(request.ProductId);
             if (product == null)
             {
-                return ServiceResult<ReviewResponse>.Fail("Product not found", ServiceErrorType.NotFound);
+                throw new NotFoundException("Product not found");
             }
 
             var review = new Review
@@ -65,10 +65,10 @@ namespace cellphones_backend.Services.Implement
                 review.CreatedDate
             );
 
-            return ServiceResult<ReviewResponse>.Success(response, "Review submitted successfully");
+            return response;
         }
 
-        public async Task<ServiceResult<List<ReviewResponse>>> GetReviewsByProductIdAsync(long productId)
+        public async Task<List<ReviewResponse>> GetReviewsByProductIdAsync(long productId)
         {
             var reviews = await _reviewRepository.GetReviewsWithUserByProductIdAsync(productId);
             var responseList = reviews.Select(r => new ReviewResponse(
@@ -82,14 +82,14 @@ namespace cellphones_backend.Services.Implement
                 r.CreatedDate
             )).ToList();
 
-            return ServiceResult<List<ReviewResponse>>.Success(responseList, "Reviews retrieved successfully");
+            return responseList;
         }
 
-        public async Task<ServiceResult<double>> GetAverageRatingAsync(long productId)
+        public async Task<double> GetAverageRatingAsync(long productId)
         {
             var reviews = await _reviewRepository.FindAsync(r => r.ProductId == productId);
             double avg = reviews.Any() ? reviews.Average(r => r.Rating) : 0.0;
-            return ServiceResult<double>.Success(Math.Round(avg, 1), "Average rating retrieved successfully");
+            return Math.Round(avg, 1);
         }
     }
     // === END NEW FEATURE: PRODUCT REVIEWS ===

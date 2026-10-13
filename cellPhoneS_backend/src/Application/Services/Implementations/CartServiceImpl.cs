@@ -29,7 +29,7 @@ public class CartServiceImpl : CartService
         _storeRepository = storeRepository;
     }
 
-    public async Task<ServiceResult<bool>> AddToCart([FromBody] CartRequest request, string userId)
+    public async Task<bool> AddToCart([FromBody] CartRequest request, string userId)
     {
 
         var cart = await _cartRepository.GetCartByUserIdIfNotThenCreate(userId);
@@ -41,7 +41,7 @@ public class CartServiceImpl : CartService
         Console.WriteLine(colorExists);
         if (colorExists == null)
         {
-            return ServiceResult<bool>.Fail(productId.ToString(), ServiceErrorType.BadRequest);
+            throw new BadRequestException("Color not found");
         }
 
         var cartDetail = await _cartDetailRepository
@@ -71,56 +71,55 @@ public class CartServiceImpl : CartService
         }
 
         await _cartDetailRepository.SaveChangesAsync();
-        return ServiceResult<bool>.Success(true, "Product added to cart successfully");
+        return true;
     }
 
-    public async Task<ServiceResult<int>> GetAmountCart(string userId)
+    public async Task<int> GetAmountCart(string userId)
     {
-        var amount = await _cartRepository.GetAmountCart(userId);
-        return ServiceResult<int>.Success(amount, "Amount cart retrieved successfully");
+        return await _cartRepository.GetAmountCart(userId);
     }
 
-    public async Task<ServiceResult<List<CartDetailView>>> GetCartItems(string userId)
+    public async Task<List<CartDetailView>> GetCartItems(string userId)
     {
         // Giỏ hàng trống không phải lỗi: trả về danh sách rỗng với 200
         var cartItems = await _cartDetailRepository.GetCartItems(userId);
-        return ServiceResult<List<CartDetailView>>.Success(cartItems ?? new List<CartDetailView>(), "Cart items retrieved successfully");
+        return cartItems ?? new List<CartDetailView>();
     }
 
-    public async Task<ServiceResult<int>> MinusQuantity(long cartDetailId, string userId)
+    public async Task<int> MinusQuantity(long cartDetailId, string userId)
     {
             var cartDetail = await _cartDetailRepository.GetByIdAsync(cartDetailId);
         if (cartDetail == null)
-            return ServiceResult<int>.Fail("Cart detail not found", ServiceErrorType.BadRequest);
+            throw new BadRequestException("Cart detail not found");
         if (cartDetail.Quantity < 2)
-            return ServiceResult<int>.Fail("Quantity at least one", ServiceErrorType.BadRequest);
+            throw new BadRequestException("Quantity at least one");
         cartDetail.Quantity = cartDetail.Quantity - 1;
         await _cartDetailRepository.UpdateAsync(cartDetail);
         await _cartDetailRepository.SaveChangesAsync();
-        return ServiceResult<int>.Success(cartDetail.Quantity, "Minus success");
+        return cartDetail.Quantity;
     }
 
-    public async Task<ServiceResult<int>> PlusQuantity(long cartDetailId, string userId)
+    public async Task<int> PlusQuantity(long cartDetailId, string userId)
     {
         var cartDetail = await _cartDetailRepository.GetByIdAsync(cartDetailId);
         if (cartDetail == null)
-            return ServiceResult<int>.Fail("Cart detail not found", ServiceErrorType.BadRequest);
+            throw new BadRequestException("Cart detail not found");
         var totalQuantity = await _storeRepository.GetTotalQuantityInStoreByProductAndColor(cartDetail.ProductCartDetailId, cartDetail.ColorId);
         if (cartDetail.Quantity == totalQuantity)
-            return ServiceResult<int>.Fail("We don't have any more item", ServiceErrorType.BadRequest);
+            throw new BadRequestException("We don't have any more item");
         cartDetail.Quantity += 1;
         await _cartDetailRepository.UpdateAsync(cartDetail);
         await _cartDetailRepository.SaveChangesAsync();
-        return ServiceResult<int>.Success(cartDetail.Quantity, "Plus success");
+        return cartDetail.Quantity;
     }
 
-    public async Task<ServiceResult<bool>> RemoveFromCart(long cartDetailId, string userId)
+    public async Task<bool> RemoveFromCart(long cartDetailId, string userId)
     {
         var result = await _cartDetailRepository.RemoveCartItems(cartDetailId);
         if (!result)
         {
-            return ServiceResult<bool>.Fail("Failed to remove product from cart", ServiceErrorType.NotFound);
+            throw new NotFoundException("Failed to remove product from cart");
         }
-        return ServiceResult<bool>.Success(true, "Product removed from cart successfully");
+        return true;
     }
 }

@@ -9,9 +9,9 @@ namespace cellphones_backend.Services;
 
 public interface UserService
 {
-    Task<ServiceResult<List<UserResponse>>> GetUsers(int page,int pageSize);
-    Task<ServiceResult<User>> GetDetails(string id);
-    Task<ServiceResult<User>> UpdateUser(string id, User updatedUser);
-    Task<ServiceResult<string>> DeleteUser(string id);
-    Task<ServiceResult<IList<string>>> GetRole(User user);
+    Task<List<UserResponse>> GetUsers(int page,int pageSize);
+    Task<User> GetDetails(string id);
+    Task<User> UpdateUser(string id, User updatedUser);
+    Task DeleteUser(string id);
+    Task<IList<string>> GetRole(User user);
 }

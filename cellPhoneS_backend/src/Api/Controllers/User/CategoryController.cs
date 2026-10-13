@@ -22,14 +22,14 @@ namespace cellPhoneS_backend.Controllers.User
         public async Task<ActionResult<ApiResponse<CategoryDetailResponse>>> GetCategories(string slugName)
         {
             var res = await _categoryService.GetCategoryDetailBySlug(slugName);
-            return HandleResult(res);
+            return Ok(new ApiResponse<CategoryDetailResponse>("Success", res));
         }
         
         [HttpGet("loadMore/{id}/{page}")]
         public async Task<ActionResult<ApiResponse<List<ProductView>>>> LoadMoreProduct(long id, int page)
         {
             var res = await _categoryService.GetProductOfCategory(id, page);
-            return HandleResult(res);
+            return Ok(new ApiResponse<List<ProductView>>("success", res));
         }
 
         // GET: api/category
@@ -40,7 +40,7 @@ namespace cellPhoneS_backend.Controllers.User
             [FromQuery] string? status = "active")
         {
             var res = await _categoryService.GetAllCategories(pageIndex, pageSize, status);
-            return HandleResult(res);
+            return Ok(new ApiResponse<PagedResult<CategoryResponse>>("Success", res));
         }
 
         // GET: api/category/id/{categoryId}
@@ -48,7 +48,7 @@ namespace cellPhoneS_backend.Controllers.User
         public async Task<ActionResult<ApiResponse<CategoryDetailResponse>>> GetCategoryById(long categoryId)
         {
             var res = await _categoryService.GetCategoryDetail(categoryId);
-            return HandleResult(res);
+            return Ok(new ApiResponse<CategoryDetailResponse>("Success", res));
         }
     }
 }

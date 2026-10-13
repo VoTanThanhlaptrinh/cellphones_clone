@@ -13,7 +13,7 @@ namespace cellPhoneS_backend.Services.Interface
         /// Retrieves all store locations grouped by city and district
         /// </summary>
         /// <returns>A service result containing a list of store views</returns>
-        Task<ServiceResult<List<StoreView>>> GetStoreViewsAsync();
+        Task<List<StoreView>> GetStoreViewsAsync();
         Task<List<StoreInventoryDTO>> AllocateAllStockAsync(List<CartDetail> cartItems);
 
         Task UpdateStores(List<StoreInventoryDTO> stores);

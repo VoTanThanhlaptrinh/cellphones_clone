@@ -30,7 +30,7 @@ namespace cellphones_backend.Controllers.Admin
             }
             
             var result = await _imageService.CreateImage(createImageRequest, userId);
-            return HandleResult(result);
+            return Ok(new ApiResponse<long>("Image created successfully", result));
         }
 
         // POST: api/admin/images/upload
@@ -45,7 +45,7 @@ namespace cellphones_backend.Controllers.Admin
             }
             
             var result = await _imageService.UploadImage(file, alt, userId);
-            return HandleResult(result);
+            return Ok(new ApiResponse<long>("Image uploaded successfully", result));
         }
 
         // DELETE: api/admin/images/{imageId}
@@ -59,8 +59,8 @@ namespace cellphones_backend.Controllers.Admin
                 return Unauthorized(new ApiResponse<string>("User not authenticated", null!));
             }
             
-            var result = await _imageService.DeleteImage(imageId, userId);
-            return HandleResult(result);
+            await _imageService.DeleteImage(imageId, userId);
+            return Ok(new ApiResponse<string>("Image deleted successfully", ""));
         }
     }
 }
