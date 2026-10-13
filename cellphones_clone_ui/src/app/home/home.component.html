@@ -124,9 +124,9 @@
       </swiper-container>
       }
 
-      <swiper-container navigation="true" [breakpoints]="breakpoints1" [style.--swiper-navigation-color]="'#21130d'"
-        [style.--swiper-navigation-size.px]="8" [style.--swiper-pagination-color]="'#21130d'"
-        [style.--swiper-theme-color]="'#21130d'">
+      <swiper-container navigation="true" [breakpoints]="breakpoints1" [style.--swiper-navigation-color]="'var(--color-gray-900)'"
+        [style.--swiper-navigation-size.px]="8" [style.--swiper-pagination-color]="'var(--color-gray-900)'"
+        [style.--swiper-theme-color]="'var(--color-gray-900)'">
         @for (product of category.products; track product.id) {
         <swiper-slide>
           <app-product-card [productView]="product"> </app-product-card>

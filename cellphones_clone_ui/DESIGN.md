@@ -442,9 +442,9 @@ export class VndPipe implements PipeTransform {
 | Swiper (`swiper-container`) | Giữ | Banner, slider sản phẩm, gallery ảnh |
 | ngx-toastr | Giữ | Thông qua `NotifyService` |
 | ngx-spinner | Giữ | Overlay cho thao tác chặn toàn trang |
-| daisyUI | **Chờ gỡ** | Đang không được bật (`@plugin`). Không dùng class daisyUI |
-| flowbite (JS global) | **Chờ gỡ** | Không dùng `data-*` của flowbite |
-| igniteui-angular | **Chờ gỡ** | Không được dùng trong `src` |
+| daisyUI | **Đã gỡ (P0)** | Không dùng class daisyUI |
+| flowbite (JS global) | **Đã gỡ (P0)** | Không dùng `data-*` của flowbite |
+| igniteui-angular | **Đã gỡ (P0)** | Không dùng |
 | Bootstrap class | **Cấm** | Dự án không có Bootstrap |
 | CSS reset ngoài Tailwind (minireset, normalize…) | **Cấm** | CSS không nằm trong `@layer` sẽ thắng mọi utility của Tailwind (từng làm mất `p-*`, `font-bold`, `h-*` trên `p/ul/li/h1–h6/img`). Tailwind preflight đã đủ |
 

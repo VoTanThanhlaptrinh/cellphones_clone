@@ -48,6 +48,18 @@ export class StoreFormComponent implements OnInit {
     this.storeService.initStoreView();
   }
 
+  /** Thông báo lỗi tiếng Việt; lỗi `storeId` hiển thị dưới ô chọn cửa hàng. */
+  errorFor(name: string): string {
+    const control = this.group?.get(name);
+    if (!control || !control.touched || !control.errors) return '';
+    switch (name) {
+      case 'city': return 'Vui lòng chọn tỉnh/thành phố';
+      case 'district': return 'Vui lòng chọn quận/huyện';
+      case 'storeId': return 'Vui lòng chọn cửa hàng nhận hàng';
+      default: return '';
+    }
+  }
+
   onCityChosen(event: any) {
     this.group.patchValue({ city: event, district: '', storeId: '', streetName: '' });
 

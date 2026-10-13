@@ -3,14 +3,14 @@
     <div>
         <div class="grid grid-cols-2 gap-x-4 px-4 z-12">
             <app-autocomplete-input [label]="'Tỉnh/thành phố'.toUpperCase()" [original]="cityList"
-                formControlName="city" (dataChosen)="onCityChosen($event)" name="city"></app-autocomplete-input>
+                formControlName="city" (dataChosen)="onCityChosen($event)" name="city" [errorMessage]="errorFor('city')"></app-autocomplete-input>
             <app-autocomplete-input [label]="'quận/huyện'.toUpperCase()" [original]="districtList"
                 formControlName="district" (dataChosen)="onDistrictChosen($event)"
-                name="district"></app-autocomplete-input>
+                name="district" [errorMessage]="errorFor('district')"></app-autocomplete-input>
         </div>
         <div class="w-full px-4">
             <app-autocomplete-input formControlName="streetName" name="streetName" [label]="'Chọn địa chỉ cửa hàng'"
-                [original]="streetList" (dataChosen)="onStreetChosen($event)"></app-autocomplete-input>
+                [original]="streetList" (dataChosen)="onStreetChosen($event)" [errorMessage]="errorFor('storeId')"></app-autocomplete-input>
         </div>
     </div> <!-- CLOSE WRAPPER -->
     <div class="w-full mx-auto px-4">

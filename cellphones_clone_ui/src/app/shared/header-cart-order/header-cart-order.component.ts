@@ -1,17 +1,15 @@
 import { Component, inject, Input } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { IconComponent } from '../icons/icon.component';
 
 @Component({
   selector: 'app-header-cart-order',
-  imports: [RouterLink],
+  imports: [RouterLink, IconComponent],
   templateUrl: './header-cart-order.component.html',
   styleUrl: './header-cart-order.component.css'
 })
 export class HeaderCartOrderComponent {
-  constructor(private router: Router) {
-
-  }
   @Input() totalQuantity?: number;
   private readonly authService = inject(AuthService);
   /** Truyền vào để ghi đè; mặc định lấy tên người dùng đang đăng nhập. */
@@ -21,7 +19,4 @@ export class HeaderCartOrderComponent {
     return this.Username ?? this.authService.currentUser()?.fullName ?? '';
   }
 
-  goHome() {
-    this.router.navigate(['/home']);
-  }
 }

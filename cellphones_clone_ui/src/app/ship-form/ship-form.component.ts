@@ -76,6 +76,20 @@ export class ShipFormComponent implements OnInit {
       : [];
   }
 
+  /** Thông báo lỗi tiếng Việt cho một trường; rỗng nếu chưa chạm vào hoặc hợp lệ. */
+  errorFor(name: string): string {
+    const control = this.group?.get(name);
+    if (!control || !control.touched || !control.errors) return '';
+    switch (name) {
+      case 'receiverName': return 'Vui lòng nhập tên người nhận';
+      case 'receiverPhone': return control.errors['required'] ? 'Vui lòng nhập số điện thoại' : 'Số điện thoại không hợp lệ';
+      case 'shipCity': return 'Vui lòng chọn tỉnh/thành phố';
+      case 'shipDistrict': return 'Vui lòng chọn quận/huyện';
+      case 'address': return 'Vui lòng nhập số nhà, tên đường';
+      default: return '';
+    }
+  }
+
   onWardChosen(event: any) {
     // Ép Form cập nhật Phường
     this.group.patchValue({ shipWard: event });

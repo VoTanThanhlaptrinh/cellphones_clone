@@ -72,29 +72,6 @@
   }
 }
 
-/* --------------------------------------------------------------------------
-   Class cũ – alias sang token để đồng nhất một màu đỏ.
-   Sẽ xoá dần khi các template được chuyển sang class Tailwind (P1–P3).
-   -------------------------------------------------------------------------- */
-.main-color {
-  background-color: var(--color-primary-500);
-}
-.main-text-color {
-  color: var(--color-primary-500);
-}
-.button-bg {
-  background-color: var(--color-primary-400);
-  cursor: pointer;
-}
-.button-bg:hover {
-  background-color: var(--color-primary-600);
-}
-.navbar-bg {
-  background-color: var(--color-primary-400);
-}
-.navbar-bg:hover {
-  background-color: var(--color-primary-600);
-}
 .marquee {
   width: 100%;
   overflow: hidden;
@@ -126,9 +103,6 @@ html {
   scroll-behavior: smooth !important;
 }
 
-.banner-bg-color {
-  background-color: var(--color-primary-500);
-}
 .slick-prev,
 .slick-next {
   background: transparent !important;

@@ -105,7 +105,8 @@ Thứ tự: **P0 → P1 → P2 → P3 → P4**. P0 là điều kiện tiên quy�
 > - `header-cart-order` tự lấy tên từ `AuthService`; bỏ dữ liệu cá nhân hard-code ở `payment-infor` (email/SĐT để người mua tự nhập).
 > - Thanh toán: nút "Tạo Đơn Hàng" trước đây **không có handler**; giờ COD → "Hoàn tất đặt hàng" chuyển tới `/checkout` (đơn đã được tạo ở bước 1). QR sửa để hiện khi tạo xong. **Cần xác nhận luồng**: đơn vẫn được tạo ở bước 1 (trước khi chọn phương thức) và quay lại bước 1 rồi "Tiếp tục" sẽ tạo thêm một đơn; ONLINE chưa có redirect sau khi thanh toán.
 > - `RouteConfig.cs` thêm `GET /api/reviews/product/*` cho phép ẩn danh; thiếu dòng này thì khách bị 401 → đăng xuất → đẩy về `/home` mỗi khi mở trang chi tiết.
-> - `order-review` không có route nên không sửa; `member-dashboard` vẫn hard-code tên/SĐT (P3).
+> - `order-review` không có route nên lúc đó không sửa (đã xoá ở đợt rà soát sau P4); `member-dashboard` vẫn hard-code tên/SĐT (đã xử lý ở P3).
+> - ⚠️ **Đính chính sau rà soát:** mục "✅" của P1.6 trước đây quá lạc quan. Tiêu chí "hoàn tất đơn chỉ bằng bàn phím" chưa đạt vì `autocomplete-input` (chọn tỉnh/huyện/cửa hàng) chưa dùng được bằng bàn phím, và form giao hàng/nhận tại cửa hàng không hiện lỗi. Đã sửa ở đợt rà soát sau P4 (xem §6).
 
 | Task | File | Việc cần làm | Hoàn thành khi |
 |---|---|---|---|
@@ -173,6 +174,23 @@ Thứ tự: **P0 → P1 → P2 → P3 → P4**. P0 là điều kiện tiên quy�
 | P4.4 Rà soát a11y | toàn bộ | Chạy Lighthouse/axe. Sửa contrast, `alt`, focus và heading. | Accessibility ≥ 90 trên 3 trang chính. |
 
 ---
+
+## 6. Rà soát sau P4 (13/10/2026)
+
+Đối chiếu 7 commit với plan này và `DESIGN.md`: nội dung các commit khớp message; phát hiện các chỗ plan ghi hoàn thành nhưng chưa đạt, đã sửa trong một commit riêng:
+
+| Chỗ lệch | Cách xử lý |
+|---|---|
+| `autocomplete-input`: `id="input"` trùng, focus xanh, chọn bằng `<p (mousedown)>` (không dùng được bàn phím), `z-9999` | Viết lại thành combobox: id duy nhất, ↑/↓/Enter/Esc, `role="listbox"`/`option`, màu thương hiệu, hiện lỗi |
+| `ship-form`/`store-form` không hiện lỗi khi bỏ trống | Thêm `errorFor()` tiếng Việt, truyền `[errorMessage]` cho từng ô |
+| `header-cart-order` còn nút/ô chết (tìm kiếm, "Xem giá tại", logo `<a (click)>`), nút thiếu `type` | Viết lại gọn theo header chính: logo `routerLink`, bỏ phần chết, tên người dùng là link tới trang thành viên |
+| `modal-ask-login`: `<a (click)>` không có href (Tab không tới được), `red-600`, `hover:scale` | `routerLink` + `btn btn-outline/btn-primary` |
+| `product-detail`: `font-semibold/extrabold`, nút tự chế, nhãn `text-yellow-600` trên `yellow-50` tương phản thấp (chỉ hiện khi đã đăng nhập nên bộ kiểm tra P4 bỏ sót) | Dùng `font-bold/medium`, `btn btn-primary`, chữ `gray-900` |
+| Nút "Lên đầu" (`back-to-top`) nổi che mất tổng tiền ở thanh cố định dưới đáy trên mobile (giỏ hàng, đặt hàng, trang sản phẩm); `z-index: 1000` ngoài thang z đã quy định | Đặt `bottom-32` trên mobile (`md:bottom-8`), `z-30`, có focus ring; xoá CSS riêng. Đo lại: không còn chồng lấn |
+| Code dư: `order-review/` (không có route), alias CSS `.main-color`… (không template nào dùng), hex `#21130d` | Đã xoá / chuyển sang token |
+| `DESIGN.md`/`CLAUDE.md` còn ghi daisyUI/flowbite/igniteui "chờ gỡ", `10.2.0/`, "Review chưa commit" | Đã cập nhật |
+
+**Vẫn chưa kiểm chứng được** (cần đăng nhập thật): luồng giỏ hàng → thông tin nhận hàng → thanh toán; phần form chỉ được kiểm tra bằng dữ liệu giả lập ở tầng fetch.
 
 ## 4. Ngoài phạm vi
 

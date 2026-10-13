@@ -1,26 +1,26 @@
 <div class="flex flex-col p-2 bg-white w-full gap-y-2 rounded-lg" [formGroup]="group">
     <div class="grid grid-cols-2 gap-x-4 px-4">
         <div class="group">
-            <app-input formControlName="receiverName" label="Tên người nhận" name="receiverName"
+            <app-input formControlName="receiverName" label="Tên người nhận" name="receiverName" [errorMessage]="errorFor('receiverName')"
                 [required]="true"></app-input>
         </div>
         <div class="group">
-            <app-input formControlName="receiverPhone" label="Số điện thoại" name="receiverPhone"
+            <app-input formControlName="receiverPhone" label="Số điện thoại" name="receiverPhone" [errorMessage]="errorFor('receiverPhone')"
                 [required]="true"></app-input>
         </div>
     </div>
     @if(cities){
     <div class="grid grid-cols-3 gap-x-2 px-4">
         <app-autocomplete-input [label]="'Tỉnh/Thành phố'" [original]="cities" formControlName="shipCity"
-            (dataChosen)="onCityChosen($event)" name="shipCity"></app-autocomplete-input>
+            (dataChosen)="onCityChosen($event)" name="shipCity" [errorMessage]="errorFor('shipCity')"></app-autocomplete-input>
         <app-autocomplete-input [label]="'Quận/Huyện'" [original]="districts" formControlName="shipDistrict"
-            (dataChosen)="onDistrictChosen($event)" name="shipDistrict"></app-autocomplete-input>
+            (dataChosen)="onDistrictChosen($event)" name="shipDistrict" [errorMessage]="errorFor('shipDistrict')"></app-autocomplete-input>
         <app-autocomplete-input [label]="'Phường/Xã'" [original]="wards" formControlName="shipWard"
             name="shipWard"></app-autocomplete-input>
     </div>
     }
     <div class="w-full mx-auto px-4">
-        <app-input formControlName="address" label="Số nhà tên đường nhận hàng" name="address"
+        <app-input formControlName="address" label="Số nhà tên đường nhận hàng" name="address" [errorMessage]="errorFor('address')"
             [required]="true"></app-input>
     </div>
     <div class="w-full mx-auto px-4">

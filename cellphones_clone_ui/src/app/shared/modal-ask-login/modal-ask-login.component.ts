@@ -1,17 +1,12 @@
 import { Component } from '@angular/core';
-import { MatDialogContent, MatDialogModule } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
-import { Router } from '@angular/router';
+import { MatDialogModule } from '@angular/material/dialog';
+import { RouterLink } from '@angular/router';
+
+/** Hộp thoại mời khách đăng nhập/đăng ký trước khi mua hàng hoặc vào giỏ hàng. */
 @Component({
   selector: 'app-modal-ask-login',
-  imports: [MatDialogModule, MatButtonModule],
+  imports: [MatDialogModule, RouterLink],
   templateUrl: './modal-ask-login.component.html',
   styleUrl: './modal-ask-login.component.css',
 })
-export class ModalAskLoginComponent {
-  constructor(private router: Router) { }
-
-  navigate(path: string): void {
-    this.router.navigate([path]);
-  }
-}
+export class ModalAskLoginComponent { }

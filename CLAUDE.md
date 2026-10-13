@@ -9,7 +9,7 @@ Monorepo for a CellphoneS e-commerce clone (backend deployed on Render, storefro
 - `cellPhoneS_backend/` – ASP.NET Core 9 API (PostgreSQL/EF Core, Redis, Azure Blob).
 - `cellphones_clone_ui/` – Angular 20 customer storefront (standalone components, Tailwind/Material).
 - `admin_dashboard/` – TailAdmin-based Angular admin UI (package.json is on Angular 20 despite the README saying 19).
-- `10.2.0/`, `demo/`, `analyze_layers.js` are untracked and unrelated to the app (ABP template samples / a stray script). Ignore them.
+- `analyze_layers.js` at the repo root is untracked and unrelated to the app (a stray script). Ignore it.
 - Use `cellPhoneS_backend/cellPhoneS_backend.sln`; the root `docnet_workspace.sln` is stale (it points at a nonexistent `cellphones_backend\` folder).
 
 ## Commands
@@ -38,7 +38,7 @@ Frontends (run from `cellphones_clone_ui/` or `admin_dashboard/`):
 - Localization: resx files in `Resources/`, default culture `vi`, overridable with `?culture=en`.
 - External integrations: Azure Blob (Azurite locally), PayOS payments, GHTK shipping fees, MailKit email, Vietnam administrative-division API.
 - CORS only allows `http://localhost:4200` and `https://cellphonesclonethanh.vercel.app`.
-- In-flight, uncommitted feature: Product Reviews, wrapped in `// === BEGIN/END NEW FEATURE: PRODUCT REVIEWS ===` markers, with the `AddReview` migration.
+- Product Reviews feature (committed): code is wrapped in `// === BEGIN/END NEW FEATURE: PRODUCT REVIEWS ===` markers and shipped with the `AddReview` migration. `GET /api/reviews/product/*` is allowed anonymously in `RouteConfig.cs`; `POST /api/reviews` requires login.
 
 ## Configuration
 
