@@ -1,500 +1,131 @@
-<div class="min-h-screen w-full text-black bg-white">
-    <div class="w-full px-1 py-[20px] md:px-[20px] md:py-[40px]">
-        <div class="w-full max-w-[800px] mx-auto flex flex-col justify-center items-center gap-4">
-            <p class="text-lg md:text-3x-lg lg:text-3xl text-center main-text-color font-semibold">
-                Đăng ký trở thành SMEMBER
-            </p><img alt="Register Ant" title="Register Ant" loading="lazy" width="300" height="300" decoding="async"
-                data-nimg="1" class="w-28 h-28 md:w-40 md:h-40 object-contain"
-                src="https://cdn-static.smember.com.vn/_next/static/media/register-ant.b75b959d.png"
-                style="color: transparent;"><span class="font-regular text-base md:text-base text-neutral-500">Đăng ký
-                bằng tài khoản mạng xã
-                hội</span>
-            <div class="w-full flex gap-4 md:gap-lg justify-between items-center max-w-[450px]"><button
-                    data-slot="button"
-                    class="rounded-lg md:flex md:items-center md:justify-center md:gap-2 md:cursor-pointer md:disabled:cursor-not-allowed md:border  md:text-base md:px-2 md:py-1 md:min-h-[48px] md:rounded-base md:border-neutral-300 md:text-neutral-800 md:bg-white md:hover:border-neutral-400 md:hover:bg-neutral-50 md:disabled:border-black-300 md:disabled:text-black-300 md:disabled:bg-white flex-1 min-w-[120px]"
-                    type="button">
-                    <div class="font-medium  text-neutral-900 flex items-center gap-2"><img alt="Google" title="Google"
-                            loading="lazy" width="25" height="24" decoding="async" data-nimg="1" class="object-contain"
-                            src="https://cdn-static.smember.com.vn/_next/static/media/logo-google.b6f9570f.svg"
-                            style="color: transparent;">Google</div>
-                </button>
-                <div class="w-[7px] h-[7px] rounded-full bg-neutral-200 flex-shrink-0"></div><button data-slot="button"
-                    class="rounded-lg md:flex md:items-center md:justify-center md:gap-2 md:cursor-pointer md:disabled:cursor-not-allowed md:border  md:text-base md:px-2 md:py-1 md:min-h-[48px] md:rounded-base md:border-neutral-300 md:text-neutral-800 md:bg-white md:hover:border-neutral-400 md:hover:bg-neutral-50 md:disabled:border-black-300 md:disabled:text-black-300 md:disabled:bg-white flex-1 min-w-[120px]"
-                    type="button">
-                    <div class="font-medium  text-neutral-900 flex items-center gap-2"><img alt="Google" title="Google"
-                            loading="lazy" width="21" height="20" decoding="async" data-nimg="1" class="object-contain"
-                            src="https://cdn-static.smember.com.vn/_next/static/media/logo-zalo.120d889f.svg"
-                            style="color: transparent;">Zalo</div>
-                </button>
-            </div><span class="font-regular text-base md:text-base text-neutral-500">Hoặc điền thông tin
-                sau</span>
-            <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="w-full flex flex-col gap-4 relative">
-                <p class="font-medium text-base md:text-lg">
-                    Thông tin cá nhân
-                </p>
-                <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
-                    <div class="md:flex md:gap-2  md:flex-col"><label data-slot="label" for="input-name"
-                            class="md:flex md:items-center md:gap-2 md:font-medium md:select-none md:peer-data-[disabled=true]:cursor-not-allowed md:peer-data-[disabled=true]:opacity-50 md:text-base">Họ
-                            và tên </label>
-                        <div class="md:flex md:flex-col md:gap-2 md:peer">
-                            <div
-                                class="rounded-lg md:p-1 md:flex md:items-center md:gap-1 md:min-w-0 md:border md:transition-colors md:data-[disabled=true]:bg-neutral-100 md:data-[disabled=true]:cursor-not-allowed md:border-neutral-300 md:focus-within:border-neutral-600 md:data-[disabled=true]:border-neutral-200 md:text-base md:min-h-[48px] md:rounded-base md:pl-medium">
-                                <input data-slot="input" formControlName="name" id="input-name"
-                                    class="px-2 md:w-full md:h-full md:bg-transparent md:border-none md:outline-none md:shadow-none md:ring-0 md:focus:outline-none md:focus:border-none md:focus:ring-0 md:focus-visible:outline-none md:focus-visible:border-none md:focus-visible:ring-0 md:placeholder:text-neutral-300 md:placeholder:select-none md:disabled:opacity-80 md:disabled:cursor-not-allowed md:disabled:text-neutral-500 md:disabled:placeholder:text-neutral-400 md:overflow-hidden md:text-ellipsis md:whitespace-nowrap"
-                                    placeholder="Nhập họ và tên" maxlength="255" value="" name="name">
-                                <div *ngIf="f['name'].touched && f['name'].errors" class="text-red-500 text-sm mt-1">
-                                    <span *ngIf="f['name'].errors['required']">Họ và tên là bắt buộc</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="md:flex md:gap-2  md:flex-col"><label data-slot="label" for="input-birthday"
-                            class="md:flex md:items-center md:gap-2 md:font-medium md:select-none  md:peer-data-[disabled=true]:cursor-not-allowed md:peer-data-[disabled=true]:opacity-50 md:text-base">Ngày
-                            sinh </label>
-                        <div class="md:flex md:flex-col md:gap-2 md:peer">
-                            <div
-                                class="rounded-lg md:p-1 md:flex md:items-center md:gap-1 md:min-w-0 md:border md:transition-colors md:data-[disabled=true]:bg-neutral-100 md:data-[disabled=true]:cursor-not-allowed md:border-neutral-300 md:focus-within:border-neutral-600 md:data-[disabled=true]:border-neutral-200 md:text-base md:min-h-[48px] md:rounded-base md:pl-medium">
-                                <input data-slot="input" formControlName="birthday" id="input-birthday"
-                                    placeholder="dd/mm/yyyy" title="Ngày sinh" aria-label="Ngày sinh"
-                                    class="px-2 rounded-lg md:w-full md:h-full md:bg-transparent md:border-none md:outline-none md:shadow-none md:ring-0 focus:ring-2 focus:ring-red-500 focus:border-red-500 md:focus-visible:outline-none md:placeholder:text-neutral-300 md:placeholder:select-none md:disabled:opacity-80 md:disabled:cursor-not-allowed md:disabled:text-neutral-500 md:disabled:placeholder:text-neutral-400 md:overflow-hidden md:text-ellipsis md:whitespace-nowrap"
-                                    min="1900-01-01" max="2999-12-31" lang="vi-VN" type="date" name="birthday">
-                                <div *ngIf="f['birthday'].touched && f['birthday'].errors"
-                                    class="text-red-500 text-sm mt-1">
-                                    <span *ngIf="f['birthday'].errors['required']">Ngày sinh là bắt buộc</span>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                    <div class="md:flex md:gap-2  md:flex-col"><label data-slot="label"
-                            class="md:flex md:items-center md:gap-2 md:font-medium md:select-none  md:peer-data-[disabled=true]:cursor-not-allowed md:peer-data-[disabled=true]:opacity-50 md:text-base">Số
-                            điện thoại </label>
-                        <div class="md:flex md:flex-col md:gap-2 md:peer">
-                            <div
-                                class="rounded-lg md:p-1 md:flex md:items-center md:gap-1 md:min-w-0 md:border md:transition-colors md:data-[disabled=true]:bg-neutral-100 md:data-[disabled=true]:cursor-not-allowed md:border-neutral-300 md:focus-within:border-neutral-600 md:data-[disabled=true]:border-neutral-200 md:text-base md:min-h-[48px] md:rounded-base md:pl-medium">
-                                <input data-slot="input" formControlName="phone"
-                                    class="rounded-lg px-2 md:w-full md:h-full md:bg-transparent md:border-none md:outline-none md:shadow-none md:ring-0 md:focus:outline-none md:focus:border-none md:focus:ring-0 md:focus-visible:outline-none md:focus-visible:border-none md:focus-visible:ring-0 md:placeholder:text-neutral-300 md:placeholder:select-none md:disabled:opacity-80 md:disabled:cursor-not-allowed md:disabled:text-neutral-500 md:disabled:placeholder:text-neutral-400 md:overflow-hidden md:text-ellipsis md:whitespace-nowrap"
-                                    placeholder="Nhập số điện thoại" maxlength="10" value="" name="phone">
-                                <div *ngIf="f['phone'].touched && f['phone'].errors" class="text-red-500 text-sm mt-1">
-                                    <span *ngIf="f['phone'].errors['required']">Số điện thoại là bắt buộc</span>
-                                    <span *ngIf="f['phone'].errors['pattern']">Số điện thoại phải có 10 chữ số</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="md:flex md:gap-2  md:flex-col"><label data-slot="label"
-                            class="md:flex md:items-center md:gap-2 md:font-medium md:select-none  md:peer-data-[disabled=true]:cursor-not-allowed md:peer-data-[disabled=true]:opacity-50 md:text-base"><span>Email
-                                <span class="text-sm font-regular text-neutral-400">(Không bắt buộc)</span></span>
-                        </label>
-                        <div class="md:flex md:flex-col md:gap-2 md:peer">
-                            <div
-                                class="rounded-lg md:p-1 md:flex md:items-center md:gap-1 md:min-w-0 md:border md:transition-colors md:data-[disabled=true]:bg-neutral-100 md:data-[disabled=true]:cursor-not-allowed md:border-neutral-300 md:focus-within:border-neutral-600 md:data-[disabled=true]:border-neutral-200 md:text-base md:min-h-[48px] md:rounded-base md:pl-medium">
-                                <input data-slot="input" formControlName="email"
-                                    class="px-2 rounded-lg md:w-full md:h-full md:bg-transparent md:border-none md:outline-none md:shadow-none md:ring-0 md:focus:outline-none md:focus:border-none md:focus:ring-0 md:focus-visible:outline-none md:focus-visible:border-none md:focus-visible:ring-0 md:placeholder:text-neutral-300 md:placeholder:select-none md:disabled:opacity-80 md:disabled:cursor-not-allowed md:disabled:text-neutral-500 md:disabled:placeholder:text-neutral-400 md:overflow-hidden md:text-ellipsis md:whitespace-nowrap"
-                                    placeholder="Nhập email" maxlength="255" value="" name="email">
-                                <div *ngIf="f['email'].touched && f['email'].errors" class="text-red-500 text-sm mt-1">
-                                    <span *ngIf="f['email'].errors['required']">Email là bắt buộc</span>
-                                    <span *ngIf="f['email'].errors['email']">Email không hợp lệ</span>
-                                </div>
-                            </div>
-                            <div class="md:flex md:items-center md:gap-2 md:text-green-700 md:text-sm">
-                                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 448 512"
-                                    class="md:shrink-0" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z">
-                                    </path>
-                                </svg>Hóa đơn VAT khi mua hàng sẽ được gửi qua email này
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <p class="font-medium text-base md:text-lg">Tạo mật khẩu</p>
-                <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
-                    <div class="md:flex md:gap-2  md:flex-col"><label data-slot="label" for="input-password"
-                            class="md:flex md:items-center md:gap-2 md:font-medium md:select-none  md:peer-data-[disabled=true]:cursor-not-allowed md:peer-data-[disabled=true]:opacity-50 md:text-base">Mật
-                            khẩu </label>
-                        <div class="md:flex md:flex-col md:gap-2 md:peer">
-                            <div
-                                class="rounded-lg md:p-1 md:flex md:items-center md:gap-1 md:min-w-0 md:border md:transition-colors md:data-[disabled=true]:bg-neutral-100 md:data-[disabled=true]:cursor-not-allowed md:border-neutral-300 md:focus-within:border-neutral-600 md:data-[disabled=true]:border-neutral-200 md:text-base md:min-h-[48px] md:rounded-base md:pl-medium">
-                                <input data-slot="input" formControlName="password" id="input-password"
-                                    class="px-2 rounded-lg md:w-full md:h-full md:bg-transparent md:border-none md:outline-none md:shadow-none md:ring-0 md:focus:outline-none md:focus:border-none md:focus:ring-0 md:focus-visible:outline-none md:focus-visible:border-none md:focus-visible:ring-0 md:placeholder:text-neutral-300 md:placeholder:select-none md:disabled:opacity-80 md:disabled:cursor-not-allowed md:disabled:text-neutral-500 md:disabled:placeholder:text-neutral-400 md:overflow-hidden md:text-ellipsis md:whitespace-nowrap md:[&amp;::-ms-reveal]:hidden md:[&amp;::-ms-clear]:hidden md:appearance-none md:-webkit-appearance-none"
-                                    autocomplete="off" autocapitalize="off" spellcheck="false"
-                                    placeholder="Nhập mật khẩu của bạn" [type]="showPassword ? 'text' : 'password'"
-                                    value="" name="password">
-                                <button type="button" tabindex="-1" (click)="togglePasswordVisibility()"
-                                    title="Hiện/Ẩn mật khẩu"
-                                    class="md:flex md:cursor-pointer md:items-center md:justify-center md:rounded-full md:bg-neutral-200 md:text-neutral-600 md:hover:bg-neutral-300 md:focus:outline-none md:transition-colors md:w-[24px] md:h-[24px] md:flex-shrink-0"
-                                    [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
-                                    <!-- Eye icon (password hidden) -->
-                                    <svg *ngIf="!showPassword" stroke="currentColor" fill="currentColor"
-                                        stroke-width="0" viewBox="0 0 576 512" height="0.8em" width="0.8em"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M572.52 241.4C518.29 135.59 410.93 64 288 64S57.68 135.64 3.48 241.41a32.35 32.35 0 0 0 0 29.19C57.71 376.41 165.07 448 288 448s230.32-71.64 284.52-177.41a32.35 32.35 0 0 0 0-29.19zM288 400a144 144 0 1 1 144-144 143.93 143.93 0 0 1-144 144zm0-240a95.31 95.31 0 0 0-25.31 3.79 47.85 47.85 0 0 1-66.9 66.9A95.78 95.78 0 1 0 288 160z">
-                                        </path>
-                                    </svg>
-                                    <!-- Eye-off icon (password visible) -->
-                                    <svg *ngIf="showPassword" stroke="currentColor" fill="currentColor" stroke-width="0"
-                                        viewBox="0 0 640 512" height="0.8em" width="0.8em"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M320 400c-75.85 0-137.25-58.71-142.9-133.11L72.2 185.82c-13.79 17.3-26.48 35.59-36.72 55.59a32.35 32.35 0 0 0 0 29.19C89.71 376.41 197.07 448 320 448c26.91 0 52.87-4 77.89-10.46L346 397.39a144.13 144.13 0 0 1-26 2.61zm313.82 58.1l-110.55-85.44a331.25 331.25 0 0 0 81.25-102.07 32.35 32.35 0 0 0 0-29.19C550.29 135.59 442.93 64 320 64a308.15 308.15 0 0 0-147.32 37.7L45.46 3.37A16 16 0 0 0 23 6.18L3.37 31.45A16 16 0 0 0 6.18 53.9l588.36 454.73a16 16 0 0 0 22.46-2.81l19.64-25.27a16 16 0 0 0-2.82-22.45zm-183.72-142l-39.3-30.38A94.75 94.75 0 0 0 416 256a94.76 94.76 0 0 0-121.31-92.21A47.65 47.65 0 0 1 304 192a46.64 46.64 0 0 1-1.54 10l-73.61-56.89A142.31 142.31 0 0 1 320 112a143.92 143.92 0 0 1 144 144c0 21.63-5.29 41.79-13.9 60.11z">
-                                        </path>
-                                    </svg>
-                                </button>
-                            </div>
-                            <div class="md:flex md:items-center md:gap-2 md:text-neutral-600 md:text-sm">
-                                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512"
-                                    class="md:shrink-0" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336l24 0 0-64-24 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l48 0c13.3 0 24 10.7 24 24l0 88 8 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-80 0c-13.3 0-24-10.7-24-24s10.7-24 24-24zm40-208a32 32 0 1 1 0 64 32 32 0 1 1 0-64z">
-                                    </path>
-                                </svg>Mật khẩu tối thiểu 6 ký tự, có ít nhất 1 chữ số và 1 số
-                            </div>
-                            <!-- === BEGIN NEW FEATURE: PASSWORD POLICY === -->
-                            <div *ngIf="f['password'].touched && f['password'].errors" class="text-red-500 text-sm mt-1">
-                                <span *ngIf="f['password'].errors['required']">Mật khẩu là bắt buộc</span>
-                                <span *ngIf="f['password'].errors['minlength']">Mật khẩu phải dài ít nhất 8 ký tự</span>
-                                <span *ngIf="f['password'].errors['pattern']">Mật khẩu phải chứa ít nhất 1 chữ in hoa và 1 ký tự đặc biệt</span>
-                            </div>
-                            <!-- === END NEW FEATURE: PASSWORD POLICY === -->
-                        </div>
-                    </div>
-                    <div class="md:flex md:gap-2  md:flex-col"><label data-slot="label" for="input-confirmPassword"
-                            class="md:flex md:items-center md:gap-2 md:font-medium md:select-none  md:peer-data-[disabled=true]:cursor-not-allowed md:peer-data-[disabled=true]:opacity-50 md:text-base">Nhập
-                            lại mật khẩu </label>
-                        <div class="md:flex md:flex-col md:gap-2 md:peer">
-                            <div
-                                class="rounded-lg md:p-1 md:flex md:items-center md:gap-1 md:min-w-0 md:border md:transition-colors md:data-[disabled=true]:bg-neutral-100 md:data-[disabled=true]:cursor-not-allowed md:border-neutral-300 md:focus-within:border-neutral-600 md:data-[disabled=true]:border-neutral-200 md:text-base md:min-h-[48px] md:rounded-base md:pl-medium">
-                                <input data-slot="input" id="input-confirmPassword"
-                                    class="px-2 md:w-full md:h-full md:bg-transparent md:border-none md:outline-none md:shadow-none md:ring-0 md:focus:outline-none md:focus:border-none md:focus:ring-0 md:focus-visible:outline-none md:focus-visible:border-none md:focus-visible:ring-0 md:placeholder:text-neutral-300 md:placeholder:select-none md:disabled:opacity-80 md:disabled:cursor-not-allowed md:disabled:text-neutral-500 md:disabled:placeholder:text-neutral-400 md:overflow-hidden md:text-ellipsis md:whitespace-nowrap md:[&amp;::-ms-reveal]:hidden md:[&amp;::-ms-clear]:hidden md:appearance-none md:-webkit-appearance-none"
-                                    autocomplete="off" autocapitalize="off" spellcheck="false"
-                                    placeholder="Nhập lại mật khẩu của bạn"
-                                    [type]="showConfirmPassword ? 'text' : 'password'" value="" name="confirmPassword"
-                                    formControlName="confirmPassword">
-                                <button type="button" tabindex="-1" (click)="toggleConfirmPasswordVisibility()"
-                                    title="Hiện/Ẩn mật khẩu xác nhận"
-                                    class="md:flex md:cursor-pointer md:items-center md:justify-center md:rounded-full md:bg-neutral-200 md:text-neutral-600 md:hover:bg-neutral-300 md:focus:outline-none md:transition-colors md:w-[24px] md:h-[24px] md:flex-shrink-0"
-                                    [attr.aria-label]="showConfirmPassword ? 'Hide password' : 'Show password'">
-                                    <!-- Eye icon (password hidden) -->
-                                    <svg *ngIf="!showConfirmPassword" stroke="currentColor" fill="currentColor"
-                                        stroke-width="0" viewBox="0 0 576 512" height="0.8em" width="0.8em"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M572.52 241.4C518.29 135.59 410.93 64 288 64S57.68 135.64 3.48 241.41a32.35 32.35 0 0 0 0 29.19C57.71 376.41 165.07 448 288 448s230.32-71.64 284.52-177.41a32.35 32.35 0 0 0 0-29.19zM288 400a144 144 0 1 1 144-144 143.93 143.93 0 0 1-144 144zm0-240a95.31 95.31 0 0 0-25.31 3.79 47.85 47.85 0 0 1-66.9 66.9A95.78 95.78 0 1 0 288 160z">
-                                        </path>
-                                    </svg>
-                                    <!-- Eye-off icon (password visible) -->
-                                    <svg *ngIf="showConfirmPassword" stroke="currentColor" fill="currentColor"
-                                        stroke-width="0" viewBox="0 0 640 512" height="0.8em" width="0.8em"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M320 400c-75.85 0-137.25-58.71-142.9-133.11L72.2 185.82c-13.79 17.3-26.48 35.59-36.72 55.59a32.35 32.35 0 0 0 0 29.19C89.71 376.41 197.07 448 320 448c26.91 0 52.87-4 77.89-10.46L346 397.39a144.13 144.13 0 0 1-26 2.61zm313.82 58.1l-110.55-85.44a331.25 331.25 0 0 0 81.25-102.07 32.35 32.35 0 0 0 0-29.19C550.29 135.59 442.93 64 320 64a308.15 308.15 0 0 0-147.32 37.7L45.46 3.37A16 16 0 0 0 23 6.18L3.37 31.45A16 16 0 0 0 6.18 53.9l588.36 454.73a16 16 0 0 0 22.46-2.81l19.64-25.27a16 16 0 0 0-2.82-22.45zm-183.72-142l-39.3-30.38A94.75 94.75 0 0 0 416 256a94.76 94.76 0 0 0-121.31-92.21A47.65 47.65 0 0 1 304 192a46.64 46.64 0 0 1-1.54 10l-73.61-56.89A142.31 142.31 0 0 1 320 112a143.92 143.92 0 0 1 144 144c0 21.63-5.29 41.79-13.9 60.11z">
-                                        </path>
-                                    </svg>
-                                </button>
-                            </div>
-                            <div *ngIf="f['confirmPassword'].touched && f['confirmPassword'].errors"
-                                class="text-red-500 text-sm mt-1">
-                                <span *ngIf="f['confirmPassword'].errors['required']">Xác nhận mật khẩu là bắt
-                                    buộc</span>
-                                <span *ngIf="f['confirmPassword'].errors['mismatch']">Mật khẩu không khớp</span>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-                <div class="w-full grid grid-cols-1 gap-4 items-stretch py-medium">
-
-                    <div class="flex gap-2 items-start">
-                        <input type="checkbox" id="checkbox-terms" formControlName="termsAccepted"
-                            class="red-checkbox mt-1 flex-shrink-0" />
-                        <label for="checkbox-terms" data-slot="label"
-                            class="md:flex md:items-center md:gap-2 md:font-medium md:select-none md:peer-data-[disabled=true]:cursor-not-allowed md:peer-data-[disabled=true]:opacity-50 md:text-base font-regular text-base cursor-pointer">Bằng
-                            việc Đăng ký, bạn đã đọc và đồng ý với <a class="font-semibold favorite-text" href="#">Điều
-                                khoản sử dụng</a> và <a class="font-bold favorite-text"
-                                href="https://cellphones.com.vn/tos?part=privacy-policy">Chính sách bảo mật của
-                                CellphoneS</a>.</label>
-                    </div>
-                </div>
-                <!-- <div class="w-full h-0 border-t-[1px]"
-                    style="border-image: repeating-linear-gradient(90deg, rgb(207, 207, 211) 0px, rgb(207, 207, 211) 8px, transparent 8px, transparent 16px) 8 / 1 / 0 stretch;">
-                </div> -->
-                <!-- <div class="w-full py-medium flex flex-col gap-4">
-                    <div class="w-full">
-                        <h2 class=" flex gap-1 items-center"><label data-slot="label"
-                                class="md:flex md:items-center md:gap-2 md:font-medium md:select-none  md:peer-data-[disabled=true]:cursor-not-allowed md:peer-data-[disabled=true]:opacity-50 md:text-base font-bold text-base md:text-lg"
-                                for="switch-isStudent">Tôi là Học sinh - sinh viên / Giáo viên - giảng
-                                viên</label><button type="button" role="switch" aria-checked="true" data-state="checked"
-                                value="on" data-slot="switch"
-                                class="md:relative md:cursor-pointer md:disabled:cursor-not-allowed md:hover:disabled:after:hidden md:hover:after:rounded-full md:hover:after:content-[''] md:hover:after:absolute md:hover:after:inset-0 md:hover:after:bg-overlay-white-400 md:w-[40px] md:h-[24px] md:inline-flex md:shrink-0 md:items-center md:data-[state=checked]:bg-blue-500 md:data-[state=checked]:disabled:bg-blue-200 md:data-[state=unchecked]:bg-neutral-300 md:data-[state=unchecked]:disabled:bg-neutral-100 md:rounded-full md:border-none md:outline-none md:transition-all md:duration-200"
-                                id="switch-isStudent" (click)="toggleStudentMode()" [attr.aria-checked]="isStudentMode"
-                                [attr.data-state]="isStudentMode ? 'checked' : 'unchecked'"><span
-                                    [attr.data-state]="isStudentMode ? 'checked' : 'unchecked'" data-slot="switch-thumb"
-                                    class="md:block md:pointer-events-none md:bg-white md:rounded-full md:transition-transform md:duration-200 md:data-[state=checked]:translate-x-[calc(100%-5px)] md:data-[state=unchecked]:translate-x-[1px] md:size-[22px] md:z-10 md:data-[disabled=false]:shadow-[0_1px_4px_rgba(0,0,0,0.2)]"></span></button><input
-                                aria-hidden="true" tabindex="-1" type="checkbox" value="on" name="isStudent" checked=""
-                                style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 40px; height: 24px;">
-                        </h2>
-                        <div
-                            class="w-full mt-3 bg-neutral-50 p-2 text-sm font-regular flex items-center gap-2 rounded-small">
-                            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24"
-                                class="text-base" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M3.75 3.75A3.75 3.75 0 0 1 7.5 0c1.455 0 3.436.901 4.5 3.11C13.064.901 15.044 0 16.5 0a3.75 3.75 0 0 1 3 6h1.75c.966 0 1.75.784 1.75 1.75v2.5c0 .698-.409 1.301-1 1.582v8.418A1.75 1.75 0 0 1 20.25 22H3.75A1.75 1.75 0 0 1 2 20.25v-8.418c-.591-.282-1-.884-1-1.582v-2.5C1 6.784 1.784 6 2.75 6H4.5a3.733 3.733 0 0 1-.75-2.25ZM20.5 12h-7.75v8.5h7.5a.25.25 0 0 0 .25-.25Zm-9.25 8.5V12H3.5v8.25c0 .138.112.25.25.25Zm10-10a.25.25 0 0 0 .25-.25v-2.5a.25.25 0 0 0-.25-.25h-8.5v3Zm-18.5 0h8.5v-3h-8.5a.25.25 0 0 0-.25.25v2.5c0 .138.112.25.25.25Zm16-6.75A2.25 2.25 0 0 0 16.5 1.5c-1.15 0-3.433 1.007-3.72 4.5h3.72a2.25 2.25 0 0 0 2.25-2.25ZM11.22 6c-.287-3.493-2.57-4.5-3.72-4.5a2.25 2.25 0 1 0 0 4.5Z">
-                                </path>
-                            </svg><span>Nhận thêm ưu đãi tới <span class="font-semibold">600k/sản phẩm</span></span>
-                            <div class="text-info-500 font-semibold flex items-center gap-3 cursor-pointer select-none">
-                                Xem chi tiết <svg stroke="currentColor" fill="currentColor" stroke-width="0"
-                                    viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M294.1 256L167 129c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.3 34 0L345 239c9.1 9.1 9.3 23.7.7 33.1L201.1 417c-4.7 4.7-10.9 7-17 7s-12.3-2.3-17-7c-9.4-9.4-9.4-24.6 0-33.9l127-127.1z">
-                                    </path>
-                                </svg></div>
-                        </div>
-                    </div>
-                    <div class="w-full flex flex-col gap-4">
-                        <div role="radiogroup" aria-required="false" dir="ltr" data-slot="radio-group"
-                            class="sm:flex-row md:flex-column lg:flex-column gap-2 md:gap-3" tabindex="0"
-                            style="outline: none;">
-                            <div class="flex items-center gap-1"><button type="button" role="radio" aria-checked="true"
-                                    data-state="checked" value="student" data-slot="radio-group-item"
-                                    class="md:aspect-square md:shrink-0 md:rounded-full md:border md:hover:border-info-500 md:data-[state=checked]:border-info-500 md:shadow-xs md:hover:shadow-[0_0px_4px_rgba(59,130,246,0.7)] md:data-[state=checked]:shadow-[0_0px_4px_rgba(59,130,246,0.7)] md:transition-[color,box-shadow] md:outline-none md:disabled:hover:shadow-none md:disabled:cursor-not-allowed md:disabled:border-neutral-300 md:disabled:bg-neutral-50 md:w-[20px] md:h-[20px]"
-                                    id="radio-student" tabindex="-1" data-radix-collection-item=""><span
-                                        data-state="checked" data-slot="radio-group-indicator"
-                                        class="md:relative md:flex md:items-center md:justify-center"><svg
-                                            xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round"
-                                            class="lucide lucide-circle md:fill-info-500 md:stroke-none md:absolute md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[14px] md:h-[14px]">
-                                            <circle cx="12" cy="12" r="10"></circle>
-                                        </svg></span></button><input aria-hidden="true" tabindex="-1" type="radio"
-                                    value="student" checked="" name="educationType" formControlName="educationType"
-                                    style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 20px; height: 20px;"><label
-                                    data-slot="label"
-                                    class="md:flex md:items-center md:gap-2 md:font-medium md:select-none md:peer-data-[disabled=true]:cursor-not-allowed md:peer-data-[disabled=true]:opacity-50 md:text-base font-medium text-base"
-                                    for="radio-student">Học sinh - sinh viên</label></div>
-                            <div class="flex items-center gap-1">
-                                <button type="button" role="radio" aria-checked="false" data-state="unchecked"
-                                    value="teacher" data-slot="radio-group-item"
-                                    class="md:aspect-square md:shrink-0 md:rounded-lg md:border md:hover:border-info-500 md:data-[state=checked]:border-info md:shadow-xs md:hover:shadow-[0_0px_4px_rgba(59,130,246,0.7)] md:data-[state=checked]:shadow-[0_0px_4px_rgba(59,130,246,0.7)] md:transition-[color,box-shadow] md:outline-none md:disabled:hover:shadow-none md:disabled:cursor-not-allowed md:disabled:border-neutral-300 md:disabled:bg-neutral-50 md:w-[20px] md:h-[20px]"
-                                    id="radio-teacher" tabindex="-1" data-radix-collection-item=""></button>
-                                <input aria-hidden="true" tabindex="-1" type="radio" value="teacher"
-                                    name="educationType" formControlName="educationType"
-                                    style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 20px; height: 20px;"><label
-                                    data-slot="label"
-                                    class="md:flex md:items-center md:gap-2 md:font-medium md:select-none  md:peer-data-[disabled=true]:cursor-not-allowed md:peer-data-[disabled=true]:opacity-50 md:text-base font-medium text-base"
-                                    for="radio-teacher">Giáo viên - giảng viên</label>
-                            </div>
-                            <div class="flex items-center gap-1"><button type="button" role="radio" aria-checked="false"
-                                    data-state="unchecked" value="freshman" data-slot="radio-group-item"
-                                    class="md:aspect-square md:shrink-0 md:rounded-full md:border md:hover:border-info-500 md:data-[state=checked]:border-info-500 md:shadow-xs md:hover:shadow-[0_0px_4px_rgba(59,130,246,0.7)] md:data-[state=checked]:shadow-[0_0px_4px_rgba(59,130,246,0.7)] md:transition-[color,box-shadow] md:outline-none md:disabled:hover:shadow-none md:disabled:cursor-not-allowed md:disabled:border-neutral-300 md:disabled:bg-neutral-50 md:w-[20px] md:h-[20px]"
-                                    id="radio-freshman" tabindex="-1" data-radix-collection-item=""></button><input
-                                    aria-hidden="true" tabindex="-1" type="radio" value="freshman" name="educationType"
-                                    formControlName="educationType"
-                                    style="transform: translateX(-100%); position: absolute; pointer-events: none; opacity: 0; margin: 0px; width: 20px; height: 20px;"><label
-                                    data-slot="label"
-                                    class="md:flex md:items-center md:gap-2 md:font-medium md:select-none  md:peer-data-[disabled=true]:cursor-not-allowed md:peer-data-[disabled=true]:opacity-50 md:text-base font-medium text-base"
-                                    for="radio-freshman">Sĩ tử 2025</label></div>
-                        </div>
-                        <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
-                            <div class="md:flex md:gap-2  md:flex-col"><label data-slot="label"
-                                    class="md:flex md:items-center md:gap-2 md:font-medium md:select-none  md:peer-data-[disabled=true]:cursor-not-allowed md:peer-data-[disabled=true]:opacity-50 md:text-base">Cấp
-                                    học </label>
-                                <div class="md:flex md:flex-col md:gap-2 md:peer"><input type="hidden" value=""
-                                        name="educationLevel" formControlName="educationLevel">
-                                    <div aria-controls="radix-«rg»" aria-haspopup="dialog" data-slot="popover-trigger"
-                                        data-state="closed"
-                                        class="md:flex md:flex-col flex-column md:gap-2 md:peer md:w-full">
-                                        <div
-                                            class="rounded-lg md:p-1 md:flex md:items-center md:gap-1 md:min-w-0 md:border md:transition-colors md:data-[disabled=true]:bg-neutral-100 md:data-[disabled=true]:cursor-not-allowed md:border-neutral-300 md:focus-within:border-neutral-600 md:data-[disabled=true]:border-neutral-200 md:text-base md:min-h-[48px] md:rounded-base md:pl-medium">
-                                            <input data-slot="input"
-                                                class="rounded-lg md:w-full md:h-full md:bg-transparent md:border-none md:outline-none md:shadow-none md:ring-0 md:focus:outline-none md:focus:border-none md:focus:ring-0 md:focus-visible:outline-none md:focus-visible:border-none md:focus-visible:ring-0 md:placeholder:text-neutral-300 md:placeholder:select-none md:disabled:opacity-80 md:disabled:cursor-not-allowed md:disabled:text-neutral-500 md:disabled:placeholder:text-neutral-400 md:overflow-hidden md:text-ellipsis md:whitespace-nowrap"
-                                                placeholder="Chọn cấp học" readonly="" type="text" value="">
-                                            <div class="md:flex md:items-center md:justify-center md:aspect-square ">
-                                                <svg stroke="currentColor" fill="currentColor" stroke-width="0"
-                                                    viewBox="0 0 512 512" class="md:text-lg" height="1em" width="1em"
-                                                    xmlns="http://www.w3.org/2000/svg">
-                                                    <path
-                                                        d="M256 294.1L383 167c9.4-9.4 24.6-9.4 33.9 0s9.3 24.6 0 34L273 345c-9.1 9.1-23.7 9.3-33.1.7L95 201.1c-4.7-4.7-7-10.9-7-17s2.3-12.3 7-17c9.4-9.4 24.6-9.4 33.9 0l127.1 127z">
-                                                    </path>
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="md:flex md:gap-2  md:flex-col"><label data-slot="label"
-                                    class="md:flex md:items-center md:gap-2 md:font-medium md:select-none  md:peer-data-[disabled=true]:cursor-not-allowed md:peer-data-[disabled=true]:opacity-50 md:text-base">Tên
-                                    trường </label>
-                                <div class="md:flex md:flex-col md:gap-2 md:peer">
-                                    <div
-                                        class="rounded-lg md:p-1 md:flex md:items-center md:gap-1 md:min-w-0 md:border md:transition-colors md:data-[disabled=true]:bg-neutral-100 md:data-[disabled=true]:cursor-not-allowed md:border-neutral-300 md:focus-within:border-neutral-600 md:data-[disabled=true]:border-neutral-200 md:text-base md:min-h-[48px] md:rounded-base md:pl-medium">
-                                        <input data-slot="input"
-                                            class="rounded-lg md:w-full md:h-full md:bg-transparent md:border-none md:outline-none md:shadow-none md:ring-0 md:focus:outline-none md:focus:border-none md:focus:ring-0 md:focus-visible:outline-none md:focus-visible:border-none md:focus-visible:ring-0 md:placeholder:text-neutral-300 md:placeholder:select-none md:disabled:opacity-80 md:disabled:cursor-not-allowed md:disabled:text-neutral-500 md:disabled:placeholder:text-neutral-400 md:overflow-hidden md:text-ellipsis md:whitespace-nowrap"
-                                            placeholder="Nhập tên trường" value="" name="schoolName"
-                                            formControlName="schoolName">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="rounded-lg md:flex md:gap-2  md:flex-col"><label data-slot="label"
-                                    class="md:flex md:items-center md:gap-2 md:font-medium md:select-none  md:peer-data-[disabled=true]:cursor-not-allowed md:peer-data-[disabled=true]:opacity-50 md:text-base">Mã
-                                    học sinh/sinh viên </label>
-                                <div class="md:flex md:flex-col md:gap-2 md:peer">
-                                    <div
-                                        class="rounded-lg md:p-1 md:flex md:items-center md:gap-1 md:min-w-0 md:border md:transition-colors md:data-[disabled=true]:bg-neutral-100 md:data-[disabled=true]:cursor-not-allowed md:border-neutral-300 md:focus-within:border-neutral-600 md:data-[disabled=true]:border-neutral-200 md:text-base md:min-h-[48px] md:rounded-base md:pl-medium">
-                                        <input data-slot="input"
-                                            class="rounded-lg md:w-full md:h-full md:bg-transparent md:border-none md:outline-none md:shadow-none md:ring-0 md:focus:outline-none md:focus:border-none md:focus:ring-0 md:focus-visible:outline-none md:focus-visible:border-none md:focus-visible:ring-0 md:placeholder:text-neutral-300 md:placeholder:select-none md:disabled:opacity-80 md:disabled:cursor-not-allowed md:disabled:text-neutral-500 md:disabled:placeholder:text-neutral-400 md:overflow-hidden md:text-ellipsis md:whitespace-nowrap"
-                                            placeholder="Nhập mã học sinh/sinh viên" maxlength="30" value=""
-                                            name="educationCode" formControlName="educationCode">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="md:flex md:gap-2  md:flex-col"><label data-slot="label"
-                                    class="md:flex md:items-center md:gap-2 md:font-medium md:select-none  md:peer-data-[disabled=true]:cursor-not-allowed md:peer-data-[disabled=true]:opacity-50 md:text-base">Họ
-                                    tên trên thẻ </label>
-                                <div class="md:flex md:flex-col md:gap-2 md:peer">
-                                    <div
-                                        class="rounded-lg md:p-1 md:flex md:items-center md:gap-1 md:min-w-0 md:border md:transition-colors md:data-[disabled=true]:bg-neutral-100 md:data-[disabled=true]:cursor-not-allowed md:border-neutral-300 md:focus-within:border-neutral-600 md:data-[disabled=true]:border-neutral-200 md:text-base md:min-h-[48px] md:rounded-base md:pl-medium">
-                                        <input data-slot="input"
-                                            class="rounded-lg md:w-full md:h-full md:bg-transparent md:border-none md:outline-none md:shadow-none md:ring-0 md:focus:outline-none md:focus:border-none md:focus:ring-0 md:focus-visible:outline-none md:focus-visible:border-none md:focus-visible:ring-0 md:placeholder:text-neutral-300 md:placeholder:select-none md:disabled:opacity-80 md:disabled:cursor-not-allowed md:disabled:text-neutral-500 md:disabled:placeholder:text-neutral-400 md:overflow-hidden md:text-ellipsis md:whitespace-nowrap"
-                                            placeholder="Nhập họ tên trên thẻ" value="" name="cardName"
-                                            formControlName="cardName">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="md:flex md:gap-2  md:flex-col"><label data-slot="label"
-                                    class="md:flex md:items-center md:gap-2 md:font-medium md:select-none  md:peer-data-[disabled=true]:cursor-not-allowed md:peer-data-[disabled=true]:opacity-50 md:text-base">Ngày
-                                    hết hạn thẻ hoặc ra trường dự kiến </label>
-                                <div class="md:flex md:flex-col md:gap-2 md:peer">
-                                    <div
-                                        class="rounded-lg md:p-1 md:flex md:items-center md:gap-1 md:min-w-0 md:border md:transition-colors md:data-[disabled=true]:bg-neutral-100 md:data-[disabled=true]:cursor-not-allowed md:border-neutral-300 md:focus-within:border-neutral-600 md:data-[disabled=true]:border-neutral-200 md:text-base md:min-h-[48px] md:rounded-base md:pl-medium">
-                                        <input data-slot="input"
-                                            class="rounded-lg md:w-full md:h-full md:bg-transparent md:border-none md:outline-none md:shadow-none md:ring-0 md:focus:outline-none md:focus:border-none md:focus:ring-0 md:focus-visible:outline-none md:focus-visible:border-none md:focus-visible:ring-0 md:placeholder:text-neutral-300 md:placeholder:select-none md:disabled:opacity-80 md:disabled:cursor-not-allowed md:disabled:text-neutral-500 md:disabled:placeholder:text-neutral-400 md:overflow-hidden md:text-ellipsis md:whitespace-nowrap"
-                                            placeholder="dd/mm/yyyy" min="14/07/2025" max="14/07/2030" lang="vi-VN"
-                                            type="text" value="" name="cardExpiryDate" formControlName="cardExpiryDate">
-                                        <div class="md:flex md:items-center md:justify-center md:aspect-square ">
-                                            <div class="md:flex md:items-center md:justify-center md:select-none md:cursor-pointer md:rounded-base md:hover:bg-neutral-100 md:h-[30px] md:w-[30px]"
-                                                type="button" aria-haspopup="dialog" aria-controls="radix-«rp»"
-                                                data-state="closed" data-slot="popover-trigger"><svg
-                                                    stroke="currentColor" fill="none" stroke-width="2"
-                                                    viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"
-                                                    class="md:text-neutral-600" height="20" width="20"
-                                                    xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M8 2v4"></path>
-                                                    <path d="M16 2v4"></path>
-                                                    <rect width="18" height="18" x="3" y="4" rx="2"></rect>
-                                                    <path d="M3 10h18"></path>
-                                                </svg></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="md:flex md:gap-2  md:flex-col"><label data-slot="label"
-                                    class="md:flex md:items-center md:gap-2 md:font-medium md:select-none  md:peer-data-[disabled=true]:cursor-not-allowed md:peer-data-[disabled=true]:opacity-50 md:text-base"><span>Email
-                                        trường <span class="text-sm font-regular text-neutral-400">(Không bắt
-                                            buộc)</span></span> </label>
-                                <div class="md:flex md:flex-col md:gap-2 md:peer">
-                                    <div
-                                        class="rounded-lg md:p-1 md:flex md:items-center md:gap-1 md:min-w-0 md:border md:transition-colors md:data-[disabled=true]:bg-neutral-100 md:data-[disabled=true]:cursor-not-allowed md:border-neutral-300 md:focus-within:border-neutral-600 md:data-[disabled=true]:border-neutral-200 md:text-base md:min-h-[48px] md:rounded-base md:pl-medium">
-                                        <input data-slot="input"
-                                            class="rounded-lg md:w-full md:h-full md:bg-transparent md:border-none md:outline-none md:shadow-none md:ring-0 md:focus:outline-none md:focus:border-none md:focus:ring-0 md:focus-visible:outline-none md:focus-visible:border-none md:focus-visible:ring-0 md:placeholder:text-neutral-300 md:placeholder:select-none md:disabled:opacity-80 md:disabled:cursor-not-allowed md:disabled:text-neutral-500 md:disabled:placeholder:text-neutral-400 md:overflow-hidden md:text-ellipsis md:whitespace-nowrap"
-                                            placeholder="Nhập email trường" value="" name="schoolEmail"
-                                            formControlName="schoolEmail">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="w-full">
-                            <div class="w-full flex items-center justify-between">
-                                <h2 class="font-bold text-base md:text-lg">Tải ảnh thẻ</h2>
-                            </div><span class="text-sm md:text-sm font-medium text-neutral-500">Nếu thẻ sinh
-                                viên không có niên khóa, vui lòng bổ sung thêm hình ảnh xác minh thời gian học</span>
-                        </div>
-                        <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
-                            <div class="w-full relative">
-                                <div class="md:flex md:gap-2  md:flex-col"><label data-slot="label"
-                                        class="md:flex md:items-center md:gap-2 md:font-medium md:select-none  md:peer-data-[disabled=true]:cursor-not-allowed md:peer-data-[disabled=true]:opacity-50 md:text-base">Mặt
-                                        trước </label>
-                                    <div class="md:flex md:flex-col md:gap-2 md:peer">
-                                        <div role="presentation" tabindex="0"
-                                            class="rounded-lg md:flex items-center md:cursor-pointer md:select-none md:justify-center md:font-medium md:min-w-0 md:border md:border-dashed md:transition-colors md:data-[disabled=true]:bg-neutral-100 md:data-[disabled=true]:cursor-not-allowed md:data-[disabled=true]:text-neutral-300 md:data-[dragging=true]:bg-neutral-100 md:data-[dragging=true]:border-primary-400 md:p-medium md:gap-4 md:flex-col md:border-neutral-300 md:focus-within:border-neutral-600 md:data-[disabled=true]:border-neutral-200 md:text-base md:rounded-base">
-                                            <input (change)="onFileChange($event, 'frontCard')"
-                                                accept="image/jpeg,.jpg,.jpeg,image/png,.png,image/webp,.webp,image/heic,.heic,image/heif,.heif,image/hevc,.hevc"
-                                                tabindex="-1" type="file" aria-label="#"
-                                                style="border: 0px; clip: rect(0px, 0px, 0px, 0px); clip-path: inset(50%); height: 1px; margin: 0px -1px -1px 0px; overflow: hidden; padding: 0px; position: absolute; width: 1px; white-space: nowrap;"><svg
-                                                stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24"
-                                                stroke-linecap="round" stroke-linejoin="round"
-                                                class="md:flex-shrink-0 md:text-2x-lg" height="1em" width="1em"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                                <polyline points="17 8 12 3 7 8"></polyline>
-                                                <line x1="12" y1="3" x2="12" y2="15"></line>
-                                            </svg>
-                                            <div class="md:flex md:flex-col md:items-center md:gap-1">
-                                                <p>Kéo thả hoặc <span class="main-text-color">Chọn file</span>
-                                                    tải lên</p>
-                                                <p
-                                                    class="md:text-xs md:font-regular md:text-center md:text-neutral-400">
-                                                    <span><span class="md:font-medium">Định dạng:</span> <span>.JPG,
-                                                            .JPEG, .PNG, .WEBP, .HEIC, .HEIF, .HEVC</span></span> - Tối
-                                                    đa 10 MB
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="w-full relative">
-                                <div class="md:flex md:gap-2  md:flex-col"><label data-slot="label"
-                                        class="md:flex md:items-center md:gap-2 md:font-medium md:select-none md:peer-data-[disabled=true]:cursor-not-allowed md:peer-data-[disabled=true]:opacity-50 md:text-base">Mặt
-                                        sau </label>
-                                    <div class="md:flex md:flex-col md:gap-2 md:peer">
-                                        <div role="presentation" tabindex="0"
-                                            class="rounded-lg md:flex md:items-center md:cursor-pointer md:select-none md:justify-center md:font-medium md:min-w-0 md:border md:border-dashed md:transition-colors md:data-[disabled=true]:bg-neutral-100 md:data-[disabled=true]:cursor-not-allowed md:data-[disabled=true]:text-neutral-300 md:data-[dragging=true]:bg-neutral-100 md:data-[dragging=true]:border-primary-400 md:p-medium md:gap-4 md:flex-col md:border-neutral-300 md:focus-within:border-neutral-600 md:data-[disabled=true]:border-neutral-200 md:text-base md:rounded-base">
-                                            <input (change)="onFileChange($event, 'backCard')"
-                                                accept="image/jpeg,.jpg,.jpeg,image/png,.png,image/webp,.webp,image/heic,.heic,image/heif,.heif,image/hevc,.hevc"
-                                                tabindex="-1" type="file" aria-label="#"
-                                                style="border: 0px; clip: rect(0px, 0px, 0px, 0px); clip-path: inset(50%); height: 1px; margin: 0px -1px -1px 0px; overflow: hidden; padding: 0px; position: absolute; width: 1px; white-space: nowrap;"><svg
-                                                stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24"
-                                                stroke-linecap="round" stroke-linejoin="round"
-                                                class="md:flex-shrink-0 md:text-2x-lg" height="1em" width="1em"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                                <polyline points="17 8 12 3 7 8"></polyline>
-                                                <line x1="12" y1="3" x2="12" y2="15"></line>
-                                            </svg>
-                                            <div class="md:flex md:flex-col md:items-center md:gap-1">
-                                                <p>Kéo thả hoặc <span class="main-text-color">Chọn file</span>
-                                                    tải lên</p>
-                                                <p
-                                                    class="md:text-sm md:font-regular md:text-center md:text-neutral-400">
-                                                    <span><span class="md:font-medium">Định dạng:</span> <span>.JPG,
-                                                            .JPEG, .PNG, .WEBP, .HEIC, .HEIF, .HEVC</span></span> - Tối
-                                                    đa 10 MB
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="h-[40px]"></div>
-                    </div>
-                </div> -->
-                <div
-                    class="shadow-[0_-4px_10px_-1px_rgba(40,124,234,.15)] w-full z-10 box-content grid px-1 md:px-2 py-2 grid-cols-2 gap-4 sticky bottom-0 left-0 right-0 bg-white translate-x-[-8px] md:translate-x-[-16px]">
-                    <a class="rounded-lg md:flex md:items-center md:justify-center md:gap-2 md:cursor-pointer md:disabled:cursor-not-allowed md:border  md:text-base md:px-2 md:py-1 md:min-h-[48px] md:rounded-base md:border-neutral-300 md:text-neutral-800 md:bg-white md:hover:border-neutral-400 md:hover:bg-neutral-50 md:disabled:border-black-300 md:disabled:text-black-300 md:disabled:bg-white w-full px-0 md:px-2 font-medium flex gap-1 items-center"
-                        data-slot="button" type="button" routerLink="/login"><svg stroke="currentColor"
-                            fill="currentColor" stroke-width="0" viewBox="0 0 512 512" class="md:inline-block hidden"
-                            height="22" width="22" xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M217.9 256L345 129c9.4-9.4 9.4-24.6 0-33.9-9.4-9.4-24.6-9.3-34 0L167 239c-9.1 9.1-9.3 23.7-.7 33.1L310.9 417c4.7 4.7 10.9 7 17 7s12.3-2.3 17-7c9.4-9.4 9.4-24.6 0-33.9L217.9 256z">
-                            </path>
-                        </svg> Quay lại đăng nhập</a><button data-slot="button"
-                        class="rounded-lg bg-red-600 text-white md:flex md:items-center md:justify-center md:gap-2 md:cursor-pointer md:disabled:cursor-not-allowed md:border  md:text-base md:px-2 md:py-1 md:min-h-[48px] md:rounded-base md:border-primary-500 md:bg-primary-500 md:text-pure-white md:hover:border-primary-700 md:hover:bg-primary-700 md:disabled:text-black-300 md:disabled:bg-neutral-200 md:disabled:border-neutral-200 w-full font-medium px-0 md:px-2"
-                        type="submit">Hoàn tất đăng ký</button>
-                </div>
-            </form>
-        </div>
+<div class="min-h-screen bg-gray-100 pb-28">
+  <div class="mx-auto w-full max-w-2xl px-3 py-6 md:py-10">
+    <div class="flex flex-col items-center gap-3 text-center">
+      <a routerLink="/home" class="rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300">
+        <img src="assets/images/cellphones-logo.webp" alt="CellphoneS - Trang chủ" width="150" height="50"
+          class="h-10 w-auto rounded" />
+      </a>
+      <h1 class="text-2xl font-bold text-primary-500 md:text-3xl">Đăng ký trở thành SMEMBER</h1>
     </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate
+      class="mt-5 flex flex-col gap-4 rounded-2xl bg-white p-4 shadow-card md:p-6">
+      <button type="button" (click)="registerWithGoogle()"
+        class="btn btn-outline btn-lg btn-block border-gray-300 text-gray-900 hover:bg-gray-50">
+        <svg class="size-5" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="#4285F4" d="M22.5 12.2c0-.8-.1-1.5-.2-2.2H12v4.3h5.9a5 5 0 0 1-2.2 3.3v2.7h3.5c2.1-1.9 3.3-4.7 3.3-8.1Z" />
+          <path fill="#34A853" d="M12 23c3 0 5.4-1 7.2-2.7l-3.5-2.7c-1 .7-2.2 1-3.7 1-2.8 0-5.2-1.9-6-4.5H2.4v2.8A11 11 0 0 0 12 23Z" />
+          <path fill="#FBBC05" d="M6 14.1a6.6 6.6 0 0 1 0-4.2V7.1H2.4a11 11 0 0 0 0 9.8L6 14.1Z" />
+          <path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.1-3.1A11 11 0 0 0 2.4 7.1L6 9.9c.8-2.6 3.2-4.5 6-4.5Z" />
+        </svg>
+        Đăng ký bằng Google
+      </button>
+
+      <div class="flex items-center gap-3 text-sm text-gray-500" aria-hidden="true">
+        <span class="h-px flex-1 bg-gray-200"></span>
+        <span>Hoặc đăng ký bằng email</span>
+        <span class="h-px flex-1 bg-gray-200"></span>
+      </div>
+
+      <div class="grid gap-4 md:grid-cols-2">
+        @for (field of fields; track field.name) {
+        <div [class]="field.name === 'name' ? 'md:col-span-2' : ''">
+          <label [for]="'register-' + field.name" class="mb-1 block text-sm font-medium text-gray-900">
+            {{ field.label }} <span class="text-danger" aria-hidden="true">*</span>
+          </label>
+          <input [id]="'register-' + field.name" [type]="field.type" [formControlName]="field.name"
+            [attr.autocomplete]="field.autocomplete" [attr.placeholder]="field.placeholder || null"
+            [attr.aria-invalid]="errorFor(field.name) ? 'true' : null" [class]="inputClass(field.name)" />
+          @if (errorFor(field.name); as message) {
+          <p class="mt-1 text-xs text-danger">{{ message }}</p>
+          }
+        </div>
+        }
+
+        <div>
+          <label for="register-password" class="mb-1 block text-sm font-medium text-gray-900">
+            Mật khẩu <span class="text-danger" aria-hidden="true">*</span>
+          </label>
+          <div class="relative">
+            <input id="register-password" [type]="showPassword ? 'text' : 'password'" formControlName="password"
+              autocomplete="new-password" placeholder="Nhập mật khẩu" aria-describedby="register-password-hint"
+              [attr.aria-invalid]="errorFor('password') ? 'true' : null" [class]="inputClass('password') + ' pr-11'" />
+            <button type="button" (click)="togglePasswordVisibility()"
+              [attr.aria-label]="showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'" [attr.aria-pressed]="showPassword"
+              class="absolute right-1 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full text-gray-500 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300">
+              <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                @if (showPassword) {
+                <path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.1A9.8 9.8 0 0 1 12 5c5 0 8.5 4.5 9.5 7a13 13 0 0 1-2.6 3.7M6.1 6.1A13 13 0 0 0 2.5 12C3.5 14.5 7 19 12 19c1.5 0 2.8-.4 4-1" />
+                } @else {
+                <path d="M2.5 12C3.5 9.5 7 5 12 5s8.5 4.5 9.5 7c-1 2.5-4.5 7-9.5 7s-8.5-4.5-9.5-7Z" />
+                <circle cx="12" cy="12" r="3" />
+                }
+              </svg>
+            </button>
+          </div>
+          @if (errorFor('password'); as message) {
+          <p class="mt-1 text-xs text-danger">{{ message }}</p>
+          }
+          <p id="register-password-hint" class="mt-1 text-xs text-gray-500">
+            Ít nhất 8 ký tự, gồm chữ hoa, chữ thường, chữ số và ký tự đặc biệt.
+          </p>
+        </div>
+
+        <div>
+          <label for="register-confirm" class="mb-1 block text-sm font-medium text-gray-900">
+            Xác nhận mật khẩu <span class="text-danger" aria-hidden="true">*</span>
+          </label>
+          <div class="relative">
+            <input id="register-confirm" [type]="showConfirmPassword ? 'text' : 'password'"
+              formControlName="confirmPassword" autocomplete="new-password" placeholder="Nhập lại mật khẩu"
+              [attr.aria-invalid]="errorFor('confirmPassword') ? 'true' : null"
+              [class]="inputClass('confirmPassword') + ' pr-11'" />
+            <button type="button" (click)="toggleConfirmPasswordVisibility()"
+              [attr.aria-label]="showConfirmPassword ? 'Ẩn mật khẩu xác nhận' : 'Hiện mật khẩu xác nhận'"
+              [attr.aria-pressed]="showConfirmPassword"
+              class="absolute right-1 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-full text-gray-500 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300">
+              <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                @if (showConfirmPassword) {
+                <path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.1A9.8 9.8 0 0 1 12 5c5 0 8.5 4.5 9.5 7a13 13 0 0 1-2.6 3.7M6.1 6.1A13 13 0 0 0 2.5 12C3.5 14.5 7 19 12 19c1.5 0 2.8-.4 4-1" />
+                } @else {
+                <path d="M2.5 12C3.5 9.5 7 5 12 5s8.5 4.5 9.5 7c-1 2.5-4.5 7-9.5 7s-8.5-4.5-9.5-7Z" />
+                <circle cx="12" cy="12" r="3" />
+                }
+              </svg>
+            </button>
+          </div>
+          @if (errorFor('confirmPassword'); as message) {
+          <p class="mt-1 text-xs text-danger">{{ message }}</p>
+          }
+        </div>
+      </div>
+
+      <div>
+        <label class="flex cursor-pointer items-start gap-2 text-sm text-gray-700">
+          <input type="checkbox" formControlName="termsAccepted" class="mt-0.5 size-4 shrink-0 accent-primary-500"
+            [attr.aria-invalid]="errorFor('termsAccepted') ? 'true' : null" />
+          <span>
+            Bằng việc Đăng ký, bạn đã đọc và đồng ý với <strong>Điều khoản sử dụng</strong> và
+            <a href="https://cellphones.com.vn/tos?part=privacy-policy" target="_blank" rel="noopener"
+              class="font-bold text-info hover:underline">Chính sách bảo mật của CellphoneS</a>.
+          </span>
+        </label>
+        @if (errorFor('termsAccepted'); as message) {
+        <p class="mt-1 text-xs text-danger">{{ message }}</p>
+        }
+      </div>
+
+      <div
+        class="fixed inset-x-0 bottom-0 z-30 border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom)] shadow-sticky">
+        <div class="mx-auto grid w-full max-w-2xl grid-cols-2 gap-3 px-3 py-2">
+          <a routerLink="/login" class="btn btn-outline btn-lg">Quay lại đăng nhập</a>
+          <button type="submit" class="btn btn-primary btn-lg" [disabled]="isLoading">
+            {{ isLoading ? 'Đang xử lý…' : 'Hoàn tất đăng ký' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>

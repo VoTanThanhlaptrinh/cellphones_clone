@@ -141,6 +141,16 @@ Thứ tự: **P0 → P1 → P2 → P3 → P4**. P0 là điều kiện tiên quy�
 
 ### P3 — Tài khoản
 
+> **Trạng thái: ✅ HOÀN THÀNH (13/10/2026)** – `ng build` sạch; đã kiểm tra trên trình duyệt ở 1280px và 375px (đăng nhập, đăng ký, trang thành viên khi chưa đăng nhập). Chưa thử đăng nhập thành công/đăng ký thật vì cần tài khoản và sẽ gửi dữ liệu lên backend Render; đăng nhập sai mật khẩu được kiểm tra bằng response 401 giả lập ở tầng fetch.
+> Ghi chú thực hiện:
+> - **Gỡ `minireset.css`** (angular.json + package.json). File này nằm ngoài cascade layer của Tailwind nên ghi đè `margin/padding` của `p, ul, li, fieldset, legend, h1–h6…`, `font-size/weight` của tiêu đề và `height: auto` của mọi `<img>`, làm vô hiệu hoá các utility `p-*`, `m-*`, `text-*`, `font-bold`, `h-*` trên các thẻ đó trên toàn site. Tailwind preflight đã có đủ các reset này. **Tác động toàn site**: tiêu đề, khoảng đệm và kích thước ảnh giờ khớp thiết kế.
+> - **Đăng nhập:** trước đây form nằm trong `hidden md:block` nên **mobile không có form đăng nhập**; mọi class form đều có tiền tố `md:`. Viết lại sạch: hiện/ẩn mật khẩu thật, nút Google nối `AuthService.onOAuth2Google()`, lỗi tiếng Việt. Đã bỏ nút Zalo, "Quên mật khẩu" (`/restore-password` không có route) và link "dienthoaivui" (`href="#"`).
+> - **Sửa lỗi đăng nhập sai mật khẩu:** backend trả 401 và `errorInterceptor` coi đó là phiên hết hạn (thử refresh, rồi chờ/đẩy về `/home`, không có thông báo). Giờ các request `/api/auth/*` không tự refresh; form hiện "Email hoặc mật khẩu không đúng.".
+> - **Đăng ký:** viết lại gọn (danh sách trường + `errorFor()`/`inputClass()`), bỏ ~260 dòng HTML học sinh/giáo viên đã comment. Quy tắc mật khẩu đồng bộ với ASP.NET Identity ở backend (chữ hoa + chữ thường + chữ số + ký tự đặc biệt, ≥ 8 ký tự); trước đây form bỏ sót chữ số/chữ thường nên người dùng gặp lỗi từ server.
+> - **Trang thành viên:** trước đây là bản chép từ Smember với dữ liệu giả (tên/SĐT/email/ngày sinh hard-code, voucher `EMAIL_10142FC1`, "sản phẩm yêu thích", hạng "S-NULL"). Viết lại chỉ với dữ liệu thật (tên, số sản phẩm trong giỏ, đăng xuất), dùng header/footer chung; đã xoá `member-tabs`, `infor`, `purchase-history`, `warranty` và `header-member-dashboard` (bản sao header). Có màn hình "chưa đăng nhập".
+> - **Còn phụ thuộc backend:** lịch sử đơn hàng (`GET /api/orders/list` chưa triển khai), SĐT/email/ngày sinh/hạng thành viên (token chỉ có `id`, `fullName`, `roles`, `amountCart`; `GET /api/user/{id}` trả nguyên entity `User`). Trang hiện ghi rõ tính năng đang hoàn thiện thay vì hiển thị dữ liệu giả.
+> - Dọn nốt `header-cart-order`: bỏ ô "Cửa hàng gần bạn" (không có trang), "Tra cứu đơn" và "Giỏ hàng" dùng `routerLink`.
+
 | Task | File | Việc cần làm | Hoàn thành khi |
 |---|---|---|---|
 | P3.1 Đăng nhập / Đăng ký | `src/app/login/`, `src/app/register/` | Sau P0.1, rà lại các class `*-primary-*` và token kiểu smember (`gap-large`, `text-small`, `p-3xl`, `text-pure-white`…), đổi sang class Tailwind chuẩn. Nút dùng recipe. Lỗi form tiếng Việt và hiện dưới từng trường. Bỏ link "Điện thoại vui" `href="#"`. | Không còn class không tồn tại (kiểm tra bằng grep ở §5). |

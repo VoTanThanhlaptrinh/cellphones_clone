@@ -13,6 +13,10 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     const silentApis = [
         '/api/auth/isLoggedIn',
     ];
+    // Các request đăng nhập/đăng ký/refresh không được tự refresh token khi nhận 401
+    // (401 ở đây nghĩa là sai thông tin đăng nhập hoặc hết phiên refresh, không phải access token hết hạn).
+    const isAuthRequest = ['/api/auth/login', '/api/auth/register', '/api/auth/studentRegister', '/api/auth/teacherRegister', '/api/auth/refresh']
+        .some(url => req.url.includes(url));
     return next(req).pipe(
         catchError((error: HttpErrorResponse) => {
             // === BEGIN NEW FEATURE: RATE LIMITING ===
@@ -27,7 +31,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
                 return throwError(() => error);
             }
             // Handle 401 Unauthorized
-            if (error.status === 401) {
+            if (error.status === 401 && !isAuthRequest) {
                 if (!isRefreshing) {
                     isRefreshing = true;
                     refreshTokenSubject.next(null);

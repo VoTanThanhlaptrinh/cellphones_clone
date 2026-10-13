@@ -1,33 +1,41 @@
-import { Component, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MemberTabsComponent } from "./member-tabs/member-tabs.component";
-import { HeaderMemberDashboardComponent } from '../shared/header-member-dashboard/header-member-dashboard.component';
+import { Component, computed, inject, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 
-interface UserInfo {
-  name: string;
-  rank: string;
-  points: number;
-  avatarUrl?: string; // Optional for now
-}
+type MemberTab = 'overview' | 'orders' | 'account';
 
-interface SidebarItem {
-  id: string;
-  label: string;
-  iconClass: string; // Using generic class strings for icons (e.g., 'fas fa-home' or custom SVG)
-}
-
+/**
+ * Trang tài khoản thành viên. Chỉ hiển thị dữ liệu thật có sẵn từ phiên đăng nhập
+ * (tên, số sản phẩm trong giỏ). Lịch sử đơn hàng và hồ sơ chi tiết chưa có API ở backend.
+ */
 @Component({
   selector: 'app-member-dashboard',
   standalone: true,
-  imports: [CommonModule, HeaderMemberDashboardComponent, MemberTabsComponent],
+  imports: [RouterLink],
   templateUrl: './member-dashboard.component.html',
-  styleUrls: ['./member-dashboard.component.scss']
 })
 export class MemberDashboardComponent {
-  // User info state remains here as it's used in the header strip (which is still in this component's template)
-  userInfo = signal<UserInfo>({
-    name: 'Võ Tấn Thành',
-    rank: 'S-NULL',
-    points: 0
-  });
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+
+  readonly user = this.authService.currentUser;
+  readonly activeTab = signal<MemberTab>('overview');
+
+  readonly tabs: { id: MemberTab; label: string }[] = [
+    { id: 'overview', label: 'Tổng quan' },
+    { id: 'orders', label: 'Lịch sử mua hàng' },
+    { id: 'account', label: 'Thông tin tài khoản' },
+  ];
+
+  /** Chữ cái đầu của tên để làm ảnh đại diện. */
+  readonly initial = computed(() => (this.user()?.fullName?.trim().charAt(0) || '?').toUpperCase());
+
+  setActiveTab(tab: MemberTab) {
+    this.activeTab.set(tab);
+  }
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/home']);
+  }
 }

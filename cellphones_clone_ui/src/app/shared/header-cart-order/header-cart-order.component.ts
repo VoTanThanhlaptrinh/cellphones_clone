@@ -1,10 +1,10 @@
 import { Component, inject, Input } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-header-cart-order',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './header-cart-order.component.html',
   styleUrl: './header-cart-order.component.css'
 })

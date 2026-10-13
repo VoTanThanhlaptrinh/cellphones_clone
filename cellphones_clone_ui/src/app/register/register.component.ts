@@ -1,14 +1,21 @@
-import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { NotifyService } from '../services/notify.service';
+
+interface RegisterField {
+  name: string;
+  label: string;
+  type: string;
+  autocomplete: string;
+  placeholder: string;
+}
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, RouterModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
 })
@@ -17,6 +24,14 @@ export class RegisterComponent {
   isLoading = false;
   showPassword = false;
   showConfirmPassword = false;
+
+  /** Các trường thông tin cơ bản (mật khẩu và điều khoản được dựng riêng trong template). */
+  readonly fields: RegisterField[] = [
+    { name: 'name', label: 'Họ và tên', type: 'text', autocomplete: 'name', placeholder: 'Nhập họ và tên' },
+    { name: 'birthday', label: 'Ngày sinh', type: 'date', autocomplete: 'bday', placeholder: '' },
+    { name: 'phone', label: 'Số điện thoại', type: 'tel', autocomplete: 'tel', placeholder: 'Nhập số điện thoại' },
+    { name: 'email', label: 'Email', type: 'email', autocomplete: 'email', placeholder: 'Nhập email của bạn' },
+  ];
 
   constructor(
     private fb: FormBuilder,
@@ -35,7 +50,10 @@ export class RegisterComponent {
     }, { validators: this.passwordMatchValidator });
 
     // === BEGIN NEW FEATURE: PASSWORD POLICY ===
-    this.registerForm.get('password')?.addValidators(Validators.pattern(/^(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).*$/));
+    // Khớp cấu hình ASP.NET Identity ở backend: chữ hoa, chữ thường, chữ số và ký tự đặc biệt.
+    this.registerForm.get('password')?.addValidators(
+      Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^a-zA-Z0-9]).*$/)
+    );
     // === END NEW FEATURE: PASSWORD POLICY ===
   }
 
@@ -62,7 +80,47 @@ export class RegisterComponent {
     this.showConfirmPassword = !this.showConfirmPassword;
   }
 
+  registerWithGoogle(): void {
+    this.authService.onOAuth2Google();
+  }
+
+  /** Thông báo lỗi tiếng Việt cho một trường; chuỗi rỗng nếu chưa chạm vào hoặc hợp lệ. */
+  errorFor(name: string): string {
+    const control = this.registerForm.get(name);
+    if (!control || !control.touched || !control.errors) return '';
+    const e = control.errors;
+    switch (name) {
+      case 'name':
+        return e['required'] ? 'Họ và tên là bắt buộc' : 'Họ và tên tối đa 100 ký tự';
+      case 'birthday':
+        return 'Ngày sinh là bắt buộc';
+      case 'phone':
+        return e['required'] ? 'Số điện thoại là bắt buộc' : 'Số điện thoại phải có 10 chữ số';
+      case 'email':
+        return e['required'] ? 'Email là bắt buộc' : 'Email không hợp lệ';
+      case 'password':
+        if (e['required']) return 'Mật khẩu là bắt buộc';
+        if (e['minlength']) return 'Mật khẩu phải dài ít nhất 8 ký tự';
+        return 'Mật khẩu phải có chữ hoa, chữ thường, chữ số và ký tự đặc biệt';
+      case 'confirmPassword':
+        return e['required'] ? 'Xác nhận mật khẩu là bắt buộc' : 'Mật khẩu không khớp';
+      case 'termsAccepted':
+        return 'Bạn cần đồng ý với điều khoản để tiếp tục';
+      default:
+        return '';
+    }
+  }
+
+  /** Class cho ô nhập: viền xám, chuyển đỏ khi có lỗi. */
+  inputClass(name: string): string {
+    const base = 'h-11 w-full rounded-lg border bg-white px-3 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2';
+    return this.errorFor(name)
+      ? `${base} border-danger focus:ring-red-100`
+      : `${base} border-gray-300 focus:border-primary-500 focus:ring-primary-100`;
+  }
+
   onSubmit(): void {
+    if (this.isLoading) return;
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
       this.notifyService.warning('Vui lòng kiểm tra lại thông tin đăng ký');
