@@ -14,7 +14,6 @@ import { IconComponent } from '../shared/icons/icon.component';
   styleUrl: './cart.component.css',
 })
 export class CartComponent implements OnInit {
-  page: number = 1;
   totalPrice: number = 0;
   totalQuantity: number = 0;
   /** Chọn theo cartDetailId (không theo chỉ số mảng) để không lệch sau khi xoá item. */
@@ -39,7 +38,7 @@ export class CartComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.cartService.getList(this.page).subscribe({
+    this.cartService.getList().subscribe({
       next: res => {
         this.cartDetails = res
       },

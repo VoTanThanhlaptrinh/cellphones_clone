@@ -18,11 +18,11 @@ namespace cellphones_backend.Controllers
         {
             _cartService = cartService;
         }
-        [HttpGet("{page}")]
-        public async Task<ActionResult<ApiResponse<List<CartDetailView>>>> ListCart(int page)
+        [HttpGet("me")]
+        public async Task<ActionResult<ApiResponse<List<CartDetailView>>>> ListCart()
         {
             var userId = await GetUserId();
-            return HandleResult(await _cartService.GetCartItems(page, userId));
+            return HandleResult(await _cartService.GetCartItems(userId));
         }
         [HttpPost()]
         public async Task<ActionResult<ApiResponse<bool>>> AddProductToCart(CartRequest request)

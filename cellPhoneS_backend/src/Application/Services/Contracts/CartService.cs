@@ -10,7 +10,7 @@ namespace cellPhoneS_backend.Services;
 
 public interface CartService
 {
-    Task<ServiceResult<List<CartDetailView>>> GetCartItems(int page, string userId);
+    Task<ServiceResult<List<CartDetailView>>> GetCartItems(string userId);
     Task<ServiceResult<bool>> AddToCart(CartRequest request, string userId);
     Task<ServiceResult<bool>> RemoveFromCart(long cartDetailId, string userId);
     Task<ServiceResult<int>> PlusQuantity(long cartDetailId, string userId);

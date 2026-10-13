@@ -23,8 +23,8 @@ export class CartService {
       map(res => res.data)
     );
   }
-  getList(page: number): Observable<CartView[]> {
-    return this.http.get<ApiResponse<CartView[]>>(`${this.baseUrl}/carts/${page}`).pipe(
+  getList(): Observable<CartView[]> {
+    return this.http.get<ApiResponse<CartView[]>>(`${this.baseUrl}/carts/me`).pipe(
       map(res => res.data || [])
     );
   }

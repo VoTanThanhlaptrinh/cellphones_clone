@@ -80,14 +80,11 @@ public class CartServiceImpl : CartService
         return ServiceResult<int>.Success(amount, "Amount cart retrieved successfully");
     }
 
-    public async Task<ServiceResult<List<CartDetailView>>> GetCartItems(int page, string userId)
+    public async Task<ServiceResult<List<CartDetailView>>> GetCartItems(string userId)
     {
-        var cartItems = await _cartDetailRepository.GetCartItems(userId, page, _pageSize);
-        if (cartItems == null || cartItems.Count == 0)
-        {
-            return ServiceResult<List<CartDetailView>>.Fail("No items in cart", ServiceErrorType.NotFound);
-        }
-        return ServiceResult<List<CartDetailView>>.Success(cartItems, "Cart items retrieved successfully");
+        // Giỏ hàng trống không phải lỗi: trả về danh sách rỗng với 200
+        var cartItems = await _cartDetailRepository.GetCartItems(userId);
+        return ServiceResult<List<CartDetailView>>.Success(cartItems ?? new List<CartDetailView>(), "Cart items retrieved successfully");
     }
 
     public async Task<ServiceResult<int>> MinusQuantity(long cartDetailId, string userId)

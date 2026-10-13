@@ -25,10 +25,10 @@ public class CartDetailRepository : BaseRepository<CartDetail>, ICartDetailRepos
         return await _context.CartDetails.Include(cd => cd.Product).Where(c => c.CreateBy == userId && cartItemIds.Contains(c.Id)).ToListAsync();
     }
 
-    public async Task<List<CartDetailView>> GetCartItems(string userId, int page, int pageSize)
+    public async Task<List<CartDetailView>> GetCartItems(string userId)
     {
         return await _context.CartDetails.Where(c => c.CreateBy == userId)
-            .OrderByDescending(c => c.CreateDate).Skip((page - 1) * pageSize).Take(pageSize)
+            .OrderByDescending(c => c.CreateDate)
             .Select(c => new CartDetailView(
                         c.Id,
                         c.Quantity,
