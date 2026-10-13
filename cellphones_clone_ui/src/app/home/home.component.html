@@ -1,203 +1,156 @@
-<main class="main-nav sm:w-sm md:w-md lg:w-full xl:w-[80vw] bg-white container my-1 items-center w-full mx-auto p-2">
-  <div class="flex flex-row gap-2 w-full ">
-    <div class="flex-1 hidden lg:block max-w-57.5 shadow-sm rounded-lg card font-light text-gray-700">
-      <nav>
+<div class="bg-gray-100 pb-8">
+  <!-- Danh mục + banner + ưu đãi -->
+  <main class="container-page py-3">
+    <div class="grid gap-3 md:grid-cols-[minmax(0,1fr)_14rem] lg:grid-cols-[14.5rem_minmax(0,1fr)_14rem]">
+      <!-- Danh mục (desktop) -->
+      <nav aria-label="Danh mục sản phẩm" class="relative hidden lg:block">
         <ul>
-          <li class="relative" (mouseenter)="show = true" (mouseleave)="show = false">
-            <div class="flex flex-col gap-y-2 text-xs font-normal py-1">
+          <li class="relative" (mouseenter)="show = true" (mouseleave)="show = false" (focusin)="show = true"
+            (focusout)="show = false">
+            <div class="rounded-xl bg-white py-1 text-sm shadow-card">
               @for (category of home_view()?.categories; track category.id; let catIndex = $index) {
-              <div class="flex justify-between items-center gap-x-2 font-semibold hover:bg-neutral-100 px-2 py-1"
-                (mouseover)="i = catIndex">
-
-                <svg class="w-5 h-5 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                    d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
-                  </path>
+              @if (category.slugName) {
+              <a [routerLink]="['/category', category.slugName]" (mouseover)="i = catIndex" (focus)="i = catIndex"
+                class="flex items-center justify-between gap-2 px-3 py-2 text-gray-900 hover:bg-gray-100 hover:text-primary-500 focus-visible:bg-gray-100 focus-visible:outline-none">
+                <span class="truncate">{{ category.name }}</span>
+                <svg class="size-4 shrink-0 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="m9 6 6 6-6 6" />
                 </svg>
-
-                <a class="hover:text-red-700 font-normal w-full truncate" href="/category/{{ category.slugName }}">
-                  {{ category.name }}
-                </a>
-
-                <svg height="12" class="ml-auto text-gray-400 shrink-0" xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 320 512" fill="currentColor">
-                  <path
-                    d="M96 480c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L242.8 256L73.38 86.63c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l192 192c12.5 12.5 12.5 32.75 0 45.25l-192 192C112.4 476.9 104.2 480 96 480z">
-                  </path>
-                </svg>
-
-              </div>
+              </a>
+              }
               }
             </div>
 
             @if (show) {
             <div
-              class="absolute transition-opacity duration-1000 shadow bg-white left-[calc(100%+8px)] top-0 w-250 h-120 px-4 py-2 rounded-lg z-1000">
-              <div class="flex flex-row gap-8">
-                @if (home_view()?.categories?.[i]; as selectedCat) {
-                <div class="flex flex-col gap-2">
-                  <p class="text-base font-medium text-red-600">Thương hiệu</p>
-                  @for (brand of selectedCat.brands; track brand.id) {
-                  <div class="flex flex-row items-center gap-2">
-                    <a href="/category/{{ selectedCat.slugName }}?brand={{ brand.slugName }}"
-                      class="text-sm text-gray-500 font-base hover:text-red-500">{{ brand.name }}</a>
-                  </div>
-                  }
+              class="absolute left-[calc(100%+0.5rem)] top-0 z-50 w-[56rem] max-w-[calc(100vw-20rem)] rounded-xl bg-white p-4 shadow-lg">
+              @if (home_view()?.categories?.[i]; as selectedCat) {
+              <div class="grid grid-cols-2 gap-6">
+                <div>
+                  <h3 class="mb-2 text-base font-bold text-primary-500">Thương hiệu</h3>
+                  <ul class="space-y-1.5">
+                    @for (brand of selectedCat.brands; track brand.id) {
+                    <li>
+                      <a [routerLink]="['/category', selectedCat.slugName]" [queryParams]="{ brand: brand.slugName }"
+                        class="text-sm text-gray-600 hover:text-primary-500">{{ brand.name }}</a>
+                    </li>
+                    }
+                  </ul>
                 </div>
-                <div class="flex flex-col gap-2">
-                  <p class="text-base font-medium text-red-600">Nhu cầu</p>
-                  @for (demand of selectedCat.demands; track demand.id) {
-                  <div class="flex flex-row items-center gap-2">
-                    <a href="/category/{{ selectedCat.slugName }}?demand={{ demand.slugName }}"
-                      class="text-sm text-gray-500 font-base hover:text-red-500">{{ demand.name }}</a>
-                  </div>
-                  }
+                <div>
+                  <h3 class="mb-2 text-base font-bold text-primary-500">Nhu cầu</h3>
+                  <ul class="space-y-1.5">
+                    @for (demand of selectedCat.demands; track demand.id) {
+                    <li>
+                      <a [routerLink]="['/category', selectedCat.slugName]" [queryParams]="{ demand: demand.slugName }"
+                        class="text-sm text-gray-600 hover:text-primary-500">{{ demand.name }}</a>
+                    </li>
+                    }
+                  </ul>
                 </div>
-                }
               </div>
+              }
             </div>
             }
           </li>
         </ul>
       </nav>
+
+      <!-- Banner chính -->
+      <section aria-label="Ưu đãi nổi bật" class="min-w-0">
+        @if (isBrowser()) {
+        <swiper-container class="overflow-hidden rounded-xl shadow-card" slides-per-view="1" navigation="true"
+          pagination="true" pagination-clickable="true" loop="true" autoplay-delay="5000"
+          autoplay-disable-on-interaction="true">
+          @for (banner of banners; track banner.alt; let b = $index) {
+          <swiper-slide>
+            <img [src]="banner.img" [alt]="banner.alt" class="w-full object-cover"
+              [attr.loading]="b === 0 ? 'eager' : 'lazy'" [attr.fetchpriority]="b === 0 ? 'high' : null" />
+          </swiper-slide>
+          }
+        </swiper-container>
+        } @else {
+        <img [src]="banners[0].img" [alt]="banners[0].alt" class="w-full rounded-xl object-cover shadow-card" />
+        }
+      </section>
+
+      <!-- Ưu đãi bên phải -->
+      <aside aria-label="Ưu đãi khác" class="hidden flex-col gap-2 md:flex">
+        <img src="assets/images/watch-series11.png" alt="Apple Watch Series 11"
+          class="w-full rounded-xl object-cover shadow-card" />
+        <img src="assets/images/giam-gia.png" alt="Ưu đãi giảm giá laptop" class="w-full rounded-xl object-cover shadow-card" />
+      </aside>
     </div>
-    <div class="flex-2 text-black w-full sm:w-sm md:w-md lg:w-300">
-      <mat-tab-group class="shadow-[0_2px_4px_rgba(0,0,0,0.2)] rounded-lg md:py-5" headerPosition="below">
-        <mat-tab>
-          <ng-template mat-tab-label>
-            <div class="flex items-center space-x-2 pt-5">
-              <p>
-                OPPO RENO14 <br />
-                Mua sớm ngay
-              </p>
-            </div>
-          </ng-template>
-          <div>
-            <img class="w-full" src="assets/images/banner.png" loading="lazy"
-              alt="OPPO RENO14 &lt;br /&gt; Mua sớm ngay" />
-          </div>
-        </mat-tab>
-        <mat-tab class="md:py-2">
-          <ng-template mat-tab-label>
-            <div class="flex items-center space-x-2 pt-5">
-              GALAXY Z7
-              <br />
-              Đặt trước ngay
-            </div>
-          </ng-template>
-          <img class="w-full" src="assets/images/banner.png" alt="GALAXY Z7&lt;br /&gt;Đặt trước ngay" loading="lazy" />
-        </mat-tab>
-        <mat-tab class="md:py-2">
-          <ng-template mat-tab-label>
-            <div class="flex items-center space-x-2 pt-5">
-              IPHONE 16 PRO MAX
-              <br />
-              Mua ngay
-            </div>
-          </ng-template>
-          <img class="w-full" src="assets/images/banner.png" alt="IPHONE 16 PRO MAX &lt;br /&gt; Mua ngay"
-            loading="lazy" />
-        </mat-tab>
-        <mat-tab class="md:py-2">
-          <ng-template mat-tab-label>
-            <div class="flex items-center space-x-2 pt-5">
-              GALAXY WATCH8
-              <br />
-              Đặt trước ngay
-            </div>
-          </ng-template>
-          <img class="w-full"
-            src="https://cdn2.cellphones.com.vn/insecure/rs:fill:690:300/q:90/plain/https://dashboard.cellphones.com.vn/storage/home-watch8.jpg"
-            alt="GALAXY WATCH8 &lt;br /&gt; Đặt trước ngay" loading="lazy" />
-        </mat-tab>
-        <mat-tab class="md:py-2">
-          <ng-template mat-tab-label>
-            <div class="flex items-center space-x-2 pt-5">
-              NOTHING PHONE
-              <br />
-              Giá tốt chỉ có tại CPS
-            </div>
-          </ng-template>
-          <img class="w-full" src="assets/images/banner.png" alt="NOTHING PHONE&lt;br /&gt;Giá tốt chỉ có tại CPS"
-            loading="lazy" />
-        </mat-tab>
-      </mat-tab-group>
-    </div>
-    <div class="flex-1 w-full sm:hidden md:block lg:block max-w-67.5 flex-row space-y-1 md:space-y-2 lg:space-y-5">
-      <img
-        src="https://cdn2.cellphones.com.vn/insecure/rs:fill:690:300/q:10/plain/https://dashboard.cellphones.com.vn/storage/samsung-galaxy-m55-5g-8gb-256gb.png"
-        alt="Galaxy M55 &lt;br /&gt; Giá tốt chốt ngay"
-        class="img-fluid shadow-[0_2px_4px_rgba(0,0,0,0.2)] rounded-lg" />
-      <img src="assets/images/watch-series11.png" alt="B2S IPAD"
-        class="rounded-lg shadow-[0_2px_4px_rgba(0,0,0,0.2)]" />
-      <img src="assets/images/giam-gia.png" alt="B2S Laptop" class="rounded-lg shadow-[0_2px_4px_rgba(0,0,0,0.2)]" />
-    </div>
+  </main>
+
+  <div class="container-page hidden md:block">
+    <img alt="Ưu đãi sinh viên S-Student S-Teacher" loading="lazy" width="1200" height="75" decoding="async"
+      class="mx-auto w-full rounded-xl object-contain shadow-card"
+      src="https://cdn2.cellphones.com.vn/insecure/rs:fill:1200:75/q:90/plain/https://dashboard.cellphones.com.vn/storage/s-edu-2-0-special-desk.gif" />
   </div>
-</main>
-<img alt="ƯU ĐÃI SINH VIÊN" loading="lazy" width="1200" height="75" decoding="async" data-nimg="1"
-  class="transition-opacity duration-500 lg:block lg:w-300 opacity-100 object-contain hidden w-full mx-auto rounded-lg shadow-md md:block"
-  src="https://cdn2.cellphones.com.vn/insecure/rs:fill:1200:75/q:90/plain/https://dashboard.cellphones.com.vn/storage/s-edu-2-0-special-desk.gif" />
-@for (category of home_view()?.categories; track category.id; let i = $index) {
-<section class="mt-2 sm:w-sm md:w-full lg:w-full xl:w-[80vw] items-center w-full mx-auto p-2">
-  <div class="flex flex-row items-center text-black gap-x-2 w-full">
-    <div class="flex flex-col w-full gap-y-2">
-      <img class="rounded-lg md:w-sm lg:w-[25vw] xl:w-[35vw]" alt="" loading="lazy"
-        src="https://cdn2.cellphones.com.vn/insecure/rs:fill:321:795/q:90/plain/https://media-asset.cellphones.com.vn/page_configs/01K8AK76MB2NCC8QHS16T26ES2.png" />
-      <img class="rounded-lg md:w-20 lg:w-[25vw] xl:w-[35vw]" alt="" loading="lazy"
-        src="https://cdn2.cellphones.com.vn/insecure/rs:fill:321:795/q:90/plain/https://media-asset.cellphones.com.vn/page_configs/01K8AK76MB2NCC8QHS16T26ES2.png" />
+
+  <!-- Sản phẩm theo danh mục -->
+  @for (category of home_view()?.categories; track category.id) {
+  <section class="container-page mt-6" [attr.aria-labelledby]="'category-title-' + category.id">
+    <div class="mb-3 flex items-center justify-between">
+      <h2 [id]="'category-title-' + category.id" class="text-lg font-bold text-gray-900 md:text-xl">{{ category.name }}</h2>
+      @if (category.slugName) {
+      <a [routerLink]="['/category', category.slugName]" class="text-sm text-info hover:underline">Xem tất cả</a>
+      }
     </div>
-    <div class="flex flex-col w-full gap-y-2 mt-2 lg:w-[75vw] xl:w-[65vw] ">
-      @if (isBrowser()) {
-      <swiper-container navigation="true" thumbs-swiper=".thumbs" [breakpoints]="this.breakpoints"
-        [style.--swiper-navigation-color]="'#21130d'" [style.--swiper-navigation-size.px]="8"
-        [style.--swiper-pagination-color]="'#21130d'" [style.--swiper-theme-color]="'#21130d'">
+
+    @if (isBrowser()) {
+    <div class="flex flex-col gap-2">
+      @if (category.demands.length > 0 && category.slugName) {
+      <swiper-container [breakpoints]="breakpoints2" slides-per-view="auto" [attr.aria-label]="'Nhu cầu ' + category.name">
         @for (demand of category.demands; track demand.id) {
-        <swiper-slide class="bg-gray-100 flex-wrap items-center border-0 py-2 px-2 me-1 rounded-lg">
-          <a href="/category/{{ category.slugName }}?demand={{ demand.slugName }}">{{ demand.name! }}</a>
+        <swiper-slide class="w-auto!">
+          <a [routerLink]="['/category', category.slugName]" [queryParams]="{ demand: demand.slugName }"
+            class="inline-flex h-8 items-center rounded-full bg-white px-3 text-sm text-gray-900 shadow-card hover:text-primary-500">{{ demand.name }}</a>
         </swiper-slide>
         }
       </swiper-container>
+      }
 
-      <swiper-container navigation="true" thumbs-swiper=".thumbs" [breakpoints]="this.breakpoints2"
-        [style.--swiper-navigation-color]="'#21130d'" [style.--swiper-navigation-size.px]="0"
-        [style.--swiper-pagination-color]="'#21130d'" [style.--swiper-theme-color]="'#21130d'">
+      @if (category.brands.length > 0 && category.slugName) {
+      <swiper-container [breakpoints]="breakpoints2" slides-per-view="auto" [attr.aria-label]="'Thương hiệu ' + category.name">
         @for (brand of category.brands; track brand.id) {
-        <swiper-slide class="w-auto text-sm border border-gray-400 py-1 px-4 rounded-full">
-          <a href="/category/{{ category.slugName }}?brand={{ brand.slugName }}">{{ brand.name! }}</a>
+        <swiper-slide class="w-auto!">
+          <a [routerLink]="['/category', category.slugName]" [queryParams]="{ brand: brand.slugName }"
+            class="inline-flex h-8 items-center rounded-full border border-gray-300 bg-white px-3 text-sm text-gray-700 hover:border-primary-500 hover:text-primary-500">{{ brand.name }}</a>
         </swiper-slide>
         }
       </swiper-container>
+      }
 
-      <swiper-container navigation="true" thumbs-swiper=".thumbs" [breakpoints]="this.breakpoints1"
-        [style.--swiper-navigation-color]="'#21130d'" [style.--swiper-navigation-size.px]="2"
-        [style.--swiper-pagination-color]="'#21130d'" [style.--swiper-theme-color]="'#21130d'">
+      <swiper-container navigation="true" [breakpoints]="breakpoints1" [style.--swiper-navigation-color]="'#21130d'"
+        [style.--swiper-navigation-size.px]="8" [style.--swiper-pagination-color]="'#21130d'"
+        [style.--swiper-theme-color]="'#21130d'">
         @for (product of category.products; track product.id) {
         <swiper-slide>
           <app-product-card [productView]="product"> </app-product-card>
         </swiper-slide>
         }
       </swiper-container>
-      }
     </div>
-  </div>
-</section>
-}
-@for (item of this.list_phu; track item.name_title) {
-<section class="mt-4">
-  <div class="container mx-auto max-w-300 items-center text-black">
-    <div class="w-full justify-between flex flex-row">
-      <h2 class="text-2xl font-medium">{{ item.name_title }}</h2>
-      <a href="#" class="hover:underline">Xem tất cả</a>
-    </div>
-    <div class="grid grid-cols-9 gap-2 mt-2">
+    }
+  </section>
+  }
+
+  <!-- Phụ kiện, linh kiện, hàng cũ -->
+  @for (item of list_phu; track item.name_title) {
+  <section class="container-page mt-6">
+    <h2 class="mb-3 text-lg font-bold text-gray-900 md:text-xl">{{ item.name_title }}</h2>
+    <ul class="grid grid-cols-3 gap-2 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-9">
       @for (phu_kien of item.list_phukien; track phu_kien.name) {
-      <div class="bg-gray-100 rounded-lg flex flex-col items-center p-2 gap-y-2 h-30 w-30">
-        <img src="{{ phu_kien.src }}" loading="lazy" class="w-18 h-15" alt="" />
-        <p class="font-medium text-xs text-center">{{ phu_kien.name }}</p>
-      </div>
+      <li class="flex flex-col items-center gap-2 rounded-xl bg-white p-2 text-center shadow-card">
+        <img [src]="phu_kien.src" alt="" aria-hidden="true" width="72" height="60" loading="lazy"
+          class="h-15 w-18 object-contain" />
+        <span class="text-xs font-medium text-gray-900">{{ phu_kien.name }}</span>
+      </li>
       }
-    </div>
-  </div>
-</section>
-}
+    </ul>
+  </section>
+  }
+</div>

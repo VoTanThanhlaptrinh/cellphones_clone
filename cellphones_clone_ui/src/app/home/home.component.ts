@@ -8,7 +8,6 @@ import {
   NgModule,
   signal
 } from '@angular/core';
-import { MatTabsModule } from '@angular/material/tabs';
 import { RouterModule } from '@angular/router';
 import { ProductService } from '../services/product.service';
 import { HomeView } from '../core/models/home_view.model';
@@ -16,7 +15,6 @@ import { ProductCardComponent } from "../product-card/product-card.component";
 @Component({
   selector: 'app-home',
   imports: [
-    MatTabsModule,
     CommonModule,
     RouterModule,
     ProductCardComponent
@@ -33,6 +31,14 @@ export class HomeComponent implements OnInit {
   constructor(@Inject(PLATFORM_ID) platformId: Object, private productService: ProductService) {
     this.isBrowser.set(isPlatformBrowser(platformId));
   }
+
+  banners = [
+    { img: 'assets/images/banner.png', alt: 'OPPO Reno14 - Mua sớm ngay' },
+    {
+      img: 'https://cdn2.cellphones.com.vn/insecure/rs:fill:690:300/q:90/plain/https://dashboard.cellphones.com.vn/storage/home-watch8.jpg',
+      alt: 'Galaxy Watch8 - Đặt trước ngay',
+    },
+  ];
 
   slides = [
     {

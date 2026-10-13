@@ -356,3 +356,10 @@ swiper-container::part(button-next) {
     #c8bebe 90.68%
   );
 }
+
+/* Tôn trọng người dùng tắt hiệu ứng chuyển động (DESIGN.md §8) */
+@media (prefers-reduced-motion: reduce) {
+  .marquee {
+    animation: none;
+  }
+}

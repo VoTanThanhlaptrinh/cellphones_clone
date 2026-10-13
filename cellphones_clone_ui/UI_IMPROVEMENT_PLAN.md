@@ -119,6 +119,17 @@ Thứ tự: **P0 → P1 → P2 → P3 → P4**. P0 là điều kiện tiên quy�
 
 ### P2 — Điều hướng & khám phá
 
+> **Trạng thái: ✅ HOÀN THÀNH (13/10/2026)** – `ng build` sạch; đã kiểm tra thực tế trên trình duyệt ở 1280px và 375px (header sticky, tìm kiếm bằng phím, danh mục, đổi danh mục, footer, không tràn ngang).
+> Ghi chú thực hiện:
+> - Header: `sticky` đặt trên `<header>`; tìm kiếm là combobox (↑/↓/Enter/Esc, đóng khi click ra ngoài, kết quả là `<a routerLink>` kèm giá `vnd`); menu tài khoản mở bằng click (trước đây ẩn hoàn toàn trên mobile); giỏ hàng là `<a routerLink="/cart">` và chỉ hiện modal đăng nhập với khách. Đã bỏ các nút/link chết: ô "Xem giá tại Hồ Chí Minh", "Cửa hàng gần bạn", "Tải ứng dụng". Chunk header giảm từ ~447KB xuống ~100KB.
+> - Nút "Danh mục" giờ hiện cả trên mobile; modal danh mục viết lại từ API (`homeData`), trước đây là dữ liệu tĩnh 848 dòng với panel rộng cố định và các mục không phải link.
+> - Trang chủ: khung `container-page`, banner Swiper (2 banner thật), tiêu đề + "Xem tất cả" cho từng danh mục, lưới phụ kiện responsive. Đã bỏ ảnh ưu đãi CDN bên ngoài đã chết (404) và 2 ảnh trùng lặp bên trái mỗi danh mục.
+> - Danh mục: **sửa lỗi không tải lại khi đổi từ danh mục này sang danh mục khác** (trước chỉ đọc `snapshot`), có skeleton/lỗi/rỗng (trước đây `app-product-skeleton` chưa từng hiển thị vì chưa import), nút "Xem thêm" có trạng thái tải.
+> - Footer: hiện trên mobile; bỏ ~40 link `href="#"`, form đăng ký không có handler và dòng link SEO; các mục chính sách hiển thị dạng chữ (chưa có trang đích).
+> - **Còn phụ thuộc backend:** lọc theo thương hiệu/nhu cầu ở trang danh mục. Endpoint hiện chỉ hỗ trợ tải thêm theo `category` (tag `brand`/`series` ném lỗi), nên chip ở trang danh mục để dạng hiển thị, không giả lập là bấm lọc được. Link `?brand=`/`?demand=` ở trang chủ đưa tới danh mục nhưng chưa lọc.
+> - Các tile phụ kiện/linh kiện/hàng cũ ở trang chủ vẫn là nội dung tĩnh (chưa có route đích) nên không phải link.
+> - Chưa làm ở P2: `header-cart-order` còn 3 link `href="#"` (header của luồng giỏ hàng) – nên dọn cùng P3/P4.
+
 | Task | File | Việc cần làm | Hoàn thành khi |
 |---|---|---|---|
 | P2.1 Header sticky & màu | `src/app/header/` | Chuyển `sticky top-0 z-40` lên `<header>` (thanh khuyến mãi có thể cuộn đi). Dùng token `primary`. Nút phụ dùng `bg-white/15`. Badge giỏ trắng với chữ đỏ. Link tiện ích `href="#"` đổi thành route thật hoặc ẩn. Marquee tắt khi bật `prefers-reduced-motion`. | Cuộn trang thì thanh tìm kiếm vẫn ở trên cùng. |
