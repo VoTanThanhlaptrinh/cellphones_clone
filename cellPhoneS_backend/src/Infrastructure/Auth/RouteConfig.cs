@@ -35,6 +35,8 @@ namespace cellPhoneS_backend.Auth
                 new RoutePolicy { UrlPattern = "/api/category/*", AllowAnonymous = true },
                 new RoutePolicy { UrlPattern = "/api/search", AllowAnonymous = true },
                 new RoutePolicy { UrlPattern = "/api/stores/*", AllowAnonymous = true },
+                // Product reviews: anyone can read; posting a review (POST /api/reviews) still requires login
+                new RoutePolicy { UrlPattern = "/api/reviews/product/*", Method = "GET", AllowAnonymous = true },
 
                 // Admin Routes - More specific first
                 new RoutePolicy { UrlPattern = "/api/admin/*", RequiredRoles = new List<string> { "ADMIN" } },

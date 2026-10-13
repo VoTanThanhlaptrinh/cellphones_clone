@@ -1,5 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-header-cart-order',
@@ -12,7 +13,13 @@ export class HeaderCartOrderComponent {
 
   }
   @Input() totalQuantity?: number;
-  @Input() Username?: string = 'Thành';
+  private readonly authService = inject(AuthService);
+  /** Truyền vào để ghi đè; mặc định lấy tên người dùng đang đăng nhập. */
+  @Input() Username?: string;
+
+  get displayName(): string {
+    return this.Username ?? this.authService.currentUser()?.fullName ?? '';
+  }
 
   goHome() {
     this.router.navigate(['/home']);

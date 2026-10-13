@@ -1,109 +1,78 @@
-<div class="w-full sm:w-160 mx-auto px-2 md:px-4">
-  <!-- 1. THE HEADER SECTION -->
-  <div class="flex justify-between w-full mx-auto mt-2">
-    <svg (click)="goPaymentInfor()" width="20" height="17" viewBox="0 0 20 17" fill="none"
-      xmlns="http://www.w3.org/2000/svg" class="cursor-pointer">
-      <path d="M19 8.5L1 8.5M1 8.5L8 1M1 8.5L8 16" stroke="#121219" stroke-width="1.5" stroke-linecap="round"
-        stroke-linejoin="round"></path>
-    </svg>
-    <p class="text-center text-black text-lg font-medium">Thanh toán</p>
-    <div class="w-5"></div> <!-- Spacer to keep the title perfectly centered -->
-  </div>
-  <hr class="border-t border-gray-200 mb-2 w-full mx-auto" />
-  <div class="grid grid-cols-2 gap-x-2 mx-auto mt-2 text-base font-bold font-sans px-2 py-4">
-    <div class="text-gray-400 flex-col items-center cursor-pointer" (click)="goPaymentInfor()">
-      <p class="text-center uppercase">1. Thông tin</p>
-      <hr class="border-2 mt-2 mx-auto" />
-    </div>
-    <div class="text-red-700 flex-col items-center">
-      <p class="text-center uppercase">2. Thanh toán</p>
-      <hr class="border-2 mt-2 mx-auto border-red-700" />
-    </div>
+<!-- Bước 2: Thanh toán -->
+<div class="mx-auto w-full max-w-160 px-3 pb-44 pt-3">
+  <div class="flex items-center justify-between">
+    <button type="button" class="btn btn-ghost btn-sm size-8 px-0" aria-label="Quay lại bước thông tin"
+      (click)="goPaymentInfor()">
+      <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M19 12H5m0 0 6-6m-6 6 6 6" />
+      </svg>
+    </button>
+    <h1 class="text-lg font-bold text-gray-900">Thanh toán</h1>
+    <span class="size-8" aria-hidden="true"></span>
   </div>
 
-  <!-- 2. THE BODY (PAYMENT METHODS) -->
-  <div class="flex flex-col w-full mx-auto mt-4 gap-y-4">
-    <h2 class="text-base uppercase font-bold text-gray-800 px-2 lg:px-0 mt-2">Chọn phương thức thanh toán</h2>
+  <ol class="mt-3 grid grid-cols-2 gap-2 text-sm font-bold uppercase">
+    <li class="border-b-2 border-gray-200 pb-2 text-center">
+      <button type="button" class="uppercase text-gray-400 hover:text-primary-500" (click)="goPaymentInfor()">
+        1. Thông tin
+      </button>
+    </li>
+    <li class="border-b-2 border-primary-500 pb-2 text-center text-primary-500" aria-current="step">2. Thanh toán</li>
+  </ol>
 
-    <div class="flex flex-col gap-y-3 bg-white shadow rounded-lg p-4 mx-2 lg:mx-0">
+  <h2 class="mt-5 text-sm font-bold uppercase text-gray-900">Chọn phương thức thanh toán</h2>
+  <fieldset class="mt-2 space-y-3 rounded-xl bg-white p-4 shadow-card">
+    <legend class="sr-only">Phương thức thanh toán</legend>
 
-      <!-- Option A: Cash on Delivery -->
-      <label class="flex items-center gap-x-3 cursor-pointer p-4 border rounded-lg transition-colors"
-        [ngClass]="{'border-red-500 bg-red-50': selectedMethod() === 'COD', 'border-gray-200 hover:bg-gray-50': selectedMethod() !== 'COD'}">
-        <input type="radio" name="paymentMethod" value="COD" [ngModel]="selectedMethod()"
-          (ngModelChange)="selectedMethod.set($event)"
-          class="w-5 h-5 text-red-600 focus:ring-red-500 accent-red-600 cursor-pointer">
-        <span class="text-gray-800 font-medium text-base">Thanh toán khi nhận hàng</span>
-      </label>
+    <label class="flex cursor-pointer items-center gap-3 rounded-lg border p-4 transition-colors has-focus-visible:ring-2 has-focus-visible:ring-primary-300"
+      [class.border-primary-500]="selectedMethod() === 'COD'" [class.bg-primary-50]="selectedMethod() === 'COD'"
+      [class.border-gray-200]="selectedMethod() !== 'COD'">
+      <input type="radio" name="paymentMethod" value="COD" [ngModel]="selectedMethod()"
+        (ngModelChange)="selectedMethod.set($event)" class="size-5 cursor-pointer accent-primary-500" />
+      <span class="text-base font-medium text-gray-900">Thanh toán khi nhận hàng</span>
+    </label>
 
-      <!-- Option B: Online Payment -->
-      <label class="flex items-center gap-x-3 cursor-pointer p-4 border rounded-lg transition-colors"
-        [ngClass]="{'border-red-500 bg-red-50': selectedMethod() === 'ONLINE', 'border-gray-200 hover:bg-gray-50': selectedMethod() !== 'ONLINE'}">
-        <input type="radio" name="paymentMethod" value="ONLINE" [ngModel]="selectedMethod()"
-          (ngModelChange)="selectedMethod.set($event)"
-          class="w-5 h-5 text-red-600 focus:ring-red-500 accent-red-600 cursor-pointer">
-        <span class="text-gray-800 font-medium text-base">Thanh toán Online</span>
-      </label>
+    <label class="flex cursor-pointer items-center gap-3 rounded-lg border p-4 transition-colors has-focus-visible:ring-2 has-focus-visible:ring-primary-300"
+      [class.border-primary-500]="selectedMethod() === 'ONLINE'" [class.bg-primary-50]="selectedMethod() === 'ONLINE'"
+      [class.border-gray-200]="selectedMethod() !== 'ONLINE'">
+      <input type="radio" name="paymentMethod" value="ONLINE" [ngModel]="selectedMethod()"
+        (ngModelChange)="selectedMethod.set($event)" class="size-5 cursor-pointer accent-primary-500" />
+      <span class="text-base font-medium text-gray-900">Thanh toán Online</span>
+    </label>
 
-      <!-- Dynamic UI for Option B -->
-      @if (selectedMethod() === 'ONLINE') {
-      <div
-        class="mt-2 flex flex-col items-center justify-center p-6 bg-gray-50 border border-gray-200 rounded-lg animate-fade-in">
-        
-        @if (qrCodeUrl) {
-          <p class="text-sm text-green-600 font-medium text-center mb-4">
-            Đơn hàng đã được tạo. Vui lòng quét mã QR dưới đây để thanh toán.
-          </p>
-          <div class="w-64 h-64 border-2 border-green-500 rounded-xl bg-white flex items-center justify-center overflow-hidden shadow-md mb-3 p-2">
-            <img [src]="qrCodeUrl" alt="Mã QR Thanh Toán" class="object-contain w-full h-full">
-          </div>
-          <p class="text-xs text-center text-gray-500 font-medium">Bạn sẽ tự động được chuyển hướng sau khi thanh toán thành công.</p>
-        } @else {
-          <p class="text-sm text-gray-600 text-center mb-4">
-            Mở ứng dụng ngân hàng hoặc ví điện tử để quét mã QR và tiến hành thanh toán.
-          </p>
-          <div
-            class="w-48 h-48 border-2 border-dashed border-gray-300 rounded-xl bg-white flex items-center justify-center overflow-hidden shadow-inner mb-3">
-            <img src="https://via.placeholder.com/200x200.png?text=QR+Code" alt="Dummy QR Code"
-              class="object-cover w-full h-full scale-90">
-          </div>
-          <p class="text-xs text-center text-gray-400 font-medium">Mã QR sẽ xuất hiện sau khi tạo đơn hàng.</p>
-        }
+    @if (selectedMethod() === 'ONLINE') {
+    <div class="flex flex-col items-center rounded-lg border border-gray-200 bg-gray-50 p-6" aria-live="polite">
+      @if (qrCodeUrl) {
+      <p class="mb-4 text-center text-sm font-medium text-success">
+        Đơn hàng đã được tạo. Vui lòng quét mã QR dưới đây để thanh toán.
+      </p>
+      <div class="mb-3 flex size-64 items-center justify-center overflow-hidden rounded-xl border-2 border-success bg-white p-2 shadow-md">
+        <img [src]="qrCodeUrl" alt="Mã QR thanh toán đơn hàng" class="size-full object-contain" />
       </div>
+      <p class="text-center text-xs font-medium text-gray-500">
+        Bạn sẽ tự động được chuyển hướng sau khi thanh toán thành công.
+      </p>
+      } @else {
+      <p class="mb-2 text-center text-sm text-gray-600">
+        Mở ứng dụng ngân hàng hoặc ví điện tử để quét mã QR và tiến hành thanh toán.
+      </p>
+      <p class="text-center text-xs font-medium text-gray-500">Đang tạo mã QR thanh toán…</p>
       }
     </div>
-  </div>
+    }
+  </fieldset>
 
-  <!-- Spacer to avoid overlapping with fixed footer scroll -->
-  <div class="h-[20vh] sm:h-[18vh]"></div>
-
-  <!-- 3. THE FOOTER (ORDER SUBMISSION) -->
-  <div
-    class="fixed z-20 left-1/2 -translate-x-1/2 bottom-0 w-full sm:w-160 h-auto bg-white rounded-t-xl shadow-[0_-4px_20px_-1px_rgba(40,124,234,.15)] px-4 py-5">
-    <div class="flex flex-col items-center justify-center w-full h-full gap-y-4 font-semibold">
-
-      <div class="flex w-full justify-between items-center px-1 text-base">
-        <p class="text-gray-800 font-medium">Tổng tiền thanh toán:</p>
-        <p class="text-red-700 text-xl font-bold">{{ calculateTotals() | vnd:false }}</p>
+  <div class="fixed inset-x-0 bottom-0 z-30 border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom)] shadow-sticky">
+    <div class="mx-auto flex w-full max-w-160 flex-col gap-2 px-3 py-2">
+      <div class="flex items-center justify-between">
+        <p class="text-sm text-gray-600">Tổng tiền thanh toán:</p>
+        <p class="text-xl font-bold text-primary-500">{{ calculateTotals() | vnd:false }}</p>
       </div>
-
-      <button type="button" 
-        class="bg-red-600 hover:bg-red-700 active:bg-red-800 transition-colors rounded-lg border-transparent text-white text-lg h-12 w-full px-4 py-2 font-medium flex justify-center items-center shadow-md disabled:bg-gray-400"
-        [disabled]="isLoading()">
-        @if (isLoading()) {
-        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
-          viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor"
-            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-          </path>
-        </svg>
-        Đang xử lý...
-        } @else {
-        Tạo Đơn Hàng
-        }
+      <button type="button" class="btn btn-primary btn-lg btn-block" [disabled]="isLoading() || selectedMethod() === 'ONLINE'"
+        (click)="completeOrder()">
+        {{ selectedMethod() === 'ONLINE' ? 'Quét mã QR để thanh toán' : isLoading() ? 'Đang xử lý…' : 'Hoàn tất đặt hàng' }}
       </button>
-
     </div>
   </div>
 </div>

@@ -13,6 +13,7 @@ import { DeliveryOrderRequest, PickupOrderRequest } from '../core/models/order.m
 import { PaymentService } from '../services/payment.service';
 import { NotifyService } from '../services/notify.service';
 import { VndPipe } from '../shared/pipes/vnd.pipe';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-payment-infor',
@@ -28,9 +29,18 @@ export class PaymentInforComponent implements OnInit {
   cartDetails: CartView[] = [];
   city: string[] = [];
   districtLabel = 'Chọn tỉnh/thành phố'
-  user?: UserView = {
-    name: "Võ Tấn Thành", mobile: "0796692184", email: "votanthanh32004@gmail.com"
+  private authService = inject(AuthService);
+  /** Thông tin lấy từ phiên đăng nhập; email/SĐT để người mua tự nhập. */
+  user: UserView = {
+    name: this.authService.currentUser()?.fullName ?? '',
+    mobile: '',
+    email: '',
   };
+
+  get emailError(): string {
+    const control = this.paymentForm?.get('email');
+    return control && control.touched && control.invalid ? 'Vui lòng nhập email hợp lệ' : '';
+  }
   constructor(private router: Router, private orderService: OrderService,
     private paymentService: PaymentService,
     private notifyService: NotifyService) { }

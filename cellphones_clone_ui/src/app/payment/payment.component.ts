@@ -1,7 +1,6 @@
 import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { OrderService } from '../services/order.service';
-import { NgClass } from '@angular/common';
 import { NotifyService } from '../services/notify.service';
 import { FormsModule } from '@angular/forms';
 import { CartView } from '../core/models/cart_request.model';
@@ -12,7 +11,7 @@ import { VndPipe } from '../shared/pipes/vnd.pipe';
 @Component({
   selector: 'app-payment',
   standalone: true,
-  imports: [NgClass, FormsModule, VndPipe],
+  imports: [FormsModule, VndPipe],
   templateUrl: './payment.component.html',
   styleUrl: './payment.component.css',
 })
@@ -21,7 +20,10 @@ export class PaymentComponent implements OnInit {
   totalPrice: number = 0;
   selectedMethod = signal<'COD' | 'ONLINE'>('COD');
   isLoading = signal<boolean>(false);
-  qrCodeUrl = this.paymentService.getQr();
+  /** Đọc trực tiếp từ signal của service để cập nhật khi QR được tạo xong. */
+  get qrCodeUrl(): string | null {
+    return this.paymentService.getQr();
+  }
 
 
   constructor(
@@ -50,6 +52,16 @@ export class PaymentComponent implements OnInit {
   }
   goPaymentInfor() {
     this.orderService.setAppear(true)
+  }
+
+  /** Đơn hàng đã được tạo ở bước thông tin; COD chỉ cần chuyển sang trang đặt hàng thành công. */
+  completeOrder() {
+    const orderId = this.orderService.getOrderId();
+    if (!orderId) {
+      this.notifyService.error('Không tìm thấy đơn hàng. Vui lòng quay lại bước thông tin.');
+      return;
+    }
+    this.router.navigate(['/checkout'], { state: { orderId, success: true } });
   }
 
 

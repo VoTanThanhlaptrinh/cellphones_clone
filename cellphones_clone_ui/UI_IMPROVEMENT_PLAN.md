@@ -97,6 +97,16 @@ Thứ tự: **P0 → P1 → P2 → P3 → P4**. P0 là điều kiện tiên quy�
 
 ### P1 — Luồng mua hàng (ưu tiên cao nhất cho end-user)
 
+> **Trạng thái: ✅ HOÀN THÀNH (13/10/2026)** – `ng build` sạch; đã xem thực tế trên trình duyệt (card, chi tiết desktop + 375px, modal đăng nhập khi khách bấm "Mua ngay"). Chưa chạy được luồng giỏ hàng/thanh toán thật vì cần tài khoản đăng nhập.
+> Ghi chú thực hiện:
+> - Bỏ nút "Yêu thích" khỏi card (chưa có tính năng); bỏ khối khuyến mãi/"Smember"/thông số iPhone giả/"Hỏi đáp"/"So sánh"/"Trả góp 0%" (không có dữ liệu thật).
+> - **Sửa lỗi chọn màu** ở chi tiết sản phẩm (trước đây `onRadioChange` không bao giờ gán màu mới). Khách chưa đăng nhập bấm Mua ngay/Thêm vào giỏ sẽ thấy modal đăng nhập.
+> - Giỏ hàng: nối API `DELETE /api/carts/{id}` (có sẵn ở backend), chọn theo `cartDetailId`, xoá dùng `confirm()` của trình duyệt (chưa có dialog xác nhận chung).
+> - `header-cart-order` tự lấy tên từ `AuthService`; bỏ dữ liệu cá nhân hard-code ở `payment-infor` (email/SĐT để người mua tự nhập).
+> - Thanh toán: nút "Tạo Đơn Hàng" trước đây **không có handler**; giờ COD → "Hoàn tất đặt hàng" chuyển tới `/checkout` (đơn đã được tạo ở bước 1). QR sửa để hiện khi tạo xong. **Cần xác nhận luồng**: đơn vẫn được tạo ở bước 1 (trước khi chọn phương thức) và quay lại bước 1 rồi "Tiếp tục" sẽ tạo thêm một đơn; ONLINE chưa có redirect sau khi thanh toán.
+> - `RouteConfig.cs` thêm `GET /api/reviews/product/*` cho phép ẩn danh; thiếu dòng này thì khách bị 401 → đăng xuất → đẩy về `/home` mỗi khi mở trang chi tiết.
+> - `order-review` không có route nên không sửa; `member-dashboard` vẫn hard-code tên/SĐT (P3).
+
 | Task | File | Việc cần làm | Hoàn thành khi |
 |---|---|---|---|
 | P1.1 Product card | `src/app/product-card/` | Viết lại theo [DESIGN.md §5.2](DESIGN.md): thẻ `<a routerLink>`, `relative`, % giảm tính từ `basePrice`/`salePrice`, ẩn badge/rating/S-Student khi không có dữ liệu, giá qua `vnd`, `alt` là tên sản phẩm, ảnh `aspect-square object-contain`, bỏ chiều rộng `vw`. Nút yêu thích chặn điều hướng. Cập nhật `product-skeleton` cho khớp kích thước. | Tab tới được từng card và Enter mở chi tiết. Ctrl+click mở tab mới. Card không có giảm giá thì không hiện badge. |

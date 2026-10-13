@@ -1,7 +1,7 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, Inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, distinctUntilChanged, filter, finalize, map, of, switchMap, take, tap } from 'rxjs';
 
 import { ProductService } from '../services/product.service';
@@ -16,6 +16,8 @@ import { AuthService } from '../services/auth.service';
 import { ReviewResponse } from '../core/models/review.model';
 // === END NEW FEATURE: PRODUCT REVIEWS ===
 import { VndPipe } from '../shared/pipes/vnd.pipe';
+import { MatDialog } from '@angular/material/dialog';
+import { ModalAskLoginComponent } from '../shared/modal-ask-login/modal-ask-login.component';
 
 @Component({
   selector: 'app-product-detail',
@@ -24,7 +26,8 @@ import { VndPipe } from '../shared/pipes/vnd.pipe';
     // === BEGIN NEW FEATURE: PRODUCT REVIEWS ===
     FormsModule,
     // === END NEW FEATURE: PRODUCT REVIEWS ===
-    VndPipe
+    VndPipe,
+    RouterLink
   ],
   standalone: true,
   templateUrl: './product-detail.component.html',
@@ -57,6 +60,9 @@ export class ProductDetailComponent implements OnInit {
     'assets/images/iPhone-product-banner-v1.webp'
   ];
   isLoading = false;
+  isAdding = signal(false);
+  private readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
   errorMessage = '';
   constructor(
     @Inject(PLATFORM_ID) platformId: Object,
@@ -107,16 +113,6 @@ export class ProductDetailComponent implements OnInit {
       });
   }
 
-  get warehouseAddress(): string {
-    if (!this.product()?.StoreHouseDTOs || this.product()?.StoreHouseDTOs.length === 0) {
-      return '';
-    }
-
-    return [this.product()?.StoreHouseDTOs[0].street, this.product()?.StoreHouseDTOs[0].district, this.product()?.StoreHouseDTOs[0].city]
-      .filter((value): value is string => Boolean(value))
-      .join(', ');
-  }
-
   private buildImageGallery(detail: ProductViewDetail): string[] {
     const gallery = detail.productImages
       ?.map(image => image.originUrl)
@@ -132,26 +128,75 @@ export class ProductDetailComponent implements OnInit {
     return [...this.fallbackImages];
   }
 
-  addToCart() {
-    var productId = this.product()?.id
-    var color_id = this.selected_color()
-    if (productId && color_id && productId > 0 && color_id > 0)
-      this.cartService.addToCart({ productId: this.product()?.id, colorId: color_id }).pipe(take(1)).subscribe({
-        next: res => {
-          this.notifyService.success('Thêm vào giỏ hàng thành công');
-        },
-        error: (err) => {
-          this.notifyService.error('Thêm vào giỏ hàng thất bại');
-        }
-      })
-    else
-      this.notifyService.warning('Vui lòng chọn màu sắc sản phẩm');
+  /** % giảm giá tính từ giá gốc / giá bán; 0 = không giảm. */
+  get discountPercent(): number {
+    const p = this.product();
+    if (!p || !p.salePrice || !p.basePrice || p.basePrice <= p.salePrice) return 0;
+    return Math.round(((p.basePrice - p.salePrice) / p.basePrice) * 100);
   }
-  onRadioChange(event: any) {
-    const value = Number(event?.target?.value);
-    this.selected_color.update(c => {
-      return Number.isFinite(c) ? c : null;
+
+  /** Tổng tồn kho; null = chưa có dữ liệu kho (không chặn mua). */
+  get stockQuantity(): number | null {
+    const stores = this.product()?.StoreHouseDTOs;
+    if (!stores || stores.length === 0) return null;
+    return stores.reduce((sum, s) => sum + (s.quantity || 0), 0);
+  }
+
+  get isOutOfStock(): boolean {
+    return this.stockQuantity === 0;
+  }
+
+  addToCart() {
+    this.submitToCart(false);
+  }
+
+  buyNow() {
+    this.submitToCart(true);
+  }
+
+  private submitToCart(goToCart: boolean) {
+    if (this.isAdding()) return;
+    if (!this.authService.accessToken) {
+      this.dialog.open(ModalAskLoginComponent, {
+        enterAnimationDuration: '300ms',
+        exitAnimationDuration: '300ms',
+      });
+      return;
+    }
+    const productId = this.product()?.id;
+    const colorId = this.selected_color();
+    if (!productId || productId <= 0) return;
+    if (!colorId || colorId <= 0) {
+      this.notifyService.warning('Vui lòng chọn màu sắc sản phẩm');
+      return;
+    }
+    this.isAdding.set(true);
+    this.cartService.addToCart({ productId, colorId }).pipe(take(1)).subscribe({
+      next: () => {
+        this.isAdding.set(false);
+        if (goToCart) {
+          this.router.navigate(['/cart']);
+        } else {
+          this.notifyService.success('Thêm vào giỏ hàng thành công');
+        }
+      },
+      error: () => {
+        this.isAdding.set(false);
+        this.notifyService.error('Thêm vào giỏ hàng thất bại');
+      }
     });
+  }
+
+  onRadioChange(event: Event) {
+    const value = Number((event.target as HTMLInputElement | null)?.value);
+    if (Number.isFinite(value) && value > 0) {
+      this.selected_color.set(value);
+    }
+  }
+
+  scrollToReviews(): void {
+    if (!this.isBrowser) return;
+    document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   // === BEGIN NEW FEATURE: PRODUCT REVIEWS ===

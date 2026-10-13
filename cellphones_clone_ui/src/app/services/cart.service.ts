@@ -38,6 +38,11 @@ export class CartService {
       map(res => res.data)
     );
   }
+  removeItem(cartDetailId: number): Observable<boolean> {
+    return this.http.delete<ApiResponse<boolean>>(`${this.baseUrl}/carts/${cartDetailId}`).pipe(
+      map(res => res.data)
+    );
+  }
   updateCartItems(items: CartView[]) {
     this.cartItems.set(items);
   }

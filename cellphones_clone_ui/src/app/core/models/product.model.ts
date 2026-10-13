@@ -31,10 +31,10 @@ export interface ProductViewDetail {
     versions: string | null;
     imageUrl: string | null;
     productImages: ProductImage[];
-    productSpecification: ProductSpecification[];
-    commitments: string[];
-    colorDTOs: ColorDTO[];
-    StoreHouseDTOs: StoreHouseDTO[]
+    productSpecification?: ProductSpecification[];
+    commitments?: string[];
+    colorDTOs?: ColorDTO[];
+    StoreHouseDTOs?: StoreHouseDTO[]
 }
 
 export interface StoreHouseDTO {
@@ -47,5 +47,5 @@ export interface StoreHouseDTO {
 export interface ColorDTO {
     colorId: number;
     name: string;
-    image: ProductImage
+    image?: ProductImage
 }

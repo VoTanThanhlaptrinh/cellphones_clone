@@ -1,6 +1,6 @@
 <div class="flex flex-col static bg-gray-100 min-h-screen">
     <!-- Header -->
-    <app-header-cart-order [totalQuantity]="0" [Username]="'Khách'" />
+    <app-header-cart-order [totalQuantity]="0" />
 
     <!-- Success Content -->
     <div class="grow flex items-center justify-center p-4 py-12">
@@ -14,7 +14,7 @@
                 </svg>
             </div>
 
-            <h1 class="text-3xl font-extrabold text-gray-900 mb-2 font-sans tracking-tight">Đặt hàng thành công!</h1>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2 tracking-tight">Đặt hàng thành công!</h1>
 
             <p class="text-gray-500 mb-8 text-lg">
                 Cảm ơn bạn đã mua sắm tại Cellphones Clone. Đơn hàng của bạn đang được xử lý.
@@ -51,20 +51,14 @@
 
             <!-- Actions -->
             <div class="flex flex-col sm:flex-row gap-4 w-full justify-center">
-                <button routerLink="/order"
-                    class="flex-1 bg-white border-2 border-red-600 text-red-600 hover:bg-red-50 font-bold py-3 px-6 rounded-lg transition-colors focus:ring-4 focus:ring-red-100">
-                    Theo dõi đơn hàng
-                </button>
-                <button routerLink="/home"
-                    class="flex-1 bg-linear-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all transform hover:-translate-y-0.5 focus:ring-4 focus:ring-red-200">
-                    Tiếp tục mua sắm
-                </button>
+                <a routerLink="/member-dashboard" class="btn btn-outline btn-lg flex-1">Theo dõi đơn hàng</a>
+                <a routerLink="/home" class="btn btn-primary btn-lg flex-1">Tiếp tục mua sắm</a>
             </div>
 
             <!-- Support Note -->
             <p class="mt-8 text-sm text-gray-400">
                 Mọi thắc mắc vui lòng liên hệ tổng đài <a href="tel:18002097"
-                    class="text-red-600 font-semibold hover:underline">1800.2097</a>
+                    class="text-primary-500 font-bold hover:underline">1800.2097</a>
             </p>
         </div>
     </div>
