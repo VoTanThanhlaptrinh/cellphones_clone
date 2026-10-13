@@ -56,12 +56,19 @@ internal partial class Program
                 opt.QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst;
             });
 
-            options.AddFixedWindowLimiter("AuthLimit", opt =>
-            {
-                opt.Window = TimeSpan.FromMinutes(1);
-                opt.PermitLimit = 5;
-                opt.QueueLimit = 0;
-            });
+            // Bị chặn thì trả 429 (mặc định là 503, frontend không phân biệt được với lỗi server)
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+            // Chỉ áp dụng cho login/register; tính riêng theo IP (trước đây cả server dùng chung 1 bộ đếm 5 lần/phút)
+            options.AddPolicy("AuthLimit", httpContext =>
+                System.Threading.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(
+                    httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    _ => new System.Threading.RateLimiting.FixedWindowRateLimiterOptions
+                    {
+                        Window = TimeSpan.FromMinutes(1),
+                        PermitLimit = 10,
+                        QueueLimit = 0
+                    }));
         });
 
         builder.Services.AddHangfire(config => config

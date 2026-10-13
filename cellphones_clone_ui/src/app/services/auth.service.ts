@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, signal, computed } from '@angular/core';
-import { map, Observable, tap, catchError, of } from 'rxjs';
+import { map, Observable, tap, catchError, of, throwError } from 'rxjs';
 import { LoginRequest } from '../core/models/login-request.model';
 import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
@@ -66,11 +66,16 @@ export class AuthService {
         this._accessToken = token;
         this.decodeAndSetUser(token);
       }),
-      catchError(() => {
-        this.clearLocalState();
-        this.logout();
-        this.router.navigate(['/home'])
-        return of(null);
+      catchError((error: HttpErrorResponse) => {
+        // Chỉ đăng xuất khi refresh token thật sự bị từ chối. Lỗi mạng/429/5xx là tạm thời,
+        // giữ nguyên phiên để người dùng thử lại thay vì bị đá ra ngoài.
+        if ([400, 401, 403].includes(error.status)) {
+          this.clearLocalState();
+          this.logout();
+          this.router.navigate(['/home']);
+          return of(null);
+        }
+        return throwError(() => error);
       })
     );
   }

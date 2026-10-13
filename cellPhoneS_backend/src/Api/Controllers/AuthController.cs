@@ -18,7 +18,6 @@ namespace cellphones_backend.Controllers
 {
     [Route("api/auth")]
     [ApiController]
-    [EnableRateLimiting("AuthLimit")]
     public class AuthController : BaseController
     {
         private readonly AuthService _authService;
@@ -27,6 +26,7 @@ namespace cellphones_backend.Controllers
             this._authService = _authService;
         }
         [HttpPost("register")]
+        [EnableRateLimiting("AuthLimit")]
         public async Task<ActionResult<ApiResponse<VoidResponse>>> Register([FromBody] RegisterDTO register)
         {
 
@@ -43,6 +43,7 @@ namespace cellphones_backend.Controllers
             return HandleResult(await _authService.TeacherRegister(teacherRegister));
         }
         [HttpPost("login")]
+        [EnableRateLimiting("AuthLimit")]
         public async Task<ActionResult<ApiResponse<string>>> Login(LoginDTO loginDTO)
         {
 

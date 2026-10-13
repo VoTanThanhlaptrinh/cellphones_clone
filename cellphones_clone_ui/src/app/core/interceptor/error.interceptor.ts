@@ -50,8 +50,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
                         }),
                         catchError((refreshError) => {
                             isRefreshing = false;
-                            // Refresh failed
-                            authService.handleLogout();
+                            // Lỗi tạm thời (mạng/429/5xx): giữ phiên. Refresh bị từ chối đã được xử lý trong AuthService.
                             return throwError(() => refreshError);
                         })
                     );
