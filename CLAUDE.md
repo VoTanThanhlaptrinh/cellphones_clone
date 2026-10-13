@@ -42,7 +42,7 @@ Frontends (run from `cellphones_clone_ui/` or `admin_dashboard/`):
 
 ## Configuration
 
-`appsettings*.json` is gitignored. Required keys: `ConnectionStrings:db` (Postgres), `ConnectionStrings:Redis` (code forces `Ssl = true`), `ConnectionStrings:StorageAccount`, `Jwt:Key|Issuer|Audience`, `Authentication:Google:ClientId|ClientSecret`. `UserSecretsId` is set on the project, so `dotnet user-secrets` also works.
+`appsettings*.json` is gitignored. Required keys: `ConnectionStrings:db` (Postgres), `ConnectionStrings:Redis` (code forces `Ssl = true` except for localhost, so a local non-TLS Redis works in Development), `ConnectionStrings:StorageAccount`, `Jwt:Key|Issuer|Audience`, `Authentication:Google:ClientId|ClientSecret`. `UserSecretsId` is set on the project, so `dotnet user-secrets` also works.
 
 ## Frontend notes (`cellphones_clone_ui/`)
 

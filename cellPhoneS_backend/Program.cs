@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
+using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.RateLimiting;
 using Hangfire;
@@ -74,7 +75,14 @@ internal partial class Program
         string redisConnectionString = builder.Configuration.GetConnectionString("Redis")!;
         var configuration = ConfigurationOptions.Parse(redisConnectionString, true);
         configuration.AbortOnConnectFail = false;
-        configuration.Ssl = true;
+        // Redis cloud (Upstash...) bắt buộc TLS; Redis local (localhost) thì không hỗ trợ TLS
+        bool isLocalRedis = configuration.EndPoints.All(e => e switch
+        {
+            DnsEndPoint dns => dns.Host is "localhost" or "127.0.0.1" or "::1",
+            IPEndPoint ip => IPAddress.IsLoopback(ip.Address),
+            _ => false
+        });
+        configuration.Ssl = !isLocalRedis;
         builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
             ConnectionMultiplexer.Connect(configuration));
 
