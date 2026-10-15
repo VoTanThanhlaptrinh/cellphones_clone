@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { ProductService } from '../services/product.service';
 import { ProductView } from '../core/models/product.model';
-import { AuthService } from '../services/auth.service';
+import { AuthService } from '@core/auth/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, of, Subject, switchMap } from 'rxjs';

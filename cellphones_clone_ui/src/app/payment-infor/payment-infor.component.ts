@@ -5,7 +5,7 @@ import { InputComponent } from "../shared/custom/input/input.component";
 import { OrderService } from '../services/order.service';
 import { CartView } from '../core/models/cart_request.model';
 import { VndPipe } from '../shared/pipes/vnd.pipe';
-import { AuthService } from '../services/auth.service';
+import { AuthService } from '@core/auth/auth.service';
 import { IconComponent } from '../shared/icons/icon.component';
 import { OrderStepHeaderComponent } from '../shared/order-step-header/order-step-header.component';
 import { OrderBottomBarComponent } from '../shared/order-bottom-bar/order-bottom-bar.component';

@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../services/auth.service';
-import { NotifyService } from '../services/notify.service';
+import { AuthService } from '@core/auth/auth.service';
+import { NotifyService } from '@core/services/notify.service';
 import { IconComponent } from '../shared/icons/icon.component';
 
 interface RegisterField {

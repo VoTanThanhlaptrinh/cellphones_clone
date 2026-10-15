@@ -1,7 +1,7 @@
 import { Component, effect, OnDestroy, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { OrderService } from '../services/order.service';
-import { NotifyService } from '../services/notify.service';
+import { NotifyService } from '@core/services/notify.service';
 import { FormsModule } from '@angular/forms';
 import { catchError, EMPTY, filter, Subscription, switchMap, take, timer } from 'rxjs';
 import { CartView } from '../core/models/cart_request.model';

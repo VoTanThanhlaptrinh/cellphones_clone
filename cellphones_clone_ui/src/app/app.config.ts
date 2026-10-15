@@ -1,7 +1,7 @@
 import { ApplicationConfig, importProvidersFrom, inject, provideAppInitializer, provideBrowserGlobalErrorListeners, provideZoneChangeDetection, } from '@angular/core';
 import { provideRouter, TitleStrategy, withInMemoryScrolling } from '@angular/router';
 import { routes } from './app.routes';
-import { AppTitleStrategy } from './core/app-title.strategy';
+import { AppTitleStrategy } from '@core/services/app-title.strategy';
 import { BrowserModule, provideClientHydration, withEventReplay, } from '@angular/platform-browser';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { LOCALE_ID, DEFAULT_CURRENCY_CODE } from '@angular/core';
@@ -11,10 +11,10 @@ import { DefaultGlobalConfig, provideToastr } from 'ngx-toastr';
 import localeVi from '@angular/common/locales/vi';
 registerLocaleData(localeVi);
 
-import { errorInterceptor } from './core/interceptor/error.interceptor';
-import { authInterceptor } from './core/interceptor/auth.interceptor';
-import { loadingInterceptor } from './core/interceptor/loading.interceptor';
-import { AuthService } from './services/auth.service';
+import { errorInterceptor } from '@core/http/error.interceptor';
+import { authInterceptor } from '@core/http/auth.interceptor';
+import { loadingInterceptor } from '@core/http/loading.interceptor';
+import { AuthService } from '@core/auth/auth.service';
 export const appConfig: ApplicationConfig = {
 	providers: [
 		provideBrowserGlobalErrorListeners(),

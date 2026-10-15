@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
-import { NotifyService } from './notify.service';
-import { ApiResponse } from './auth.service';
+import { NotifyService } from '@core/services/notify.service';
+import { ApiResponse } from '@core/models/api.model';
 import { StoreView, VietnamProvinceDto } from '../core/models/store.model';
 import { environment } from '../../environments/environment';
 

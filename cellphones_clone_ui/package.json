@@ -7,6 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "check:boundaries": "node scripts/check-boundaries.mjs",
     "serve:ssr:cellphones-clone-ui": "node dist/cellphones-clone-ui/server/server.mjs"
   },
   "prettier": {

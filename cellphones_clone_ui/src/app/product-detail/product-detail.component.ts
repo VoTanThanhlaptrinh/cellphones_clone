@@ -7,17 +7,17 @@ import { catchError, distinctUntilChanged, filter, finalize, map, of, switchMap,
 import { ProductService } from '../services/product.service';
 import { ProductViewDetail } from '../core/models/product.model';
 import { CartService } from '../services/cart.service';
-import { NotifyService } from '../services/notify.service';
+import { NotifyService } from '@core/services/notify.service';
 
 // === BEGIN NEW FEATURE: PRODUCT REVIEWS ===
 import { FormsModule } from '@angular/forms';
 import { ReviewService } from '../services/review.service';
-import { AuthService } from '../services/auth.service';
+import { AuthService } from '@core/auth/auth.service';
 import { ReviewResponse } from '../core/models/review.model';
 // === END NEW FEATURE: PRODUCT REVIEWS ===
 import { VndPipe } from '../shared/pipes/vnd.pipe';
 import { Meta, Title } from '@angular/platform-browser';
-import { APP_NAME } from '../core/app-title.strategy';
+import { APP_NAME } from '@core/services/app-title.strategy';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalAskLoginComponent } from '../shared/modal-ask-login/modal-ask-login.component';
 import { IconComponent } from '../shared/icons/icon.component';

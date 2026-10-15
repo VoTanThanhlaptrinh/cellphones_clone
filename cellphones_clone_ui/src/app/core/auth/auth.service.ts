@@ -1,17 +1,13 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, signal, computed } from '@angular/core';
 import { map, Observable, tap, catchError, of, throwError } from 'rxjs';
-import { LoginRequest } from '../core/models/login-request.model';
-import { environment } from '../../environments/environment';
+import { LoginRequest } from '@core/models/login-request.model';
+import { environment } from '../../../environments/environment';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
-import { User } from '../core/models/user.model';
-
-export interface ApiResponse<T> {
-  message: string;
-  data: T;
-}
+import { User } from '@core/models/user.model';
+import { ApiResponse } from '@core/models/api.model';
 
 @Injectable({
   providedIn: 'root'

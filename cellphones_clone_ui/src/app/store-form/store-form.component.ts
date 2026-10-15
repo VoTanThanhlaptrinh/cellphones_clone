@@ -7,7 +7,7 @@ import { OrderStepHeaderComponent } from '../shared/order-step-header/order-step
 import { OrderBottomBarComponent } from '../shared/order-bottom-bar/order-bottom-bar.component';
 import { OrderService } from '../services/order.service';
 import { StoreService } from '../services/store.service';
-import { NotifyService } from '../services/notify.service';
+import { NotifyService } from '@core/services/notify.service';
 import { CartView } from '../core/models/cart_request.model';
 
 /** Trang 2 (nhận tại cửa hàng): chọn tỉnh/thành, quận/huyện rồi cửa hàng nhận máy. */

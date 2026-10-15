@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { map, Observable } from 'rxjs';
-import { ApiResponse } from '../core/models/api-response.model';
+import { ApiResponse } from '@core/models/api.model';
 import { ReviewResponse, CreateReviewRequest } from '../core/models/review.model';
 
 // === BEGIN NEW FEATURE: PRODUCT REVIEWS ===

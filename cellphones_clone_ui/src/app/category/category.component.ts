@@ -17,10 +17,10 @@ import { ProductCardComponent } from "../product-card/product-card.component";
 import { ProductSkeletonComponent } from '../product-skeleton/product-skeleton.component';
 import { ProductView } from '../core/models/product.model';
 import { catchError, map, of, switchMap, tap } from 'rxjs';
-import { NotifyService } from '../services/notify.service';
+import { NotifyService } from '@core/services/notify.service';
 import { ProductService } from '../services/product.service';
 import { Meta, Title } from '@angular/platform-browser';
-import { APP_NAME } from '../core/app-title.strategy';
+import { APP_NAME } from '@core/services/app-title.strategy';
 @Component({
   selector: 'app-category',
   imports: [ProductCardComponent, ProductSkeletonComponent, RouterLink],

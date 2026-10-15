@@ -3,7 +3,7 @@ import { environment } from '../../environments/environment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { CartRequest, CartView } from '../core/models/cart_request.model';
-import { ApiResponse } from '../core/models/api-response.model';
+import { ApiResponse } from '@core/models/api.model';
 
 const headers = new HttpHeaders({
   'Content-Type': 'application/json',

@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../services/auth.service';
+import { AuthService } from '@core/auth/auth.service';
 import { IconComponent } from '../shared/icons/icon.component';
 import { OrderService } from '../services/order.service';
 import { OrderHistory } from '../core/models/order.model';

@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CartService } from '../services/cart.service';
 import { CartView } from '../core/models/cart_request.model';
-import { NotifyService } from '../services/notify.service';
+import { NotifyService } from '@core/services/notify.service';
 import { HeaderCartOrderComponent } from '../shared/header-cart-order/header-cart-order.component';
 import { VndPipe } from '../shared/pipes/vnd.pipe';
 import { IconComponent } from '../shared/icons/icon.component';

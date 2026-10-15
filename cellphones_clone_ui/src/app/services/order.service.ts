@@ -2,12 +2,12 @@ import { inject, Injectable, signal } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { environment } from '../../environments/environment';
 import { HttpClient, HttpContext } from '@angular/common/http';
-import { SKIP_GLOBAL_SPINNER } from '../core/interceptor/loading.context';
-import { ApiResponse } from '../core/models/api-response.model';
-import { OrderView, PickupOrderRequest, DeliveryOrderRequest, OrderHistory, PagedResult } from '../core/models/order.model';
+import { SKIP_GLOBAL_SPINNER } from '@core/http/loading.context';
+import { ApiResponse, PagedResult } from '@core/models/api.model';
+import { OrderView, PickupOrderRequest, DeliveryOrderRequest, OrderHistory } from '../core/models/order.model';
 import { CartView } from '../core/models/cart_request.model';
 import { defer, map, Observable, of, switchMap, tap } from 'rxjs';
-import { AuthService } from './auth.service';
+import { AuthService } from '@core/auth/auth.service';
 
 /** Số điện thoại di động Việt Nam: 10 chữ số, đầu 03/05/07/08/09 (hoặc +84/84 thay cho số 0). */
 const VN_MOBILE = /^(0|\+?84)(3|5|7|8|9)\d{8}$/;

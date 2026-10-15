@@ -1,6 +1,6 @@
 import { Component, inject, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '@core/auth/auth.service';
 import { IconComponent } from '../icons/icon.component';
 
 @Component({

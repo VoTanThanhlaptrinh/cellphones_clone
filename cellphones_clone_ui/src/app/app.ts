@@ -11,10 +11,10 @@ import { HeaderComponent } from './header/header.component';
 import { filter } from 'rxjs';
 import { ViewportScroller } from '@angular/common';
 import { BackToTopComponent } from './back-to-top/back-to-top.component';
-import { NotifyService } from './services/notify.service';
+import { NotifyService } from '@core/services/notify.service';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { LoadingService } from './core/services/loading.service';
-import { AuthService } from './services/auth.service';
+import { AuthService } from '@core/auth/auth.service';
 
 @Component({
   selector: 'app-root',

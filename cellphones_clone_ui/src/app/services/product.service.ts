@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { computed, Injectable, signal } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { map, Observable } from 'rxjs';
-import { ApiResponse } from '../core/models/api-response.model';
+import { ApiResponse } from '@core/models/api.model';
 import { ProductView, ProductViewDetail } from '../core/models/product.model';
 import { HomeView } from '../core/models/home_view.model';
 

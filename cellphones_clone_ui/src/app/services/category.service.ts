@@ -3,7 +3,7 @@ import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { CategoryDetailView } from '../core/models/category_view.model';
-import { ApiResponse } from '../core/models/api-response.model';
+import { ApiResponse } from '@core/models/api.model';
 import { ProductView } from '../core/models/product.model';
 
 @Injectable({
