@@ -1,5 +1,15 @@
 # Kế hoạch: sáp nhập admin_dashboard vào cellphones_clone_ui
 
+> **Trạng thái: đã thực hiện xong 10 bước.** Phần dưới là kế hoạch gốc; các điểm làm khác kế hoạch ghi ở đây.
+>
+> - **Bước 5 (UI kit):** chỉ port những thành phần có chỗ dùng: `select`, `badge`, `alert`, `table`, `pagination`, `confirm-dialog`, và mở rộng `app-input` (`min`/`max`/`step`). Không port textarea, checkbox, radio, switch, multi-select, date/time-picker, phone-input, dropdown, avatar, breadcrumb vì chưa trang nào cần; lấy lại từ lịch sử git của `admin_dashboard/` khi cần, và viết thành ControlValueAccessor như kế hoạch.
+> - **Bảng:** một `app-table` bọc `<table>` thật thay cho 5 wrapper `app-table-*` của TailAdmin (wrapper đặt custom element giữa `table`/`tr` làm hỏng cấu trúc bảng).
+> - **Bước 7-8:** thay vì một trang mỗi tài nguyên, dùng một `CatalogPage` + `CatalogFormDialog` + `AdminCatalogService` điều khiển bằng `admin/catalog/catalog-resources.ts`. Có 5 tài nguyên: categories, brands, series, demands, storehouses. Cam kết, thông số và hình ảnh gắn với từng sản phẩm nên làm cùng trang quản lý sản phẩm; dashboard chỉ có lối tắt (chưa có số liệu vì API thống kê còn là TODO).
+> - **Bước 3:** `back-to-top` chỉ còn nằm trong `StoreShellComponent` nên không còn xuất hiện ở login, cart, order, checkout.
+> - **Bước 9:** chưa thêm `flatpickr` (chưa có date-picker nào được dùng). `DESIGN.md` có thêm §12, `CLAUDE.md` và `README.md` cập nhật.
+> - Đã xoá thêm 4 component trống không ai dùng (`category-accessory`, `category-audio`, `category-household`, `information`).
+> - Chưa kiểm chứng giao diện `/admin` trên trình duyệt với tài khoản ADMIN thật (cần đăng nhập); các trang đã build và qua `check:boundaries`.
+
 ## Bối cảnh
 
 - `admin_dashboard/` là template TailAdmin chưa sửa gì. Nó **không có** HttpClient, environment, interceptor, guard, model hay auth. Cả 19 route đều là trang demo dùng dữ liệu cứng. Template có 139 component, khoảng 30 cái không được dùng, và nhiều thư viện không import ở đâu.

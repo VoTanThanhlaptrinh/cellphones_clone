@@ -7,8 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Monorepo for a CellphoneS e-commerce clone (backend deployed on Render, storefront on Vercel):
 
 - `cellPhoneS_backend/` – ASP.NET Core 9 API (PostgreSQL/EF Core, Redis, Azure Blob).
-- `cellphones_clone_ui/` – Angular 20 customer storefront (standalone components, Tailwind/Material).
-- `admin_dashboard/` – TailAdmin-based Angular admin UI (package.json is on Angular 20 despite the README saying 19).
+- `cellphones_clone_ui/` – Angular 20 app with two areas: the customer storefront (`src/app/store/`) and the admin area at `/admin` (`src/app/admin/`), sharing one auth, HTTP and design system (standalone components, Tailwind/Material). The former TailAdmin-based `admin_dashboard/` was merged into it and removed; see `cellphones_clone_ui/ADMIN_MERGE_PLAN.md`.
 - `analyze_layers.js` at the repo root is untracked and unrelated to the app (a stray script). Ignore it.
 - Use `cellPhoneS_backend/cellPhoneS_backend.sln`; the root `docnet_workspace.sln` is stale (it points at a nonexistent `cellphones_backend\` folder).
 
@@ -21,9 +20,10 @@ Backend (run from `cellPhoneS_backend/`):
 - `docker-compose.yml` only starts Elasticsearch + Kibana. Postgres, Redis and Azurite must be provided separately.
 - There is no test project for the app and no CI workflow (`.github/workflows/` is empty).
 
-Frontends (run from `cellphones_clone_ui/` or `admin_dashboard/`):
+Frontend (run from `cellphones_clone_ui/`):
 
 - `npm start` (ng serve, port 4200), `npm run build`, `npm test` (Karma/Jasmine; single spec: `npx ng test --include='**/foo.spec.ts'`).
+- `npm run check:boundaries` fails when an import crosses the folder rules below (run it before committing UI changes).
 - Storefront SSR server: `npm run serve:ssr:cellphones-clone-ui`, but `angular.json` currently sets `"ssr": false`.
 
 ## Backend architecture (`cellPhoneS_backend/`)
@@ -48,6 +48,11 @@ Frontends (run from `cellphones_clone_ui/` or `admin_dashboard/`):
 
 - **Any storefront UI change must follow `cellphones_clone_ui/DESIGN.md`** (brand red `#d70018` tokens, typography, component recipes, a11y and copy rules). The ordered cleanup backlog is `cellphones_clone_ui/UI_IMPROVEMENT_PLAN.md`; do P0 (tokens in `src/styles.css`, `vnd` pipe) before UI work that depends on it.
 
-- Feature folders under `src/app/` (one standalone component each), API calls in `src/app/services/`, and `src/app/core/{interceptor,models,services}` for the auth/error/loading interceptors and shared models.
+- **Folder rules** (`src/app/`, path aliases `@core`, `@shared`, `@store`, `@admin`; enforced by `scripts/check-boundaries.mjs`):
+  - `core/` – auth (`auth.service`, `admin.guard`, `safeReturnUrl`), `http/` interceptors, `models/` (`ApiResponse`, `PagedResult`, …), `services/` (notify, loading, title strategy). No UI. Imports only `core`.
+  - `shared/` – presentational building blocks used by both areas: `form/` (input, autocomplete-input, select), `ui/` (icon, badge, alert, table, pagination, confirm-dialog), `pipes/`. Imports only `shared` and `core/models`; never injects a service.
+  - `store/` – the storefront: `layout/` (store-shell, header, footer…), `pages/`, `components/`, `services/`, `store.routes.ts`. Never imports `admin`.
+  - `admin/` – the admin area, lazy-loaded at `/admin` behind `adminGuard` (ADMIN role from the JWT; the backend still enforces `/api/admin/*`). Never imports `store`. `layout/` is the shell, `catalog/` is a config-driven CRUD page (add a resource in `catalog/catalog-resources.ts` and it gets a route, menu entry, table, form and delete dialog).
+- Header/footer come from the `StoreShellComponent` layout route, not from a URL list: pages that need them go under it in `store.routes.ts`; minimal pages (login, cart, order, checkout) stay outside.
 - `src/environments/environment.ts` points `apiUrl` at the deployed Render backend. The development build replaces it with `environment.development.ts` (`http://localhost:5169/api`), so use the development configuration to hit a local API.
 - `proxy.conf.json` proxies `/api/provinces` to provinces.open-api.vn. `vercel.json` rewrites every path to `index.html`.
