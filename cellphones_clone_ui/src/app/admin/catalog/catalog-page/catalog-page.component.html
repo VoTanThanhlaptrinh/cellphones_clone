@@ -1,11 +1,28 @@
 @if (resource) {
 <div class="flex flex-wrap items-center justify-between gap-3">
   <h1 class="text-xl font-bold text-gray-900 md:text-2xl">{{ resource.title }}</h1>
+  @if (!resource.readOnly) {
   <button type="button" class="btn btn-primary" (click)="openForm()">
     <app-icon name="plus" svgClass="size-4" [strokeWidth]="2" />
     Thêm {{ resource.singular }}
   </button>
+  }
 </div>
+
+@if (resource.filters?.length) {
+<form [formGroup]="filterForm" (submit)="$event.preventDefault()"
+  class="mt-4 grid gap-3 rounded-xl bg-white p-3 shadow-card sm:grid-cols-2 lg:grid-cols-3" role="search"
+  aria-label="Bộ lọc">
+  @for (filter of resource.filters; track filter.key) {
+  @if (filter.type === 'select') {
+  <app-select [formControlName]="filter.key" [label]="filter.label" [options]="filter.options ?? []"
+    [placeholder]="filter.placeholder ?? 'Tất cả'" />
+  } @else {
+  <app-input [formControlName]="filter.key" [label]="filter.label" [placeholder]="filter.placeholder ?? ''" />
+  }
+  }
+</form>
+}
 
 <div class="mt-4 space-y-3">
   @if (loading() && rows().length === 0) {
@@ -21,35 +38,59 @@
   </app-alert>
   } @else if (rows().length === 0) {
   <div class="flex flex-col items-center gap-3 rounded-xl bg-white px-4 py-10 text-center shadow-card">
+    @if (hasFilters()) {
+    <p class="text-sm text-gray-600">Không có {{ resource.singular }} nào khớp với bộ lọc.</p>
+    } @else {
     <p class="text-sm text-gray-600">Chưa có {{ resource.singular }} nào.</p>
+    @if (!resource.readOnly) {
     <button type="button" class="btn btn-primary" (click)="openForm()">Thêm {{ resource.singular }}</button>
+    }
+    }
   </div>
   } @else {
   <app-table>
     <thead>
       <tr>
         @for (column of resource.columns; track column.header) {
-        <th scope="col">{{ column.header }}</th>
+        <th scope="col" [class.text-right]="column.alignRight">{{ column.header }}</th>
         }
+        @if (!resource.readOnly || resource.detail) {
         <th scope="col" class="text-right"><span class="sr-only">Thao tác</span></th>
+        }
       </tr>
     </thead>
     <tbody>
       @for (row of rows(); track row.id) {
       <tr>
         @for (column of resource.columns; track column.header) {
-        <td>{{ column.cell(row) }}</td>
+        <td [class.text-right]="column.alignRight" [class.whitespace-nowrap]="column.alignRight">
+          @if (column.tone) {
+          <app-badge [tone]="column.tone(row)">{{ column.cell(row) }}</app-badge>
+          } @else {
+          {{ column.cell(row) }}
+          }
+        </td>
         }
+        @if (!resource.readOnly || resource.detail) {
         <td class="whitespace-nowrap text-right">
+          @if (resource.detail) {
+          <button type="button" class="btn btn-ghost btn-sm" (click)="openDetail(row)"
+            [attr.aria-label]="'Xem chi tiết ' + rowLabel(row)">
+            Xem
+          </button>
+          }
+          @if (!resource.readOnly) {
           <button type="button" class="btn btn-ghost btn-sm size-8 px-0" (click)="openForm(row)"
-            [attr.aria-label]="'Sửa ' + resource.columns[0].cell(row)">
+            [attr.aria-label]="'Sửa ' + rowLabel(row)">
             <app-icon name="pencil" svgClass="size-4" />
           </button>
           <button type="button" class="btn btn-ghost btn-sm size-8 px-0 text-danger" (click)="confirmRemove(row)"
-            [attr.aria-label]="'Xoá ' + resource.columns[0].cell(row)">
+            [attr.aria-label]="'Xoá ' + rowLabel(row)">
             <app-icon name="trash" svgClass="size-4" />
           </button>
+          }
         </td>
+        }
       </tr>
       }
     </tbody>

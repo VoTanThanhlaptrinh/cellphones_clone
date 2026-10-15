@@ -1,0 +1,55 @@
+<h2 mat-dialog-title class="font-bold">Đơn hàng #{{ data.id }}</h2>
+<mat-dialog-content>
+  @if (order(); as o) {
+  <div class="flex flex-wrap items-start justify-between gap-2">
+    <div class="text-sm text-gray-700">
+      <p class="font-medium text-gray-900">{{ o.customerName || 'Không rõ tên' }}</p>
+      <p>{{ o.customerEmail }}</p>
+      <p class="text-xs text-gray-500">
+        {{ o.createDate | date:'dd/MM/yyyy HH:mm' }} · {{ o.type === 'pickup' ? 'Nhận tại cửa hàng' : 'Giao hàng tận nơi' }}
+      </p>
+    </div>
+    <app-badge [tone]="statusTone(o.status)">{{ statusLabel(o.status) }}</app-badge>
+  </div>
+
+  <ul class="mt-3 divide-y divide-gray-100">
+    @for (item of o.items; track $index) {
+    <li class="flex items-center gap-3 py-2">
+      @if (item.imageUrl) {
+      <img [src]="item.imageUrl" [alt]="item.productName ?? 'Sản phẩm'" width="48" height="48" loading="lazy"
+        class="size-12 shrink-0 object-contain" />
+      } @else {
+      <span class="size-12 shrink-0 rounded-lg bg-gray-100" aria-hidden="true"></span>
+      }
+      <div class="min-w-0 flex-1 text-sm">
+        <p class="line-clamp-2 font-medium text-gray-900">{{ item.productName }}</p>
+        <p class="text-xs text-gray-500">
+          @if (item.colorName) { Màu: {{ item.colorName }} · }Số lượng: {{ item.quantity }}
+        </p>
+      </div>
+      <span class="shrink-0 text-sm font-bold text-primary-500">{{ item.price | vnd }}</span>
+    </li>
+    }
+  </ul>
+
+  <dl class="mt-3 space-y-1 border-t border-gray-100 pt-3 text-sm">
+    @if (o.shippingFee > 0) {
+    <div class="flex justify-between">
+      <dt class="text-gray-600">Phí vận chuyển</dt>
+      <dd class="text-gray-900">{{ o.shippingFee | vnd }}</dd>
+    </div>
+    }
+    <div class="flex items-baseline justify-between">
+      <dt class="font-medium text-gray-900">Tổng tiền</dt>
+      <dd class="text-lg font-bold text-primary-500">{{ o.totalAmount | vnd:false }}</dd>
+    </div>
+  </dl>
+  } @else if (failed()) {
+  <p class="text-sm text-danger" role="alert">Không tải được chi tiết đơn hàng.</p>
+  } @else {
+  <div class="h-32 animate-pulse rounded-lg bg-gray-200" aria-busy="true"></div>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end" class="pb-4">
+  <button type="button" class="btn btn-ghost" mat-dialog-close>Đóng</button>
+</mat-dialog-actions>

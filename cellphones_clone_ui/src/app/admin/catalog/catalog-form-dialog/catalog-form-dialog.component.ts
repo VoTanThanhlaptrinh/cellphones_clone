@@ -50,7 +50,7 @@ export class CatalogFormDialogComponent implements OnInit {
     for (const field of this.fields.filter(f => f.type === 'select' && f.optionsFrom)) {
       const source = field.optionsFrom!;
       this.catalog.list(source.listUrl, 1, OPTION_PAGE_SIZE).subscribe(page => {
-        const list = page.items.map(row => ({ value: row.id, label: source.label(row) }));
+        const list = page.items.map(row => ({ value: Number(row.id), label: source.label(row) }));
         this.options.update(current => ({ ...current, [field.key]: list }));
       });
     }
@@ -80,7 +80,7 @@ export class CatalogFormDialogComponent implements OnInit {
 
     const { resource, row } = this.data;
     const request$ = row
-      ? this.catalog.update(resource.adminUrl, row.id, body)
+      ? this.catalog.update(resource.adminUrl, Number(row.id), body)
       : this.catalog.create(resource.adminUrl, body);
 
     this.saving.set(true);

@@ -7,26 +7,11 @@ import { OrderService } from '@store/services/order.service';
 import { OrderHistory } from '@core/models/order.model';
 import { VndPipe } from '@shared/pipes/vnd.pipe';
 import { BadgeComponent, BadgeTone } from '@shared/ui/badge/badge.component';
+import { orderStatusLabel, orderStatusTone } from '@shared/ui/badge/order-status';
 
 type MemberTab = 'overview' | 'orders' | 'account';
 
 const ORDER_PAGE_SIZE = 10;
-
-const STATUS_LABELS: Record<string, string> = {
-  Pending: 'Đang xử lý',
-  Paid: 'Đã thanh toán',
-  Shipping: 'Đang giao hàng',
-  Completed: 'Hoàn thành',
-  Cancelled: 'Đã hủy',
-};
-
-const STATUS_TONES: Record<string, BadgeTone> = {
-  Pending: 'neutral',
-  Paid: 'success',
-  Shipping: 'info',
-  Completed: 'success',
-  Cancelled: 'danger',
-};
 
 /**
  * Trang tài khoản thành viên: tên và số sản phẩm trong giỏ lấy từ phiên đăng nhập,
@@ -89,11 +74,11 @@ export class MemberDashboardComponent implements OnInit {
   }
 
   statusLabel(status: string): string {
-    return STATUS_LABELS[status] ?? status;
+    return orderStatusLabel(status);
   }
 
   statusTone(status: string): BadgeTone {
-    return STATUS_TONES[status] ?? 'neutral';
+    return orderStatusTone(status);
   }
 
   typeLabel(type: string): string {

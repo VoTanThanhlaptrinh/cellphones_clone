@@ -11,11 +11,22 @@ export class AdminCatalogService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiUrl;
 
-  /** `pageIndex` bắt đầu từ 1 (quy ước của backend). */
-  list(listUrl: string, pageIndex = 1, pageSize = 10): Observable<PagedResult<CatalogRow>> {
+  /**
+   * `pageIndex` bắt đầu từ 1 (quy ước của backend). `filters` là các query string bổ sung; giá trị rỗng bị bỏ qua.
+   */
+  list(listUrl: string, pageIndex = 1, pageSize = 10, filters: Record<string, string> = {}): Observable<PagedResult<CatalogRow>> {
+    const params: Record<string, string | number> = { pageIndex, pageSize };
+    for (const [key, value] of Object.entries(filters)) {
+      if (value.trim() !== '') params[key] = value.trim();
+    }
     return this.http
-      .get<ApiResponse<PagedResult<CatalogRow>>>(`${this.baseUrl}/${listUrl}`, { params: { pageIndex, pageSize } })
+      .get<ApiResponse<PagedResult<CatalogRow>>>(`${this.baseUrl}/${listUrl}`, { params })
       .pipe(map(response => response.data));
+  }
+
+  /** Chi tiết một dòng, ví dụ `admin/orders` + id. */
+  get<T>(url: string, id: number | string): Observable<T> {
+    return this.http.get<ApiResponse<T>>(`${this.baseUrl}/${url}/${id}`).pipe(map(response => response.data));
   }
 
   create(adminUrl: string, body: Record<string, unknown>): Observable<unknown> {
