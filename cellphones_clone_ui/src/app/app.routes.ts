@@ -30,7 +30,28 @@ export const routes: Routes = [
     {
         path: 'order',
         loadComponent: () => import('./order/order.component').then(m => m.OrderComponent),
-        title: 'Đặt hàng'
+        children: [
+            {
+                path: '',
+                loadComponent: () => import('./payment-infor/payment-infor.component').then(m => m.PaymentInforComponent),
+                title: 'Thông tin đặt hàng'
+            },
+            {
+                path: 'store',
+                loadComponent: () => import('./store-form/store-form.component').then(m => m.StoreFormComponent),
+                title: 'Nhận tại cửa hàng'
+            },
+            {
+                path: 'ship',
+                loadComponent: () => import('./ship-form/ship-form.component').then(m => m.ShipFormComponent),
+                title: 'Giao hàng tận nơi'
+            },
+            {
+                path: 'payment',
+                loadComponent: () => import('./payment/payment.component').then(m => m.PaymentComponent),
+                title: 'Thanh toán'
+            },
+        ]
     },
     {
         path: 'product/:id',

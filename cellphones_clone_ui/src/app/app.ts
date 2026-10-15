@@ -47,20 +47,22 @@ export class App implements OnInit {
     })
   }
   ngOnInit(): void {
-    this.isHideHeader = this.isHideFooter = this.urlForHideHeadFooter.includes(
-      this.router.url
-    );
+    this.isHideHeader = this.isHideFooter = this.shouldHideHeadFooter(this.router.url);
     this.router.events
       .pipe(filter((e) => e instanceof NavigationEnd))
       .subscribe({
         next: (value) => {
-          this.isHideHeader = this.isHideFooter =
-            this.urlForHideHeadFooter.includes(value.url);
+          this.isHideHeader = this.isHideFooter = this.shouldHideHeadFooter(value.url);
         },
         error: (err) => {
           this.notifyService.error('Không thể điều hướng trang web');
         },
       });
+  }
+  /** Khớp cả route con (ví dụ /order/store), bỏ qua query string và fragment. */
+  private shouldHideHeadFooter(url: string): boolean {
+    const path = url.split(/[?#]/)[0];
+    return this.urlForHideHeadFooter.some((p) => path === p || path.startsWith(p + '/'));
   }
   onScrollToTop() {
     this.viewportScroller.scrollToPosition([0, 0]);

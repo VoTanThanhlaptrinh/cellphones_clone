@@ -1,19 +1,25 @@
-<div class="flex flex-col p-2 bg-white w-full gap-y-2 rounded-lg" [formGroup]="group">
-    <!-- ADD THIS WRAPPER -->
-    <div>
-        <div class="grid grid-cols-2 gap-x-4 px-4 z-12">
-            <app-autocomplete-input [label]="'Tỉnh/thành phố'.toUpperCase()" [original]="cityList"
-                formControlName="city" (dataChosen)="onCityChosen($event)" name="city" [errorMessage]="errorFor('city')"></app-autocomplete-input>
-            <app-autocomplete-input [label]="'quận/huyện'.toUpperCase()" [original]="districtList"
-                formControlName="district" (dataChosen)="onDistrictChosen($event)"
-                name="district" [errorMessage]="errorFor('district')"></app-autocomplete-input>
-        </div>
-        <div class="w-full px-4">
-            <app-autocomplete-input formControlName="streetName" name="streetName" [label]="'Chọn địa chỉ cửa hàng'"
-                [original]="streetList" (dataChosen)="onStreetChosen($event)" [errorMessage]="errorFor('storeId')"></app-autocomplete-input>
-        </div>
-    </div> <!-- CLOSE WRAPPER -->
-    <div class="w-full mx-auto px-4">
-        <app-input formControlName="note" name="note" label="Ghi chú"></app-input>
+<!-- Bước 1 (trang địa chỉ): nhận tại cửa hàng -->
+<div class="mx-auto w-full max-w-160 px-3 pb-36 pt-3">
+  <app-order-step-header title="Nhận tại cửa hàng" backLabel="Quay lại thông tin khách hàng" [step]="1"
+    (back)="goBack()" />
+
+  <h2 class="mt-5 text-sm font-bold uppercase text-gray-900">Chọn cửa hàng nhận hàng</h2>
+  <form [formGroup]="group" class="mt-2 space-y-4 rounded-xl bg-white p-4 shadow-card">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <app-autocomplete-input label="Tỉnh/Thành phố" placeholder="Chọn tỉnh/thành phố" [required]="true"
+        [original]="cityList()" formControlName="city" (dataChosen)="onCityChosen($event)"
+        [errorMessage]="errorFor('city')" />
+      <app-autocomplete-input label="Quận/Huyện" placeholder="Chọn quận/huyện" [required]="true"
+        [original]="districtList()" formControlName="district" (dataChosen)="onDistrictChosen($event)"
+        emptyText="Vui lòng chọn tỉnh/thành phố trước" [errorMessage]="errorFor('district')" />
     </div>
+    <app-autocomplete-input label="Cửa hàng" placeholder="Chọn địa chỉ cửa hàng" [required]="true"
+      [original]="streetList()" formControlName="streetName" (dataChosen)="onStreetChosen($event)"
+      emptyText="Vui lòng chọn quận/huyện trước" [errorMessage]="errorFor('storeId')" />
+    <app-input formControlName="note" label="Ghi chú" />
+  </form>
+
+  <app-order-bottom-bar [total]="total" [disabled]="isLoading()" (action)="goNext()">
+    {{ isLoading() ? 'Đang xử lý…' : 'Tiếp tục' }}
+  </app-order-bottom-bar>
 </div>

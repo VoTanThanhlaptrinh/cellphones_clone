@@ -1,0 +1,11 @@
+<div class="fixed inset-x-0 bottom-0 z-30 border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom)] shadow-sticky">
+  <div class="mx-auto flex w-full max-w-160 flex-col gap-2 px-3 py-2">
+    <div class="flex items-center justify-between">
+      <p class="text-sm text-gray-600">{{ totalLabel }}</p>
+      <p class="text-lg font-bold text-primary-500">{{ total | vnd:false }}</p>
+    </div>
+    <button type="button" class="btn btn-primary btn-lg btn-block" [disabled]="disabled" (click)="action.emit()">
+      <ng-content />
+    </button>
+  </div>
+</div>

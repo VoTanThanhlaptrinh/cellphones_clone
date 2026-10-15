@@ -1,88 +1,77 @@
-import { Component, effect, inject, Input, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { InputComponent } from "../shared/custom/input/input.component";
 import { AutocompleteInputComponent } from "../shared/custom/autocomplete-input/autocomplete-input.component";
-
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { VietnamProvinceDto } from '../core/models/store.model';
+import { OrderStepHeaderComponent } from '../shared/order-step-header/order-step-header.component';
+import { OrderBottomBarComponent } from '../shared/order-bottom-bar/order-bottom-bar.component';
+import { OrderService } from '../services/order.service';
 import { StoreService } from '../services/store.service';
+import { NotifyService } from '../services/notify.service';
+import { CartView } from '../core/models/cart_request.model';
 
+const isName = (name: string | undefined): name is string => !!name;
+
+/** Trang 2 (giao hàng tận nơi): thông tin người nhận và địa chỉ giao hàng. */
 @Component({
   selector: 'app-ship-form',
-  imports: [InputComponent, AutocompleteInputComponent, ReactiveFormsModule],
+  imports: [InputComponent, AutocompleteInputComponent, ReactiveFormsModule, OrderStepHeaderComponent, OrderBottomBarComponent],
   templateUrl: './ship-form.component.html',
   styleUrl: './ship-form.component.css',
 })
 export class ShipFormComponent implements OnInit {
-  @Input() group!: FormGroup | any;
+  private router = inject(Router);
+  private orderService = inject(OrderService);
+  private storeService = inject(StoreService);
+  private notifyService = inject(NotifyService);
 
-  // Lưu trữ toàn bộ dữ liệu gốc từ API
-  vnLocations: VietnamProvinceDto[] = [];
-  constructor(private storeService: StoreService) {
-    effect(() => {
-      this.vnLocations = this.storeService.vietNamProvince()
-      if (this.vnLocations && this.vnLocations.length > 0) {
-        // Giả sử province model của bạn có thuộc tính 'name'
-        this.cities = this.vnLocations
-          .map(province => province.name)
-          .filter((name): name is string => !!name); // Lọc bỏ các giá trị null/undefined nếu có
-      }
-    })
+  readonly group = this.orderService.paymentForm.get('shipInfo') as FormGroup;
+  cartDetails: CartView[] = [];
+  isLoading = signal(false);
+
+  private city = signal('');
+  private district = signal('');
+
+  private readonly provinces = this.storeService.vietNamProvince;
+  readonly cities = computed(() => this.provinces().map(p => p.name).filter(isName));
+  private readonly districtDtos = computed(() => this.provinces().find(p => p.name === this.city())?.districts ?? []);
+  readonly districts = computed(() => this.districtDtos().map(d => d.name).filter(isName));
+  readonly wards = computed(() =>
+    (this.districtDtos().find(d => d.name === this.district())?.wards ?? []).map(w => w.name).filter(isName));
+
+  get total(): number {
+    return this.orderService.totalOf(this.cartDetails);
   }
-  // Các mảng string để truyền vào Input
-  cities: string[] = [];
-  districts: string[] = [];
-  wards: string[] = [];
-  selectedProvince: any = null;
+
   ngOnInit() {
-    this.fetchVietNamLocations();
-  }
-
-  fetchVietNamLocations() {
-    if (this.storeService.vietNamProvince().length === 0) {
-      this.storeService.initVietnamLocations()
+    const state = history.state;
+    if (!state?.cartDetails) {
+      this.router.navigate(['/home']);
+      return;
     }
-  }
-
-  onCityChosen(event: any) {
-    // 1. Ép Form cập nhật ngay lập tức để đồng bộ UI
-    this.group.patchValue({
-      shipCity: event,
-      shipDistrict: '',
-      shipWard: ''
-    });
-
-    // 2. Tìm và BỎ TÚI LUÔN object Tỉnh vào biến class
-    this.selectedProvince = this.vnLocations.find(p => p.name === event);
-
-    // 3. Lấy danh sách Quận từ biến đã bỏ túi
-    this.districts = this.selectedProvince
-      ? this.selectedProvince.districts.map((d: any) => d.name)
-      : [];
-
-    // 4. Reset mảng Phường/Xã
-    this.wards = [];
-  }
-
-  onDistrictChosen(event: any) {
-    // 1. Ép Form cập nhật Quận
-    this.group.patchValue({ shipDistrict: event, shipWard: '' });
-
-    // 2. TÌM QUẬN TỪ BIẾN TỈNH ĐÃ LƯU (Trực tiếp bỏ qua bước hỏi Form)
-    const selectedDistrict = this.selectedProvince?.districts.find((d: any) => d.name === event);
-
-    // 3. Cập nhật danh sách Phường/Xã
-    this.wards = selectedDistrict && selectedDistrict.wards
-      ? selectedDistrict.wards.map((w: any) => w.name)
-      : [];
+    this.cartDetails = state.cartDetails;
+    // Chưa qua bước nhập email (tải lại trang, gõ thẳng URL) thì về bước 1.
+    if (this.orderService.paymentForm.get('email')?.invalid) {
+      this.goBack();
+      return;
+    }
+    this.city.set(this.group.value.shipCity ?? '');
+    this.district.set(this.group.value.shipDistrict ?? '');
+    if (this.provinces().length === 0) {
+      this.storeService.initVietnamLocations();
+    }
   }
 
   /** Thông báo lỗi tiếng Việt cho một trường; rỗng nếu chưa chạm vào hoặc hợp lệ. */
   errorFor(name: string): string {
-    const control = this.group?.get(name);
+    const control = this.group.get(name);
     if (!control || !control.touched || !control.errors) return '';
     switch (name) {
       case 'receiverName': return 'Vui lòng nhập tên người nhận';
-      case 'receiverPhone': return control.errors['required'] ? 'Vui lòng nhập số điện thoại' : 'Số điện thoại không hợp lệ';
+      case 'receiverPhone':
+        return control.errors['required']
+          ? 'Vui lòng nhập số điện thoại'
+          : 'Số điện thoại phải gồm 10 chữ số, bắt đầu bằng 03, 05, 07, 08 hoặc 09';
       case 'shipCity': return 'Vui lòng chọn tỉnh/thành phố';
       case 'shipDistrict': return 'Vui lòng chọn quận/huyện';
       case 'address': return 'Vui lòng nhập số nhà, tên đường';
@@ -90,8 +79,35 @@ export class ShipFormComponent implements OnInit {
     }
   }
 
-  onWardChosen(event: any) {
-    // Ép Form cập nhật Phường
-    this.group.patchValue({ shipWard: event });
+  onCityChosen(city: string) {
+    this.group.patchValue({ shipCity: city, shipDistrict: '', shipWard: '' });
+    this.city.set(city);
+    this.district.set('');
+  }
+
+  onDistrictChosen(district: string) {
+    this.group.patchValue({ shipDistrict: district, shipWard: '' });
+    this.district.set(district);
+  }
+
+  goBack() {
+    this.router.navigate(['/order'], { state: { cartDetails: this.cartDetails } });
+  }
+
+  goNext() {
+    if (this.group.invalid) {
+      this.group.markAllAsTouched();
+      return;
+    }
+    this.isLoading.set(true);
+    this.orderService.submitOrder(this.cartDetails).subscribe({
+      next: () => {
+        this.router.navigate(['/order', 'payment'], { state: { cartDetails: this.cartDetails } });
+      },
+      error: (err) => {
+        this.notifyService.error(err.error?.message || err.message || 'Có lỗi xảy ra khi tạo đơn hàng');
+        this.isLoading.set(false);
+      }
+    });
   }
 }

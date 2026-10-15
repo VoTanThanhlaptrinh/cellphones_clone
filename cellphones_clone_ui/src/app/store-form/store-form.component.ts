@@ -1,56 +1,71 @@
-import { Component, effect, Input, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-// import { StoreView } from '../core/models/store.model'; // Mở lại nếu cần
+import { Router } from '@angular/router';
 import { AutocompleteInputComponent } from "../shared/custom/autocomplete-input/autocomplete-input.component";
 import { InputComponent } from "../shared/custom/input/input.component";
+import { OrderStepHeaderComponent } from '../shared/order-step-header/order-step-header.component';
+import { OrderBottomBarComponent } from '../shared/order-bottom-bar/order-bottom-bar.component';
 import { OrderService } from '../services/order.service';
 import { StoreService } from '../services/store.service';
+import { NotifyService } from '../services/notify.service';
+import { CartView } from '../core/models/cart_request.model';
 
+/** Trang 2 (nhận tại cửa hàng): chọn tỉnh/thành, quận/huyện rồi cửa hàng nhận máy. */
 @Component({
   selector: 'app-store-form',
-  imports: [AutocompleteInputComponent, InputComponent, ReactiveFormsModule],
+  imports: [AutocompleteInputComponent, InputComponent, ReactiveFormsModule, OrderStepHeaderComponent, OrderBottomBarComponent],
   templateUrl: './store-form.component.html',
   styleUrl: './store-form.component.css',
   standalone: true
 })
 export class StoreFormComponent implements OnInit {
-  @Input() group!: FormGroup | any;
+  private router = inject(Router);
+  private orderService = inject(OrderService);
+  private storeService = inject(StoreService);
+  private notifyService = inject(NotifyService);
 
-  cityList: string[] = [];
-  districtList: string[] = [];
-  streetList: string[] = [];
+  readonly group = this.orderService.paymentForm.get('storeInfo') as FormGroup;
+  cartDetails: CartView[] = [];
+  isLoading = signal(false);
 
-  constructor(private storeService: StoreService, private orderService: OrderService) {
-    effect(() => {
-      const stores = this.storeService.storeViews();
+  private city = signal('');
+  private district = signal('');
 
-      if (stores && stores.length > 0) {
-        this.cityList = [...new Set(stores.map(s => s.city))];
-        const storeInfo = this.orderService?.getPaymentData()?.storeInfo
+  readonly cityList = computed(() => [...new Set(this.storeService.storeViews().map(s => s.city))]);
+  readonly districtList = computed(() => {
+    const store = this.storeService.storeViews().find(s => s.city === this.city());
+    return store ? [...new Set(store.districts.map(d => d.district))] : [];
+  });
+  readonly streetList = computed(() => {
+    const store = this.storeService.storeViews().find(s => s.city === this.city());
+    const district = store?.districts.find(d => d.district === this.district());
+    return district ? [...new Set(district.streets.map(s => s.street))] : [];
+  });
 
-        const savedCity = storeInfo?.city;
-        if (savedCity) {
-          const selectedStore = stores.find(s => s.city === savedCity);
-          this.districtList = selectedStore ? [...new Set(selectedStore.districts.map(d => d.district))] : [];
-        }
-
-        const savedDistrict = storeInfo?.district;
-        if (savedCity && savedDistrict) {
-          const selectedStore = stores.find(s => s.city === savedCity);
-          const selectedDistrict = selectedStore?.districts.find(d => d.district === savedDistrict);
-          this.streetList = selectedDistrict ? [...new Set(selectedDistrict.streets.map((s: any) => s.street))] : [];
-        }
-      }
-    });
+  get total(): number {
+    return this.orderService.totalOf(this.cartDetails);
   }
 
   ngOnInit() {
+    const state = history.state;
+    if (!state?.cartDetails) {
+      this.router.navigate(['/home']);
+      return;
+    }
+    this.cartDetails = state.cartDetails;
+    // Chưa qua bước nhập email (tải lại trang, gõ thẳng URL) thì về bước 1.
+    if (this.orderService.paymentForm.get('email')?.invalid) {
+      this.goBack();
+      return;
+    }
+    this.city.set(this.group.value.city ?? '');
+    this.district.set(this.group.value.district ?? '');
     this.storeService.initStoreView();
   }
 
   /** Thông báo lỗi tiếng Việt; lỗi `storeId` hiển thị dưới ô chọn cửa hàng. */
   errorFor(name: string): string {
-    const control = this.group?.get(name);
+    const control = this.group.get(name);
     if (!control || !control.touched || !control.errors) return '';
     switch (name) {
       case 'city': return 'Vui lòng chọn tỉnh/thành phố';
@@ -60,37 +75,44 @@ export class StoreFormComponent implements OnInit {
     }
   }
 
-  onCityChosen(event: any) {
-    this.group.patchValue({ city: event, district: '', storeId: '', streetName: '' });
-
-    const stores = this.storeService.storeViews();
-    const selectedStore = stores.find(s => s.city === event);
-
-    this.districtList = selectedStore ? [...new Set(selectedStore.districts.map(d => d.district))] : [];
-    this.streetList = [];
+  onCityChosen(city: string) {
+    this.group.patchValue({ city, district: '', storeId: '', streetName: '' });
+    this.city.set(city);
+    this.district.set('');
   }
 
-  onDistrictChosen(event: any) {
-    this.group.patchValue({ district: event, storeId: '', streetName: '' });
-
-    const currentCity = this.group.get('city')?.value;
-    const stores = this.storeService.storeViews();
-
-    const selectedStore = stores.find(s => s.city === currentCity);
-    const selectedDistrict = selectedStore?.districts.find(d => d.district === event);
-
-    this.streetList = selectedDistrict ? [...new Set(selectedDistrict.streets.map((s: any) => s.street))] : [];
+  onDistrictChosen(district: string) {
+    this.group.patchValue({ district, storeId: '', streetName: '' });
+    this.district.set(district);
   }
 
-  onStreetChosen(event: any) {
-    const currentCity = this.group.get('city')?.value;
-    const currentDistrict = this.group.get('district')?.value;
-    const stores = this.storeService.storeViews();
+  onStreetChosen(street: string) {
+    const store = this.storeService.storeViews().find(s => s.city === this.city());
+    const district = store?.districts.find(d => d.district === this.district());
+    const storeId = district?.streets.find(s => s.street === street)?.id ?? '';
+    this.group.patchValue({ storeId, streetName: street });
+    // Ô cửa hàng bind vào `streetName`, còn lỗi nằm ở `storeId`: đánh dấu để lỗi hiện đúng lúc.
+    this.group.get('storeId')?.markAsTouched();
+  }
 
-    const selectedStore = stores.find(s => s.city === currentCity);
-    const selectedDistrict = selectedStore?.districts.find(d => d.district === currentDistrict);
+  goBack() {
+    this.router.navigate(['/order'], { state: { cartDetails: this.cartDetails } });
+  }
 
-    const storeId = selectedDistrict?.streets.find((s: any) => s.street === event)?.id;
-    this.group.patchValue({ storeId: storeId, streetName: event });
+  goNext() {
+    if (this.group.invalid) {
+      this.group.markAllAsTouched();
+      return;
+    }
+    this.isLoading.set(true);
+    this.orderService.submitOrder(this.cartDetails).subscribe({
+      next: () => {
+        this.router.navigate(['/order', 'payment'], { state: { cartDetails: this.cartDetails } });
+      },
+      error: (err) => {
+        this.notifyService.error(err.error?.message || err.message || 'Có lỗi xảy ra khi tạo đơn hàng');
+        this.isLoading.set(false);
+      }
+    });
   }
 }

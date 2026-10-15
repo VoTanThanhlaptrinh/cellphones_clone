@@ -1,10 +1,6 @@
-<div class="flex flex-col static bg-gray-100 gap-y-2">
-  <app-header-cart-order [totalQuantity]="this.totalQuantity" class="w-full" />
+<div class="flex flex-col bg-gray-100 gap-y-2">
+  <app-header-cart-order [totalQuantity]="totalQuantity" class="w-full" />
   <main>
-    @if(this.isAppear()){
-    <app-payment-infor />
-    }@else {
-    <app-payment />
-    }
+    <router-outlet />
   </main>
 </div>
