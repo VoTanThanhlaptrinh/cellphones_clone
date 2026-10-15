@@ -1,0 +1,8 @@
+@defer {
+<app-header [amountCart]="amountCart()"></app-header>
+}
+<router-outlet></router-outlet>
+<app-back-to-top (scrollToTop)="scrollToTop()"></app-back-to-top>
+@defer {
+<app-footer></app-footer>
+}
