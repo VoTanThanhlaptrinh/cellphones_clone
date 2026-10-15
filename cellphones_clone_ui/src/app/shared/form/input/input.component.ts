@@ -25,7 +25,11 @@ export class InputComponent implements ControlValueAccessor {
   @Input() helperText: string = '';
   @Input() errorMessage: string = '';
   @Input() required: boolean = false;
-  @Input() type: 'text' | 'tel' | 'email' = 'text';
+  @Input() type: 'text' | 'tel' | 'email' | 'number' = 'text';
+  /** Chỉ có tác dụng khi `type = 'number'`. */
+  @Input() min: number | null = null;
+  @Input() max: number | null = null;
+  @Input() step: number | null = null;
   @Input() autocomplete: string = 'off';
 
   value: string = '';

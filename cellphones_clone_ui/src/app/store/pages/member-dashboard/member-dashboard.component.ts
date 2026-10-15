@@ -6,6 +6,7 @@ import { IconComponent } from '@shared/ui/icon/icon.component';
 import { OrderService } from '@store/services/order.service';
 import { OrderHistory } from '@core/models/order.model';
 import { VndPipe } from '@shared/pipes/vnd.pipe';
+import { BadgeComponent, BadgeTone } from '@shared/ui/badge/badge.component';
 
 type MemberTab = 'overview' | 'orders' | 'account';
 
@@ -19,12 +20,12 @@ const STATUS_LABELS: Record<string, string> = {
   Cancelled: 'Đã hủy',
 };
 
-const STATUS_CLASSES: Record<string, string> = {
-  Pending: 'bg-gray-100 text-gray-700',
-  Paid: 'bg-green-100 text-success',
-  Shipping: 'bg-blue-50 text-info',
-  Completed: 'bg-green-100 text-success',
-  Cancelled: 'bg-red-50 text-danger',
+const STATUS_TONES: Record<string, BadgeTone> = {
+  Pending: 'neutral',
+  Paid: 'success',
+  Shipping: 'info',
+  Completed: 'success',
+  Cancelled: 'danger',
 };
 
 /**
@@ -34,7 +35,7 @@ const STATUS_CLASSES: Record<string, string> = {
 @Component({
   selector: 'app-member-dashboard',
   standalone: true,
-  imports: [RouterLink, IconComponent, DatePipe, VndPipe],
+  imports: [RouterLink, IconComponent, DatePipe, VndPipe, BadgeComponent],
   templateUrl: './member-dashboard.component.html',
 })
 export class MemberDashboardComponent implements OnInit {
@@ -91,8 +92,8 @@ export class MemberDashboardComponent implements OnInit {
     return STATUS_LABELS[status] ?? status;
   }
 
-  statusClass(status: string): string {
-    return STATUS_CLASSES[status] ?? 'bg-gray-100 text-gray-700';
+  statusTone(status: string): BadgeTone {
+    return STATUS_TONES[status] ?? 'neutral';
   }
 
   typeLabel(type: string): string {
