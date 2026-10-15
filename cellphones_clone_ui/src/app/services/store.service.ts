@@ -3,7 +3,7 @@ import { Injectable, signal } from '@angular/core';
 import { NotifyService } from './notify.service';
 import { ApiResponse } from './auth.service';
 import { StoreView, VietnamProvinceDto } from '../core/models/store.model';
-import { environment } from '../../environments/environment.development';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
