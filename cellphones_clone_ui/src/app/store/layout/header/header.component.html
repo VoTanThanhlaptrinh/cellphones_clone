@@ -173,6 +173,10 @@
         <div role="menu" class="absolute right-0 top-full z-50 mt-2 w-52 rounded-xl bg-white py-1 text-sm text-gray-900 shadow-lg">
           <a role="menuitem" routerLink="/member-dashboard" (click)="menuOpen = false"
             class="block px-4 py-2 hover:bg-gray-100">Tài khoản của tôi</a>
+          @if (authService.isAdmin()) {
+          <a role="menuitem" routerLink="/admin" (click)="menuOpen = false"
+            class="block px-4 py-2 hover:bg-gray-100">Trang quản trị</a>
+          }
           <button role="menuitem" type="button" (click)="logout()"
             class="block w-full px-4 py-2 text-left hover:bg-gray-100">Đăng xuất</button>
         </div>
