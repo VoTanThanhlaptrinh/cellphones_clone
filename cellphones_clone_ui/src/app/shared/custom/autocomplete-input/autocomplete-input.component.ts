@@ -1,9 +1,20 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, forwardRef } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { IconComponent } from '../../icons/icon.component';
 
+/** Bỏ dấu tiếng Việt và hạ chữ thường để gõ "ha noi" vẫn tìm ra "Hà Nội". */
+function normalize(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .replace(/đ/g, 'd');
+}
+
 /**
- * Ô nhập có gợi ý (combobox). Chọn bằng chuột hoặc bàn phím: ↑/↓ di chuyển, Enter chọn, Esc đóng.
+ * Ô chọn có gợi ý (combobox) cho các danh sách dài như tỉnh/quận/phường.
+ * - Giá trị của form chỉ nhận một mục có trong danh sách; gõ dở rồi rời ô thì quay lại giá trị đã chọn.
+ * - Bàn phím: ↑/↓ di chuyển, Enter chọn, Esc đóng và hoàn tác.
  */
 @Component({
   selector: 'app-autocomplete-input',
@@ -19,110 +30,178 @@ import { IconComponent } from '../../icons/icon.component';
     }
   ]
 })
-export class AutocompleteInputComponent implements OnInit, ControlValueAccessor, OnChanges {
+export class AutocompleteInputComponent implements ControlValueAccessor, OnChanges {
   private static nextId = 0;
   /** Id duy nhất cho mỗi instance để label/aria gắn đúng input. */
   readonly inputId = `app-autocomplete-${AutocompleteInputComponent.nextId++}`;
 
-  @Output() dataChosen = new EventEmitter<object>();
-  data: string = ''
-  @Input()
-  label: string = ''
-  @Input()
-  original: string[] = []
+  @Input() label = '';
+  @Input() original: string[] = [];
+  @Input() required = false;
+  @Input() placeholder = 'Chọn';
+  /** Nội dung hiện khi danh sách rỗng (ví dụ chưa chọn cấp cha). */
+  @Input() emptyText = 'Không có dữ liệu';
   /** Thông báo lỗi tiếng Việt do form cha truyền vào (rỗng = không lỗi). */
-  @Input() errorMessage: string = ''
-  filtered: string[] = []
-  open = false
-  /** Mục đang được chọn bằng phím ↑/↓ (-1 = chưa chọn). */
-  activeIndex = -1
+  @Input() errorMessage = '';
+  /** Phát ra mục được chọn; phát chuỗi rỗng khi người dùng xoá lựa chọn. */
+  @Output() dataChosen = new EventEmitter<string>();
 
-  onChange: any = () => { }
-  onTouch: any = () => { }
-  disabled = false
+  /** Chữ đang hiển thị trong ô nhập. */
+  text = '';
+  /** Giá trị đã chọn (đồng bộ với form). */
+  value = '';
+  filtered: string[] = [];
+  open = false;
+  /** Mục đang được tô sáng bằng phím ↑/↓ (-1 = chưa có). */
+  activeIndex = -1;
+  disabled = false;
 
-  ngOnInit(): void {
-    this.filtered = [... this.original]
+  private onChange: (value: string) => void = () => { };
+  private onTouch: () => void = () => { };
+
+  get inputClass(): string {
+    const state = this.errorMessage
+      ? 'border-danger focus:border-danger focus:ring-danger/20'
+      : 'border-gray-300 focus:border-primary-500 focus:ring-primary-100';
+    return `h-10 w-full rounded-lg border bg-white pl-3 pr-14 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:text-gray-400 ${state}`;
   }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['original']) {
-      // Chỉ cập nhật lại danh sách hiển thị, tuyệt đối KHÔNG can thiệp xóa this.data
-      this.filtered = [...this.original];
-      this.activeIndex = -1;
+      this.refilter(this.open ? this.text : '');
     }
   }
 
-  writeValue(value: any): void {
-    this.data = value || '';
+  writeValue(value: string | null): void {
+    this.value = value || '';
+    this.text = this.value;
   }
-  registerOnChange(fn: any): void {
-    this.onChange = fn
+  registerOnChange(fn: (value: string) => void): void {
+    this.onChange = fn;
   }
-  registerOnTouched(fn: any): void {
-    this.onTouch = fn
+  registerOnTouched(fn: () => void): void {
+    this.onTouch = fn;
   }
-  setDisabledState?(isDisabled: boolean): void {
-    this.disabled = isDisabled
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled = isDisabled;
   }
 
-  onFocus() {
+  onFocus(input: HTMLInputElement) {
+    this.refilter('');
     this.open = true;
+    // Chọn hết chữ để gõ đè lên là tìm lại ngay.
+    input.select();
   }
 
   onBlur() {
     this.open = false;
     this.activeIndex = -1;
+    this.commitText();
     this.onTouch();
   }
 
-  filter(event: any) {
-    var value = event.target.value
-    this.data = value; // Update internal data as user types
-    this.onChange(value); // Propagate change
-    this.onTouch();
+  onInput(event: Event) {
+    this.text = (event.target as HTMLInputElement).value;
     this.open = true;
-    this.activeIndex = -1;
-    if (value)
-      this.filtered = (this.original ?? []).filter(n => n.toLowerCase().includes(value.toLowerCase()))
-    else
-      this.filtered = [...this.original];
+    this.refilter(this.text);
   }
 
-  onKeydown(event: KeyboardEvent, inputElement: HTMLInputElement) {
-    const count = this.filtered.length;
-    if (event.key === 'ArrowDown') {
-      event.preventDefault();
+  toggle(input: HTMLInputElement) {
+    if (this.disabled) return;
+    if (this.open) {
+      this.open = false;
+    } else {
+      input.focus();
+      this.refilter('');
       this.open = true;
-      if (count > 0) this.activeIndex = (this.activeIndex + 1) % count;
-      this.scrollActiveIntoView();
-    } else if (event.key === 'ArrowUp') {
-      event.preventDefault();
-      this.open = true;
-      if (count > 0) this.activeIndex = this.activeIndex <= 0 ? count - 1 : this.activeIndex - 1;
-      this.scrollActiveIntoView();
-    } else if (event.key === 'Enter') {
-      if (this.open && this.activeIndex >= 0 && this.activeIndex < count) {
-        event.preventDefault();
-        this.choose(this.filtered[this.activeIndex], inputElement);
-      }
-    } else if (event.key === 'Escape') {
-      if (this.open) {
-        event.preventDefault();
-        this.open = false;
-        this.activeIndex = -1;
-      }
     }
   }
 
-  choose(item: any, inputElement: HTMLInputElement) {
-    this.data = item
-    inputElement.value = item
-    this.onChange(item)
-    this.dataChosen.emit(item);
-    this.onTouch()
-    this.filtered = [...this.original];
-    // Giữ focus trên ô nhập để người dùng bàn phím tiếp tục điền form; chỉ đóng danh sách.
+  clear(input: HTMLInputElement) {
+    this.text = '';
+    this.applyValue('');
+    this.refilter('');
+    input.focus();
+  }
+
+  onKeydown(event: KeyboardEvent) {
+    const count = this.filtered.length;
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        if (!this.open) {
+          this.refilter('');
+          this.open = true;
+        }
+        if (count > 0) this.activeIndex = (this.activeIndex + 1) % count;
+        this.scrollActiveIntoView();
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        this.open = true;
+        if (count > 0) this.activeIndex = this.activeIndex <= 0 ? count - 1 : this.activeIndex - 1;
+        this.scrollActiveIntoView();
+        break;
+      case 'Enter': {
+        if (!this.open) return;
+        // Không có mục được tô sáng nhưng chỉ còn đúng một kết quả thì chọn luôn.
+        const index = this.activeIndex >= 0 ? this.activeIndex : (count === 1 ? 0 : -1);
+        if (index >= 0) {
+          event.preventDefault();
+          this.choose(this.filtered[index]);
+        }
+        break;
+      }
+      case 'Escape':
+        if (this.open) {
+          event.preventDefault();
+          this.open = false;
+          this.activeIndex = -1;
+          this.text = this.value;
+        }
+        break;
+    }
+  }
+
+  choose(item: string) {
+    this.text = item;
+    this.applyValue(item);
+    this.refilter('');
+    // Giữ focus trên ô nhập để người dùng bàn phím điền tiếp; chỉ đóng danh sách.
     this.open = false;
+    this.activeIndex = -1;
+  }
+
+  /** Rời ô: chữ khớp đúng một mục thì nhận, ô trống thì xoá, còn lại hoàn tác về giá trị đã chọn. */
+  private commitText() {
+    const typed = this.text.trim();
+    if (typed === this.value) {
+      this.text = this.value;
+      return;
+    }
+    if (!typed) {
+      this.applyValue('');
+      return;
+    }
+    const match = this.original.find(item => normalize(item) === normalize(typed));
+    if (match) {
+      this.text = match;
+      this.applyValue(match);
+    } else {
+      this.text = this.value;
+    }
+  }
+
+  private applyValue(item: string) {
+    if (item === this.value) return;
+    this.value = item;
+    this.onChange(item);
+    this.dataChosen.emit(item);
+  }
+
+  private refilter(query: string) {
+    const q = normalize(query.trim());
+    this.filtered = q ? this.original.filter(item => normalize(item).includes(q)) : [...this.original];
     this.activeIndex = -1;
   }
 
