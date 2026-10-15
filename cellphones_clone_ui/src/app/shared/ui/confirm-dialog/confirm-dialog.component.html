@@ -1,0 +1,11 @@
+<h2 mat-dialog-title class="font-bold">{{ data.title }}</h2>
+<mat-dialog-content>
+  <p class="text-sm text-gray-700">{{ data.message }}</p>
+</mat-dialog-content>
+<mat-dialog-actions align="end" class="gap-2 pb-4">
+  <button type="button" class="btn btn-ghost" [mat-dialog-close]="false">{{ data.cancelLabel ?? 'Huỷ' }}</button>
+  <button type="button" class="btn" [class]="data.destructive ? 'bg-danger text-white hover:bg-red-700' : 'btn-primary'"
+    [mat-dialog-close]="true" cdkFocusInitial>
+    {{ data.confirmLabel ?? 'Xác nhận' }}
+  </button>
+</mat-dialog-actions>
