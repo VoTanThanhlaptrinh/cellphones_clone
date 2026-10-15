@@ -20,6 +20,8 @@ export class AuthService {
 
   // User Signal to hold the current user state
   currentUser = signal<User | null>(null);
+  /** Người dùng hiện tại có role ADMIN (role lấy từ JWT, backend vẫn tự kiểm tra lại ở mỗi request). */
+  readonly isAdmin = computed(() => this.currentUser()?.roles.includes('ADMIN') ?? false);
 
   constructor(
     private http: HttpClient,
