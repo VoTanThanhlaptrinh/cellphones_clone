@@ -6,11 +6,11 @@ import {
   OnInit,
 } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { FooterComponent } from './footer/footer.component';
-import { HeaderComponent } from './header/header.component';
+import { FooterComponent } from './store/layout/footer/footer.component';
+import { HeaderComponent } from './store/layout/header/header.component';
 import { filter } from 'rxjs';
 import { ViewportScroller } from '@angular/common';
-import { BackToTopComponent } from './back-to-top/back-to-top.component';
+import { BackToTopComponent } from './store/layout/back-to-top/back-to-top.component';
 import { NotifyService } from '@core/services/notify.service';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { LoadingService } from './core/services/loading.service';

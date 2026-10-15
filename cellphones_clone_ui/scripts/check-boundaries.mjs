@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 const appDir = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'app');
 
 /** Layer nào đã được dọn xong thì mới kiểm tra; thêm vào đây khi hoàn thành bước tương ứng. */
-const ENFORCED = new Set(['core']);
+const ENFORCED = new Set(['core', 'shared', 'store', 'admin']);
 
 const RULES = {
   core: { allow: ['core'] },

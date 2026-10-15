@@ -183,7 +183,7 @@ Không dùng các giá trị z-index tuỳ ý như `z-1000` hay `z-9999`.
 
 ## 5. Component recipes
 
-Các class dùng chung được định nghĩa trong `@layer components` của `src/styles.css`. Component Angular dùng chung đặt trong `src/app/shared/`.
+Các class dùng chung được định nghĩa trong `@layer components` của `src/styles.css`. Component Angular dùng chung đặt trong `src/app/shared/` (hiển thị thuần, dùng chung cả storefront lẫn admin) hoặc `src/app/store/components/` (riêng cho storefront). Xem [ADMIN_MERGE_PLAN.md](ADMIN_MERGE_PLAN.md) về quy tắc thư mục.
 
 ### 5.1 Button
 
@@ -362,7 +362,7 @@ Gồm 2 bước "1. Thông tin" và "2. Thanh toán". Bước hiện tại dùng
 
 ### 5.14 Thông báo (toast) & hộp thoại
 
-- Toast **chỉ** gọi qua `NotifyService` (`src/app/services/notify.service.ts`), không gọi `ToastrService` trực tiếp. Nội dung tiếng Việt, ngắn gọn, nói rõ chuyện gì đã xảy ra và cần làm gì.
+- Toast **chỉ** gọi qua `NotifyService` (`src/app/core/services/notify.service.ts`), không gọi `ToastrService` trực tiếp. Nội dung tiếng Việt, ngắn gọn, nói rõ chuyện gì đã xảy ra và cần làm gì.
 - Hộp thoại dùng `MatDialog`. Tiêu đề là `h2` có `mat-dialog-title`. Nút trong hộp thoại dùng recipe §5.1, hành động chính nằm bên phải.
 
 ### 5.15 Footer
@@ -402,7 +402,7 @@ export class VndPipe implements PipeTransform {
 - Kích thước: `size-4` (16px) trong text, `size-5` (20px) trong nút, `size-6` (24px) cho icon độc lập.
 - Icon trang trí phải có `aria-hidden="true"`. Icon đứng một mình trong nút thì nút cần `aria-label`.
 - `id` bên trong SVG (`clipPath`, `mask`, `linearGradient`) phải duy nhất trên trang. Tốt nhất là không dùng các phần tử này cho icon đơn giản.
-- **Dùng `<app-icon>`** (`src/app/shared/icons/icon.component.ts`) cho icon đã có trong danh sách: `<app-icon name="cart" svgClass="size-5 text-gray-500" />`. Class kích thước/màu truyền qua `svgClass` (host là `display: contents`). Thêm icon mới = thêm một `@case` vào component, không copy SVG vào template.
+- **Dùng `<app-icon>`** (`src/app/shared/ui/icon/icon.component.ts`) cho icon đã có trong danh sách: `<app-icon name="cart" svgClass="size-5 text-gray-500" />`. Class kích thước/màu truyền qua `svgClass` (host là `display: contents`). Thêm icon mới = thêm một `@case` vào component, không copy SVG vào template.
 - Icon lặp lại từ 2 nơi trở lên bắt buộc đi qua component này. Logo thương hiệu là ngoại lệ (SVG riêng trong header).
 
 ---
