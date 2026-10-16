@@ -1,0 +1,113 @@
+<div class="flex min-h-screen flex-col bg-gray-100">
+  <app-header-cart-order [totalQuantity]="0" />
+
+  <main class="flex grow justify-center p-4 py-8">
+    <div class="h-fit w-full max-w-xl rounded-2xl bg-white p-6 shadow-card md:p-8" aria-live="polite">
+      @if (loadFailed()) {
+      <h1 class="mb-2 text-xl font-bold text-gray-900">Không tải được giao dịch</h1>
+      <p class="mb-6 text-gray-500">Giao dịch không tồn tại hoặc bạn không có quyền xem. Vui lòng thử lại hoặc quay về giỏ hàng.</p>
+      <div class="flex flex-col gap-3 sm:flex-row">
+        <a routerLink="/member-dashboard" class="btn btn-outline btn-lg flex-1">Xem đơn hàng</a>
+        <a routerLink="/cart" class="btn btn-primary btn-lg flex-1">Về giỏ hàng</a>
+      </div>
+      } @else if (!payment()) {
+      <p class="py-10 text-center text-gray-500">Đang tải thông tin thanh toán…</p>
+      } @else if (expired()) {
+      <div class="flex flex-col items-center py-4 text-center" role="alert">
+        <h1 class="mb-2 text-2xl font-bold text-gray-900">Thanh toán đã hết hạn</h1>
+        <p class="mb-2 text-gray-500">Giao dịch #{{ payment()!.id }} đã quá thời gian thanh toán. Nếu bạn đã chuyển tiền, đơn hàng sẽ được cập nhật sau ít phút.</p>
+        <p class="font-medium text-gray-900">Bạn sẽ được chuyển về trang chủ sau {{ redirectIn() }} giây…</p>
+        <a routerLink="/home" class="btn btn-primary btn-lg mt-6 w-full">Về trang chủ ngay</a>
+      </div>
+      } @else {
+      @switch (payment()!.status) {
+      @case ('PENDING') {
+      <div class="mb-4 flex items-start justify-between gap-3">
+        <div>
+          <h1 class="text-xl font-bold text-gray-900">Thanh toán đơn hàng #{{ payment()!.orderId }}</h1>
+          <p class="text-xs text-gray-500">Mã giao dịch #{{ payment()!.id }}</p>
+        </div>
+        @if (secondsLeft() !== null) {
+        <div class="shrink-0 rounded-lg bg-primary-50 px-3 py-2 text-center">
+          <p class="text-xs text-gray-500">Còn lại</p>
+          <p class="text-lg font-bold tabular-nums text-primary-500">{{ countdownText }}</p>
+        </div>
+        }
+      </div>
+
+      <div class="mb-4 flex items-center justify-between rounded-lg bg-gray-50 p-4">
+        <span class="text-gray-500">Số tiền cần thanh toán</span>
+        <span class="text-xl font-bold text-primary-500">{{ payment()!.amount | vnd:false }}</span>
+      </div>
+
+      @if (payment()!.provider === 'VNPAY') {
+      <p class="mb-4 text-sm text-gray-600">Bạn sẽ được chuyển sang cổng VNPay để hoàn tất thanh toán, sau đó quay lại cửa hàng.</p>
+      <button type="button" class="btn btn-primary btn-lg w-full" [disabled]="!payment()!.checkoutUrl" (click)="goToProvider()">
+        Thanh toán qua VNPay
+      </button>
+      } @else if (payment()!.paymentInfo; as info) {
+      <p class="mb-3 text-center text-sm text-gray-600">Mở ứng dụng ngân hàng, quét mã QR hoặc chuyển khoản theo thông tin dưới đây.</p>
+      @if (qrImage(); as qr) {
+      <div class="mx-auto mb-4 flex size-64 items-center justify-center overflow-hidden rounded-xl border-2 border-success bg-white p-2 shadow-md">
+        <img [src]="qr" alt="Mã QR thanh toán đơn hàng" class="size-full object-contain" />
+      </div>
+      }
+      <dl class="divide-y divide-gray-100 rounded-lg border border-gray-200 text-sm">
+        @if (bankName) {
+        <div class="flex justify-between gap-3 p-3"><dt class="text-gray-500">Ngân hàng</dt><dd class="font-medium text-gray-900">{{ bankName }}</dd></div>
+        }
+        @if (info.accountName) {
+        <div class="flex justify-between gap-3 p-3"><dt class="text-gray-500">Chủ tài khoản</dt><dd class="font-medium text-gray-900">{{ info.accountName }}</dd></div>
+        }
+        @if (info.accountNumber) {
+        <div class="flex items-center justify-between gap-3 p-3">
+          <dt class="text-gray-500">Số tài khoản</dt>
+          <dd class="flex items-center gap-2 font-medium text-gray-900">{{ info.accountNumber }}
+            <button type="button" class="btn btn-ghost btn-sm" (click)="copy(info.accountNumber, 'số tài khoản')">Sao chép</button>
+          </dd>
+        </div>
+        }
+        <div class="flex items-center justify-between gap-3 p-3">
+          <dt class="text-gray-500">Số tiền</dt>
+          <dd class="flex items-center gap-2 font-medium text-gray-900">{{ payment()!.amount | vnd:false }}
+            <button type="button" class="btn btn-ghost btn-sm" (click)="copy(payment()!.amount.toString(), 'số tiền')">Sao chép</button>
+          </dd>
+        </div>
+        @if (info.transferContent) {
+        <div class="flex items-center justify-between gap-3 p-3">
+          <dt class="text-gray-500">Nội dung</dt>
+          <dd class="flex items-center gap-2 font-medium text-gray-900">{{ info.transferContent }}
+            <button type="button" class="btn btn-ghost btn-sm" (click)="copy(info.transferContent, 'nội dung chuyển khoản')">Sao chép</button>
+          </dd>
+        </div>
+        }
+      </dl>
+      <p class="mt-3 text-xs text-gray-500">Vui lòng giữ nguyên số tiền và nội dung chuyển khoản. Trang sẽ tự chuyển sau khi thanh toán thành công.</p>
+      @if (payment()!.checkoutUrl) {
+      <p class="mt-3 text-center text-xs text-gray-500">
+        Cần trang thanh toán của PayOS?
+        <a [href]="payment()!.checkoutUrl" target="_blank" rel="noopener noreferrer" class="font-bold text-primary-500 hover:underline">Mở trang thanh toán</a>
+      </p>
+      }
+      } @else {
+      <p class="py-6 text-center text-sm text-gray-500">Đang tải thông tin chuyển khoản…</p>
+      }
+      }
+      @case ('REVIEW_REQUIRED') {
+      <h1 class="mb-2 text-xl font-bold text-gray-900">Giao dịch cần được kiểm tra</h1>
+      <p class="mb-6 text-gray-500" role="alert">Vui lòng không thanh toán lại. Hãy liên hệ tổng đài <a href="tel:18002097" class="font-bold text-primary-500 hover:underline">1800.2097</a> kèm mã đơn #{{ payment()!.orderId }} để được hỗ trợ.</p>
+      <a routerLink="/member-dashboard" class="btn btn-primary btn-lg w-full">Xem đơn hàng</a>
+      }
+      @default {
+      <h1 class="mb-2 text-xl font-bold text-gray-900">Thanh toán chưa thành công</h1>
+      <p class="mb-6 text-gray-500" role="alert">Giao dịch #{{ payment()!.id }} đã bị huỷ hoặc không thành công. Đơn hàng của bạn vẫn được giữ, bạn có thể thanh toán lại.</p>
+      <div class="flex flex-col gap-3 sm:flex-row">
+        <a routerLink="/member-dashboard" class="btn btn-outline btn-lg flex-1">Xem đơn hàng</a>
+        <a routerLink="/cart" class="btn btn-primary btn-lg flex-1">Về giỏ hàng</a>
+      </div>
+      }
+      }
+      }
+    </div>
+  </main>
+</div>

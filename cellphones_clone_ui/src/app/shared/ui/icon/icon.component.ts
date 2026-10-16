@@ -2,8 +2,10 @@ import { Component, Input } from '@angular/core';
 
 export type IconName =
   | 'arrow-left'
+  | 'bag'
   | 'box'
   | 'cart'
+  | 'cart-plus'
   | 'check-circle'
   | 'chevron-down'
   | 'chevron-right'
@@ -41,6 +43,11 @@ export type IconName =
         @case ('arrow-left') {
           <path d="M19 12H5m0 0 6-6m-6 6 6 6" />
         }
+        @case ('bag') {
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+          <path d="M3 6h18" />
+          <path d="M16 10a4 4 0 0 1-8 0" />
+        }
         @case ('box') {
           <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2" />
         }
@@ -48,6 +55,12 @@ export type IconName =
           <circle cx="7.5" cy="20" r="1" />
           <circle cx="17.5" cy="20" r="1" />
           <path d="M2.5 3h.77a1 1 0 0 1 .98.8L4.65 6m0 0 1.55 8.36A2 2 0 0 0 8.16 16h9.24a1 1 0 0 0 .97-.77L20.2 7.2A.75.75 0 0 0 19.45 6H4.65Z" />
+        }
+        @case ('cart-plus') {
+          <circle cx="7.5" cy="20" r="1" />
+          <circle cx="17.5" cy="20" r="1" />
+          <path d="M2.5 3h.77a1 1 0 0 1 .98.8L4.65 6m0 0 1.55 8.36A2 2 0 0 0 8.16 16h9.24a1 1 0 0 0 .97-.77L20.2 7.2A.75.75 0 0 0 19.45 6H4.65Z" />
+          <path d="M12 8v5m-2.5-2.5h5" />
         }
         @case ('check-circle') {
           <circle cx="12" cy="12" r="9" />

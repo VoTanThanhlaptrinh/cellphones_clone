@@ -1,48 +1,32 @@
-import { Injectable, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import QRCode from 'qrcode';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '@core/models/api.model';
-import { NotifyService } from '@core/services/notify.service';
+import { SKIP_GLOBAL_SPINNER } from '@core/http/loading.context';
+import { OnlinePayment, OnlineProvider } from '@core/models/payment.model';
 
+/** Khoá sessionStorage để trang /payment/return biết giao dịch nào vừa rời đi thanh toán (không tin tham số URL). */
+export const PENDING_PAYMENT_ID_KEY = 'pendingPaymentId';
+
+/** Thanh toán online qua payment gateway. Kết quả chỉ tin từ backend (backend hỏi gateway), không tin tham số URL khi khách quay về. */
 @Injectable({
     providedIn: 'root'
 })
 export class PaymentService {
     private baseUrl = environment.apiUrl;
-    private qr = signal<string | null>(null);
-    constructor(private http: HttpClient, private notifyService: NotifyService) { }
+    constructor(private http: HttpClient) { }
 
-    /** Mã đơn mà `qr` đang giữ (hoặc đang tải); đổi đơn thì QR cũ bị bỏ để không hiển thị nhầm đơn đã huỷ. */
-    private qrOrderId: number | null = null;
-
-    generateQRPaymentLink(orderId: number) {
-        if (this.qrOrderId === orderId) {
-            return;
-        }
-        this.qrOrderId = orderId;
-        this.qr.set(null);
-        this.http.get<ApiResponse<string>>(`${this.baseUrl}/payment/qr-payment/${orderId}`).subscribe({
-            next: async (response) => {
-                try {
-                    // PayOS trả về chuỗi VietQR (EMV), không phải URL ảnh nên cần vẽ thành ảnh QR.
-                    const dataUrl = await QRCode.toDataURL(response.data, { width: 256, margin: 1 });
-                    if (this.qrOrderId === orderId) {
-                        this.qr.set(dataUrl);
-                    }
-                } catch {
-                    this.qrOrderId = null;
-                    this.notifyService.error('Lỗi khi tạo mã QR thanh toán.');
-                }
-            },
-            error: () => {
-                this.qrOrderId = null;
-                this.notifyService.error('Lỗi khi tạo mã QR thanh toán.');
-            }
-        });
+    /** Tạo giao dịch; nếu đơn đã có giao dịch còn hiệu lực thì backend trả lại giao dịch đó (có thể thuộc cổng khác cổng vừa chọn). */
+    startCheckout(orderId: number, provider: OnlineProvider): Observable<OnlinePayment> {
+        return this.http.post<ApiResponse<OnlinePayment>>(`${this.baseUrl}/payments/checkout`, { orderId, provider })
+            .pipe(map(response => response.data));
     }
-    getQr() {
-        return this.qr();
+
+    /** Giao dịch theo mã. `silent` cho các lần hỏi định kỳ, không bật spinner toàn trang. */
+    getPayment(id: number, silent = false): Observable<OnlinePayment> {
+        const context = new HttpContext().set(SKIP_GLOBAL_SPINNER, silent);
+        return this.http.get<ApiResponse<OnlinePayment>>(`${this.baseUrl}/payments/${id}`, { context })
+            .pipe(map(response => response.data));
     }
 }
