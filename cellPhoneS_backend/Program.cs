@@ -1,20 +1,20 @@
+using System.Net;
+using System.Text;
 using cellphones_backend.Data;
 using cellphones_backend.Models;
 using cellphones_backend.Repositories;
 using cellphones_backend.Resources;
 using cellPhoneS_backend.Services;
 using cellPhoneS_backend.Services.Interface;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
-using System.Net;
-using System.Text;
-using Microsoft.AspNetCore.RateLimiting;
-using Hangfire;
-using Hangfire.PostgreSql;
 
 internal partial class Program
 {
@@ -133,6 +133,18 @@ internal partial class Program
         builder.Services.AddScoped<IResourceLocalizer, ResourceLocalizer>();
         builder.Services.AddControllers(options => options.Filters.Add<cellPhoneS_backend.Filters.ApiExceptionFilter>());
         builder.Services.AddCustomServices();
+        // Payment gateway (payment-module): khoá API chỉ nằm ở backend, cấu hình qua PaymentGateway:BaseUrl|ApiKey (user-secrets/biến môi trường).
+        builder.Services.AddHttpClient<cellPhoneS_backend.Services.Interface.IPaymentGatewayClient, cellPhoneS_backend.Services.Implement.PaymentGatewayClientImpl>(client =>
+        {
+            var baseUrl = builder.Configuration["PaymentGateway:BaseUrl"];
+            if (!string.IsNullOrWhiteSpace(baseUrl))
+            {
+                client.BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/");
+            }
+            client.DefaultRequestHeaders.Add("x-api-key", builder.Configuration["PaymentGateway:ApiKey"] ?? "");
+            // Gateway có thể phải gọi cổng thanh toán nên cần timeout tối thiểu 15 giây.
+            client.Timeout = TimeSpan.FromSeconds(20);
+        });
         builder.Services.AddHttpClient("VietnamAdministrativeApi", client =>
         {
             client.BaseAddress = new Uri(builder.Configuration["VietnamAdministrativeApi:BaseUrl"] ?? "https://provinces.open-api.vn/api/");
@@ -156,6 +168,15 @@ internal partial class Program
         using (var scope = app.Services.CreateScope())
         {
             var services = scope.ServiceProvider;
+            try
+            {
+                await cellphones_backend.Data.AdminSeeder.SeedAsync(services, builder.Configuration);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Loi seed tai khoan ADMIN: " + ex.Message);
+            }
+
             try
             {
                 var searchService = services.GetRequiredService<ProductSearchService>();
@@ -190,6 +211,18 @@ internal partial class Program
         app.UseHangfireDashboard("/hangfire");
         app.UseRequestLocalization(app.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<RequestLocalizationOptions>>().Value);
         app.MapControllers();
+
+        // Dự phòng khi khách trả tiền rồi đóng trang: định kỳ hỏi gateway các thanh toán online còn chờ.
+        try
+        {
+            app.Services.GetRequiredService<IRecurringJobManager>().AddOrUpdate<cellPhoneS_backend.Services.Interface.OrderService>(
+                "sync-online-payments", service => service.SyncPendingOnlinePayments(), "*/5 * * * *");
+        }
+        catch (Exception ex)
+        {
+            app.Logger.LogError(ex, "Không đăng ký được job đồng bộ thanh toán online");
+        }
+
         app.Run();
     }
 }

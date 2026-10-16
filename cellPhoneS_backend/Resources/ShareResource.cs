@@ -1,6 +1,4 @@
-using System;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Localization;
 
 namespace cellphones_backend.Resources;
