@@ -1,4 +1,3 @@
-using System;
 using cellphones_backend.Services;
 using cellphones_backend.Services.Implement;
 using cellphones_backend.Services.Interface;
@@ -41,6 +40,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IVietnamLocationService, VietnamLocationServiceImpl>();
         services.AddScoped<ShippingFeeService, ShippingFeeServiceImpl>();
         services.AddScoped<IEmailService, EmailServiceImpl>();
+        services.AddScoped<IAdminQueryService, AdminQueryServiceImpl>();
         // === BEGIN NEW FEATURE: PRODUCT REVIEWS ===
         services.AddScoped<IReviewService, ReviewServiceImpl>();
         // === END NEW FEATURE: PRODUCT REVIEWS ===

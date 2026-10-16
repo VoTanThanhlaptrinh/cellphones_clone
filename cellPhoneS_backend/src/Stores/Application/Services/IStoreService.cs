@@ -1,0 +1,21 @@
+using cellphones_backend.Models;
+using cellPhoneS_backend.DTOs.Responses;
+
+namespace cellPhoneS_backend.Services.Interface
+{
+    /// <summary>
+    /// Service interface for managing store-related operations
+    /// </summary>
+    public interface IStoreService
+    {
+        /// <summary>
+        /// Retrieves all store locations grouped by city and district
+        /// </summary>
+        /// <returns>A service result containing a list of store views</returns>
+        Task<List<StoreView>> GetStoreViewsAsync();
+        Task<List<StoreInventoryDTO>> AllocateAllStockAsync(List<CartDetail> cartItems);
+
+        Task UpdateStores(List<StoreInventoryDTO> stores);
+        Task<List<Store>> GetStoresAsync(List<OrderDetail> orderDetails);
+    }
+}

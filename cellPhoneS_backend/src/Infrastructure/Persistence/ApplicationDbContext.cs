@@ -1,4 +1,3 @@
-using System;
 using cellphones_backend.Models;
 using cellPhoneS_backend.Data.View;
 using cellPhoneS_backend.Models;
@@ -41,6 +40,8 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, string>
     public DbSet<CategoryProduct> CategoryProducts { get; set; }
     public DbSet<ProductImage> ProductImages { get; set; }
     public DbSet<Payment> Payments { get; set; }
+    public DbSet<PaymentTransaction> PaymentTransactions { get; set; }
+    public DbSet<OnlinePayment> OnlinePayments { get; set; }
     public DbSet<ProductColorStockView> ProductColorStockView { get; set; }
     public DbSet<ProductSearchResult> ProductSearchResults { get; set; }
     public DbSet<Fee> Fees { get; set; }

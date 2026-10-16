@@ -1,6 +1,4 @@
 using System.Net;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
 
 namespace cellPhoneS_backend.Auth
 {

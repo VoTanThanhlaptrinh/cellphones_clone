@@ -1,5 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
-using cellphones_backend.Repositories;
 using cellPhoneS_backend.src.Infrastructure.Persistence.Repositories.Contracts;
 using cellPhoneS_backend.src.Infrastructure.Persistence.Repositories.Implementations;
 

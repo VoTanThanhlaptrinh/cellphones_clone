@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace cellPhoneS_backend.Auth
 {
     public static class RouteConfig

@@ -1,5 +1,3 @@
-using System.Text.RegularExpressions;
-
 namespace cellPhoneS_backend.Auth
 {
     public class RoutePolicy
