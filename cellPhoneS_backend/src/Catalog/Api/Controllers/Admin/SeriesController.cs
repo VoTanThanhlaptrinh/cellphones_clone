@@ -1,5 +1,7 @@
 using System.Security.Claims;
+using cellPhoneS_backend.Constants;
 using cellphones_backend.DTOs.Responses;
+using cellPhoneS_backend.Filters;
 using cellphones_backend.Services;
 using cellPhoneS_backend.Controllers;
 using cellPhoneS_backend.DTOs.Requests;
@@ -9,6 +11,7 @@ namespace cellphones_backend.Controllers.Admin
 {
     [Route("api/admin/series")]
     [ApiController]
+    [RequirePermission(Permissions.CatalogRead)]
     public class AdminSeriesController : BaseController
     {
         private readonly SeriesService _seriesService;
@@ -21,6 +24,7 @@ namespace cellphones_backend.Controllers.Admin
         // POST: api/admin/series
         // Creates a new product series under a brand (e.g., "iPhone 15 Series" under "Apple")
         [HttpPost]
+        [RequirePermission(Permissions.CatalogWrite)]
         public async Task<ActionResult<ApiResponse<long>>> CreateSeries([FromBody] CreateSeriesRequest createSeriesRequest)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -36,6 +40,7 @@ namespace cellphones_backend.Controllers.Admin
         // PUT: api/admin/series/{seriesId}
         // Updates series name or status
         [HttpPut("{seriesId}")]
+        [RequirePermission(Permissions.CatalogWrite)]
         public async Task<ActionResult<ApiResponse<string>>> UpdateSeries(
             long seriesId, 
             [FromBody] UpdateSeriesRequest updateSeriesRequest)
@@ -59,6 +64,7 @@ namespace cellphones_backend.Controllers.Admin
         // DELETE: api/admin/series/{seriesId}
         // Soft deletes a series (sets status to "deleted")
         [HttpDelete("{seriesId}")]
+        [RequirePermission(Permissions.CatalogWrite)]
         public async Task<ActionResult<ApiResponse<string>>> DeleteSeries(long seriesId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

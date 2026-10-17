@@ -1,5 +1,7 @@
 using System.Security.Claims;
+using cellPhoneS_backend.Constants;
 using cellphones_backend.DTOs.Responses;
+using cellPhoneS_backend.Filters;
 using cellphones_backend.Services.Interface;
 using cellPhoneS_backend.Controllers;
 using cellPhoneS_backend.DTOs.Requests;
@@ -9,6 +11,7 @@ namespace cellphones_backend.Controllers.Admin
 {
     [Route("api/admin/storehouses")]
     [ApiController]
+    [RequirePermission(Permissions.InventoryRead)]
     public class AdminStoreHouseController : BaseController
     {
         private readonly StoreHouseService _storeHouseService;
@@ -20,6 +23,7 @@ namespace cellphones_backend.Controllers.Admin
 
         // POST: api/admin/storehouses
         [HttpPost]
+        [RequirePermission(Permissions.InventoryWrite)]
         public async Task<ActionResult<ApiResponse<long>>> CreateStoreHouse([FromBody] CreateStoreHouseRequest createStoreHouseRequest)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -34,6 +38,7 @@ namespace cellphones_backend.Controllers.Admin
 
         // PUT: api/admin/storehouses/{storeHouseId}
         [HttpPut("{storeHouseId}")]
+        [RequirePermission(Permissions.InventoryWrite)]
         public async Task<ActionResult<ApiResponse<string>>> UpdateStoreHouse(
             long storeHouseId, 
             [FromBody] UpdateStoreHouseRequest updateStoreHouseRequest)
@@ -56,6 +61,7 @@ namespace cellphones_backend.Controllers.Admin
 
         // DELETE: api/admin/storehouses/{storeHouseId}
         [HttpDelete("{storeHouseId}")]
+        [RequirePermission(Permissions.InventoryWrite)]
         public async Task<ActionResult<ApiResponse<string>>> DeleteStoreHouse(long storeHouseId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

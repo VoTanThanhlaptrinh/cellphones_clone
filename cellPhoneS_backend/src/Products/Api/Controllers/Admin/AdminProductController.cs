@@ -1,5 +1,7 @@
 using System.Security.Claims;
+using cellPhoneS_backend.Constants;
 using cellphones_backend.DTOs.Responses;
+using cellPhoneS_backend.Filters;
 using cellphones_backend.Services;
 using cellPhoneS_backend.Controllers;
 using cellPhoneS_backend.DTOs;
@@ -15,6 +17,7 @@ namespace cellphones_backend.Controllers.Admin
     /// </summary>
     [Route("api/admin/products")]
     [ApiController]
+    [RequirePermission(Permissions.ProductRead)]
     public class AdminProductController : BaseController
     {
         private readonly ProductService _productService;
@@ -29,6 +32,7 @@ namespace cellphones_backend.Controllers.Admin
         // POST: api/admin/products
         // Creates a new product with all its dependencies (images, specifications, commitments, colors, inventory)
         [HttpPost]
+        [RequirePermission(Permissions.ProductWrite)]
         public async Task<ActionResult<ApiResponse<string>>> CreateProduct([FromBody] AddProductRequest addProductRequest)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -44,6 +48,7 @@ namespace cellphones_backend.Controllers.Admin
 
         // PUT: api/admin/products/{productId}
         [HttpPut("{productId}")]
+        [RequirePermission(Permissions.ProductWrite)]
         public async Task<ActionResult<ApiResponse<string>>> UpdateProduct(long productId, [FromBody] UpdateProductRequest updateProductRequest)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -60,6 +65,7 @@ namespace cellphones_backend.Controllers.Admin
         // DELETE: api/admin/products/{productId}
         // Soft deletes a product
         [HttpDelete("{productId}")]
+        [RequirePermission(Permissions.ProductDelete)]
         public async Task<ActionResult<ApiResponse<string>>> DeleteProduct(long productId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

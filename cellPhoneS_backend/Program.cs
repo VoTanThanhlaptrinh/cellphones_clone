@@ -188,7 +188,7 @@ internal partial class Program
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Loi seed tai khoan ADMIN: " + ex.Message);
+                Console.WriteLine("Loi seed role/permission/tai khoan ADMIN: " + ex.Message);
             }
 
             try
@@ -225,6 +225,21 @@ internal partial class Program
         app.UseHangfireDashboard("/hangfire");
         app.UseRequestLocalization(app.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<RequestLocalizationOptions>>().Value);
         app.MapControllers();
+
+        if (app.Environment.IsDevelopment())
+        {
+            // Fail-closed: endpoint admin quên [RequirePermission] chỉ còn được bảo vệ bởi admin.access (STAFF gọi được API ghi).
+            var missingPermission = app.Services
+                .GetRequiredService<Microsoft.AspNetCore.Mvc.Infrastructure.IActionDescriptorCollectionProvider>()
+                .ActionDescriptors.Items
+                .Where(a => a.AttributeRouteInfo?.Template?.StartsWith("api/admin", StringComparison.OrdinalIgnoreCase) == true)
+                .Where(a => !a.EndpointMetadata.OfType<cellPhoneS_backend.Filters.RequirePermissionAttribute>().Any())
+                .Select(a => a.DisplayName);
+            foreach (var name in missingPermission)
+            {
+                app.Logger.LogWarning("Admin endpoint thiếu [RequirePermission]: {Action}", name);
+            }
+        }
 
         // Dự phòng khi khách trả tiền rồi đóng trang: định kỳ hỏi gateway các thanh toán online còn chờ.
         try

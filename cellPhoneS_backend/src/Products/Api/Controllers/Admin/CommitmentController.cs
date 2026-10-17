@@ -1,5 +1,7 @@
 using System.Security.Claims;
+using cellPhoneS_backend.Constants;
 using cellphones_backend.DTOs.Responses;
+using cellPhoneS_backend.Filters;
 using cellphones_backend.Services;
 using cellPhoneS_backend.Controllers;
 using cellPhoneS_backend.DTOs;
@@ -9,6 +11,7 @@ namespace cellphones_backend.Controllers.Admin
 {
     [Route("api/admin/commitments")]
     [ApiController]
+    [RequirePermission(Permissions.ProductRead)]
     public class AdminCommitmentController : BaseController
     {
         private readonly CommitmentService _commitmentService;
@@ -21,6 +24,7 @@ namespace cellphones_backend.Controllers.Admin
         // POST: api/admin/commitments
         // Creates a single commitment for a product (e.g., "12-month warranty", "Free shipping")
         [HttpPost]
+        [RequirePermission(Permissions.ProductWrite)]
         public async Task<ActionResult<ApiResponse<long>>> CreateCommitment([FromBody] CreateCommitmentRequest createCommitmentRequest)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -36,6 +40,7 @@ namespace cellphones_backend.Controllers.Admin
         // POST: api/admin/commitments/batch
         // Creates multiple commitments for a product in one request
         [HttpPost("batch")]
+        [RequirePermission(Permissions.ProductWrite)]
         public async Task<ActionResult<ApiResponse<List<long>>>> CreateMultipleCommitments([FromBody] CreateMultipleCommitmentsRequest createMultipleRequest)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -51,6 +56,7 @@ namespace cellphones_backend.Controllers.Admin
         // PUT: api/admin/commitments/{commitmentId}
         // Updates the text of a commitment
         [HttpPut("{commitmentId}")]
+        [RequirePermission(Permissions.ProductWrite)]
         public async Task<ActionResult<ApiResponse<string>>> UpdateCommitment(long commitmentId, [FromBody] string newContext)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -66,6 +72,7 @@ namespace cellphones_backend.Controllers.Admin
         // DELETE: api/admin/commitments/{commitmentId}
         // Soft deletes a commitment (sets status to "deleted")
         [HttpDelete("{commitmentId}")]
+        [RequirePermission(Permissions.ProductWrite)]
         public async Task<ActionResult<ApiResponse<string>>> DeleteCommitment(long commitmentId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

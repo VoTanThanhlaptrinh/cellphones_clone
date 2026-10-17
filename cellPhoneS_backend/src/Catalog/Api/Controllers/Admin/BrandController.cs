@@ -1,5 +1,7 @@
 using System.Security.Claims;
+using cellPhoneS_backend.Constants;
 using cellphones_backend.DTOs.Responses;
+using cellPhoneS_backend.Filters;
 using cellphones_backend.Services;
 using cellPhoneS_backend.Controllers;
 using cellPhoneS_backend.DTOs.Requests;
@@ -9,6 +11,7 @@ namespace cellphones_backend.Controllers.Admin
 {
     [Route("api/admin/brands")]
     [ApiController]
+    [RequirePermission(Permissions.CatalogRead)]
     public class AdminBrandController : BaseController
     {
         private readonly BrandService _brandService;
@@ -21,6 +24,7 @@ namespace cellphones_backend.Controllers.Admin
         // POST: api/admin/brands
         // Creates a new brand under a category (e.g., "Apple" under "Smartphones")
         [HttpPost]
+        [RequirePermission(Permissions.CatalogWrite)]
         public async Task<ActionResult<ApiResponse<long>>> CreateBrand([FromBody] CreateBrandRequest createBrandRequest)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -36,6 +40,7 @@ namespace cellphones_backend.Controllers.Admin
         // PUT: api/admin/brands/{brandId}
         // Updates brand name, logo, or status
         [HttpPut("{brandId}")]
+        [RequirePermission(Permissions.CatalogWrite)]
         public async Task<ActionResult<ApiResponse<string>>> UpdateBrand(
             long brandId, 
             [FromBody] UpdateBrandRequest updateBrandRequest)
@@ -59,6 +64,7 @@ namespace cellphones_backend.Controllers.Admin
         // DELETE: api/admin/brands/{brandId}
         // Soft deletes a brand (sets status to "deleted")
         [HttpDelete("{brandId}")]
+        [RequirePermission(Permissions.CatalogWrite)]
         public async Task<ActionResult<ApiResponse<string>>> DeleteBrand(long brandId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
