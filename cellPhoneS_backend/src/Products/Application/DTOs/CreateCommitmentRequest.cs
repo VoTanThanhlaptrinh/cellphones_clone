@@ -30,5 +30,6 @@ public class CreateMultipleCommitmentsRequest
     // Empty lists would waste API calls and database transactions
     [Required(ErrorMessage = "Commitment list is required. / Danh sách cam kết là bắt buộc.")]
     [MinLength(1, ErrorMessage = "At least one commitment must be provided. / Phải cung cấp ít nhất một cam kết.")]
-    public List<string>? Commitments { get; set; }
+    // Không nullable: [MinLength] trên List<string>? làm bộ sinh OpenAPI của .NET 9 ném lỗi (document /openapi trả 500).
+    public List<string> Commitments { get; set; } = new();
 }

@@ -157,6 +157,11 @@ internal partial class Program
         });
         // Validator FluentValidation (Scoped): quét assembly chứa LoginDTOValidator; ValidationActionFilter tìm validator theo kiểu argument của action.
         builder.Services.AddValidatorsFromAssemblyContaining<cellphones_backend.Validation.Account.LoginDTOValidator>();
+        // OpenAPI chỉ mô tả khu admin (hợp đồng cho frontend admin). Một số action storefront nhận/trả thẳng entity EF
+        // (vòng tham chiếu Order -> User -> ...) làm bộ sinh schema vượt MaxDepth và cả document trả 500, nên không đưa vào.
+        builder.Services.AddOpenApi(options =>
+            options.ShouldInclude = description =>
+                description.RelativePath?.StartsWith("api/admin", StringComparison.OrdinalIgnoreCase) == true);
         builder.Services.AddCustomServices();
         // Payment gateway (payment-module): khoá API chỉ nằm ở backend, cấu hình qua PaymentGateway:BaseUrl|ApiKey (user-secrets/biến môi trường).
         builder.Services.AddHttpClient<cellPhoneS_backend.Services.Interface.IPaymentGatewayClient, cellPhoneS_backend.Services.Implement.PaymentGatewayClientImpl>(client =>
@@ -239,6 +244,8 @@ internal partial class Program
 
         if (app.Environment.IsDevelopment())
         {
+            app.MapOpenApi(); // GET /openapi/v1.json (RouteConfig: /openapi/* AllowAnonymous)
+
             // Fail-closed: endpoint admin quên [RequirePermission] chỉ còn được bảo vệ bởi admin.access (STAFF gọi được API ghi).
             var missingPermission = app.Services
                 .GetRequiredService<Microsoft.AspNetCore.Mvc.Infrastructure.IActionDescriptorCollectionProvider>()

@@ -1,0 +1,13 @@
+@host = http://localhost:5169
+@token = <access token của tài khoản quản trị (login rồi lấy data)>
+
+### Hồ sơ + permission của tài khoản đang đăng nhập (cần admin.access)
+GET {{host}}/api/admin/me
+Authorization: Bearer {{token}}
+
+### Nhật ký thao tác ghi dưới /api/admin (cần audit.read)
+GET {{host}}/api/admin/audit-logs?pageIndex=1&pageSize=20&resource=roles&from=2026-10-01
+Authorization: Bearer {{token}}
+
+### OpenAPI (chỉ ở Development, chỉ mô tả /api/admin/*)
+GET {{host}}/openapi/v1.json
