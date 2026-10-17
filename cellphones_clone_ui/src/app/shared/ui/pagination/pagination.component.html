@@ -1,0 +1,34 @@
+@if (totalPages > 1) {
+<nav aria-label="Phân trang" class="flex flex-wrap items-center justify-between gap-2 text-sm text-gray-600">
+  <p>
+    Trang <strong class="text-gray-900">{{ pageIndex }}</strong> / {{ totalPages }}
+    @if (totalCount !== null) { · {{ totalCount }} mục }
+  </p>
+  <ul class="flex items-center gap-1">
+    <li>
+      <button type="button" class="btn btn-ghost btn-sm size-8 px-0" aria-label="Trang trước" [disabled]="pageIndex <= 1"
+        (click)="go(pageIndex - 1)">
+        <app-icon name="chevron-right" svgClass="size-4 rotate-180" [strokeWidth]="2" />
+      </button>
+    </li>
+    @for (page of pages; track $index) {
+    <li>
+      @if (page === null) {
+      <span class="grid size-8 place-items-center text-gray-400" aria-hidden="true">…</span>
+      } @else {
+      <button type="button" class="btn btn-sm size-8 px-0" [class]="page === pageIndex ? 'btn-primary' : 'btn-ghost'"
+        [attr.aria-current]="page === pageIndex ? 'page' : null" [attr.aria-label]="'Trang ' + page" (click)="go(page)">
+        {{ page }}
+      </button>
+      }
+    </li>
+    }
+    <li>
+      <button type="button" class="btn btn-ghost btn-sm size-8 px-0" aria-label="Trang sau"
+        [disabled]="pageIndex >= totalPages" (click)="go(pageIndex + 1)">
+        <app-icon name="chevron-right" svgClass="size-4" [strokeWidth]="2" />
+      </button>
+    </li>
+  </ul>
+</nav>
+}

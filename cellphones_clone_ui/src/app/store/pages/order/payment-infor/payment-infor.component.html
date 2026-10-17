@@ -1,0 +1,70 @@
+<!-- Bước 1: Thông tin -->
+<div class="mx-auto w-full max-w-160 px-3 pb-36 pt-3">
+  <form [formGroup]="paymentForm" (submit)="$event.preventDefault()">
+    <app-order-step-header title="Thông tin" backLabel="Quay lại giỏ hàng" [step]="1" (back)="goCart()" />
+
+    <ul class="mt-4 space-y-2">
+      @for (item of cartDetails; track $index) {
+      <li class="flex items-start gap-3 rounded-xl bg-white p-3 shadow-card">
+        <img [src]="item.imgUrl" [alt]="item.productName" width="80" height="80" loading="lazy"
+          class="size-20 shrink-0 object-contain" />
+        <div class="min-w-0 flex-1">
+          <h2 class="line-clamp-2 text-sm font-medium text-gray-900">{{ item.productName }}</h2>
+          <div class="mt-1 flex flex-wrap items-baseline gap-x-2">
+            <span class="text-base font-bold text-primary-500">{{ item.salePrice | vnd }}</span>
+            @if (item.basePrice > item.salePrice) {
+            <span class="text-xs text-gray-500 line-through">{{ item.basePrice | vnd }}</span>
+            }
+          </div>
+          <p class="mt-1 text-sm text-gray-600">Số lượng: {{ item.quantity }}</p>
+        </div>
+      </li>
+      }
+    </ul>
+
+    <h2 class="mt-5 text-sm font-bold uppercase text-gray-900">Thông tin khách hàng</h2>
+    <div class="mt-2 space-y-2 rounded-xl bg-white p-4 shadow-card">
+      @if (userName) {
+      <p class="text-sm font-medium text-gray-900">{{ userName }}</p>
+      }
+      <div class="relative">
+        <app-input formControlName="email" type="email" autocomplete="email" label="Email" [required]="true"
+          [errorMessage]="emailError"></app-input>
+        @if (paymentForm.get('email')?.value) {
+        <button type="button" (click)="deleteMail()" aria-label="Xoá email"
+          class="absolute right-2 top-8 grid size-6 place-items-center rounded-full text-gray-500 hover:bg-gray-100">
+          <app-icon name="x" svgClass="size-4" [strokeWidth]="2" />
+        </button>
+        }
+      </div>
+      <p class="text-xs text-gray-500">(*) Hóa đơn VAT sẽ được gửi qua email này</p>
+    </div>
+
+    <h2 class="mt-5 text-sm font-bold uppercase text-gray-900">Hình thức nhận hàng</h2>
+    <fieldset class="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+      <legend class="sr-only">Hình thức nhận hàng</legend>
+      <label class="relative block cursor-pointer">
+        <input type="radio" class="peer sr-only" formControlName="deliveryMethod" value="at-store" />
+        <span
+          class="flex h-full flex-col gap-1 rounded-xl border border-gray-300 bg-white p-4 shadow-card transition-colors peer-checked:border-primary-500 peer-checked:bg-primary-50 peer-focus-visible:ring-2 peer-focus-visible:ring-primary-300">
+          <span class="text-base font-medium text-gray-900">Nhận tại cửa hàng</span>
+          <span class="text-sm text-gray-600">Chọn cửa hàng gần bạn và đến nhận máy.</span>
+        </span>
+        <span aria-hidden="true"
+          class="absolute -right-1.5 -top-1.5 hidden size-5 place-items-center rounded-full bg-primary-500 text-xs text-white peer-checked:grid">✓</span>
+      </label>
+      <label class="relative block cursor-pointer">
+        <input type="radio" class="peer sr-only" formControlName="deliveryMethod" value="ship" />
+        <span
+          class="flex h-full flex-col gap-1 rounded-xl border border-gray-300 bg-white p-4 shadow-card transition-colors peer-checked:border-primary-500 peer-checked:bg-primary-50 peer-focus-visible:ring-2 peer-focus-visible:ring-primary-300">
+          <span class="text-base font-medium text-gray-900">Giao hàng tận nơi</span>
+          <span class="text-sm text-gray-600">Nhận hàng tại địa chỉ của bạn.</span>
+        </span>
+        <span aria-hidden="true"
+          class="absolute -right-1.5 -top-1.5 hidden size-5 place-items-center rounded-full bg-primary-500 text-xs text-white peer-checked:grid">✓</span>
+      </label>
+    </fieldset>
+  </form>
+
+  <app-order-bottom-bar [total]="total" (action)="goNext()">Tiếp tục</app-order-bottom-bar>
+</div>

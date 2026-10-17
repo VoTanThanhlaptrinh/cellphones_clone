@@ -1,6 +1,8 @@
 # Kế hoạch cải thiện UI — Storefront CellphoneS Clone
 
-> Phạm vi: `cellphones_clone_ui/`, các trang dành cho người mua. `admin_dashboard/` **nằm ngoài phạm vi**.
+> Phạm vi: `cellphones_clone_ui/`, các trang dành cho người mua (nay nằm trong `src/app/store/`; xem ghi chú đường dẫn bên dưới). Khu quản trị là phần của app, xem [ADMIN_MERGE_PLAN.md](ADMIN_MERGE_PLAN.md).
+
+> **Ghi chú đường dẫn:** các liên kết `src/app/<tên>/…` trong tài liệu này là vị trí lúc viết kế hoạch. Từ đợt sắp xếp thư mục, trang nằm ở `src/app/store/pages/`, thành phần ở `src/app/store/components/` và `src/app/store/layout/`, dùng chung ở `src/app/shared/`.
 > Chuẩn đích là [DESIGN.md](DESIGN.md). Mọi task dưới đây đều đưa code về đúng chuẩn đó, và **giữ nguyên màu đỏ thương hiệu `#d70018`**.
 > Khảo sát ngày 13/10/2026 trên nhánh `thanh`.
 
@@ -194,7 +196,7 @@ Thứ tự: **P0 → P1 → P2 → P3 → P4**. P0 là điều kiện tiên quy�
 
 ## 4. Ngoài phạm vi
 
-- `admin_dashboard/` (TailAdmin) giữ nguyên.
+- Khu quản trị (`src/app/admin/`): có kế hoạch và quy tắc riêng, xem ADMIN_MERGE_PLAN.md và DESIGN.md §12.
 - Thay đổi API backend: chỉ ghi chú khi UI cần dữ liệu mới (cờ trả góp, khuyến mãi theo sản phẩm, tồn kho chi tiết). Các khối đó **ẩn đi** cho tới khi có API.
 - Dark mode.
 

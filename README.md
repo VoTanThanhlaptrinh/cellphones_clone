@@ -27,11 +27,11 @@ This is a full-stack e-commerce platform that clones the CellphoneS website, bui
 - **UI**: Tailwind CSS + Angular Material + Swiper.js
 - **Deployment**: Vercel
 
-**📊 Admin Dashboard (`admin_dashboard/`)**
-- **Framework**: Angular 19 Standalone Components
-- **UI**: TailAdmin template with Tailwind CSS v4
-- **Features**: Dashboard, tables, forms, charts, invoice management
-- **Purpose**: Product/Order/User administration
+**📊 Admin area (`/admin` in `cellphones_clone_ui/`)**
+- **Framework**: the same Angular 20 app as the storefront (lazy-loaded, ADMIN role only)
+- **UI**: shared Tailwind design system (no separate template)
+- **Features**: catalog management (categories, brands, series, demands, storehouses) with tables, pagination and add/edit/delete dialogs
+- **Purpose**: Catalog administration; products/orders are planned
 
 > **Note**: The backend is hosted on a free tier service, which spins down after 15 minutes of inactivity. If you experience a delay upon the first visit, please wait about 30–60 seconds for the server to wake up.
 
@@ -142,63 +142,6 @@ docnet_workspace/
 │   ├── package.json                    # Dependencies (Angular 20, Swiper, Tailwind, ngx-spinner)
 │   ├── tsconfig.json                   # TypeScript configuration
 │   └── README.md
-│
-├── admin_dashboard/                    # 📊 Angular 19 Admin Dashboard
-│   ├── src/
-│   │   ├── app/
-│   │   │   ├── pages/
-│   │   │   │   ├── dashboard/
-│   │   │   │   │   └── ecommerce/      # E-commerce dashboard
-│   │   │   │   ├── profile/            # User profile page
-│   │   │   │   ├── forms/
-│   │   │   │   │   └── form-elements/  # Form input components
-│   │   │   │   ├── tables/
-│   │   │   │   │   └── basic-tables/   # Data table examples
-│   │   │   │   ├── charts/             # Line & bar charts
-│   │   │   │   ├── invoices/           # Invoice management
-│   │   │   │   ├── ui-elements/        # UI component pages (Alerts, Avatars, Buttons, etc.)
-│   │   │   │   ├── auth-pages/         # Sign in/up pages
-│   │   │   │   ├── calender/           # Calendar page
-│   │   │   │   ├── blank/              # Blank page template
-│   │   │   │   └── other-page/
-│   │   │   │       └── not-found/      # 404 error page
-│   │   │   ├── shared/
-│   │   │   │   ├── layout/
-│   │   │   │   │   ├── app-layout/     # Main layout wrapper
-│   │   │   │   │   ├── app-header/     # Top navigation bar
-│   │   │   │   │   ├── app-sidebar/    # Collapsible sidebar menu
-│   │   │   │   │   ├── backdrop/       # Mobile overlay
-│   │   │   │   │   ├── auth-page-layout/ # Auth pages layout
-│   │   │   │   │   └── generator-layout/ # AI generator layout
-│   │   │   │   ├── components/
-│   │   │   │   │   ├── common/         # Breadcrumbs, theme toggle, component cards
-│   │   │   │   │   ├── header/         # Header dropdowns (user, notifications)
-│   │   │   │   │   ├── cards/          # Card components (with/without images, icons)
-│   │   │   │   │   ├── tables/
-│   │   │   │   │   │   └── basic-tables/ # Table components (1-5)
-│   │   │   │   │   ├── form/
-│   │   │   │   │   │   └── form-elements/ # Input, select, checkbox, radio, toggle
-│   │   │   │   │   ├── ui/             # Reusable UI elements (Avatar, Badge, Button, Dropdown)
-│   │   │   │   │   ├── ui-example/     # UI pattern examples (FAQs, etc.)
-│   │   │   │   │   ├── invoice/        # Invoice sidebar, main, list
-│   │   │   │   │   ├── ecommerce/      # E-commerce components (billing, transactions)
-│   │   │   │   │   ├── user-profile/   # Profile cards (meta, info, address)
-│   │   │   │   │   ├── transactions/   # Order history
-│   │   │   │   │   └── ai/             # AI sidebar history
-│   │   │   │   ├── services/
-│   │   │   │   │   └── sidebar.service.ts # Sidebar state management
-│   │   │   │   └── pipes/              # Custom pipes (SafeHtmlPipe)
-│   │   │   ├── app.routes.ts           # Admin routing configuration
-│   │   │   └── app.config.ts           # Application configuration
-│   │   ├── index.html                  # HTML entry point
-│   │   └── main.ts                     # Bootstrap entry point
-│   ├── public/
-│   │   └── images/                     # Static images (logo, user avatars, error pages)
-│   ├── .postcssrc.json                 # PostCSS configuration
-│   ├── angular.json                    # Angular CLI configuration
-│   ├── package.json                    # Dependencies (Angular 19, Tailwind CSS)
-│   ├── tsconfig.json                   # TypeScript configuration
-│   └── README.md                       # TailAdmin documentation
 │
 ├── docnet_workspace.sln                # Visual Studio solution file
 ├── README.md                           # Project overview & tech stack

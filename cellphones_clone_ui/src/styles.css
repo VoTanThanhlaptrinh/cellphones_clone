@@ -337,3 +337,8 @@ swiper-container::part(button-next) {
     animation: none;
   }
 }
+
+/* Swiper grid đặt chiều cao inline cho từng slide nên thẻ sản phẩm cao thấp lệch nhau; để slide tự giãn theo hàng */
+swiper-slide:has(> app-product-card) {
+  height: auto !important;
+}

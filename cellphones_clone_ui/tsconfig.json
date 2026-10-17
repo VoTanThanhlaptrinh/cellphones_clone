@@ -20,7 +20,13 @@
     "useDefineForClassFields": false,
     "lib": ["ES2022", "dom"],
     "moduleDetection": "force",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "@core/*": ["./src/app/core/*"],
+      "@shared/*": ["./src/app/shared/*"],
+      "@store/*": ["./src/app/store/*"],
+      "@admin/*": ["./src/app/admin/*"]
+    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

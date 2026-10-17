@@ -7,6 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "check:boundaries": "node scripts/check-boundaries.mjs",
     "serve:ssr:cellphones-clone-ui": "node dist/cellphones-clone-ui/server/server.mjs"
   },
   "prettier": {
@@ -43,6 +44,7 @@
     "jwt-decode": "^4.0.0",
     "ngx-spinner": "^21.0.0",
     "ngx-toastr": "^19.1.0",
+    "qrcode": "^1.5.4",
     "rxjs": "~7.8.0",
     "swiper": "^11.2.10",
     "tailwindcss": "^4.1.18",
@@ -59,6 +61,7 @@
     "@types/jest": "^30.0.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "^20.19.27",
+    "@types/qrcode": "^1.5.6",
     "jasmine-core": "~5.7.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",

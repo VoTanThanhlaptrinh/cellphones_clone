@@ -1,0 +1,16 @@
+<h1 class="text-xl font-bold text-gray-900 md:text-2xl">Tổng quan</h1>
+<p class="mt-1 text-sm text-gray-600">Chọn một mục để quản lý dữ liệu của cửa hàng.</p>
+
+<ul class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+  @for (item of shortcuts; track item.path) {
+  <li>
+    <a [routerLink]="'../' + item.path"
+      class="flex items-center gap-3 rounded-xl bg-white p-4 shadow-card transition-shadow hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300">
+      <span class="grid size-10 shrink-0 place-items-center rounded-lg bg-primary-50 text-primary-500">
+        <app-icon [name]="item.icon" svgClass="size-5" />
+      </span>
+      <span class="text-base font-medium text-gray-900">{{ item.label }}</span>
+    </a>
+  </li>
+  }
+</ul>

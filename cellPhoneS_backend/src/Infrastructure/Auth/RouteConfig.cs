@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace cellPhoneS_backend.Auth
 {
     public static class RouteConfig
@@ -37,6 +35,9 @@ namespace cellPhoneS_backend.Auth
                 new RoutePolicy { UrlPattern = "/api/stores/*", AllowAnonymous = true },
                 // Product reviews: anyone can read; posting a review (POST /api/reviews) still requires login
                 new RoutePolicy { UrlPattern = "/api/reviews/product/*", Method = "GET", AllowAnonymous = true },
+
+                // Payment gateway callback: no login, authenticated by an HMAC signature checked in PaymentController.Callback
+                new RoutePolicy { UrlPattern = "/api/payments/callback", Method = "POST", AllowAnonymous = true },
 
                 // Admin Routes - More specific first
                 new RoutePolicy { UrlPattern = "/api/admin/*", RequiredRoles = new List<string> { "ADMIN" } },

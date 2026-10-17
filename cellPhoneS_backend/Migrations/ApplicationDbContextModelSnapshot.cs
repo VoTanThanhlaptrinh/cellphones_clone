@@ -939,6 +939,9 @@ namespace cellPhoneS_backend.Migrations
                     b.Property<long>("FeeId")
                         .HasColumnType("bigint");
 
+                    b.Property<int>("PaymentAttempt")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1069,6 +1072,55 @@ namespace cellPhoneS_backend.Migrations
                     b.HasIndex("UpdateBy");
 
                     b.ToTable("Payments");
+                });
+
+            modelBuilder.Entity("cellphones_backend.Models.PaymentTransaction", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("Amount")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<long>("OrderId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("PaymentLinkId")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("Reference")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTime?>("TransactionDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("PaymentTransactions");
                 });
 
             modelBuilder.Entity("cellphones_backend.Models.Product", b =>
@@ -2282,6 +2334,17 @@ namespace cellPhoneS_backend.Migrations
                     b.Navigation("CreateUser");
 
                     b.Navigation("UpdateUser");
+                });
+
+            modelBuilder.Entity("cellphones_backend.Models.PaymentTransaction", b =>
+                {
+                    b.HasOne("cellphones_backend.Models.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("cellphones_backend.Models.Product", b =>

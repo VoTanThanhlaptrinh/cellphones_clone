@@ -1,6 +1,6 @@
 # DESIGN.md — Design system của Storefront CellphoneS Clone
 
-> Tài liệu **bắt buộc** cho mọi thay đổi giao diện trong `cellphones_clone_ui/` (trang dành cho người mua, không áp dụng cho `admin_dashboard/`).
+> Tài liệu **bắt buộc** cho mọi thay đổi giao diện trong `cellphones_clone_ui/` (storefront dành cho người mua; khu quản trị `/admin` dùng chung token và có thêm quy tắc riêng ở §12).
 > Khi thêm hoặc sửa UI: dùng token và recipe ở đây, không tự đặt màu/kích thước mới. Muốn thêm token mới thì cập nhật file này trước.
 > Lộ trình đưa code hiện tại về đúng chuẩn nằm ở [UI_IMPROVEMENT_PLAN.md](UI_IMPROVEMENT_PLAN.md).
 
@@ -183,7 +183,7 @@ Không dùng các giá trị z-index tuỳ ý như `z-1000` hay `z-9999`.
 
 ## 5. Component recipes
 
-Các class dùng chung được định nghĩa trong `@layer components` của `src/styles.css`. Component Angular dùng chung đặt trong `src/app/shared/`.
+Các class dùng chung được định nghĩa trong `@layer components` của `src/styles.css`. Component Angular dùng chung đặt trong `src/app/shared/` (hiển thị thuần, dùng chung cả storefront lẫn admin) hoặc `src/app/store/components/` (riêng cho storefront). Xem [ADMIN_MERGE_PLAN.md](ADMIN_MERGE_PLAN.md) về quy tắc thư mục.
 
 ### 5.1 Button
 
@@ -362,7 +362,7 @@ Gồm 2 bước "1. Thông tin" và "2. Thanh toán". Bước hiện tại dùng
 
 ### 5.14 Thông báo (toast) & hộp thoại
 
-- Toast **chỉ** gọi qua `NotifyService` (`src/app/services/notify.service.ts`), không gọi `ToastrService` trực tiếp. Nội dung tiếng Việt, ngắn gọn, nói rõ chuyện gì đã xảy ra và cần làm gì.
+- Toast **chỉ** gọi qua `NotifyService` (`src/app/core/services/notify.service.ts`), không gọi `ToastrService` trực tiếp. Nội dung tiếng Việt, ngắn gọn, nói rõ chuyện gì đã xảy ra và cần làm gì.
 - Hộp thoại dùng `MatDialog`. Tiêu đề là `h2` có `mat-dialog-title`. Nút trong hộp thoại dùng recipe §5.1, hành động chính nằm bên phải.
 
 ### 5.15 Footer
@@ -402,7 +402,7 @@ export class VndPipe implements PipeTransform {
 - Kích thước: `size-4` (16px) trong text, `size-5` (20px) trong nút, `size-6` (24px) cho icon độc lập.
 - Icon trang trí phải có `aria-hidden="true"`. Icon đứng một mình trong nút thì nút cần `aria-label`.
 - `id` bên trong SVG (`clipPath`, `mask`, `linearGradient`) phải duy nhất trên trang. Tốt nhất là không dùng các phần tử này cho icon đơn giản.
-- **Dùng `<app-icon>`** (`src/app/shared/icons/icon.component.ts`) cho icon đã có trong danh sách: `<app-icon name="cart" svgClass="size-5 text-gray-500" />`. Class kích thước/màu truyền qua `svgClass` (host là `display: contents`). Thêm icon mới = thêm một `@case` vào component, không copy SVG vào template.
+- **Dùng `<app-icon>`** (`src/app/shared/ui/icon/icon.component.ts`) cho icon đã có trong danh sách: `<app-icon name="cart" svgClass="size-5 text-gray-500" />`. Class kích thước/màu truyền qua `svgClass` (host là `display: contents`). Thêm icon mới = thêm một `@case` vào component, không copy SVG vào template.
 - Icon lặp lại từ 2 nơi trở lên bắt buộc đi qua component này. Logo thương hiệu là ngoại lệ (SVG riêng trong header).
 
 ---
@@ -490,3 +490,19 @@ html {
 - [ ] Toàn bộ chữ là tiếng Việt và đúng giọng văn ở §9.
 - [ ] Có trạng thái loading, rỗng và lỗi cho mọi khối gọi API.
 - [ ] `npm run build` chạy thành công.
+
+
+---
+
+## 12. Khu quản trị (`/admin`)
+
+Khu quản trị dùng **chung** token, class `.btn*`, `app-icon`, `app-input`… với storefront (không có dark mode, không có bộ token riêng). Quy tắc thư mục và phụ thuộc xem [ADMIN_MERGE_PLAN.md](ADMIN_MERGE_PLAN.md) và `CLAUDE.md`.
+
+- **Khung**: `AdminShellComponent` gồm sidebar bên trái, header dính (`sticky top-0 z-30`) và một `<main>` (`p-3 md:p-6`). Nền trang `bg-gray-100`, mỗi trang có đúng một `h1`.
+- **Sidebar**: cố định từ `lg`, thu gọn được thành cột icon (có `aria-label`/`title` cho từng mục). Dưới `lg` là ngăn kéo `z-50` kèm lớp phủ `z-40`, đóng bằng bấm lớp phủ, chọn một mục hoặc phím `Esc`. Mục đang mở có `aria-current="page"`.
+- **Bảng**: `<app-table>` chiếu `thead`/`tbody` thật; kiểu của `th`/`td` nằm trong component nên trang không lặp class. Cột thao tác là icon button có `aria-label` ("Sửa …", "Xoá …"). Phân trang dùng `<app-pagination>` theo `PagedResult` (trang bắt đầu từ 1).
+- **Form**: nhập liệu trong `MatDialog` với reactive form; ô chọn ngắn dùng `<app-select>`, danh sách dài dùng `<app-autocomplete-input>`. Lỗi hiện sau khi chạm vào ô hoặc khi bấm Lưu; nút Lưu đổi nhãn "Đang lưu…" và bị vô hiệu khi đang gọi API.
+- **Xoá**: luôn qua `ConfirmDialogComponent` (`destructive: true`), thành công thì báo bằng `NotifyService`.
+- **Trạng thái**: mọi khối gọi API có skeleton khi đang tải, `<app-alert tone="danger">` kèm nút tải lại khi lỗi và empty state có nút thêm mới.
+- **Nhãn trạng thái**: `<app-badge tone="…">` (neutral, success, danger, info, brand), dùng cả ở storefront.
+- Thêm trang quản lý một danh mục mới: chỉ cần thêm cấu hình vào `admin/catalog/catalog-resources.ts`.

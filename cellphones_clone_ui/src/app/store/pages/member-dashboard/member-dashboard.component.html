@@ -1,0 +1,180 @@
+<div class="bg-gray-100 pb-8">
+  <main class="container-page py-4">
+    @if (user(); as u) {
+    <section class="flex items-center gap-3 rounded-xl bg-white p-4 shadow-card" aria-label="Thông tin thành viên">
+      <span class="grid size-14 shrink-0 place-items-center rounded-full bg-primary-100 text-2xl font-bold text-primary-500"
+        aria-hidden="true">{{ initial() }}</span>
+      <div class="min-w-0">
+        <h1 class="truncate text-lg font-bold text-gray-900 md:text-xl">{{ u.fullName }}</h1>
+        <p class="text-sm text-gray-600">Thành viên CellphoneS</p>
+      </div>
+    </section>
+
+    <div class="mt-3 grid gap-3 md:grid-cols-[16rem_minmax(0,1fr)] md:items-start">
+      <nav aria-label="Menu tài khoản" class="md:rounded-xl md:bg-white md:p-2 md:shadow-card">
+        <ul class="flex gap-2 overflow-x-auto pb-1 md:flex-col md:gap-1 md:overflow-visible md:pb-0">
+          @for (tab of tabs; track tab.id) {
+          <li class="shrink-0">
+            <button type="button" (click)="setActiveTab(tab.id)" [attr.aria-current]="activeTab() === tab.id ? 'page' : null"
+              class="h-10 w-full rounded-lg px-4 text-left text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300"
+              [class]="activeTab() === tab.id
+                ? 'bg-primary-50 text-primary-500 md:bg-primary-50'
+                : 'bg-white text-gray-700 hover:bg-gray-100 md:bg-transparent'">
+              {{ tab.label }}
+            </button>
+          </li>
+          }
+          <li class="shrink-0">
+            <button type="button" (click)="logout()"
+              class="h-10 w-full rounded-lg bg-white px-4 text-left text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300 md:bg-transparent">
+              Đăng xuất
+            </button>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="min-w-0">
+        @switch (activeTab()) {
+        @case ('overview') {
+        <div class="grid gap-3 md:grid-cols-2">
+          <section class="rounded-xl bg-white p-4 shadow-card">
+            <h2 class="text-lg font-bold text-gray-900">Giỏ hàng</h2>
+            @if (u.amountCart > 0) {
+            <p class="mt-2 text-sm text-gray-600">Bạn có <strong class="text-gray-900">{{ u.amountCart }}</strong> sản phẩm trong giỏ hàng.</p>
+            <a routerLink="/cart" class="btn btn-primary mt-4">Xem giỏ hàng</a>
+            } @else {
+            <p class="mt-2 text-sm text-gray-600">Giỏ hàng của bạn đang trống.</p>
+            <a routerLink="/home" class="btn btn-primary mt-4">Mua sắm ngay</a>
+            }
+          </section>
+          <section class="rounded-xl bg-white p-4 shadow-card">
+            <div class="flex items-center justify-between">
+              <h2 class="text-lg font-bold text-gray-900">Đơn hàng gần đây</h2>
+              @if (recentOrders().length > 0) {
+              <button type="button" (click)="setActiveTab('orders')" class="text-sm text-info hover:underline">Xem tất cả</button>
+              }
+            </div>
+            @if (ordersLoading() && orders().length === 0) {
+            <p class="mt-2 text-sm text-gray-600">Đang tải đơn hàng…</p>
+            } @else if (ordersFailed() && orders().length === 0) {
+            <p class="mt-2 text-sm text-gray-600">Không tải được đơn hàng.
+              <button type="button" (click)="loadMoreOrders()" class="text-info hover:underline">Thử lại</button>
+            </p>
+            } @else if (recentOrders().length === 0) {
+            <p class="mt-2 text-sm text-gray-600">Bạn chưa có đơn hàng nào.</p>
+            } @else {
+            <ul class="mt-2 divide-y divide-gray-100">
+              @for (o of recentOrders(); track o.id) {
+              <li class="flex items-center justify-between gap-3 py-2">
+                <div class="min-w-0">
+                  <p class="text-sm font-medium text-gray-900">Đơn hàng #{{ o.id }}</p>
+                  <p class="text-xs text-gray-500">{{ o.createDate | date:'dd/MM/yyyy' }} · {{ o.totalAmount | vnd:false }}</p>
+                </div>
+                <app-badge class="shrink-0" [tone]="statusTone(o.status)">{{ statusLabel(o.status) }}</app-badge>
+              </li>
+              }
+            </ul>
+            }
+          </section>
+        </div>
+        }
+        @case ('orders') {
+        <section aria-label="Lịch sử mua hàng" class="space-y-3">
+          <h2 class="text-lg font-bold text-gray-900">Lịch sử mua hàng</h2>
+          @if (ordersLoading() && orders().length === 0) {
+          <div class="space-y-3" aria-busy="true">
+            @for (n of [1, 2, 3]; track n) {
+            <div class="h-40 animate-pulse rounded-xl bg-gray-200"></div>
+            }
+          </div>
+          } @else if (ordersFailed() && orders().length === 0) {
+          <div class="flex flex-col items-center gap-3 rounded-xl bg-white px-4 py-10 text-center shadow-card">
+            <p class="text-sm text-gray-600">Không tải được lịch sử mua hàng.</p>
+            <button type="button" class="btn btn-primary" (click)="loadMoreOrders()">Thử lại</button>
+          </div>
+          } @else if (orders().length === 0) {
+          <div class="flex flex-col items-center gap-3 rounded-xl bg-white px-4 py-10 text-center shadow-card">
+            <app-icon name="box" svgClass="size-12 text-gray-300" />
+            <p class="text-sm text-gray-600">Bạn chưa có đơn hàng nào.</p>
+            <a routerLink="/home" class="btn btn-primary">Tiếp tục mua sắm</a>
+          </div>
+          } @else {
+          <ul class="space-y-3">
+            @for (o of orders(); track o.id) {
+            <li class="rounded-xl bg-white p-3 shadow-card md:p-4">
+              <div class="flex flex-wrap items-start justify-between gap-2">
+                <div>
+                  <h3 class="text-base font-medium text-gray-900">Đơn hàng #{{ o.id }}</h3>
+                  <p class="text-xs text-gray-500">{{ o.createDate | date:'dd/MM/yyyy HH:mm' }} · {{ typeLabel(o.type) }}</p>
+                </div>
+                <app-badge [tone]="statusTone(o.status)">{{ statusLabel(o.status) }}</app-badge>
+              </div>
+
+              <ul class="mt-3 divide-y divide-gray-100">
+                @for (item of o.items; track $index) {
+                <li class="flex items-center gap-3 py-2">
+                  @if (item.imageUrl) {
+                  <img [src]="item.imageUrl" [alt]="item.productName ?? 'Sản phẩm'" width="64" height="64" loading="lazy"
+                    class="size-16 shrink-0 object-contain" />
+                  } @else {
+                  <span class="size-16 shrink-0 rounded-lg bg-gray-100" aria-hidden="true"></span>
+                  }
+                  <div class="min-w-0 flex-1">
+                    <p class="line-clamp-2 text-sm font-medium text-gray-900">{{ item.productName }}</p>
+                    @if (item.colorName) {
+                    <p class="text-xs text-gray-500">Màu: {{ item.colorName }}</p>
+                    }
+                    <p class="text-xs text-gray-500">Số lượng: {{ item.quantity }}</p>
+                  </div>
+                  <span class="shrink-0 text-sm font-bold text-primary-500">{{ item.price | vnd }}</span>
+                </li>
+                }
+              </ul>
+
+              <dl class="mt-3 space-y-1 border-t border-gray-100 pt-3 text-sm">
+                @if (o.shippingFee > 0) {
+                <div class="flex justify-between">
+                  <dt class="text-gray-600">Phí vận chuyển</dt>
+                  <dd class="text-gray-900">{{ o.shippingFee | vnd }}</dd>
+                </div>
+                }
+                <div class="flex items-baseline justify-between">
+                  <dt class="font-medium text-gray-900">Tổng tiền</dt>
+                  <dd class="text-lg font-bold text-primary-500">{{ o.totalAmount | vnd:false }}</dd>
+                </div>
+              </dl>
+            </li>
+            }
+          </ul>
+          @if (hasMoreOrders()) {
+          <button type="button" class="btn btn-outline btn-block" [disabled]="ordersLoading()" (click)="loadMoreOrders()">
+            {{ ordersLoading() ? 'Đang tải…' : 'Xem thêm đơn hàng' }}
+          </button>
+          }
+          }
+        </section>
+        }
+        @case ('account') {
+        <section class="rounded-xl bg-white p-4 shadow-card">
+          <h2 class="text-lg font-bold text-gray-900">Thông tin tài khoản</h2>
+          <dl class="mt-3 divide-y divide-gray-100 text-sm">
+            <div class="flex justify-between gap-4 py-3">
+              <dt class="text-gray-600">Họ và tên</dt>
+              <dd class="font-medium text-gray-900">{{ u.fullName }}</dd>
+            </div>
+          </dl>
+          <button type="button" (click)="logout()" class="btn btn-outline mt-4">Đăng xuất</button>
+        </section>
+        }
+        }
+      </div>
+    </div>
+    } @else {
+    <section class="mt-6 flex flex-col items-center gap-3 rounded-xl bg-white px-4 py-10 text-center shadow-card">
+      <h1 class="text-lg font-bold text-gray-900">Bạn chưa đăng nhập</h1>
+      <p class="text-sm text-gray-600">Đăng nhập để xem thông tin tài khoản của bạn.</p>
+      <a routerLink="/login" class="btn btn-primary">Đăng nhập</a>
+    </section>
+    }
+  </main>
+</div>

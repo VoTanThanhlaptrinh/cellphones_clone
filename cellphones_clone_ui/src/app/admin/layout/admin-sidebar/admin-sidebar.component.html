@@ -1,0 +1,23 @@
+<aside [class]="asideClass" aria-label="Menu quản trị">
+  <div class="flex h-16 shrink-0 items-center gap-2 border-b border-gray-200 px-4">
+    <span class="grid size-8 shrink-0 place-items-center rounded-lg bg-primary-500 text-sm font-bold text-white"
+      aria-hidden="true">S</span>
+    <span class="truncate text-base font-bold text-gray-900" [class]="labelClass">Quản trị CellphoneS</span>
+  </div>
+
+  <nav class="flex-1 overflow-y-auto p-3">
+    <ul class="space-y-1">
+      @for (item of nav; track item.path) {
+      <li>
+        <a [routerLink]="item.path" routerLinkActive="bg-primary-50 text-primary-500" #link="routerLinkActive"
+          [attr.aria-current]="link.isActive ? 'page' : null" [attr.aria-label]="item.label" [attr.title]="item.label"
+          (click)="sidebar.closeMobile()"
+          class="flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300">
+          <app-icon [name]="item.icon" svgClass="size-5 shrink-0" />
+          <span class="truncate" [class]="labelClass">{{ item.label }}</span>
+        </a>
+      </li>
+      }
+    </ul>
+  </nav>
+</aside>

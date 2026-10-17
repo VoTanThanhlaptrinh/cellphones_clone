@@ -1,0 +1,25 @@
+<!-- Bước 1 (trang địa chỉ): nhận tại cửa hàng -->
+<div class="mx-auto w-full max-w-160 px-3 pb-36 pt-3">
+  <app-order-step-header title="Nhận tại cửa hàng" backLabel="Quay lại thông tin khách hàng" [step]="1"
+    (back)="goBack()" />
+
+  <h2 class="mt-5 text-sm font-bold uppercase text-gray-900">Chọn cửa hàng nhận hàng</h2>
+  <form [formGroup]="group" class="mt-2 space-y-4 rounded-xl bg-white p-4 shadow-card">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <app-autocomplete-input label="Tỉnh/Thành phố" placeholder="Chọn tỉnh/thành phố" [required]="true"
+        [original]="cityList()" formControlName="city" (dataChosen)="onCityChosen($event)"
+        [errorMessage]="errorFor('city')" />
+      <app-autocomplete-input label="Quận/Huyện" placeholder="Chọn quận/huyện" [required]="true"
+        [original]="districtList()" formControlName="district" (dataChosen)="onDistrictChosen($event)"
+        emptyText="Vui lòng chọn tỉnh/thành phố trước" [errorMessage]="errorFor('district')" />
+    </div>
+    <app-autocomplete-input label="Cửa hàng" placeholder="Chọn địa chỉ cửa hàng" [required]="true"
+      [original]="streetList()" formControlName="streetName" (dataChosen)="onStreetChosen($event)"
+      emptyText="Vui lòng chọn quận/huyện trước" [errorMessage]="errorFor('storeId')" />
+    <app-input formControlName="note" label="Ghi chú" />
+  </form>
+
+  <app-order-bottom-bar [total]="total" [disabled]="isLoading()" (action)="goNext()">
+    {{ isLoading() ? 'Đang xử lý…' : 'Tiếp tục' }}
+  </app-order-bottom-bar>
+</div>
