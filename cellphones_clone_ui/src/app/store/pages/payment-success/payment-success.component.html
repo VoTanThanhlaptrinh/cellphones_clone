@@ -1,0 +1,50 @@
+<div class="flex min-h-screen flex-col bg-gray-100">
+  <app-header-cart-order [totalQuantity]="0" />
+
+  <main class="flex grow items-center justify-center p-4 py-12">
+    <div class="flex w-full max-w-lg flex-col items-center rounded-xl bg-white p-6 text-center shadow-card md:p-8" aria-live="polite">
+      @switch (state()) {
+      @case ('checking') {
+      <h1 class="mb-2 text-xl font-bold text-gray-900 md:text-2xl">Đang xác nhận thanh toán…</h1>
+      <p class="text-sm text-gray-600">Vui lòng không đóng trang. Chúng tôi đang kiểm tra kết quả với cổng thanh toán.</p>
+      }
+      @case ('paid') {
+      <div class="mb-6 grid size-20 place-items-center rounded-full bg-green-100">
+        <app-icon name="check-circle" svgClass="size-12 text-success" />
+      </div>
+      <h1 class="mb-2 text-xl font-bold text-gray-900 md:text-2xl">Thanh toán thành công!</h1>
+      <p class="mb-6 text-sm text-gray-600 md:text-base">Cảm ơn bạn đã mua sắm tại CellphoneS Clone. Đơn hàng của bạn đang được xử lý.</p>
+
+      <dl class="mb-6 w-full divide-y divide-gray-200 rounded-lg border border-gray-200 bg-gray-50 text-left text-sm">
+        <div class="flex items-center justify-between gap-3 p-3">
+          <dt class="text-gray-600">Mã đơn hàng</dt>
+          <dd class="font-bold text-gray-900">#{{ payment()!.orderId }}</dd>
+        </div>
+        <div class="flex items-center justify-between gap-3 p-3">
+          <dt class="text-gray-600">Số tiền đã thanh toán</dt>
+          <dd class="text-lg font-bold text-primary-500">{{ payment()!.amount | vnd:false }}</dd>
+        </div>
+        <div class="flex items-center justify-between gap-3 p-3">
+          <dt class="text-gray-600">Trạng thái</dt>
+          <dd><span class="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-success">Đã thanh toán</span></dd>
+        </div>
+      </dl>
+
+      <div class="flex w-full flex-col gap-3 sm:flex-row">
+        <a routerLink="/member-dashboard" class="btn btn-outline btn-lg flex-1">Theo dõi đơn hàng</a>
+        <a routerLink="/home" class="btn btn-primary btn-lg flex-1">Về trang chủ</a>
+      </div>
+      @if (redirectIn() !== null) {
+      <p class="mt-4 text-sm text-gray-600">Tự động chuyển về trang chủ sau {{ redirectIn() }} giây…</p>
+      }
+      <p class="mt-6 text-xs text-gray-500">Mọi thắc mắc vui lòng liên hệ tổng đài <a href="tel:18002097" class="font-bold text-primary-500 hover:underline">1800.2097</a></p>
+      }
+      @case ('review') {
+      <h1 class="mb-2 text-xl font-bold text-gray-900 md:text-2xl">Giao dịch cần được kiểm tra</h1>
+      <p class="mb-6 text-sm text-gray-600" role="alert">Vui lòng không thanh toán lại. Hãy liên hệ tổng đài <a href="tel:18002097" class="font-bold text-primary-500 hover:underline">1800.2097</a> kèm mã đơn #{{ payment()!.orderId }} để được hỗ trợ.</p>
+      <a routerLink="/member-dashboard" class="btn btn-primary btn-lg w-full">Xem đơn hàng</a>
+      }
+      }
+    </div>
+  </main>
+</div>

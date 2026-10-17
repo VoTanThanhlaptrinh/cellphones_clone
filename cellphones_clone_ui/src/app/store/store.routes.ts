@@ -78,7 +78,19 @@ export const storeRoutes: Routes = [
         ]
     },
     {
-        // returnUrl/cancelUrl của payment gateway: ở gateway cấu hình https://<frontend>/payment/return (đứng trước payment/:orderId)
+        // returnUrl của payment gateway: https://<frontend>/payment/success (đứng trước payment/:orderId)
+        path: 'payment/success',
+        loadComponent: () => import('./pages/payment-success/payment-success.component').then(m => m.PaymentSuccessComponent),
+        title: 'Thanh toán thành công'
+    },
+    {
+        // cancelUrl của payment gateway: https://<frontend>/payment/failed (đứng trước payment/:orderId)
+        path: 'payment/failed',
+        loadComponent: () => import('./pages/payment-failed/payment-failed.component').then(m => m.PaymentFailedComponent),
+        title: 'Thanh toán không thành công'
+    },
+    {
+        // URL cũ của gateway (returnUrl/cancelUrl chung): tự xác minh rồi chuyển sang success/failed
         path: 'payment/return',
         loadComponent: () => import('./pages/payment-return/payment-return.component').then(m => m.PaymentReturnComponent),
         title: 'Xác nhận thanh toán'

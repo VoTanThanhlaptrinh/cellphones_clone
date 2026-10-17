@@ -2,26 +2,9 @@
   <app-header-cart-order [totalQuantity]="0" />
 
   <main class="flex grow items-center justify-center p-4 py-12">
-    <div class="flex w-full max-w-lg flex-col items-center rounded-2xl bg-white p-8 text-center shadow-card md:p-10" aria-live="polite">
-      @switch (state()) {
-      @case ('checking') {
-      <h1 class="mb-2 text-2xl font-bold text-gray-900">Đang xác nhận thanh toán…</h1>
-      <p class="text-gray-500">Vui lòng không đóng trang. Chúng tôi đang kiểm tra kết quả với cổng thanh toán.</p>
-      }
-      @case ('failed') {
-      <h1 class="mb-2 text-2xl font-bold text-gray-900">Thanh toán chưa thành công</h1>
-      <p class="mb-6 text-gray-500">Giao dịch đã bị huỷ, hết hạn hoặc bị từ chối. Đơn hàng của bạn vẫn được giữ, bạn có thể thanh toán lại.</p>
-      <div class="flex w-full flex-col gap-3 sm:flex-row">
-        <a routerLink="/member-dashboard" class="btn btn-outline btn-lg flex-1">Xem đơn hàng</a>
-        <a routerLink="/cart" class="btn btn-primary btn-lg flex-1">Quay lại giỏ hàng</a>
-      </div>
-      }
-      @case ('review') {
-      <h1 class="mb-2 text-2xl font-bold text-gray-900">Giao dịch cần được kiểm tra</h1>
-      <p class="mb-6 text-gray-500">Vui lòng không thanh toán lại. Hãy liên hệ tổng đài <a href="tel:18002097" class="font-bold text-primary-500 hover:underline">1800.2097</a> kèm mã đơn hàng để được hỗ trợ.</p>
-      <a routerLink="/member-dashboard" class="btn btn-primary btn-lg w-full">Xem đơn hàng</a>
-      }
-      }
+    <div class="flex w-full max-w-lg flex-col items-center rounded-xl bg-white p-6 text-center shadow-card md:p-8" aria-live="polite">
+      <h1 class="mb-2 text-xl font-bold text-gray-900 md:text-2xl">Đang xác nhận thanh toán…</h1>
+      <p class="text-sm text-gray-600">Vui lòng không đóng trang. Chúng tôi đang kiểm tra kết quả với cổng thanh toán.</p>
     </div>
   </main>
 </div>
