@@ -43,6 +43,7 @@ public static class ServiceCollectionExtensions
         // --- Admin: cross-module (permissions, roles, audit, queries) ---
         services.AddScoped<IAdminQueryService, AdminQueryServiceImpl>();
         services.AddScoped<IPermissionService, PermissionServiceImpl>();
+        services.AddScoped<IAdminRoleService, AdminRoleServiceImpl>();
         // === BEGIN NEW FEATURE: PRODUCT REVIEWS ===
         services.AddScoped<IReviewService, ReviewServiceImpl>();
         // === END NEW FEATURE: PRODUCT REVIEWS ===
