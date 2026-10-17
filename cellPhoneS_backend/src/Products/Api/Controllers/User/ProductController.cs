@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using cellphones_backend.DTOs.Responses;
 using cellphones_backend.Services;
 using cellPhoneS_backend.Controllers;
@@ -58,47 +57,6 @@ namespace cellphones_backend.Controllers
         {
             var res = await _productService.GetProductDetails(productId);
             return Ok(new ApiResponse<ProductViewDetail>("success", res));
-        }
-
-        // POST: api/products
-        // Creates a new product with all its dependencies (images, specifications, commitments, colors, inventory)
-        [HttpPost]
-        public async Task<ActionResult<ApiResponse<string>>> AddProduct([FromBody] AddProductRequest addProductRequest)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized(new ApiResponse<string>("User not authenticated", null!));
-            }
-            
-            var result = await _productService.CreateProduct(addProductRequest, userId);
-            return Ok(new ApiResponse<string>("Product created successfully", result));
-        }
-
-        [HttpPut("{productId}")]
-        public async Task<ActionResult<ApiResponse<string>>> UpdateProduct(long productId, [FromBody] UpdateProductRequest updateProductRequest)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized(new ApiResponse<string>("User not authenticated", null!));
-            }
-            
-            await _productService.UpdateProduct(productId, updateProductRequest, userId);
-            return Ok(new ApiResponse<string>("Product updated successfully", ""));
-        }
-
-        [HttpDelete("{productId}")]
-        public async Task<ActionResult<ApiResponse<string>>> DeleteProduct(long productId)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized(new ApiResponse<string>("User not authenticated", null!));
-            }
-            
-            await _productService.DeleteProduct(productId, userId);
-            return Ok(new ApiResponse<string>("Product deleted successfully", ""));
         }
     }
 }

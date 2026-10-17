@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using cellphones_backend.Models;
+using cellPhoneS_backend.Constants;
 using cellPhoneS_backend.Models;
 using cellPhoneS_backend.Services;
 using Microsoft.AspNetCore.Identity;
@@ -131,6 +132,15 @@ public class JwtTokenServiceImpl : JwtTokenService
         var refreshToken = GetRefreshTokenFromCookie(request);
         var storedToken = await ValidateRefreshTokenAsync(refreshToken, request);
 
+        // Kiểm tra user trước khi xoay vòng token: tài khoản bị xoá/khoá không được cấp refresh token mới
+        var user = await _userManager.FindByIdAsync(storedToken.UserId);
+        if (user == null || user.Status != UserStatuses.Active)
+        {
+            await _redisDb.KeyDeleteAsync($"rt:{refreshToken}");
+            request.HttpContext.Response.Cookies.Delete("refreshToken");
+            throw new UnauthorizedException(user == null ? "User no longer exists." : "Tài khoản đã bị khoá");
+        }
+
         storedToken.IsUsed = true;
         await SaveRefreshTokenToRedisAsync(refreshToken, storedToken, TimeSpan.FromMinutes(2));
 
@@ -157,14 +167,6 @@ public class JwtTokenServiceImpl : JwtTokenService
             Expires = DateTime.UtcNow.AddDays(7)
         };
         request.HttpContext.Response.Cookies.Append("refreshToken", newRefreshTokenGuid, cookieOptions);
-
-        var user = await _userManager.FindByIdAsync(storedToken.UserId);
-        if (user == null)
-        {
-            await _redisDb.KeyDeleteAsync($"rt:{refreshToken}");
-            await _redisDb.KeyDeleteAsync($"rt:{newRefreshTokenGuid}");
-            throw new UnauthorizedException("User no longer exists.");
-        }
 
         var newAccessToken = await GenerateJwtToken(user);
         return newAccessToken;

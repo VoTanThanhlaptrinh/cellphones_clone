@@ -111,6 +111,20 @@ internal partial class Program
                     ValidIssuer = builder.Configuration["Jwt:Issuer"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
                 };
+                jwtOptions.Events = new JwtBearerEvents
+                {
+                    // Token hợp lệ về chữ ký/thời hạn nhưng JTI đã bị thu hồi (Redis blacklist) thì từ chối
+                    OnTokenValidated = async context =>
+                    {
+                        var jti = context.SecurityToken?.Id;
+                        if (string.IsNullOrEmpty(jti)) return;
+                        var blacklist = context.HttpContext.RequestServices.GetRequiredService<IJwtBlacklistService>();
+                        if (await blacklist.IsTokenBlacklistedAsync(jti))
+                        {
+                            context.Fail("Token has been revoked.");
+                        }
+                    }
+                };
             })
             .AddGoogle(googleOptions =>
             {
