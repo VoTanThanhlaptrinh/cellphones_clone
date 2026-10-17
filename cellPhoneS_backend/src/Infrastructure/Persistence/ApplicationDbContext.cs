@@ -46,6 +46,8 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, string>
     public DbSet<Fee> Fees { get; set; }
     public DbSet<FeeDetail> FeeDetails { get; set; }
     public DbSet<Review> Reviews { get; set; }
+    // --- Admin ---
+    public DbSet<AuditLog> AuditLogs { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -94,6 +96,13 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, string>
         modelBuilder.Entity<Category>(entity =>
         {
             entity.HasIndex(c => c.SlugName).IsUnique();
+        });
+
+        // --- Admin ---
+        modelBuilder.Entity<AuditLog>(entity =>
+        {
+            entity.HasIndex(a => a.CreateDate);
+            entity.HasIndex(a => new { a.UserId, a.CreateDate });
         });
         // Cấu hình bảng Fee
         modelBuilder.Entity<Fee>(entity =>

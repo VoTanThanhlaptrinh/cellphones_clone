@@ -145,7 +145,11 @@ internal partial class Program
         builder.Services.AddAzureClients(clientBuilder => clientBuilder.AddBlobServiceClient(cs));
         builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
         builder.Services.AddScoped<IResourceLocalizer, ResourceLocalizer>();
-        builder.Services.AddControllers(options => options.Filters.Add<cellPhoneS_backend.Filters.ApiExceptionFilter>());
+        builder.Services.AddControllers(options =>
+        {
+            options.Filters.Add<cellPhoneS_backend.Filters.ApiExceptionFilter>();
+            options.Filters.Add<cellPhoneS_backend.Filters.AdminAuditFilter>();        // ghi AuditLog cho request ghi dưới /api/admin
+        });
         builder.Services.AddCustomServices();
         // Payment gateway (payment-module): khoá API chỉ nằm ở backend, cấu hình qua PaymentGateway:BaseUrl|ApiKey (user-secrets/biến môi trường).
         builder.Services.AddHttpClient<cellPhoneS_backend.Services.Interface.IPaymentGatewayClient, cellPhoneS_backend.Services.Implement.PaymentGatewayClientImpl>(client =>
