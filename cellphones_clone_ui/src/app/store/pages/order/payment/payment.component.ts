@@ -52,7 +52,7 @@ export class PaymentComponent implements OnInit {
   private payOnline(orderId: number) {
     this.isLoading.set(true);
     this.paymentService.startCheckout(orderId, this.selectedProvider()).subscribe({
-      next: payment => this.router.navigate(['/payment', payment.id]),
+      next: payment => this.router.navigate(['/payment', payment.orderId]),
       error: () => this.isLoading.set(false),
     });
   }

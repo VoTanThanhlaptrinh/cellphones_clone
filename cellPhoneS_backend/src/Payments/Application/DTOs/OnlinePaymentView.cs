@@ -4,12 +4,11 @@ namespace cellPhoneS_backend.DTOs.Responses;
 public record OnlinePaymentInfo(string? QrCode, string? BankBin, string? AccountNumber, string? AccountName, string? TransferContent);
 
 /// <summary>
-/// Một giao dịch thanh toán online của đơn. <see cref="Id"/> là mã giao dịch của CellphoneS, đặt lên URL trang thanh toán để tải lại
-/// không mất giao dịch. <see cref="Status"/>: PENDING, PAID, FAILED, EXPIRED, CANCELLED hoặc REVIEW_REQUIRED (cần cửa hàng xử lý).
+/// Payment online của một đơn, lấy từ payment gateway (CellphoneS không lưu). Trang thanh toán dùng <see cref="OrderId"/> trên URL
+/// nên tải lại không mất giao dịch. <see cref="Status"/>: PENDING, PAID, FAILED, EXPIRED, CANCELLED hoặc REVIEW_REQUIRED (cần cửa hàng xử lý).
 /// <see cref="CheckoutUrl"/>, <see cref="ExpiresAt"/> và <see cref="PaymentInfo"/> chỉ có khi khách còn có thể thanh toán.
 /// </summary>
 public record OnlinePaymentView(
-    long Id,
     long OrderId,
     long Amount,
     string Status,

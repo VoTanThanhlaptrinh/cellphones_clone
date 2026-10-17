@@ -15,7 +15,7 @@
       } @else if (expired()) {
       <div class="flex flex-col items-center py-4 text-center" role="alert">
         <h1 class="mb-2 text-2xl font-bold text-gray-900">Thanh toán đã hết hạn</h1>
-        <p class="mb-2 text-gray-500">Giao dịch #{{ payment()!.id }} đã quá thời gian thanh toán. Nếu bạn đã chuyển tiền, đơn hàng sẽ được cập nhật sau ít phút.</p>
+        <p class="mb-2 text-gray-500">Đơn hàng #{{ payment()!.orderId }} đã quá thời gian thanh toán. Nếu bạn đã chuyển tiền, đơn hàng sẽ được cập nhật sau ít phút.</p>
         <p class="font-medium text-gray-900">Bạn sẽ được chuyển về trang chủ sau {{ redirectIn() }} giây…</p>
         <a routerLink="/home" class="btn btn-primary btn-lg mt-6 w-full">Về trang chủ ngay</a>
       </div>
@@ -25,7 +25,6 @@
       <div class="mb-4 flex items-start justify-between gap-3">
         <div>
           <h1 class="text-xl font-bold text-gray-900">Thanh toán đơn hàng #{{ payment()!.orderId }}</h1>
-          <p class="text-xs text-gray-500">Mã giao dịch #{{ payment()!.id }}</p>
         </div>
         @if (secondsLeft() !== null) {
         <div class="shrink-0 rounded-lg bg-primary-50 px-3 py-2 text-center">
@@ -100,7 +99,7 @@
       }
       @default {
       <h1 class="mb-2 text-xl font-bold text-gray-900">Thanh toán chưa thành công</h1>
-      <p class="mb-6 text-gray-500" role="alert">Giao dịch #{{ payment()!.id }} đã bị huỷ hoặc không thành công. Đơn hàng của bạn vẫn được giữ, bạn có thể thanh toán lại.</p>
+      <p class="mb-6 text-gray-500" role="alert">Đơn hàng #{{ payment()!.orderId }} đã bị huỷ hoặc không thành công. Đơn hàng của bạn vẫn được giữ, bạn có thể thanh toán lại.</p>
       <div class="flex flex-col gap-3 sm:flex-row">
         <a routerLink="/member-dashboard" class="btn btn-outline btn-lg flex-1">Xem đơn hàng</a>
         <a routerLink="/cart" class="btn btn-primary btn-lg flex-1">Về giỏ hàng</a>

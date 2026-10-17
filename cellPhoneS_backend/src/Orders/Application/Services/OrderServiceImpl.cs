@@ -157,7 +157,7 @@ public class OrderServiceImpl : OrderService
         // Kết quả thanh toán online chỉ tin từ gateway, nên đơn còn Pending thì hỏi lại trước khi trả lời.
         if (order.IsPending)
         {
-            await SyncLatestOnlinePaymentAsync(order);
+            await SyncOrderPaymentAsync(order);
         }
         return order.Status;
     }
@@ -175,32 +175,36 @@ public class OrderServiceImpl : OrderService
         if (!order.IsOwnedBy(userId)) throw new ForbiddenException("Bạn không có quyền thanh toán đơn hàng này.");
         if (!order.IsPending) throw new BadRequestException("Đơn hàng không còn chờ thanh toán.");
 
-        var latest = await GetLatestOnlinePaymentAsync(orderId);
-        if (latest != null)
+        // Gateway là nguồn sự thật: còn link đang chờ thì dùng lại, kể cả khi khách đổi cổng (gateway chỉ cho một payment hoạt động mỗi đơn).
+        GatewayPayment? live;
+        try
         {
-            // Còn link đang chờ thì dùng lại, kể cả khi khách đổi cổng: gateway chỉ cho một payment hoạt động mỗi đơn.
-            GatewayPayment? live;
-            try
+            live = await SyncOrderPaymentAsync(order, throwOnError: true);
+            if (live is { Status: GatewayPaymentStatuses.Pending, ExpiresAt: { } expiresAt } && expiresAt <= DateTimeOffset.UtcNow)
             {
-                live = await SyncOnlinePaymentAsync(order, latest, throwOnError: true);
-                if (latest.Status == OnlinePaymentStatuses.Pending && latest.ExpiresAt <= DateTime.UtcNow)
-                {
-                    // Link đã hết hạn nhưng gateway chưa đối soát: huỷ để tạo được link mới (VNPay không huỷ được thì giữ nguyên).
-                    live = await TryCancelExpiredAsync(order, latest) ?? live;
-                }
+                // Link đã hết hạn nhưng gateway chưa đối soát: huỷ để tạo được link mới (VNPay không huỷ được thì giữ nguyên).
+                live = await TryCancelExpiredAsync(order) ?? live;
             }
-            catch (PaymentGatewayException ex)
+        }
+        catch (PaymentGatewayException ex)
+        {
+            throw ToAppException(ex);
+        }
+        if (live != null)
+        {
+            if (live.Status is GatewayPaymentStatuses.Paid or GatewayPaymentStatuses.ReviewRequired || CanPay(live))
             {
-                throw ToAppException(ex);
+                return ToView(live);
             }
-            if (latest.Status == OnlinePaymentStatuses.Paid || latest.Status == OnlinePaymentStatuses.ReviewRequired || latest.CanPay)
+            // Lần trước đã kết thúc không thành công: lần này phải dùng Idempotency-Key mới.
+            if (GatewayPaymentStatuses.IsFailedTerminal(live.Status))
             {
-                return ToView(latest, live);
+                order.NextPaymentAttempt();
             }
         }
 
         // Chỉ để thử thanh toán thật với số tiền nhỏ: đặt PaymentGateway:TestAmountOverride (user-secrets) thì mọi đơn bị tính số tiền này.
-        // Bỏ cấu hình đó là về lại tiền thật của đơn. Số tiền cố định theo từng lần thử nên link đã có thì giữ nguyên số tiền cũ.
+        // Bỏ cấu hình đó là về lại tiền thật của đơn.
         var total = order.GetTotalAmount();
         var amount = _configuration.GetValue<long?>(PaymentConfigKeys.TestAmountOverride) ?? total;
         if (amount != total)
@@ -208,28 +212,22 @@ public class OrderServiceImpl : OrderService
             _logger.LogWarning("TestAmountOverride đang bật: đơn {OrderId} thanh toán {Amount} thay vì {Real}", orderId, amount, total);
         }
 
-        // Lần thử trước chưa kịp nhận trả lời từ gateway: gửi lại đúng Idempotency-Key cũ để không sinh payment thứ hai.
-        var row = latest is { Status: OnlinePaymentStatuses.Creating } && latest.Provider == provider ? latest : null;
-        if (row == null)
-        {
-            row = OnlinePayment.Start(orderId, provider, (latest?.Attempt ?? 0) + 1, amount);
-            // Key phải nằm trong DB trước khi gọi gateway để mọi lần thử lại dùng đúng key này.
-            _context.OnlinePayments.Add(row);
-            await _context.SaveChangesAsync();
-        }
+        // Số lần thử phải nằm trong DB trước khi gọi gateway để mọi lần thử lại sau lỗi mạng dùng đúng Idempotency-Key này.
+        order.StartPaymentAttempt();
+        await _context.SaveChangesAsync();
 
         GatewayPayment gatewayPayment;
         try
         {
-            gatewayPayment = await _gateway.Checkout(orderId, row.Amount, provider, row.IdempotencyKey);
-            await ApplyGatewayPaymentAsync(order, row, gatewayPayment);
+            gatewayPayment = await _gateway.Checkout(orderId, amount, provider, order.PaymentIdempotencyKey);
+            await ApplyGatewayStatusAsync(order, gatewayPayment);
         }
         catch (PaymentGatewayException ex) when (ex.Code == GatewayErrorCodes.PaymentAlreadyPending)
         {
             try
             {
                 gatewayPayment = await _gateway.GetStatus(orderId) ?? throw ToAppException(ex);
-                await ApplyGatewayPaymentAsync(order, row, gatewayPayment);
+                await ApplyGatewayStatusAsync(order, gatewayPayment);
             }
             catch (PaymentGatewayException inner)
             {
@@ -238,42 +236,42 @@ public class OrderServiceImpl : OrderService
         }
         catch (PaymentGatewayException ex)
         {
-            // Lỗi 4xx là dứt khoát: lần thử sau phải dùng key mới. Lỗi mạng/5xx giữ "Creating" để thử lại cùng key.
-            if (ex.Status is >= 400 and < 500)
+            // Lỗi 4xx là dứt khoát: lần thử sau phải dùng key mới. Lỗi mạng/5xx (và "đang xử lý") giữ nguyên số lần để thử lại cùng key.
+            if (ex.Status is >= 400 and < 500 && ex.Code != GatewayErrorCodes.IdempotencyInProgress)
             {
-                row.Reject();
+                order.NextPaymentAttempt();
                 await _context.SaveChangesAsync();
             }
             throw ToAppException(ex);
         }
-        return ToView(row, gatewayPayment);
+        return ToView(gatewayPayment);
     }
 
-    public async Task<OnlinePaymentView> GetOnlinePayment(string userId, long paymentId)
+    public async Task<OnlinePaymentView> GetOnlinePayment(string userId, long orderId)
     {
-        var payment = await _context.OnlinePayments.FirstOrDefaultAsync(p => p.Id == paymentId);
-        if (payment == null) throw new NotFoundException("Không tìm thấy giao dịch thanh toán.");
-        var order = await GetOrderWithDetailsAsync(payment.OrderId);
+        var order = await GetOrderWithDetailsAsync(orderId);
         if (order == null) throw new NotFoundException("Không tìm thấy đơn hàng.");
         if (!order.IsOwnedBy(userId)) throw new ForbiddenException("Bạn không có quyền xem giao dịch này.");
 
-        // Chỉ lần thanh toán mới nhất của đơn mới còn hiệu lực; các lần cũ đã bị thay thế nên không hỏi gateway nữa.
-        GatewayPayment? live = null;
-        var latest = await GetLatestOnlinePaymentAsync(payment.OrderId);
-        if (latest?.Id == payment.Id && payment.IsOpen && order.IsPending)
+        GatewayPayment? payment;
+        try
         {
-            live = await SyncOnlinePaymentAsync(order, payment, throwOnError: false);
+            payment = await SyncOrderPaymentAsync(order, throwOnError: true);
         }
-        return ToView(payment, live);
+        catch (PaymentGatewayException ex)
+        {
+            throw ToAppException(ex);
+        }
+        if (payment == null) throw new NotFoundException("Không tìm thấy giao dịch thanh toán.");
+        return ToView(payment);
     }
 
     public async Task SyncPendingOnlinePayments()
     {
         var since = DateTime.UtcNow.AddHours(-24);
-        var orderIds = await _context.OnlinePayments
-            .Where(p => OnlinePaymentStatuses.Open.Contains(p.Status) && p.CreateDate > since)
-            .Select(p => p.OrderId)
-            .Distinct()
+        var orderIds = await _context.Orders
+            .Where(o => o.Status == OrderStatuses.Pending && o.PaymentAttempt > 0 && o.UpdateDate > since)
+            .Select(o => o.Id)
             .ToListAsync();
 
         foreach (var orderId in orderIds)
@@ -283,13 +281,34 @@ public class OrderServiceImpl : OrderService
                 var order = await GetOrderWithDetailsAsync(orderId);
                 if (order != null && order.IsPending)
                 {
-                    await SyncLatestOnlinePaymentAsync(order);
+                    await SyncOrderPaymentAsync(order);
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Đồng bộ thanh toán online của đơn {OrderId} lỗi", orderId);
             }
+        }
+    }
+
+    public async Task HandlePaymentCallback(long orderId)
+    {
+        var order = await GetOrderWithDetailsAsync(orderId);
+        if (order == null)
+        {
+            // Gateway sẽ thử lại tới 10 lần, nhưng đơn không tồn tại thì thử lại cũng vô ích: ghi log và coi như đã nhận.
+            _logger.LogWarning("Callback thanh toán cho đơn {OrderId} không tồn tại", orderId);
+            return;
+        }
+
+        try
+        {
+            // Lỗi gọi gateway phải trả 5xx để gateway gửi lại callback.
+            await SyncOrderPaymentAsync(order, throwOnError: true);
+        }
+        catch (PaymentGatewayException ex)
+        {
+            throw ToAppException(ex);
         }
     }
 
@@ -421,7 +440,7 @@ public class OrderServiceImpl : OrderService
         }
 
         // Sau khi đơn đã huỷ thì link thanh toán cũ không được phép nhận tiền nữa.
-        await CancelOnlinePaymentQuietlyAsync(orderId);
+        await CancelOnlinePaymentQuietlyAsync(order);
     }
 
     #endregion
@@ -430,33 +449,19 @@ public class OrderServiceImpl : OrderService
 
     #region Online payment (payment gateway)
 
-    private Task<OnlinePayment?> GetLatestOnlinePaymentAsync(long orderId)
+    /// <summary>
+    /// Hỏi gateway (nguồn sự thật) về payment của đơn rồi áp dụng kết quả. Trả payment vừa hỏi được; null khi đơn chưa từng thử thanh toán online,
+    /// gateway chưa có payment, hoặc (khi <paramref name="throwOnError"/> = false) gateway lỗi tạm thời, lần hỏi sau sẽ thử lại.
+    /// </summary>
+    private async Task<GatewayPayment?> SyncOrderPaymentAsync(Order order, bool throwOnError = false)
     {
-        return _context.OnlinePayments
-            .Where(p => p.OrderId == orderId)
-            .OrderByDescending(p => p.Attempt)
-            .FirstOrDefaultAsync();
-    }
-
-    /// <summary>Hỏi gateway về lần thanh toán online mới nhất của đơn nếu nó chưa kết thúc. Gateway lỗi thì bỏ qua, lần hỏi sau sẽ thử lại.</summary>
-    private async Task SyncLatestOnlinePaymentAsync(Order order)
-    {
-        var latest = await GetLatestOnlinePaymentAsync(order.Id);
-        if (latest != null && latest.IsOpen)
-        {
-            await SyncOnlinePaymentAsync(order, latest, throwOnError: false);
-        }
-    }
-
-    /// <summary>Trả payment gateway vừa hỏi được (kèm thông tin hiển thị QR); null khi gateway chưa có payment hoặc lỗi tạm thời.</summary>
-    private async Task<GatewayPayment?> SyncOnlinePaymentAsync(Order order, OnlinePayment payment, bool throwOnError)
-    {
+        if (order.PaymentAttempt == 0) return null;
         try
         {
             var gatewayPayment = await _gateway.GetStatus(order.Id);
             if (gatewayPayment != null)
             {
-                await ApplyGatewayPaymentAsync(order, payment, gatewayPayment);
+                await ApplyGatewayStatusAsync(order, gatewayPayment);
             }
             return gatewayPayment;
         }
@@ -468,12 +473,12 @@ public class OrderServiceImpl : OrderService
     }
 
     /// <summary>Link PayOS đã quá hạn mà gateway còn ghi PENDING: huỷ ở gateway để khách tạo được link mới. Không huỷ được thì trả null.</summary>
-    private async Task<GatewayPayment?> TryCancelExpiredAsync(Order order, OnlinePayment payment)
+    private async Task<GatewayPayment?> TryCancelExpiredAsync(Order order)
     {
         try
         {
             var cancelled = await _gateway.Cancel(order.Id, "Link thanh toán đã hết hạn");
-            await ApplyGatewayPaymentAsync(order, payment, cancelled);
+            await ApplyGatewayStatusAsync(order, cancelled);
             return cancelled;
         }
         catch (PaymentGatewayException ex)
@@ -483,12 +488,10 @@ public class OrderServiceImpl : OrderService
         }
     }
 
-    /// <summary>Ghi kết quả gateway vào lần thanh toán; thấy PAID thì đánh dấu đơn đã trả (idempotent).</summary>
-    private async Task ApplyGatewayPaymentAsync(Order order, OnlinePayment payment, GatewayPayment gatewayPayment)
+    /// <summary>Áp dụng trạng thái gateway báo: PAID thì đánh dấu đơn đã trả (idempotent), REVIEW_REQUIRED thì báo cần xử lý thủ công. Không lưu trạng thái payment ở CellphoneS.</summary>
+    private async Task ApplyGatewayStatusAsync(Order order, GatewayPayment gatewayPayment)
     {
-        payment.Apply(gatewayPayment.PaymentId, gatewayPayment.Provider, gatewayPayment.Status, gatewayPayment.CheckoutUrl, gatewayPayment.ExpiresAt?.UtcDateTime);
-
-        if (gatewayPayment.Status == OnlinePaymentStatuses.Paid)
+        if (gatewayPayment.Status == GatewayPaymentStatuses.Paid)
         {
             if (order.IsCancelled)
             {
@@ -502,54 +505,49 @@ public class OrderServiceImpl : OrderService
                 $"Thanh toán online qua gateway (payment {gatewayPayment.PaymentId})",
                 gatewayPayment.PaidAt?.UtcDateTime));
         }
-        else
+        else if (gatewayPayment.Status == GatewayPaymentStatuses.ReviewRequired)
         {
-            if (gatewayPayment.Status == OnlinePaymentStatuses.ReviewRequired)
-            {
-                _logger.LogError("Thanh toán của đơn {OrderId} cần xử lý thủ công (REVIEW_REQUIRED, payment {PaymentId})", order.Id, gatewayPayment.PaymentId);
-            }
-            await _context.SaveChangesAsync();
+            _logger.LogError("Thanh toán của đơn {OrderId} cần xử lý thủ công (REVIEW_REQUIRED, payment {PaymentId})", order.Id, gatewayPayment.PaymentId);
         }
     }
 
-    /// <summary>Huỷ link thanh toán còn mở của đơn đã huỷ. Gateway không huỷ được (VNPay, khách vừa trả tiền, lỗi mạng…) thì chỉ ghi log.</summary>
-    private async Task CancelOnlinePaymentQuietlyAsync(long orderId)
+    /// <summary>Huỷ link thanh toán còn mở của đơn đã huỷ. Gateway không huỷ được (VNPay, khách vừa trả tiền, chưa có payment, lỗi mạng…) thì chỉ ghi log.</summary>
+    private async Task CancelOnlinePaymentQuietlyAsync(Order order)
     {
-        var open = await _context.OnlinePayments
-            .Where(p => p.OrderId == orderId && OnlinePaymentStatuses.Open.Contains(p.Status))
-            .ToListAsync();
-        if (open.Count == 0) return;
+        if (order.PaymentAttempt == 0) return;
 
         try
         {
-            await _gateway.Cancel(orderId, "Đơn hàng đã bị hủy");
-            foreach (var payment in open)
-            {
-                payment.Cancel();
-            }
-            await _context.SaveChangesAsync();
+            await _gateway.Cancel(order.Id, "Đơn hàng đã bị hủy");
+        }
+        catch (PaymentGatewayException ex) when (ex.Code is GatewayErrorCodes.PaymentNotFound or GatewayErrorCodes.PaymentNotCancellable)
+        {
+            _logger.LogInformation("Không có link thanh toán nào cần huỷ cho đơn {OrderId}: {Code}", order.Id, ex.Code);
         }
         catch (PaymentGatewayException ex)
         {
-            _logger.LogWarning("Không huỷ được link thanh toán của đơn {OrderId}: {Code} traceId={TraceId}", orderId, ex.Code, ex.TraceId);
+            _logger.LogWarning("Không huỷ được link thanh toán của đơn {OrderId}: {Code} traceId={TraceId}", order.Id, ex.Code, ex.TraceId);
         }
     }
 
+    /// <summary>Khách còn thanh toán được: gateway báo PENDING và đã có link.</summary>
+    private static bool CanPay(GatewayPayment payment) =>
+        payment.Status == GatewayPaymentStatuses.Pending && payment.CheckoutUrl != null;
+
     /// <summary>Thông tin QR/tài khoản chỉ lấy từ gateway ở lần hỏi này (không lưu DB) và chỉ khi khách còn có thể thanh toán.</summary>
-    private static OnlinePaymentView ToView(OnlinePayment payment, GatewayPayment? live)
+    private static OnlinePaymentView ToView(GatewayPayment payment)
     {
-        var canPay = payment.CanPay;
-        var info = canPay && live?.PaymentInfo is { } i
+        var canPay = CanPay(payment);
+        var info = canPay && payment.PaymentInfo is { } i
             ? new OnlinePaymentInfo(i.QrCode, i.BankBin, i.AccountNumber, i.AccountName, i.TransferContent)
             : null;
         return new OnlinePaymentView(
-            payment.Id,
             payment.OrderId,
-            payment.Amount,
+            (long)payment.TotalAmount,
             payment.Status,
             payment.Provider,
             canPay ? payment.CheckoutUrl : null,
-            canPay ? payment.ExpiresAt : null,
+            canPay ? payment.ExpiresAt?.UtcDateTime : null,
             info);
     }
 

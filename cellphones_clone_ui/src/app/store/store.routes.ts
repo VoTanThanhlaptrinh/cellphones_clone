@@ -78,13 +78,13 @@ export const storeRoutes: Routes = [
         ]
     },
     {
-        // returnUrl/cancelUrl của payment gateway: ở gateway cấu hình https://<frontend>/payment/return (đứng trước payment/:id)
+        // returnUrl/cancelUrl của payment gateway: ở gateway cấu hình https://<frontend>/payment/return (đứng trước payment/:orderId)
         path: 'payment/return',
         loadComponent: () => import('./pages/payment-return/payment-return.component').then(m => m.PaymentReturnComponent),
         title: 'Xác nhận thanh toán'
     },
     {
-        path: 'payment/:id',
+        path: 'payment/:orderId',
         loadComponent: () => import('./pages/online-payment/online-payment.component').then(m => m.OnlinePaymentComponent),
         title: 'Thanh toán đơn hàng'
     },

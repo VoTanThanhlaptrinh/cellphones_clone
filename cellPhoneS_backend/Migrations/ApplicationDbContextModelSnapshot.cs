@@ -921,64 +921,6 @@ namespace cellPhoneS_backend.Migrations
                     b.ToTable("Oauth2s");
                 });
 
-            modelBuilder.Entity("cellphones_backend.Models.OnlinePayment", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("Amount")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("Attempt")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("CheckoutUrl")
-                        .HasMaxLength(1024)
-                        .HasColumnType("character varying(1024)");
-
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<long?>("GatewayPaymentId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("IdempotencyKey")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<long>("OrderId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Provider")
-                        .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("character varying(16)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
-
-                    b.Property<DateTime>("UpdateDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IdempotencyKey")
-                        .IsUnique();
-
-                    b.HasIndex("OrderId");
-
-                    b.ToTable("OnlinePayments");
-                });
-
             modelBuilder.Entity("cellphones_backend.Models.Order", b =>
                 {
                     b.Property<long>("Id")
@@ -996,6 +938,9 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<long>("FeeId")
                         .HasColumnType("bigint");
+
+                    b.Property<int>("PaymentAttempt")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -2296,17 +2241,6 @@ namespace cellPhoneS_backend.Migrations
                     b.Navigation("CreateUser");
 
                     b.Navigation("UpdateUser");
-                });
-
-            modelBuilder.Entity("cellphones_backend.Models.OnlinePayment", b =>
-                {
-                    b.HasOne("cellphones_backend.Models.Order", "Order")
-                        .WithMany()
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("cellphones_backend.Models.Order", b =>

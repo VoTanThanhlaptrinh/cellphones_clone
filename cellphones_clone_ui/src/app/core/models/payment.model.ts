@@ -32,11 +32,10 @@ export interface OnlinePaymentInfo {
 }
 
 /**
- * Một giao dịch thanh toán online của đơn. `id` là mã giao dịch, nằm trên URL /payment/:id để tải lại không mất giao dịch.
+ * Payment online của đơn, lấy từ payment gateway. `orderId` nằm trên URL /payment/:orderId để tải lại không mất giao dịch.
  * `checkoutUrl`, `expiresAt`, `paymentInfo` chỉ có khi khách còn có thể thanh toán (PENDING).
  */
 export interface OnlinePayment {
-  id: number;
   orderId: number;
   amount: number;
   status: OnlinePaymentStatus;

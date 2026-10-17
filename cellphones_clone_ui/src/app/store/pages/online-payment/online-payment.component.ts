@@ -3,7 +3,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, EMPTY, firstValueFrom, Subscription, switchMap, timer } from 'rxjs';
 import QRCode from 'qrcode';
 import { HeaderCartOrderComponent } from '@store/layout/header-cart-order/header-cart-order.component';
-import { PaymentService, PENDING_PAYMENT_ID_KEY } from '@store/services/payment.service';
+import { PaymentService, PENDING_PAYMENT_ORDER_KEY } from '@store/services/payment.service';
 import { NotifyService } from '@core/services/notify.service';
 import { OnlinePayment } from '@core/models/payment.model';
 import { VndPipe } from '@shared/pipes/vnd.pipe';
@@ -19,7 +19,7 @@ const BANK_NAMES: Record<string, string> = {
 };
 
 /**
- * Trang giao dịch thanh toán online (/payment/:id). Mã giao dịch nằm trên URL nên tải lại trang vẫn lấy lại đúng giao dịch.
+ * Trang giao dịch thanh toán online (/payment/:orderId). Mã đơn nằm trên URL nên tải lại trang vẫn lấy lại đúng giao dịch.
  * Hiển thị thông tin thanh toán do gateway trả (QR, tài khoản nhận, nội dung) thay vì nhúng trang của cổng; đếm ngược theo hạn
  * giao dịch, hết hạn thì báo rồi tự chuyển về trang chủ sau vài giây.
  */
@@ -39,7 +39,7 @@ export class OnlinePaymentComponent implements OnInit, OnDestroy {
   redirectIn = signal<number | null>(null);
   loadFailed = signal(false);
 
-  private id = 0;
+  private orderId = 0;
   private expiresAtMs: number | null = null;
   private qrSource: string | null = null;
   private poll?: Subscription;
@@ -53,13 +53,13 @@ export class OnlinePaymentComponent implements OnInit, OnDestroy {
     private notifyService: NotifyService) { }
 
   ngOnInit() {
-    this.id = Number(this.route.snapshot.paramMap.get('id'));
-    if (!Number.isInteger(this.id) || this.id <= 0) {
+    this.orderId = Number(this.route.snapshot.paramMap.get('orderId'));
+    if (!Number.isInteger(this.orderId) || this.orderId <= 0) {
       this.router.navigate(['/home']);
       return;
     }
     this.poll = timer(0, 3000).pipe(
-      switchMap(() => this.paymentService.getPayment(this.id, true).pipe(
+      switchMap(() => this.paymentService.getPayment(this.orderId, true).pipe(
         catchError(() => {
           // Lần tải đầu lỗi (không có quyền, không tồn tại, mất kết nối) thì báo; các lần hỏi định kỳ sau lỗi tạm thời cứ bỏ qua.
           if (!this.payment()) this.loadFailed.set(true);
@@ -99,7 +99,7 @@ export class OnlinePaymentComponent implements OnInit, OnDestroy {
   goToProvider() {
     const url = this.payment()?.checkoutUrl;
     if (!url || !url.startsWith('https://')) return;
-    sessionStorage.setItem(PENDING_PAYMENT_ID_KEY, String(this.id));
+    sessionStorage.setItem(PENDING_PAYMENT_ORDER_KEY, String(this.orderId));
     window.location.href = url;
   }
 
@@ -109,7 +109,7 @@ export class OnlinePaymentComponent implements OnInit, OnDestroy {
 
     if (payment.status === 'PAID') {
       this.stopAll();
-      sessionStorage.removeItem(PENDING_PAYMENT_ID_KEY);
+      sessionStorage.removeItem(PENDING_PAYMENT_ORDER_KEY);
       this.router.navigate(['/checkout'], { state: { orderId: payment.orderId, success: true }, replaceUrl: true });
       return;
     }
@@ -143,7 +143,7 @@ export class OnlinePaymentComponent implements OnInit, OnDestroy {
     this.tick?.unsubscribe();
     this.poll?.unsubscribe();
     try {
-      const latest = await firstValueFrom(this.paymentService.getPayment(this.id, true));
+      const latest = await firstValueFrom(this.paymentService.getPayment(this.orderId, true));
       if (latest.status === 'PAID') {
         this.apply(latest);
         return;
@@ -161,7 +161,7 @@ export class OnlinePaymentComponent implements OnInit, OnDestroy {
     this.secondsLeft.set(0);
     this.poll?.unsubscribe();
     this.tick?.unsubscribe();
-    sessionStorage.removeItem(PENDING_PAYMENT_ID_KEY);
+    sessionStorage.removeItem(PENDING_PAYMENT_ORDER_KEY);
     this.redirectIn.set(REDIRECT_DELAY_SECONDS);
     this.redirect = timer(1000, 1000).subscribe(() => {
       const left = (this.redirectIn() ?? 1) - 1;
