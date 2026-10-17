@@ -7,6 +7,10 @@ làm sau, dựa trên các hợp đồng API ở đây.
 
 Đọc kèm `cell_phones/CLAUDE.md` (kiến trúc module, namespace, luồng request, auth tập trung).
 
+> **Trạng thái:** Phase 0 (vá bảo mật) và Phase 1 (nền tảng: permission, role API, audit log, paging, OpenAPI, validator)
+> **đã làm xong**; các mục 2, 3.2–3.4, 4.1 và 6 bước 2 bên dưới mô tả đúng code hiện có (chỗ nào lệch so với thiết kế
+> ban đầu thì có ghi chú "Thực tế"). Phase 2 (CRUD theo module) và Phase 3 (thống kê) chưa làm.
+
 Mục lục
 
 0. [Hiện trạng và phạm vi](#0-hiện-trạng-và-phạm-vi)
@@ -32,7 +36,7 @@ Mục lục
 | Stores | `POST/PUT/DELETE /api/admin/storehouses` | Chưa có API tồn kho (`Store`: kho × sản phẩm × màu × số lượng) |
 | Products | `POST /api/admin/commitments`, `POST /batch`, `PUT/DELETE /{id}`; `POST /api/admin/specifications`, `POST /{id}/details`, `DELETE /{id}` | CRUD sản phẩm lại nằm ở controller **User** (xem 0.2) |
 | Media | `POST /api/admin/images`, `POST /upload`, `DELETE /{id}` | |
-| Auth | `RouteConfig`: `/api/admin/*` yêu cầu role `ADMIN`; `AdminSeeder` tạo tài khoản ADMIN từ `AdminSeed:Email|Password` | Chỉ có 2 role `ADMIN`, `USER`; không có permission |
+| Auth | `RouteConfig`: `/api/admin/*` yêu cầu permission `admin.access`; `[RequirePermission]` trên từng action; `AdminSeeder` seed 4 role + permission (luôn chạy) và tài khoản ADMIN từ `AdminSeed:Email|Password` | (Trước Phase 1: chỉ có 2 role `ADMIN`, `USER`; không có permission) |
 
 ### 0.2 Lỗ hổng phải vá trước (Phase 0)
 
@@ -130,6 +134,12 @@ src/Orders/
   }
   ```
   `/openapi/*` phải được thêm vào `RouteConfig` dạng `AllowAnonymous` (chỉ map ở Development nên production trả 404).
+
+  **Thực tế (Phase 1):** document `v1` chỉ chứa các route `/api/admin/*` (`AddOpenApi(options => options.ShouldInclude = ...)`).
+  Lý do: một số action storefront nhận/trả thẳng entity EF (vòng tham chiếu `Order → User → …`) làm bộ sinh schema vượt
+  `MaxDepth` và cả document trả 500. Hai lưu ý khi viết DTO admin để document không vỡ (.NET 9, `Microsoft.AspNetCore.OpenApi` 9.0.10):
+  không đặt `[MinLength]`/`[MaxLength]` lên collection **nullable** (`List<T>?` → khai báo `List<T> X { get; set; } = new();`),
+  và không dùng entity làm kiểu request/response.
 - Mỗi resource admin có file `http/admin/<resource>.http` (theo mẫu `http/brand.http`) để test tay và làm tài liệu sống.
 - Khi bắt đầu một tính năng admin: viết DTO + chữ ký controller trước (trả `NotImplementedException` → 501), merge
   sớm để frontend dựng giao diện theo `/openapi/v1.json`, rồi mới làm service.
@@ -314,6 +324,10 @@ private static async Task SeedPermissionsAsync(RoleManager<Role> roleManager)
 `AdminSeeder` hiện chỉ chạy khi có `AdminSeed:Email|Password`. Tách phần seed role + permission ra chạy **luôn**
 (không phụ thuộc cấu hình), phần tạo tài khoản admin giữ điều kiện cũ.
 
+**Thực tế:** đã làm đúng như trên (`SeedRolesAsync` + `SeedPermissionsAsync` chạy luôn, phần tài khoản vẫn cần cấu hình).
+Hệ quả cần nhớ: permission **mới** thêm vào `Permissions.All` sau này chỉ tự vào role `ADMIN`; MANAGER/STAFF đã có permission
+nên không bị ghi đè, phải gán qua `PUT /roles/{id}/permissions`. Role `USER` không bao giờ có permission quản trị.
+
 ### 2.4 Tra permission: `IPermissionService`
 
 ```csharp
@@ -436,9 +450,9 @@ namespace cellPhoneS_backend.Filters;
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
 public sealed class RequirePermissionAttribute : Attribute, IAsyncAuthorizationFilter
 {
-    public IReadOnlyList<string> Permissions { get; }
+    public IReadOnlyList<string> RequiredPermissions { get; }
 
-    public RequirePermissionAttribute(params string[] permissions) => Permissions = permissions;
+    public RequirePermissionAttribute(params string[] permissions) => RequiredPermissions = permissions;
 
     public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
@@ -451,7 +465,7 @@ public sealed class RequirePermissionAttribute : Attribute, IAsyncAuthorizationF
 
         var service = context.HttpContext.RequestServices.GetRequiredService<IPermissionService>();
         var granted = await service.GetPermissionsAsync(user.FindAll(ClaimTypes.Role).Select(c => c.Value));
-        if (!Permissions.All(granted.Contains))
+        if (!RequiredPermissions.All(granted.Contains))
         {
             context.Result = new ObjectResult(new ApiResponse<object?>("Forbidden: Insufficient permissions.", null))
             {
@@ -476,6 +490,8 @@ public class AdminBrandController : BaseController
 }
 ```
 
+(Thực tế: thuộc tính tên `RequiredPermissions` thay vì `Permissions` để không che lớp tĩnh `Permissions`.)
+
 **Fail-closed:** quên gắn attribute thì endpoint chỉ còn được bảo vệ bởi `admin.access` (STAFF gọi được API ghi).
 Thêm kiểm tra lúc khởi động trong Development để phát hiện sớm:
 
@@ -493,6 +509,11 @@ if (app.Environment.IsDevelopment())
         app.Logger.LogWarning("Admin endpoint thiếu [RequirePermission]: {Action}", name);
 }
 ```
+
+Đã có trong `Program.cs` và đã thử (gỡ attribute của `AdminMeController.GetMe` → log đúng một cảnh báo cho action đó). Hiện tại
+mọi endpoint admin đã có attribute: Catalog/Stores/Products — controller gắn `*Read`, action ghi gắn thêm `*Write` hoặc
+`product.delete`; Media — `media.write` cho cả controller; `AdminQueryController` gắn theo từng GET (`product.read`, `user.read`,
+`order.read`, `transaction.read`).
 
 ### 2.6 `GET /api/admin/me`
 
@@ -637,6 +658,13 @@ public class AuditLog
 - Lỗi khi ghi audit chỉ log, không làm hỏng request.
 - Migration `Admin_AuditLog`, index `(CreateDate)`, `(UserId, CreateDate)`.
 
+**Thực tế (Phase 1):** `AdminAuditFilter` (`src/Api/Filters`) có `Order = -3000` để bọc cả `ValidationActionFilter` (nên 400 do
+FluentValidation vẫn được ghi); status lấy từ `ActionExecutedContext` (exception nghiệp vụ → `ApiExceptionFilter.MapStatusCode`).
+Ghi bằng scope/`DbContext` riêng để không dính state lỗi của request; `UserEmail` tra từ bảng `AspNetUsers` (JWT không có email);
+`Resource` là segment sau `/api/admin/`, `ResourceId` là segment kế tiếp nếu là số hoặc GUID; che key chứa `password|token|secret`
+ở mọi cấp. **Không ghi** các request bị chặn *trước* action: 401/403 từ middleware hoặc `[RequirePermission]` và 400 tự động của
+`[ApiController]` (DataAnnotations). Đọc log qua `GET /api/admin/audit-logs` (`audit.read`; `status` là mã HTTP).
+
 ---
 
 ## 4. Danh mục endpoint
@@ -648,18 +676,28 @@ Mọi route dưới đây có prefix `/api/admin`, response bọc trong `ApiResp
 
 | Method | Route | Permission | Request | Response | TT |
 |---|---|---|---|---|---|
-| GET | `/me` | `admin.access` | | `AdminMeView` (2.6) | Mới |
-| GET | `/permissions` | `role.manage` | | `List<PermissionView>` (`code`, `group`, `description`) | Mới |
-| GET | `/roles` | `role.manage` | | `List<RoleView>` (`id`, `name`, `status`, `isSystem`, `userCount`, `permissions`) | Mới |
-| GET | `/roles/{id}` | `role.manage` | | `RoleView` | Mới |
-| POST | `/roles` | `role.manage` | `{ name, permissions[] }` | id | Mới |
-| PUT | `/roles/{id}` | `role.manage` | `{ id, name }` (role hệ thống không đổi tên) | | Mới |
-| PUT | `/roles/{id}/permissions` | `role.manage` | `{ permissions[] }` (thay toàn bộ; ADMIN → 403) | | Mới |
-| DELETE | `/roles/{id}` | `role.manage` | (role hệ thống hoặc còn user → 409) | | Mới |
-| GET | `/audit-logs` | `audit.read` | `AdminListQuery` + `userId`, `resource` | `PagedResult<AuditLogView>` | Mới |
+| GET | `/me` | `admin.access` | | `AdminMeView` (2.6) | **Có** |
+| GET | `/permissions` | `role.manage` | | `List<PermissionView>` (`code`, `group`, `description`) | **Có** |
+| GET | `/roles` | `role.manage` | | `List<RoleView>` (`id`, `name`, `status`, `isSystem`, `userCount`, `permissions`) | **Có** |
+| GET | `/roles/{id}` | `role.manage` | | `RoleView` | **Có** |
+| POST | `/roles` | `role.manage` | `{ name, permissions[] }` | id | **Có** |
+| PUT | `/roles/{id}` | `role.manage` | `{ id, name }` (role hệ thống → 409) | | **Có** |
+| PUT | `/roles/{id}/permissions` | `role.manage` | `{ permissions[] }` (thay toàn bộ; ADMIN và USER → 403) | | **Có** |
+| DELETE | `/roles/{id}` | `role.manage` | (role hệ thống hoặc còn user → 409) | | **Có** |
+| GET | `/audit-logs` | `audit.read` | `AuditLogFilter` (= `AdminListQuery` + `userId`, `resource`; `status` = mã HTTP; `search` khớp path/email) | `PagedResult<AuditLogView>` | **Có** |
 
 Sau mọi thao tác ghi role: `IPermissionService.Invalidate(roleName)`. Permission gửi lên không có trong
 `Permissions.All` → 400. Tên role chuẩn hoá chữ hoa (JWT/`RouteConfig` so đúng chữ hoa, xem `AdminSeeder`).
+
+**Thực tế (Phase 1)** — `IAdminRoleService` (`src/Admin/Application/Services`), controller `AdminMeController` / `AdminRoleController` /
+`AdminAuditLogController`:
+- Tên role: 2–50 ký tự `[A-Za-z0-9_-]`, lưu chữ hoa; trùng → 409. `POST /roles` bỏ `permissions` thì tạo role không có permission.
+- Role hệ thống (`RoleNames.System`): đổi tên/xoá → 409. Sửa permission của `ADMIN` → 403 (luôn bằng `Permissions.All`).
+  **Lệch tài liệu:** sửa permission của `USER` cũng → 403 (khách hàng không được có `admin.access`); MANAGER/STAFF sửa được.
+- Đổi tên role gọi `Invalidate` cả tên cũ lẫn mới. JWT cũ vẫn mang tên role cũ tới khi hết hạn/refresh.
+- "ADMIN cuối cùng": ADMIN không sửa/xoá/đổi tên được qua API role nên không thể mất qua đây. Quy tắc còn lại thuộc API user (Phase 2):
+  `IAdminRoleService.EnsureNotLastAdmin(userId)` đã có sẵn để gọi trước khi khoá user / bỏ role ADMIN.
+- `GET /me` lấy id từ `BaseController.CurrentUserId`; `roles` và `permissions` sắp xếp theo tên.
 
 ### 4.2 Người dùng (module Account)
 
@@ -1000,12 +1038,21 @@ public class UpdateOrderStatusRequestValidator : AbstractValidator<UpdateOrderSt
 }
 ```
 
-Hiện **không validator nào được chạy**: project chỉ tham chiếu gói `FluentValidation` (không có tích hợp ASP.NET),
-không đăng ký validator vào DI và không gọi `Validate` ở đâu. Phase 1 thêm gói
-`FluentValidation.DependencyInjectionExtensions`, `services.AddValidatorsFromAssemblyContaining<LoginDTOValidator>()`
-và một action filter global: với mỗi argument có `IValidator<T>` thì `ValidateAsync`, lỗi → 400
-`ApiResponse<object?>(<lỗi đầu tiên>, <danh sách lỗi>)`. Bật cho cả validator storefront đang có thì cần thử lại các
-form đăng ký/đặt hàng.
+Trước Phase 1 **không validator nào được chạy**: project chỉ tham chiếu gói `FluentValidation` (không có tích hợp ASP.NET),
+không đăng ký validator vào DI và không gọi `Validate` ở đâu.
+
+**Thực tế (Phase 1):** đã thêm gói `FluentValidation.DependencyInjectionExtensions`, `AddValidatorsFromAssemblyContaining<LoginDTOValidator>()`
+(lifetime Scoped) và `ValidationActionFilter` (global, `src/Api/Filters`): với mỗi argument của action có `IValidator<T>` thì
+`ValidateAsync`; lỗi → 400 `ApiResponse<object?>(<lỗi đầu tiên>, [{ field, message }])`. Frontend (`error.interceptor`) hiển thị
+đúng `message`. Các validator storefront đã đối chiếu với payload của UI (đăng ký, đăng nhập, thêm giỏ, đặt hàng pickup/delivery)
+và khớp. Các thay đổi kèm theo vì validator bắt đầu chạy:
+- `AddLocalization(options => options.ResourcesPath = "Resources")` làm `IStringLocalizer<ShareResource>` không tìm thấy resx
+  (resx nhúng tên `cellphones_backend.Resources.ShareResource`), mọi message trả về nguyên khoá như `EmailInvalid`. Đã bỏ `ResourcesPath`;
+  message tiếng Việt mặc định, `?culture=en` ra tiếng Anh. Thêm khoá thiếu `ProvinceMaxLength` vào hai file resx.
+- Validator mới áp dụng cho `POST /api/admin/products` (`AddProductRequestValidator`: ảnh phải có `OriginUrl` tuyệt đối, `MimeType`,
+  `Name`, `Alt`; ít nhất một màu và một dòng tồn kho) và các request Catalog/Stores có sẵn validator.
+- Lỗi DataAnnotations của `[ApiController]` (vd. `CreateCommitmentRequest`, `UpdateMeRequest`) vẫn trả `ValidationProblemDetails`
+  chứ chưa phải `ApiResponse` — chưa đổi để không đụng response storefront (việc còn lại, xem mục 7).
 
 **3. Service** (`src/Orders/Application/Services/Admin/`):
 
@@ -1131,11 +1178,15 @@ route `/api/admin/*`; đơn `Pending` delivery → `Shipping` trả 409; bảng 
 
 | Phase | Nội dung | Phụ thuộc | Song song |
 |---|---|---|---|
-| **0. Vá bảo mật** | Dời product write sang `AdminProductController`; khoá `/api/user/*` (chỉ còn `me`), không trả entity `User`; login/refresh chặn user không `active`; kiểm tra blacklist trong `OnTokenValidated` | — | Làm ngay, một PR nhỏ. Frontend admin phải đổi URL sản phẩm (`POST/PUT/DELETE admin/products`) cùng lúc |
-| **1. Nền tảng** | `Permissions`, `RoleNames`, seed role + permission, `IPermissionService`, `RequirePermission`, sửa `RoutePolicy`/middleware, `GET /me`, API roles/permissions, `AuditLog` + filter, `PagingExtensions`/`AdminListQuery`, `BaseController.CurrentUserId`, OpenAPI dev, chạy validator FluentValidation (mục 6 bước 2), gắn `[RequirePermission]` cho mọi controller admin đang có | Phase 0 | Một người làm (đụng file chung). Có thể tách: (a) permission + roles, (b) audit + paging + OpenAPI |
+| **0. Vá bảo mật** (✅ xong) | Dời product write sang `AdminProductController`; khoá `/api/user/*` (chỉ còn `me`), không trả entity `User`; login/refresh chặn user không `active`; kiểm tra blacklist trong `OnTokenValidated` | — | Làm ngay, một PR nhỏ. Frontend admin phải đổi URL sản phẩm (`POST/PUT/DELETE admin/products`) cùng lúc |
+| **1. Nền tảng** (✅ xong, nhánh `admin-phase1-foundation`) | `Permissions`, `RoleNames`, seed role + permission, `IPermissionService`, `RequirePermission`, sửa `RoutePolicy`/middleware, `GET /me`, API roles/permissions, `AuditLog` + filter, `PagingExtensions`/`AdminListQuery`, `BaseController.CurrentUserId`, OpenAPI dev, chạy validator FluentValidation (mục 6 bước 2), gắn `[RequirePermission]` cho mọi controller admin đang có | Phase 0 | Một người làm (đụng file chung). Có thể tách: (a) permission + roles, (b) audit + paging + OpenAPI |
 | **2. CRUD đầy đủ** | 4.2 Users · 4.3 Products · 4.4 Catalog list admin · 4.5 Inventory · 4.6 Orders/Transactions · 4.7 Reviews | Phase 1 | **Mỗi module một nhánh**, độc lập nhau (chỉ chạm DI + migration riêng) |
 | **3. Thống kê** | `AdminStatisticsController` + service (mục 5), index migration, cache | Phase 1 (permission). Không cần Phase 2 | Song song với Phase 2 |
 | **4. Hoàn thiện** | Xuất CSV (`GET /orders/export`, `/stats/revenue/export`), dự án test `cellPhoneS_backend.Tests` (xUnit + `WebApplicationFactory` + Postgres Testcontainers) cho phân quyền và luật trạng thái, rollup job nếu cần | Phase 2–3 | |
+
+Việc còn lại ghi nhận sau Phase 1 (chưa thuộc phase nào): đổi lỗi ModelState của `[ApiController]` sang `ApiResponse`
+(`InvalidModelStateResponseFactory`); `DateTime.Now` (Kind=Local) bị Npgsql từ chối ở các service ghi, vd. `POST /api/admin/storehouses`
+trả 500 (cần `DateTime.UtcNow`); `user-revoked:{userId}` (4.2) và blacklist JTI khi logout (Phase 0 chưa làm).
 
 Song song với frontend: sau Phase 1, frontend làm `/api/admin/me` + guard theo permission; mỗi tính năng Phase 2–3
 chỉ cần hợp đồng (DTO + route, mục 1.3) đã merge là dựng được giao diện.
@@ -1146,7 +1197,7 @@ chỉ cần hợp đồng (DTO + route, mục 1.3) đã merge là dựng đượ
 
 - [ ] Route bắt đầu `api/admin/`, controller `Admin<Name>Controller` trong `src/<Module>/Api/Controllers/Admin/`.
 - [ ] `[RequirePermission]` trên controller (quyền đọc) và trên từng action ghi; permission mới thì thêm vào `Permissions` + `All` + bảng 2.3 + seed.
-- [ ] DTO riêng trong `Application/DTOs/Admin/`, không trả entity; request có validator.
+- [ ] DTO riêng trong `Application/DTOs/Admin/`, không trả entity; request có validator. Collection có `[MinLength]`/`[MaxLength]` phải không nullable (`List<T> X { get; set; } = new();`), nếu không `/openapi/v1.json` trả 500.
 - [ ] Luật trạng thái trên entity; service ném exception nghiệp vụ, không trả `null`/`bool` để báo lỗi.
 - [ ] List dùng `AdminListQuery` + `ToPagedResultAsync`, sort theo whitelist, `pageSize ≤ 100`.
 - [ ] Ghi đủ `UpdateBy/UpdateDate`; xoá là xoá mềm; làm mới cache liên quan.
