@@ -7,7 +7,6 @@ namespace cellPhoneS_backend.Services.Implement;
 
 public class AdminQueryServiceImpl : IAdminQueryService
 {
-    private const int MaxPageSize = 100;
     private readonly ApplicationDbContext _context;
 
     public AdminQueryServiceImpl(ApplicationDbContext context)
@@ -15,12 +14,8 @@ public class AdminQueryServiceImpl : IAdminQueryService
         _context = context;
     }
 
-    private static (int pageIndex, int pageSize) Normalize(int pageIndex, int pageSize)
-        => (Math.Max(pageIndex, 1), Math.Clamp(pageSize, 1, MaxPageSize));
-
     public async Task<PagedResult<AdminProductView>> GetProducts(int pageIndex, int pageSize, string? search)
     {
-        (pageIndex, pageSize) = Normalize(pageIndex, pageSize);
         var query = _context.Products.AsNoTracking().AsQueryable();
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -28,21 +23,17 @@ public class AdminQueryServiceImpl : IAdminQueryService
             query = query.Where(p => EF.Functions.ILike(p.Name!, pattern));
         }
 
-        var total = await query.CountAsync();
-        var items = await query
+        return await query
             .OrderByDescending(p => p.CreateDate)
-            .Skip((pageIndex - 1) * pageSize)
-            .Take(pageSize)
             .Select(p => new AdminProductView(
                 p.Id, p.Name, p.ImageUrl, p.BasePrice, p.SalePrice, p.Status,
                 p.Stores.Sum(s => s.Quantity), p.CreateDate))
-            .ToListAsync();
-        return new PagedResult<AdminProductView>(items, total, pageIndex, pageSize);
+            .ToPagedResultAsync(pageIndex, pageSize);
     }
 
     public async Task<PagedResult<AdminUserView>> GetUsers(int pageIndex, int pageSize, string? search)
     {
-        (pageIndex, pageSize) = Normalize(pageIndex, pageSize);
+        (pageIndex, pageSize) = PagingExtensions.NormalizePaging(pageIndex, pageSize);
         var query = _context.Users.AsNoTracking().AsQueryable();
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -74,7 +65,7 @@ public class AdminQueryServiceImpl : IAdminQueryService
 
     public async Task<PagedResult<AdminOrderView>> GetOrders(int pageIndex, int pageSize, string? status)
     {
-        (pageIndex, pageSize) = Normalize(pageIndex, pageSize);
+        (pageIndex, pageSize) = PagingExtensions.NormalizePaging(pageIndex, pageSize);
         var query = _context.Orders.AsNoTracking().AsQueryable();
         if (!string.IsNullOrWhiteSpace(status))
         {
@@ -167,17 +158,11 @@ public class AdminQueryServiceImpl : IAdminQueryService
 
     public async Task<PagedResult<AdminTransactionView>> GetTransactions(int pageIndex, int pageSize)
     {
-        (pageIndex, pageSize) = Normalize(pageIndex, pageSize);
-        var query = _context.PaymentTransactions.AsNoTracking();
-        var total = await query.CountAsync();
-        var items = await query
+        return await _context.PaymentTransactions.AsNoTracking()
             .OrderByDescending(t => t.CreateDate)
-            .Skip((pageIndex - 1) * pageSize)
-            .Take(pageSize)
             .Select(t => new AdminTransactionView(
                 t.Id, t.OrderId, t.Amount, t.Provider, t.Reference, t.Status,
                 t.TransactionDate, t.CreateDate, t.Order!.CreateUser!.Email))
-            .ToListAsync();
-        return new PagedResult<AdminTransactionView>(items, total, pageIndex, pageSize);
+            .ToPagedResultAsync(pageIndex, pageSize);
     }
 }
