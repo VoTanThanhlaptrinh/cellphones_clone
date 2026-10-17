@@ -6,6 +6,7 @@ using cellphones_backend.Repositories;
 using cellphones_backend.Resources;
 using cellPhoneS_backend.Services;
 using cellPhoneS_backend.Services.Interface;
+using FluentValidation;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -143,13 +144,19 @@ internal partial class Program
 
         var cs = builder.Configuration.GetConnectionString("StorageAccount");
         builder.Services.AddAzureClients(clientBuilder => clientBuilder.AddBlobServiceClient(cs));
-        builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+        // Không đặt ResourcesPath: resx được nhúng với tên "cellphones_backend.Resources.ShareResource" (namespace của class ShareResource),
+        // đúng tên mà IStringLocalizer<ShareResource> tìm. Có ResourcesPath thì nó tìm "cellPhoneS_backend.Resources.cellphones_backend.Resources..."
+        // và mọi thông báo của validator trả về nguyên khoá (vd. "EmailInvalid").
+        builder.Services.AddLocalization();
         builder.Services.AddScoped<IResourceLocalizer, ResourceLocalizer>();
         builder.Services.AddControllers(options =>
         {
             options.Filters.Add<cellPhoneS_backend.Filters.ApiExceptionFilter>();
             options.Filters.Add<cellPhoneS_backend.Filters.AdminAuditFilter>();        // ghi AuditLog cho request ghi dưới /api/admin
+            options.Filters.Add<cellPhoneS_backend.Filters.ValidationActionFilter>();   // chạy validator FluentValidation, lỗi -> 400 ApiResponse
         });
+        // Validator FluentValidation (Scoped): quét assembly chứa LoginDTOValidator; ValidationActionFilter tìm validator theo kiểu argument của action.
+        builder.Services.AddValidatorsFromAssemblyContaining<cellphones_backend.Validation.Account.LoginDTOValidator>();
         builder.Services.AddCustomServices();
         // Payment gateway (payment-module): khoá API chỉ nằm ở backend, cấu hình qua PaymentGateway:BaseUrl|ApiKey (user-secrets/biến môi trường).
         builder.Services.AddHttpClient<cellPhoneS_backend.Services.Interface.IPaymentGatewayClient, cellPhoneS_backend.Services.Implement.PaymentGatewayClientImpl>(client =>
