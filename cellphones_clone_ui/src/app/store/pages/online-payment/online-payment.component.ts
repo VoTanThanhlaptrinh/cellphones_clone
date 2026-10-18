@@ -109,8 +109,9 @@ export class OnlinePaymentComponent implements OnInit, OnDestroy {
 
     if (payment.status === 'PAID') {
       this.stopAll();
-      sessionStorage.removeItem(PENDING_PAYMENT_ORDER_KEY);
-      this.router.navigate(['/checkout'], { state: { orderId: payment.orderId, success: true }, replaceUrl: true });
+      // Trang thành công đọc mã đơn từ phiên trình duyệt (PayOS không đi qua goToProvider nên chưa lưu).
+      sessionStorage.setItem(PENDING_PAYMENT_ORDER_KEY, String(payment.orderId));
+      this.router.navigate(['/payment/success'], { replaceUrl: true });
       return;
     }
     if (payment.status === 'EXPIRED') {

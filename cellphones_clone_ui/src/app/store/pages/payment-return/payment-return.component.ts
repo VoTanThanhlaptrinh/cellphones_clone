@@ -1,23 +1,22 @@
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { HeaderCartOrderComponent } from '@store/layout/header-cart-order/header-cart-order.component';
 import { PaymentService, PENDING_PAYMENT_ORDER_KEY } from '@store/services/payment.service';
 import { OnlinePayment } from '@core/models/payment.model';
 
 /**
- * Trang khách quay về sau khi thanh toán ở cổng (returnUrl/cancelUrl cấu hình ở payment gateway). Không tin tham số URL:
- * mã đơn lấy từ phiên trình duyệt, kết quả hỏi lại backend (backend hỏi gateway).
- * Giao dịch còn hiệu lực (khách bấm quay lại giữa chừng) thì đưa về trang giao dịch /payment/:orderId để thanh toán tiếp.
+ * Trang trung gian /payment/return (returnUrl/cancelUrl cũ của payment gateway; cấu hình mới nên trỏ thẳng tới
+ * /payment/success và /payment/failed). Không tin tham số URL: mã đơn lấy từ phiên trình duyệt, kết quả hỏi lại backend,
+ * rồi chuyển tới trang tương ứng. Giao dịch còn hiệu lực (khách bấm quay lại giữa chừng) thì về /payment/:orderId.
  */
 @Component({
   selector: 'app-payment-return',
   standalone: true,
-  imports: [HeaderCartOrderComponent, RouterLink],
+  imports: [HeaderCartOrderComponent],
   templateUrl: './payment-return.component.html',
 })
 export class PaymentReturnComponent implements OnInit, OnDestroy {
-  state = signal<'checking' | 'failed' | 'review'>('checking');
   private poll?: Subscription;
 
   constructor(
@@ -38,16 +37,12 @@ export class PaymentReturnComponent implements OnInit, OnDestroy {
 
   private onStatus(payment: OnlinePayment) {
     if (payment.status === 'PAID') {
-      sessionStorage.removeItem(PENDING_PAYMENT_ORDER_KEY);
-      this.router.navigate(['/checkout'], { state: { orderId: payment.orderId, success: true }, replaceUrl: true });
-    } else if (payment.status === 'REVIEW_REQUIRED') {
-      this.state.set('review');
+      this.router.navigate(['/payment/success'], { replaceUrl: true });
     } else if (payment.status === 'PENDING') {
-      // Chưa có kết quả (khách bấm quay lại hoặc tiền chưa về): trang giao dịch tiếp tục hiển thị, đếm ngược và hỏi kết quả.
       this.router.navigate(['/payment', payment.orderId], { replaceUrl: true });
     } else {
-      sessionStorage.removeItem(PENDING_PAYMENT_ORDER_KEY);
-      this.state.set('failed');
+      // FAILED, EXPIRED, CANCELLED, REVIEW_REQUIRED: trang thất bại tự phân biệt trường hợp cần kiểm tra.
+      this.router.navigate(['/payment/failed'], { replaceUrl: true });
     }
   }
 

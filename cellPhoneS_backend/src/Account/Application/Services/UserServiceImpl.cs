@@ -1,5 +1,5 @@
-using cellphones_backend.Data;
 using cellphones_backend.Models;
+using cellPhoneS_backend.Constants;
 using cellPhoneS_backend.DTOs.Account;
 using cellPhoneS_backend.Services;
 using Microsoft.AspNetCore.Identity;
@@ -10,31 +10,41 @@ namespace cellphones_backend.Services.Implement;
 public class UserServiceImpl : UserService
 {
     private readonly UserManager<User> _userManager;
-    private readonly RoleManager<Role> _roleManager;
-    private readonly ApplicationDbContext _applicationDbContext;
 
-    public UserServiceImpl(UserManager<User> userManager, RoleManager<Role> roleManager, ApplicationDbContext applicationDbContext)
+    public UserServiceImpl(UserManager<User> userManager)
     {
         _userManager = userManager;
-        _roleManager = roleManager;
-        _applicationDbContext = applicationDbContext;
     }
 
-    public async Task DeleteUser(string id)
+    public async Task<UserResponse> GetMe(string userId)
     {
-        var res = await _userManager.FindByIdAsync(id);
-        if (res == null)
-            throw new NotFoundException("khong tim thay user");
-        res.Status = "deleted";
-        await _userManager.UpdateAsync(res);
+        var user = await FindUser(userId);
+        return ToResponse(user);
     }
 
-    public async Task<User> GetDetails(string id)
+    public async Task<UserResponse> UpdateMe(string userId, UpdateMeRequest request)
     {
-        var res = await _userManager.FindByIdAsync(id);
-        if (res == null)
-            throw new NotFoundException("khong tim thay user");
-        return res;
+        var user = await FindUser(userId);
+
+        var phone = request.Phone!.Trim();
+        if (phone != user.PhoneNumber
+            && await _userManager.Users.AnyAsync(x => x.PhoneNumber == phone && x.Id != user.Id))
+        {
+            throw new ConflictException("Số điện thoại đã được sử dụng");
+        }
+
+        user.Fullname = request.Fullname!.Trim();
+        user.Birth = request.Birth!.Value;
+        user.PhoneNumber = phone;
+        user.UpdateDate = DateTime.UtcNow;
+        user.UpdateBy = user.Id;
+
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+            throw new BadRequestException(string.Join("; ", result.Errors.Select(e => e.Description)));
+        }
+        return ToResponse(user);
     }
 
     public async Task<IList<string>> GetRole(User user)
@@ -42,15 +52,14 @@ public class UserServiceImpl : UserService
         return await _userManager.GetRolesAsync(user);
     }
 
-    public async Task<List<UserResponse>> GetUsers(int page, int pageSize)
+    private async Task<User> FindUser(string userId)
     {
-        var res = await _userManager.Users.Skip(page * pageSize).Take(pageSize)
-                    .Select(x => new UserResponse(x.Fullname!, x.PhoneNumber!)).ToListAsync();
-        return res;
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null || user.Status == UserStatuses.Deleted)
+            throw new NotFoundException("Không tìm thấy người dùng");
+        return user;
     }
 
-    public Task<User> UpdateUser(string id, User updatedUser)
-    {
-        throw new NotImplementedException();
-    }
+    private static UserResponse ToResponse(User user) =>
+        new(user.Id, user.Email, user.Fullname, user.PhoneNumber, user.Birth);
 }
