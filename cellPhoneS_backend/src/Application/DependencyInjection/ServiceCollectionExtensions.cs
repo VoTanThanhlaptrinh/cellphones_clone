@@ -45,6 +45,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPermissionService, PermissionServiceImpl>();
         services.AddScoped<IAdminRoleService, AdminRoleServiceImpl>();
         services.AddScoped<IAuditLogService, AuditLogServiceImpl>();
+        // --- Admin: Inventory ---
+        services.AddScoped<IAdminInventoryService, AdminInventoryServiceImpl>();
         // --- Admin: Catalog ---
         services.AddScoped<IAdminCatalogQueryService, AdminCatalogQueryServiceImpl>();
         // --- Admin: Products ---
