@@ -9,7 +9,8 @@ làm sau, dựa trên các hợp đồng API ở đây.
 
 > **Trạng thái:** Phase 0 (vá bảo mật) và Phase 1 (nền tảng: permission, role API, audit log, paging, OpenAPI, validator)
 > **đã làm xong**; các mục 2, 3.2–3.4, 4.1 và 6 bước 2 bên dưới mô tả đúng code hiện có (chỗ nào lệch so với thiết kế
-> ban đầu thì có ghi chú "Thực tế"). Phase 2 (CRUD theo module) và Phase 3 (thống kê) chưa làm.
+> ban đầu thì có ghi chú "Thực tế"). Phase 3 (thống kê, mục 5) và Phase 2C (đánh giá, mục 4.7) **đã làm xong** ở nhánh
+> `admin-p3-stats`; phần còn lại của Phase 2 (users, orders/transactions, products, catalog, inventory) làm ở các nhánh khác.
 
 Mục lục
 
@@ -799,12 +800,26 @@ Pending ──MarkPaid()──► Paid ──Ship()──► Shipping ──Comp
 
 | Method | Route | Permission | Request | Response | TT |
 |---|---|---|---|---|---|
-| GET | `/reviews` | `review.moderate` | `productId`, `rating`, `status`, `search`, phân trang | `PagedResult<AdminReviewView>` (sản phẩm, người viết, sao, nội dung, ngày) | Mới |
-| PATCH | `/reviews/{id}/status` | `review.moderate` | `{ status: "visible" \| "hidden" }` | | Mới |
-| DELETE | `/reviews/{id}` | `review.moderate` | | | Mới |
+| GET | `/reviews` | `review.moderate` | `productId`, `rating`, `status`, `search`, phân trang | `PagedResult<AdminReviewView>` (sản phẩm, người viết, sao, nội dung, ngày) | **Có** |
+| PATCH | `/reviews/{id}/status` | `review.moderate` | `{ status: "visible" \| "hidden" }` | | **Có** |
+| DELETE | `/reviews/{id}` | `review.moderate` | | | **Có** |
 
 `Review` chưa có cột trạng thái: thêm `Status` (mặc định `"visible"`) bằng migration `Admin_ReviewStatus`; API public
 `GET /api/reviews/product/*` và điểm trung bình chỉ tính review `visible`.
+
+**Thực tế (Phase 2C)** — `IAdminReviewService` (`src/Products/Application/Services/Admin`), `AdminReviewController`, DTO ở
+`Application/DTOs/Admin`, validator ở `Application/Validation/Admin`; cả controller gắn `review.moderate` (MANAGER và ADMIN có, STAFF → 403):
+- `Review.Status` (`ReviewStatuses.Visible|Hidden`, `varchar(16)`, mặc định `visible`); migration `Admin_ReviewStatus` (đã sửa tay
+  `defaultValue: "visible"` vì EF sinh `""`, nên review cũ vẫn hiện). Review chỉ có hai trạng thái, **không có `deleted`**.
+- Phần "chỉ tính `visible`" nằm ở ba chỗ: `ReviewRepository.GetReviewsWithUserByProductIdAsync`, `ReviewServiceImpl.GetAverageRatingAsync`
+  và (**ngoài tài liệu gốc**) `ProductCardEnricher` — điểm sao/số đánh giá trên thẻ sản phẩm; thiếu chỗ này review ẩn vẫn tính vào thẻ.
+  `POST /api/reviews` không đổi (review mới luôn `visible`, chưa có duyệt trước).
+- `GET /reviews`: `status` bỏ trống = cả `visible` và `hidden` (khác 3.2 vì không có `deleted`); `search` (ILIKE) khớp nội dung, email,
+  username người viết hoặc tên sản phẩm; `from/to` theo ngày viết giờ VN; `sortBy` = `createdDate` (mặc định) | `rating`.
+  `AdminReviewView`: `id, productId, productName, userId, userEmail, userName, rating, comment, status, createdDate`.
+- `PATCH /{id}/status` idempotent; id không có → 404; `status` ngoài `visible|hidden` → 400. `DELETE /{id}` **xoá hẳn** (không khôi
+  phục được; dấu vết chỉ còn trong audit log) — lệch quy ước xoá mềm ở 3.3 vì không có trạng thái `deleted`.
+- Route dùng `{id:int}` (`Review.Id` là `int`).
 
 ### 4.8 Media
 
@@ -843,6 +858,26 @@ Controller `AdminStatisticsController` (`src/Admin/Api/Controllers/`), route `ap
 | `GET /stats/new-users` | `from`, `to`, `groupBy` | `[{ period, count }]` |
 | `GET /stats/low-stock` | `threshold` (mặc định 5), `limit` | `[{ productId, name, colorId, colorName, totalQuantity }]` (tổng mọi kho, sản phẩm `active`) |
 | `GET /stats/reviews` | `from`, `to` | `{ total, average, distribution: { "1": n, …, "5": n }, lowestRated: [{ productId, name, average, count }] }` |
+
+**Thực tế (Phase 3)** — `IAdminStatisticsService` / `AdminStatisticsServiceImpl` (`src/Admin/Application/Services`), `AdminStatisticsController`,
+tham số là các class `[FromQuery]` (`StatsRangeQuery`, `StatsPeriodQuery`, `TopProductsQuery`, `LowStockQuery`, `src/Admin/Application/DTOs`) có validator
+(`StatsRangeValidatorBase<T>`…), nên lỗi tham số trả 400 `ApiResponse` ngay ở filter; service kiểm tra lại (phòng khi gọi nơi khác). Mã mẫu 5.3–5.5 được dùng gần như
+nguyên văn, chỉ khác các điểm sau (đều đã đối chiếu với `ApplicationDbContextModelSnapshot`):
+- `OrderStatuses.Revenue` là `string[]`; helper `VietnamTime` (`src/Shared/Utilities`: `ToUtc(DateOnly)`, `Today()`, tìm timezone `Asia/Ho_Chi_Minh`, fallback `SE Asia Standard Time` trên Windows).
+- Khoảng ngày: bỏ trống `to` = hôm nay (giờ VN), bỏ trống `from` = `to` − 29 ngày; `from > to` hoặc quá 366 ngày → 400. Kỳ so sánh ở `overview` = cùng số ngày, liền trước `from`.
+- Số tiền làm tròn VND (`Math.Round`); `%` làm tròn 1 chữ số, `prev = 0` → `null`; `cancelledRate` là tỉ lệ 0–1 (4 chữ số thập phân). `orders` = mọi đơn tạo trong kỳ (mọi trạng thái), `paidOrders` = đơn tính doanh thu, `averageOrderValue = revenue / paidOrders`.
+  Phí ship cộng **mọi** `FeeDetail` của đơn (giống `Order.GetTotalAmount()`, không lọc `Status` của `FeeDetail`). `newCustomers` đếm mọi tài khoản mới (cả tài khoản quản trị).
+- `revenue` / `new-users`: SQL thuần `date_trunc(@groupBy, "CreateDate" AT TIME ZONE 'Asia/Ho_Chi_Minh')` với `groupBy` là tham số đã qua whitelist; kết quả thô đọc bằng `SqlQuery<…Row>` (class nội bộ), rồi lấp kỳ trống.
+  Với `week`/`month` kỳ đầu bắt đầu từ thứ Hai / mùng 1 **trước hoặc bằng `from`** (có thể trước `from`) nhưng chỉ chứa dữ liệu từ `from`; kỳ cuối chứa dữ liệu đến hết `to`.
+- `orders-by-status` luôn trả đủ 5 trạng thái theo vòng đời (Pending, Paid, Shipping, Completed, Cancelled), kể cả 0.
+- `top-products`: sắp xếp phụ theo chỉ số còn lại rồi `productId`; `limit` ngoài 1–50 → 400 (không tự kẹp). `revenue-by-category`: bỏ liên kết `CategoryProduct` hoặc danh mục `deleted`, doanh thu hàng hoá (không phí ship).
+- `payment-providers` nhóm theo `PaymentTransaction.Provider` (giá trị lưu là tên hiển thị `PayOS` / `VNPay`), chỉ `Status = success`, theo `CreateDate` của giao dịch (không phải của đơn).
+- `order-types`: chỉ đơn tính doanh thu; luôn có cả `pickup` và `delivery`.
+- `low-stock`: tổng tồn mọi kho theo (sản phẩm, màu) **≤ `threshold`** (gồm hết hàng), chỉ sản phẩm `active` và dòng `Store` không `deleted`; `limit` mặc định 20, tối đa 100.
+  Cặp sản phẩm–màu chưa từng có dòng `Stores` thì không xuất hiện. `reviews`: chỉ `visible`, theo ngày viết; `lowestRated` là 5 sản phẩm điểm thấp nhất trong kỳ.
+- Cache `IMemoryCache` 5 phút theo endpoint + khoảng ngày đã chuẩn hoá + tham số; ẩn review hay đơn mới **không** hiện ngay trong thống kê (chờ hết TTL hoặc restart).
+- Migration `Admin_StatsIndexes` khai báo bằng Fluent API trong `ApplicationDbContext` (khối "Admin: Statistics"), không dùng `[Index]` để không đụng entity `Order` của nhánh khác.
+- Còn lại: `from=abc` (không parse được ngày) vẫn trả `ValidationProblemDetails` của `[ApiController]`, chưa phải `ApiResponse` (cùng việc tồn đọng ở mục 7).
 
 ### 5.3 Mẫu: `overview`
 
@@ -1180,8 +1215,8 @@ route `/api/admin/*`; đơn `Pending` delivery → `Shipping` trả 409; bảng 
 |---|---|---|---|
 | **0. Vá bảo mật** (✅ xong) | Dời product write sang `AdminProductController`; khoá `/api/user/*` (chỉ còn `me`), không trả entity `User`; login/refresh chặn user không `active`; kiểm tra blacklist trong `OnTokenValidated` | — | Làm ngay, một PR nhỏ. Frontend admin phải đổi URL sản phẩm (`POST/PUT/DELETE admin/products`) cùng lúc |
 | **1. Nền tảng** (✅ xong, nhánh `admin-phase1-foundation`) | `Permissions`, `RoleNames`, seed role + permission, `IPermissionService`, `RequirePermission`, sửa `RoutePolicy`/middleware, `GET /me`, API roles/permissions, `AuditLog` + filter, `PagingExtensions`/`AdminListQuery`, `BaseController.CurrentUserId`, OpenAPI dev, chạy validator FluentValidation (mục 6 bước 2), gắn `[RequirePermission]` cho mọi controller admin đang có | Phase 0 | Một người làm (đụng file chung). Có thể tách: (a) permission + roles, (b) audit + paging + OpenAPI |
-| **2. CRUD đầy đủ** | 4.2 Users · 4.3 Products · 4.4 Catalog list admin · 4.5 Inventory · 4.6 Orders/Transactions · 4.7 Reviews | Phase 1 | **Mỗi module một nhánh**, độc lập nhau (chỉ chạm DI + migration riêng) |
-| **3. Thống kê** | `AdminStatisticsController` + service (mục 5), index migration, cache | Phase 1 (permission). Không cần Phase 2 | Song song với Phase 2 |
+| **2. CRUD đầy đủ** (4.7 Reviews ✅ xong ở nhánh `admin-p3-stats`; các phần còn lại ở nhánh riêng) | 4.2 Users · 4.3 Products · 4.4 Catalog list admin · 4.5 Inventory · 4.6 Orders/Transactions · 4.7 Reviews | Phase 1 | **Mỗi module một nhánh**, độc lập nhau (chỉ chạm DI + migration riêng) |
+| **3. Thống kê** (✅ xong, nhánh `admin-p3-stats`) | `AdminStatisticsController` + service (mục 5), index migration, cache | Phase 1 (permission). Không cần Phase 2 | Song song với Phase 2 |
 | **4. Hoàn thiện** | Xuất CSV (`GET /orders/export`, `/stats/revenue/export`), dự án test `cellPhoneS_backend.Tests` (xUnit + `WebApplicationFactory` + Postgres Testcontainers) cho phân quyền và luật trạng thái, rollup job nếu cần | Phase 2–3 | |
 
 Việc còn lại ghi nhận sau Phase 1 (chưa thuộc phase nào): đổi lỗi ModelState của `[ApiController]` sang `ApiResponse`
