@@ -9,6 +9,8 @@ public interface ProductService
     Task<ProductViewDetail> GetProductDetails(long id);
     Task UpdateProduct(long id, UpdateProductRequest request, string userId);
     Task DeleteProduct(long id, string userId);
+    Task SetProductStatus(long id, string status, string userId);
+    Task RestoreProduct(long id, string userId);
     Task<string> CreateProduct(AddProductRequest productRequest, string userId);
     Task<List<ProductView>> GetProductsByCategory(long categoryId, int page, int pageSize);
     Task<List<ProductView>> GetProductsBySeries(long seriesId, int page, int pageSize);

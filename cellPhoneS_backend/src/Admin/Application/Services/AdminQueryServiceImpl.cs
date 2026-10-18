@@ -14,23 +14,6 @@ public class AdminQueryServiceImpl : IAdminQueryService
         _context = context;
     }
 
-    public async Task<PagedResult<AdminProductView>> GetProducts(int pageIndex, int pageSize, string? search)
-    {
-        var query = _context.Products.AsNoTracking().AsQueryable();
-        if (!string.IsNullOrWhiteSpace(search))
-        {
-            var pattern = $"%{search.Trim()}%";
-            query = query.Where(p => EF.Functions.ILike(p.Name!, pattern));
-        }
-
-        return await query
-            .OrderByDescending(p => p.CreateDate)
-            .Select(p => new AdminProductView(
-                p.Id, p.Name, p.ImageUrl, p.BasePrice, p.SalePrice, p.Status,
-                p.Stores.Sum(s => s.Quantity), p.CreateDate))
-            .ToPagedResultAsync(pageIndex, pageSize);
-    }
-
     public async Task<PagedResult<AdminUserView>> GetUsers(int pageIndex, int pageSize, string? search)
     {
         (pageIndex, pageSize) = PagingExtensions.NormalizePaging(pageIndex, pageSize);
