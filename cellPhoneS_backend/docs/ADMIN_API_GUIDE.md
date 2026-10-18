@@ -726,13 +726,13 @@ và `active`; luôn giữ role `USER` cho tài khoản khách (các route `/api/
 
 | Method | Route | Permission | Request | Response | TT |
 |---|---|---|---|---|---|
-| GET | `/products` | `product.read` | `AdminListQuery` + `categoryId`, `brandId`, `lowStock` | `PagedResult<AdminProductView>` | Sửa (thêm lọc) |
-| GET | `/products/{id}` | `product.read` | | `AdminProductDetail` (đủ dữ liệu cho form sửa: ảnh, màu, thông số, cam kết, danh mục, tồn kho theo kho) | Mới |
-| POST | `/products` | `product.write` | `AddProductRequest` (đã có) | id | Sửa (dời từ `POST /api/products`) |
-| PUT | `/products/{id}` | `product.write` | `UpdateProductRequest` (đã có) | | Sửa (dời từ `PUT /api/products/{id}`) |
-| PATCH | `/products/{id}/status` | `product.write` | `{ status: "active" \| "inactive" }` | | Mới |
-| DELETE | `/products/{id}` | `product.delete` | | | Sửa (dời từ `DELETE /api/products/{id}`) |
-| PATCH | `/products/{id}/restore` | `product.delete` | | | Mới |
+| GET | `/products` | `product.read` | `AdminListQuery` + `categoryId`, `brandId`, `lowStock` | `PagedResult<AdminProductView>` | **Có** |
+| GET | `/products/{id}` | `product.read` | | `AdminProductDetail` (đủ dữ liệu cho form sửa: ảnh, màu, thông số, cam kết, danh mục, tồn kho theo kho) | **Có** |
+| POST | `/products` | `product.write` | `AddProductRequest` (đã có) | id | **Có** (dời từ `POST /api/products`; xem ghi chú: service chưa cài) |
+| PUT | `/products/{id}` | `product.write` | `UpdateProductRequest` (đã có) | | **Có** (dời từ `PUT /api/products/{id}`; xem ghi chú: service chưa cài) |
+| PATCH | `/products/{id}/status` | `product.write` | `{ status: "active" \| "inactive" }` | | **Có** |
+| DELETE | `/products/{id}` | `product.delete` | | | **Có** (dời từ `DELETE /api/products/{id}`) |
+| PATCH | `/products/{id}/restore` | `product.delete` | | | **Có** |
 | POST/PUT/DELETE | `/commitments`, `/commitments/batch`, `/commitments/{id}` | `product.write` | (đã có) | | Có |
 | POST/DELETE | `/specifications`, `/specifications/{id}/details`, `/specifications/{id}` | `product.write` | (đã có) | | Có |
 
@@ -740,31 +740,75 @@ Dời `CreateProduct/UpdateProduct/DeleteProduct` khỏi `src/Products/Api/Contr
 `src/Products/Api/Controllers/Admin/AdminProductController.cs`; service `ProductService` giữ nguyên. Sau khi ghi,
 làm mới `ProductSearchService` (tìm kiếm in-memory) để storefront thấy thay đổi.
 
+**Thực tế (Phase 2B)** — `AdminProductController` (`GET` list/detail, `PATCH status|restore`), `IAdminProductQueryService`
+(`src/Products/Application/Services/Admin`), DTO ở `Products/Application/DTOs/Admin`:
+- `GET /products`: `status` bỏ trống = active + inactive, `deleted` = thùng rác, giá trị khác → 400. `sortBy` ∈ `createDate` (mặc định), `updateDate`,
+  `name`, `salePrice`, `basePrice`, `stock`, `id`; sai → 400. `from/to` **không dùng**. `lowStock=N` là ngưỡng: tổng tồn ≤ N (`0` = hết hàng).
+  `AdminProductView` thêm `categories[]`, `updateDate`. Đã chuyển khỏi `AdminQueryController` (route trùng).
+- **`brandId` lọc theo danh mục của thương hiệu**: `Product` không có khoá tới `Brand`/`Series` (thương hiệu chỉ nối với sản phẩm qua `Category`,
+  đúng cách storefront `GET /api/products/brand/...` đang làm), nên sản phẩm cùng danh mục với thương hiệu đều khớp.
+- `AdminProductDetail`: ảnh (không `deleted`), màu (lấy từ các dòng tồn kho của sản phẩm), thông số + chi tiết, cam kết, danh mục, `stocks[]` (kho × màu × số lượng).
+- `PATCH status` chỉ nhận `active|inactive` (sản phẩm `deleted` → 409, phải `restore` trước); `restore` chỉ cho sản phẩm `deleted` (khác → 409).
+  Logic nằm ở `ProductService.SetProductStatus/RestoreProduct`.
+- **Lỗi tìm thấy và đã sửa:** `ProductServiceImpl.DeleteProduct` gọi `UpdateAsync` nhưng không `SaveChangesAsync` (repo không tự lưu) nên xoá mềm sản phẩm không có hiệu lực.
+- **Chưa cài:** `ProductServiceImpl.CreateProduct`/`UpdateProduct` vẫn là TODO ném `NotImplementedException` (POST/PUT trả 500 dù đã qua validator và `product.write`);
+  controller và quyền đã đúng, việc còn lại là phần service.
+- **Storefront thấy gì:** danh sách (`/api/products/list|brand|series|category`), trang danh mục, chi tiết `/api/products/{id}` và gợi ý tìm kiếm loại sản phẩm `deleted` **và `inactive`**
+  (commit riêng "hide inactive products": trước đó chỉ lọc `deleted` ở một số truy vấn, trang chủ/trang danh mục/chi tiết không lọc gì).
+- Tìm kiếm: `mv_ProductSearch` là materialized view tạo tay (không có trong migration, không có cột trạng thái). `ProductSearchService.RefreshAsync()` chạy
+  `REFRESH MATERIALIZED VIEW` rồi xoá cache sau mỗi thao tác ghi; `InitializeAsync` lọc thêm theo `Products.Status`. Refresh lỗi chỉ ghi log.
+
 ### 4.4 Danh mục (module Catalog)
 
 | Method | Route | Permission | TT |
 |---|---|---|---|
-| GET | `/categories`, `/brands`, `/series`, `/demands` | `catalog.read` | Mới — danh sách admin: mọi trạng thái, có `parentCategoryId`/`categoryId`/`brandId`, `productCount`, lọc + phân trang |
-| GET | `/categories/{id}` … `/demands/{id}` | `catalog.read` | Mới |
+| GET | `/categories`, `/brands`, `/series`, `/demands` | `catalog.read` | **Có** — danh sách admin: mọi trạng thái, có `parentCategoryId`/`categoryId`/`brandId`, `productCount`, lọc + phân trang |
+| GET | `/categories/{id}` … `/demands/{id}` | `catalog.read` | **Có** |
 | POST/PUT/DELETE | `/categories`, `/brands`, `/series`, `/demands` (+`/{id}`) | `catalog.write` | Có |
-| PATCH | `/<res>/{id}/restore` | `catalog.write` | Mới |
+| PATCH | `/<res>/{id}/restore` | `catalog.write` | **Có** |
 
 Sau khi có list admin, frontend đổi `listUrl` trong `catalog-resources.ts` từ API public sang `admin/<res>` và bỏ
 `createOnly` cho các trường quan hệ. Xoá danh mục còn sản phẩm/con đang `active` → 409.
+
+**Thực tế (Phase 2B)** — GET/restore nằm trong 4 controller admin sẵn có (`AdminCategoryController`…), đọc qua `IAdminCatalogQueryService`
+(`src/Catalog/Application/Services/Admin`), một `AdminCatalogFilter` dùng chung (`parentCategoryId` — `0` = gốc —, `categoryId`, `brandId`; series nhận cả `categoryId` của thương hiệu):
+- Mặc định ẩn `deleted`; `status=deleted` xem thùng rác; `sortBy` ∈ `createDate` (mặc định), `updateDate`, `name`, `id`; `from/to` không dùng.
+  `GET /{id}` trả cùng View, mọi trạng thái.
+- View: `AdminCategoryView` (cha, `childCount`, `brandCount`, `demandCount`, `productCount` = sản phẩm `active` gắn trực tiếp), `AdminBrandView` (danh mục, ảnh, `seriesCount`), `AdminSeriesView` (thương hiệu + danh mục),
+  `AdminDemandView`. **`productCount` của brand/series là số sản phẩm active của danh mục chứa thương hiệu** (không có liên kết trực tiếp, xem 4.3); demand không có sản phẩm nên không có số này.
+- Xoá → 409 khi: danh mục còn danh mục con / thương hiệu / nhu cầu chưa xoá hoặc sản phẩm `active`; thương hiệu còn dòng sản phẩm chưa xoá.
+  **Không áp "sản phẩm active" cho thương hiệu/dòng** (sẽ chặn nhầm theo danh mục) và demand/series không có con nên không bị chặn.
+- `restore`: chỉ cho bản ghi `deleted` (khác → 409); cha phải còn sống (danh mục cha / danh mục của brand, demand / thương hiệu của series, nếu không → 409) và tên không được trùng bản ghi sống cùng cha (409).
+- `POST/PUT` chỉ nhận `status` ∈ `active|inactive` (trước đây có thể gửi `deleted` qua PUT và lách các kiểm tra trên). `DateTime.Now` → `UtcNow` trong 4 service catalog và `StoreHouseServiceImpl`
+  (sửa lỗi 500 của `POST /api/admin/storehouses` và các thao tác ghi catalog ghi nhận ở "Việc còn lại").
+- Cột `SlugName` của `Categories` có unique index tính cả bản ghi `deleted`: tạo danh mục trùng tên với một danh mục đã xoá sẽ vi phạm index (500), chưa xử lý.
 
 ### 4.5 Kho và tồn kho (module Stores)
 
 | Method | Route | Permission | Request | Response | TT |
 |---|---|---|---|---|---|
-| GET | `/storehouses` | `inventory.read` | `AdminListQuery` + `province` | `PagedResult<AdminStoreHouseView>` (kèm tổng tồn) | Mới |
+| GET | `/storehouses` | `inventory.read` | `AdminListQuery` + `province` | `PagedResult<AdminStoreHouseView>` (kèm tổng tồn) | **Có** |
 | POST/PUT/DELETE | `/storehouses`, `/storehouses/{id}` | `inventory.write` | (đã có) | | Có |
-| GET | `/inventory` | `inventory.read` | `productId`, `storeHouseId`, `colorId`, `lowStock` (ngưỡng), phân trang | `PagedResult<InventoryRowView>` (`storeHouse`, `product`, `color`, `quantity`, `updateDate`) | Mới |
-| PUT | `/inventory` | `inventory.write` | `{ storeHouseId, productId, colorId, quantity }` (đặt tuyệt đối, tạo dòng nếu chưa có) | | Mới |
-| POST | `/inventory/adjust` | `inventory.write` | `{ storeHouseId, productId, colorId, delta, reason }` (kết quả < 0 → 400) | số lượng mới | Mới |
+| GET | `/inventory` | `inventory.read` | `productId`, `storeHouseId`, `colorId`, `lowStock` (ngưỡng), phân trang | `PagedResult<InventoryRowView>` (`storeHouse`, `product`, `color`, `quantity`, `updateDate`) | **Có** |
+| PUT | `/inventory` | `inventory.write` | `{ storeHouseId, productId, colorId, quantity }` (đặt tuyệt đối, tạo dòng nếu chưa có) | | **Có** |
+| POST | `/inventory/adjust` | `inventory.write` | `{ storeHouseId, productId, colorId, delta, reason }` (kết quả < 0 → 400) | số lượng mới | **Có** |
 
 Khoá chính `Store` là (`StoreHouseId`, `ProductId`, `ColorId`). Điều chỉnh tồn có thể đụng độ với đặt hàng
 (`OrderServiceImpl` trừ kho trong transaction): dùng `UPDATE ... SET "Quantity" = "Quantity" + @delta WHERE ... AND "Quantity" + @delta >= 0`
 (`ExecuteUpdateAsync`) thay vì đọc–sửa–ghi. `reason` được lưu qua audit log.
+
+**Thực tế (Phase 2B)** — `AdminInventoryController` (`api/admin/inventory`), `GET /storehouses` thêm vào `AdminStoreHouseController` (POST/PUT/DELETE vốn đã dùng `inventory.write`),
+`IAdminInventoryService` (`src/Stores/Application/Services/Admin`):
+- `GET /storehouses`: `province` khớp **chứa**, không phân biệt hoa thường, trên `City` (entity không có cột province); `search` khớp địa chỉ; `AdminStoreHouseView` có `totalStock`, `productCount`.
+  `sortBy` ∈ `createDate` (mặc định), `updateDate`, `city`, `totalStock`, `id`.
+- `GET /inventory`: `lowStock=N` là ngưỡng `quantity ≤ N`; `search` khớp tên sản phẩm; `sortBy` ∈ `updateDate` (mặc định), `createDate`, `quantity`, `productName`.
+  Dòng của sản phẩm hoặc kho đã `deleted` bị ẩn. `storeHouse.name` là địa chỉ đầy đủ.
+- `PUT` là một câu `INSERT … ON CONFLICT (StoreHouseId, ProductId, ColorId) DO UPDATE`; `adjust` cộng bằng upsert cộng dồn, trừ bằng
+  `UPDATE … SET Quantity = Quantity + @delta … AND Quantity + @delta >= 0 RETURNING Quantity` (một câu duy nhất, nên song song với đặt hàng không trừ lố; thử 30 request −1 song song trên tồn 20 → 20 thành công, 10 trả 400, tồn cuối 0).
+  `PUT` đặt tuyệt đối nên vẫn có thể ghi đè một lần trừ kho của đơn đang chạy; sửa tồn đang bán nên dùng `adjust`.
+- Kho/sản phẩm/màu không tồn tại (hoặc `deleted`) → 404; trừ tồn của tổ hợp chưa có dòng → 400; `delta` ≠ 0 và |delta|, `quantity` ≤ 1.000.000.
+- STAFF có `inventory.write` (bảng 2.3) nên PUT/adjust/POST storehouse được phép với STAFF; chỉ USER và role không có `inventory.write` bị 403.
+- Xoá kho vẫn không kiểm tra tồn còn lại (chưa làm).
 
 ### 4.6 Đơn hàng và giao dịch (modules Orders, Payments)
 

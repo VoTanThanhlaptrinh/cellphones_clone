@@ -1,0 +1,38 @@
+@host = http://localhost:5169
+@token = <access token của tài khoản quản trị (login rồi lấy data)>
+
+### Danh sách (product.read). status bỏ trống = active+inactive, deleted = thùng rác
+### sortBy: createDate | updateDate | name | salePrice | basePrice | stock | id
+### lowStock=N: tổng tồn <= N. brandId lọc theo danh mục của thương hiệu (sản phẩm không gắn trực tiếp với brand)
+GET {{host}}/api/admin/products?pageIndex=1&pageSize=20&search=iphone&status=&categoryId=&brandId=&lowStock=5&sortBy=stock&sortDir=asc
+Authorization: Bearer {{token}}
+
+### Thùng rác
+GET {{host}}/api/admin/products?status=deleted
+Authorization: Bearer {{token}}
+
+### Chi tiết cho form sửa (ảnh, màu, thông số, cam kết, danh mục, tồn theo kho)
+GET {{host}}/api/admin/products/1553
+Authorization: Bearer {{token}}
+
+### Ẩn / hiện sản phẩm trên storefront (product.write). Chỉ active | inactive
+PATCH {{host}}/api/admin/products/1553/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "status": "inactive" }
+
+### Xoá mềm (product.delete)
+DELETE {{host}}/api/admin/products/1553
+Authorization: Bearer {{token}}
+
+### Khôi phục từ thùng rác (product.delete). Sản phẩm không ở thùng rác -> 409
+PATCH {{host}}/api/admin/products/1553/restore
+Authorization: Bearer {{token}}
+
+### Tạo / sửa (product.write) - service CreateProduct/UpdateProduct chưa cài đặt (xem ADMIN_API_GUIDE 4.3)
+POST {{host}}/api/admin/products
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{}
