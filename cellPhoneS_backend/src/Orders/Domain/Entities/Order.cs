@@ -77,6 +77,32 @@ public class Order
         UpdateBy = userId;
     }
 
+    /// <summary>Paid → Shipping (chỉ đơn giao hàng). Đơn nhận tại cửa hàng không qua bước này.</summary>
+    public void Ship(string userId)
+    {
+        if (Status != OrderStatuses.Paid || Type != OrderTypes.Delivery)
+            throw new InvalidOperationException($"Không thể chuyển sang giao hàng: đơn {Type} đang ở trạng thái {Status}");
+        Status = OrderStatuses.Shipping;
+        UpdateDate = DateTime.UtcNow;
+        UpdateBy = userId;
+    }
+
+    /// <summary>
+    /// Hoàn tất đơn. Đơn giao hàng: Shipping → Completed. Đơn nhận tại cửa hàng: Paid → Completed (đã trả online)
+    /// hoặc Pending → Completed (trả tại quầy, không có cổng thanh toán nào xác nhận trước).
+    /// </summary>
+    public void Complete(string userId)
+    {
+        var allowed = Type == OrderTypes.Delivery
+            ? Status == OrderStatuses.Shipping
+            : Status is OrderStatuses.Paid or OrderStatuses.Pending;
+        if (!allowed)
+            throw new InvalidOperationException($"Không thể hoàn tất đơn {Type} đang ở trạng thái {Status}");
+        Status = OrderStatuses.Completed;
+        UpdateDate = DateTime.UtcNow;
+        UpdateBy = userId;
+    }
+
     /// <summary>Key gửi gateway cho lần thử thanh toán hiện tại; thử lại cùng lần thì cùng key nên gateway không tạo payment thứ hai.</summary>
     [NotMapped] public string PaymentIdempotencyKey => $"cellphones-order-{Id}-attempt-{PaymentAttempt}";
 

@@ -1,0 +1,7 @@
+@host = http://localhost:5169
+@token = <access token của tài khoản có transaction.read>
+
+### Danh sách giao dịch: provider = PAYOS|VNPAY, status = success, orderId, from/to là ngày giờ Việt Nam,
+### search khớp mã tham chiếu/link thanh toán/email, sortBy = createDate|amount
+GET {{host}}/api/admin/transactions?pageIndex=1&pageSize=20&provider=PAYOS&status=success&orderId=15&from=2026-10-01&to=2026-10-31&sortBy=amount&sortDir=desc
+Authorization: Bearer {{token}}

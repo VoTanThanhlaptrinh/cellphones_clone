@@ -1,0 +1,30 @@
+@host = http://localhost:5169
+@token = <access token của tài khoản có quyền tương ứng>
+@orderId = 15
+
+### Danh sách (order.read): status = Pending|Paid|Shipping|Completed|Cancelled, type = pickup|delivery,
+### search khớp mã đơn/email/tên, sortBy = createDate|id|status|totalAmount, from/to là ngày giờ Việt Nam
+GET {{host}}/api/admin/orders?pageIndex=1&pageSize=20&status=Paid&type=delivery&from=2026-10-01&to=2026-10-31&search=abc&sortBy=totalAmount&sortDir=desc
+Authorization: Bearer {{token}}
+
+### Chi tiết: sản phẩm, kho xuất hàng, phí, paymentAttempt, giao dịch
+GET {{host}}/api/admin/orders/{{orderId}}
+Authorization: Bearer {{token}}
+
+### Đổi trạng thái (order.update-status): Paid → Shipping (delivery), Shipping → Completed; pickup: Paid/Pending → Completed. Sai trạng thái → 409
+PATCH {{host}}/api/admin/orders/{{orderId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "status": "Shipping", "note": "Đã bàn giao GHTK" }
+
+### Huỷ đơn (order.cancel): hoàn tồn kho một lần. Đơn đã thu tiền online: cần hoàn tiền thủ công (có cảnh báo trong message)
+POST {{host}}/api/admin/orders/{{orderId}}/cancel
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "reason": "Khách yêu cầu huỷ" }
+
+### Đồng bộ thanh toán (order.update-status): hỏi lại gateway rồi cập nhật đơn, trả trạng thái mới
+POST {{host}}/api/admin/orders/{{orderId}}/sync-payment
+Authorization: Bearer {{token}}
