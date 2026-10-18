@@ -23,7 +23,7 @@ public class CategoryRepository : BaseRepository<Category>, ICategoryRepository
                             .Select(c => new CategoryView(c.Id, c.Name, c.SlugName,
                             c.Demands.Select(d => new DemandView(d.Id, d.Name!, d.SlugName)).ToList(),
                             c.Brands.Select(b => new BrandView(b.Id, b.Name!, b.SlugName)).ToList(),
-                            c.CategoryProducts!.Select(cp => cp.Product)
+                            c.CategoryProducts!.Where(cp => cp.Product!.Status != "deleted" && cp.Product!.Status != "inactive").Select(cp => cp.Product)
                                 .OrderByDescending(p => p!.CreateDate)
                                 .Select(product => new ProductView
                                 (
@@ -40,6 +40,7 @@ public class CategoryRepository : BaseRepository<Category>, ICategoryRepository
     {
         var products = await _context.CategoryProducts
                             .Where(cp => cp.CategoryId == categoryId)
+                            .Where(cp => cp.Product!.Status != "deleted" && cp.Product!.Status != "inactive")
                             .Select(cp => cp.Product)
                             .OrderByDescending(p => p!.CreateDate)
                             .Skip((page - 1) * size)
@@ -61,7 +62,7 @@ public class CategoryRepository : BaseRepository<Category>, ICategoryRepository
                             .Select(c => new CategoryDetailView(c.Id, c.Name, c.SlugName,
                             c.Demands.Select(d => new DemandView(d.Id, d.Name!, d.SlugName)).ToList(),
                             c.Brands.Select(b => new BrandView(b.Id, b.Name!, b.SlugName)).ToList(),
-                            c.CategoryProducts!.Select(cp => cp.Product)
+                            c.CategoryProducts!.Where(cp => cp.Product!.Status != "deleted" && cp.Product!.Status != "inactive").Select(cp => cp.Product)
                                 .OrderByDescending(p => p!.CreateDate)
                                 .Take(size)
                                 .Select(product => new ProductView
@@ -72,7 +73,7 @@ public class CategoryRepository : BaseRepository<Category>, ICategoryRepository
                                     product.BasePrice,
                                     product.SalePrice
                                 )),
-                            c.CategoryProducts.Select(cp => cp.Product).Count())).FirstAsync();
+                            c.CategoryProducts.Count(cp => cp.Product!.Status != "deleted" && cp.Product!.Status != "inactive"))).FirstAsync();
         return await ProductCardEnricher.EnrichAsync(_context, cateInit);
     }
 
@@ -82,7 +83,7 @@ public class CategoryRepository : BaseRepository<Category>, ICategoryRepository
                             .Select(c => new CategoryDetailView(c.Id, c.Name, c.SlugName,
                             c.Demands.Select(d => new DemandView(d.Id, d.Name!, d.SlugName)).ToList(),
                             c.Brands.Select(b => new BrandView(b.Id, b.Name!, b.SlugName)).ToList(),
-                            c.CategoryProducts!.Select(cp => cp.Product)
+                            c.CategoryProducts!.Where(cp => cp.Product!.Status != "deleted" && cp.Product!.Status != "inactive").Select(cp => cp.Product)
                                 .OrderBy(p => p!.Id)
                                 .Take(size)
                                 .Select(product => new ProductView
@@ -93,7 +94,7 @@ public class CategoryRepository : BaseRepository<Category>, ICategoryRepository
                                     product.BasePrice,
                                     product.SalePrice
                                 )),
-                            c.CategoryProducts.Select(cp => cp.Product).Count())).FirstAsync();
+                            c.CategoryProducts.Count(cp => cp.Product!.Status != "deleted" && cp.Product!.Status != "inactive"))).FirstAsync();
         return await ProductCardEnricher.EnrichAsync(_context, cateInit);
     }
 }
