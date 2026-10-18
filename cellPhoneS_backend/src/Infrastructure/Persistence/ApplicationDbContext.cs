@@ -104,6 +104,11 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, string>
             entity.HasIndex(a => a.CreateDate);
             entity.HasIndex(a => new { a.UserId, a.CreateDate });
         });
+        // --- Admin: Statistics (indexes cho lọc theo ngày/trạng thái, docs/ADMIN_API_GUIDE.md mục 5.6) ---
+        modelBuilder.Entity<Order>().HasIndex(o => new { o.Status, o.CreateDate });
+        modelBuilder.Entity<Order>().HasIndex(o => o.CreateDate);
+        modelBuilder.Entity<User>().HasIndex(u => u.CreateDate);
+        modelBuilder.Entity<PaymentTransaction>().HasIndex(t => t.CreateDate);
         // Cấu hình bảng Fee
         modelBuilder.Entity<Fee>(entity =>
         {
