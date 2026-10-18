@@ -14,6 +14,9 @@ namespace cellphones_backend.Services.Implement;
 
 public class JwtTokenServiceImpl : JwtTokenService
 {
+    /// <summary>Thời sống của access token; cũng là TTL của mốc thu hồi phiên <c>user-revoked:{userId}</c>.</summary>
+    public static readonly TimeSpan AccessTokenLifetime = TimeSpan.FromMinutes(15);
+
     private readonly IConfiguration _configuration;
     private readonly UserService _userService;
     private readonly IDatabase _redisDb;
@@ -40,11 +43,14 @@ public class JwtTokenServiceImpl : JwtTokenService
 
         // Thêm JTI (Token ID) để quản lý Blacklist
         var jti = Guid.NewGuid().ToString();
+        var issuedAt = DateTimeOffset.UtcNow;
         var amountCart = await _cartService.GetAmountCart(user.Id);
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id),
             new Claim(JwtRegisteredClaimNames.Jti, jti),
+            // iat để OnTokenValidated so với mốc thu hồi phiên của user (khoá tài khoản / đổi role).
+            new Claim(JwtRegisteredClaimNames.Iat, issuedAt.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
             new Claim(ClaimTypes.Name, user.Fullname ?? ""),
             new Claim("amountCart", amountCart.ToString())
         };
@@ -59,7 +65,7 @@ public class JwtTokenServiceImpl : JwtTokenService
             issuer: _configuration["Jwt:Issuer"],
             audience: _configuration["Jwt:Audience"],
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(15), // Access Token chỉ nên sống ngắn (15-30p)
+            expires: issuedAt.UtcDateTime.Add(AccessTokenLifetime), // Access Token chỉ nên sống ngắn (15-30p)
             signingCredentials: creds
         );
 

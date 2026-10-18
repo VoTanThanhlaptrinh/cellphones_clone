@@ -1,0 +1,25 @@
+@host = http://localhost:5169
+@token = <access token của tài khoản quản trị (login rồi lấy data)>
+@userId = <id người dùng>
+
+### Danh sách (user.read): lọc status/role, tìm kiếm, sắp xếp whitelist (createDate|email|fullName|status), from/to là ngày giờ Việt Nam
+GET {{host}}/api/admin/users?pageIndex=1&pageSize=20&status=active&role=STAFF&search=abc&sortBy=email&sortDir=asc&from=2026-10-01&to=2026-10-31
+Authorization: Bearer {{token}}
+
+### Chi tiết: roles, orderCount, totalSpent, 5 đơn gần nhất
+GET {{host}}/api/admin/users/{{userId}}
+Authorization: Bearer {{token}}
+
+### Khoá tài khoản (user.lock); mở khoá: "status": "active". Khoá thu hồi mọi access token đang sống của user
+PATCH {{host}}/api/admin/users/{{userId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "status": "locked", "reason": "Vi phạm điều khoản" }
+
+### Gán role (user.assign-role): thay toàn bộ, USER luôn được giữ; chỉ ADMIN gán/gỡ được ADMIN
+PUT {{host}}/api/admin/users/{{userId}}/roles
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "roles": ["STAFF"] }

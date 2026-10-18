@@ -45,6 +45,11 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPermissionService, PermissionServiceImpl>();
         services.AddScoped<IAdminRoleService, AdminRoleServiceImpl>();
         services.AddScoped<IAuditLogService, AuditLogServiceImpl>();
+        // --- Admin: Account (users) ---
+        services.AddScoped<IAdminUserService, AdminUserServiceImpl>();
+        // --- Admin: Orders & Payments ---
+        services.AddScoped<IAdminOrderService, AdminOrderServiceImpl>();
+        services.AddScoped<IAdminTransactionService, AdminTransactionServiceImpl>();
         // === BEGIN NEW FEATURE: PRODUCT REVIEWS ===
         services.AddScoped<IReviewService, ReviewServiceImpl>();
         // === END NEW FEATURE: PRODUCT REVIEWS ===
