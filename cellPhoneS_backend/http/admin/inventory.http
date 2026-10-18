@@ -1,0 +1,32 @@
+@host = http://localhost:5169
+@token = <access token của tài khoản quản trị (login rồi lấy data)>
+
+### Danh sách kho kèm tổng tồn (inventory.read). province khớp chứa, không phân biệt hoa thường
+### sortBy: createDate | updateDate | city | totalStock | id
+GET {{host}}/api/admin/storehouses?pageIndex=1&pageSize=20&search=&status=&province=ha%20noi&sortBy=totalStock&sortDir=desc
+Authorization: Bearer {{token}}
+
+### Tồn kho (inventory.read). lowStock=N -> quantity <= N. sortBy: updateDate | createDate | quantity | productName
+GET {{host}}/api/admin/inventory?productId=&storeHouseId=164&colorId=&lowStock=5&search=iphone&sortBy=quantity&sortDir=asc
+Authorization: Bearer {{token}}
+
+### Đặt tuyệt đối, tạo dòng nếu chưa có (inventory.write). Sửa tồn đang bán nên dùng adjust bên dưới
+PUT {{host}}/api/admin/inventory
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "storeHouseId": 164, "productId": 1548, "colorId": 1227, "quantity": 20 }
+
+### Cộng/trừ nguyên tử (inventory.write). Kết quả < 0 -> 400. Trả số lượng mới. reason được lưu qua audit log
+POST {{host}}/api/admin/inventory/adjust
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "storeHouseId": 164, "productId": 1548, "colorId": 1227, "delta": -1, "reason": "Kiểm kho: hỏng 1 máy" }
+
+### Kho (inventory.write)
+POST {{host}}/api/admin/storehouses
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "street": "123 Nguyễn Trãi", "district": "Quận 5", "city": "Hồ Chí Minh" }

@@ -9,6 +9,7 @@ public interface DemandService
     Task<long> CreateDemand(CreateDemandRequest request, string userId);
     Task UpdateDemand(long demandId, UpdateDemandRequest request, string userId);
     Task DeleteDemand(long demandId, string userId);
+    Task RestoreDemand(long demandId, string userId);
     
     // Public/User operations
     Task<PagedResult<DemandResponse>> GetAllDemands(int pageIndex, int pageSize, string? status);

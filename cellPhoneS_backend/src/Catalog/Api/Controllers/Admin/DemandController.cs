@@ -5,6 +5,8 @@ using cellPhoneS_backend.Filters;
 using cellphones_backend.Services;
 using cellPhoneS_backend.Controllers;
 using cellPhoneS_backend.DTOs.Requests;
+using cellPhoneS_backend.DTOs.Responses;
+using cellPhoneS_backend.Services.Interface;
 using Microsoft.AspNetCore.Mvc;
 
 namespace cellphones_backend.Controllers.Admin
@@ -16,9 +18,37 @@ namespace cellphones_backend.Controllers.Admin
     {
         private readonly DemandService _demandService;
 
-        public AdminDemandController(DemandService demandService)
+        private readonly IAdminCatalogQueryService _queryService;
+
+        public AdminDemandController(DemandService demandService, IAdminCatalogQueryService queryService)
         {
             _demandService = demandService;
+            _queryService = queryService;
+        }
+
+        // GET: api/admin/demands?pageIndex=1&pageSize=20&search=&status=&categoryId=&sortBy=createDate&sortDir=desc
+        [HttpGet]
+        public async Task<ActionResult<ApiResponse<PagedResult<AdminDemandView>>>> GetDemands([FromQuery] AdminCatalogFilter filter)
+        {
+            var result = await _queryService.GetDemands(filter);
+            return Ok(new ApiResponse<PagedResult<AdminDemandView>>("Success", result));
+        }
+
+        // GET: api/admin/demands/{demandId}
+        [HttpGet("{demandId:long}")]
+        public async Task<ActionResult<ApiResponse<AdminDemandView>>> GetDemand(long demandId)
+        {
+            var result = await _queryService.GetDemand(demandId);
+            return Ok(new ApiResponse<AdminDemandView>("Success", result));
+        }
+
+        // PATCH: api/admin/demands/{demandId}/restore   deleted -> active
+        [HttpPatch("{demandId:long}/restore")]
+        [RequirePermission(Permissions.CatalogWrite)]
+        public async Task<ActionResult<ApiResponse<string>>> RestoreDemand(long demandId)
+        {
+            await _demandService.RestoreDemand(demandId, CurrentUserId);
+            return Ok(new ApiResponse<string>("Demand restored successfully", ""));
         }
 
         // POST: api/admin/demands

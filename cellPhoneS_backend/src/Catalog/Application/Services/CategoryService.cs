@@ -12,6 +12,7 @@ public interface CategoryService
     Task<long> CreateCategory(CreateCategoryRequest request, string userId);
     Task UpdateCategory(long categoryId, UpdateCategoryRequest request, string userId);
     Task DeleteCategory(long categoryId, string userId);
+    Task RestoreCategory(long categoryId, string userId);
     
     // Public/User operations
     Task<PagedResult<CategoryResponse>> GetAllCategories(int pageIndex, int pageSize, string? status = "active");

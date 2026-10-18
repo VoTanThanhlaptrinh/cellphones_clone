@@ -1,16 +1,5 @@
 namespace cellPhoneS_backend.DTOs.Responses;
 
-/// <summary>Dòng sản phẩm trong trang quản trị (kèm tổng tồn kho và trạng thái).</summary>
-public record AdminProductView(
-    long Id,
-    string? Name,
-    string? ImageUrl,
-    double BasePrice,
-    double SalePrice,
-    string? Status,
-    int Stock,
-    DateTime CreateDate);
-
 public record AdminUserView(
     string Id,
     string? Email,

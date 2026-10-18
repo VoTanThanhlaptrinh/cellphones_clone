@@ -1,4 +1,5 @@
 using cellphones_backend.Models;
+using cellPhoneS_backend.Constants;
 using cellphones_backend.Repositories;
 using cellPhoneS_backend.DTOs.Requests;
 using cellPhoneS_backend.DTOs.Responses;
@@ -19,6 +20,7 @@ public class SeriesServiceImpl : SeriesService
 
     public async Task<long> CreateSeries(CreateSeriesRequest request, string userId)
     {
+        RecordStatuses.EnsureWritable(request.Status);
         var brand = await _brandRepository.GetByIdAsync(request.BrandId);
         if (brand == null || brand.Status == "deleted")
             throw new NotFoundException("Brand not found");
@@ -33,8 +35,8 @@ public class SeriesServiceImpl : SeriesService
             Name = request.Name,
             SlugName = SlugHelper.GenerateSlug(request.Name),
             Status = request.Status ?? "active",
-            CreateDate = DateTime.Now,
-            UpdateDate = DateTime.Now,
+            CreateDate = DateTime.UtcNow,
+            UpdateDate = DateTime.UtcNow,
             CreateBy = userId,
             UpdateBy = userId
         };
@@ -47,6 +49,7 @@ public class SeriesServiceImpl : SeriesService
 
     public async Task UpdateSeries(long seriesId, UpdateSeriesRequest request, string userId)
     {
+        RecordStatuses.EnsureWritable(request.Status);
         var series = await _seriesRepository.GetByIdAsync(seriesId);
         if (series == null || series.Status == "deleted")
             throw new NotFoundException("Series not found");
@@ -74,7 +77,7 @@ public class SeriesServiceImpl : SeriesService
             series.Status = request.Status;
         }
 
-        series.UpdateDate = DateTime.Now;
+        series.UpdateDate = DateTime.UtcNow;
         series.UpdateBy = userId;
 
         await _seriesRepository.UpdateAsync(series);
@@ -88,7 +91,30 @@ public class SeriesServiceImpl : SeriesService
             throw new NotFoundException("Series not found");
 
         series.Status = "deleted";
-        series.UpdateDate = DateTime.Now;
+        series.UpdateDate = DateTime.UtcNow;
+        series.UpdateBy = userId;
+
+        await _seriesRepository.UpdateAsync(series);
+        await _seriesRepository.SaveChangesAsync();
+    }
+
+    public async Task RestoreSeries(long seriesId, string userId)
+    {
+        var series = await _seriesRepository.GetByIdAsync(seriesId);
+        if (series == null)
+            throw new NotFoundException("Series not found");
+        if (series.Status != RecordStatuses.Deleted)
+            throw new ConflictException("Dòng sản phẩm không nằm trong thùng rác.");
+
+        var brand = await _brandRepository.GetByIdAsync(series.BrandId);
+        if (brand == null || brand.Status == RecordStatuses.Deleted)
+            throw new ConflictException("Thương hiệu của dòng sản phẩm đã bị xoá, hãy khôi phục thương hiệu trước.");
+        var sameName = await _seriesRepository.FindAsync(s => s.Name == series.Name && s.BrandId == series.BrandId && s.Id != seriesId && s.Status != RecordStatuses.Deleted);
+        if (sameName.Any())
+            throw new ConflictException("Đã có dòng sản phẩm khác trùng tên trong thương hiệu, không thể khôi phục.");
+
+        series.Status = RecordStatuses.Active;
+        series.UpdateDate = DateTime.UtcNow;
         series.UpdateBy = userId;
 
         await _seriesRepository.UpdateAsync(series);

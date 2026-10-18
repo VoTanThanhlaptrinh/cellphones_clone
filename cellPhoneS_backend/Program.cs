@@ -114,15 +114,24 @@ internal partial class Program
                 };
                 jwtOptions.Events = new JwtBearerEvents
                 {
-                    // Token hợp lệ về chữ ký/thời hạn nhưng JTI đã bị thu hồi (Redis blacklist) thì từ chối
+                    // Token hợp lệ về chữ ký/thời hạn nhưng JTI đã bị thu hồi (Redis blacklist), hoặc cấp trước mốc
+                    // thu hồi phiên của user (khoá tài khoản / đổi role: Redis user-revoked:{userId}) thì từ chối
                     OnTokenValidated = async context =>
                     {
-                        var jti = context.SecurityToken?.Id;
-                        if (string.IsNullOrEmpty(jti)) return;
                         var blacklist = context.HttpContext.RequestServices.GetRequiredService<IJwtBlacklistService>();
-                        if (await blacklist.IsTokenBlacklistedAsync(jti))
+                        var jti = context.SecurityToken?.Id;
+                        if (!string.IsNullOrEmpty(jti) && await blacklist.IsTokenBlacklistedAsync(jti))
                         {
                             context.Fail("Token has been revoked.");
+                            return;
+                        }
+
+                        var userId = context.Principal?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                        if (string.IsNullOrEmpty(userId)) return;
+                        long? issuedAt = long.TryParse(context.Principal!.FindFirst("iat")?.Value, out var iat) ? iat : null;
+                        if (await blacklist.IsUserSessionRevokedAsync(userId, issuedAt))
+                        {
+                            context.Fail("User session has been revoked.");
                         }
                     }
                 };
