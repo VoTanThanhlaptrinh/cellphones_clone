@@ -1019,9 +1019,13 @@ namespace cellPhoneS_backend.Migrations
 
                     b.HasIndex("CreateBy");
 
+                    b.HasIndex("CreateDate");
+
                     b.HasIndex("FeeId");
 
                     b.HasIndex("UpdateBy");
+
+                    b.HasIndex("Status", "CreateDate");
 
                     b.ToTable("Orders");
                 });
@@ -1176,6 +1180,8 @@ namespace cellPhoneS_backend.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreateDate");
+
                     b.HasIndex("OrderId");
 
                     b.ToTable("PaymentTransactions");
@@ -1287,6 +1293,11 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<int>("Rating")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -1773,6 +1784,8 @@ namespace cellPhoneS_backend.Migrations
                         .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreateDate");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");

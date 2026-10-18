@@ -1,5 +1,6 @@
 using cellphones_backend.Data;
 using cellphones_backend.Models;
+using cellPhoneS_backend.Constants;
 using Microsoft.EntityFrameworkCore;
 
 namespace cellphones_backend.Repositories
@@ -15,7 +16,7 @@ namespace cellphones_backend.Repositories
         {
             return await _context.Reviews
                 .Include(r => r.User)
-                .Where(r => r.ProductId == productId)
+                .Where(r => r.ProductId == productId && r.Status == ReviewStatuses.Visible)
                 .OrderByDescending(r => r.CreatedDate)
                 .ToListAsync();
         }
