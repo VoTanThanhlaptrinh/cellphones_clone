@@ -1,7 +1,9 @@
 using System.Security.Claims;
+using cellPhoneS_backend.Constants;
 using cellphones_backend.DTOs.Responses;
 using cellPhoneS_backend.Controllers;
 using cellPhoneS_backend.DTOs.Requests;
+using cellPhoneS_backend.Filters;
 using cellPhoneS_backend.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +11,7 @@ namespace cellphones_backend.Controllers.Admin
 {
     [Route("api/admin/categories")]
     [ApiController]
+    [RequirePermission(Permissions.CatalogRead)]
     public class AdminCategoryController : BaseController
     {
         private readonly CategoryService _categoryService;
@@ -21,6 +24,7 @@ namespace cellphones_backend.Controllers.Admin
         // POST: api/admin/categories
         // Creates a new category
         [HttpPost]
+        [RequirePermission(Permissions.CatalogWrite)]
         public async Task<ActionResult<ApiResponse<long>>> CreateCategory([FromBody] CreateCategoryRequest createCategoryRequest)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -36,6 +40,7 @@ namespace cellphones_backend.Controllers.Admin
         // PUT: api/admin/categories/{categoryId}
         // Updates category details
         [HttpPut("{categoryId}")]
+        [RequirePermission(Permissions.CatalogWrite)]
         public async Task<ActionResult<ApiResponse<string>>> UpdateCategory(
             long categoryId, 
             [FromBody] UpdateCategoryRequest updateCategoryRequest)
@@ -59,6 +64,7 @@ namespace cellphones_backend.Controllers.Admin
         // DELETE: api/admin/categories/{categoryId}
         // Soft deletes a category
         [HttpDelete("{categoryId}")]
+        [RequirePermission(Permissions.CatalogWrite)]
         public async Task<ActionResult<ApiResponse<string>>> DeleteCategory(long categoryId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

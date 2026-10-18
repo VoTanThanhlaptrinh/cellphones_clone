@@ -18,19 +18,22 @@ namespace cellPhoneS_backend.Filters
             _logger = logger;
         }
 
+        /// <summary>Status code tương ứng với exception nghiệp vụ; null nếu không phải lỗi nghiệp vụ (để ASP.NET Core trả 500).</summary>
+        public static int? MapStatusCode(Exception exception) => exception switch
+        {
+            BadRequestException => StatusCodes.Status400BadRequest,
+            NotFoundException => StatusCodes.Status404NotFound,
+            ConflictException => StatusCodes.Status409Conflict,
+            UnauthorizedException or UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
+            ForbiddenException => StatusCodes.Status403Forbidden,
+            InternalServerException => StatusCodes.Status500InternalServerError,
+            NotImplementedException => StatusCodes.Status501NotImplemented,
+            _ => null
+        };
+
         public void OnException(ExceptionContext context)
         {
-            var statusCode = context.Exception switch
-            {
-                BadRequestException => StatusCodes.Status400BadRequest,
-                NotFoundException => StatusCodes.Status404NotFound,
-                ConflictException => StatusCodes.Status409Conflict,
-                UnauthorizedException or UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
-                ForbiddenException => StatusCodes.Status403Forbidden,
-                InternalServerException => StatusCodes.Status500InternalServerError,
-                NotImplementedException => StatusCodes.Status501NotImplemented,
-                _ => (int?)null
-            };
+            var statusCode = MapStatusCode(context.Exception);
 
             // Exception không phải lỗi nghiệp vụ: để ASP.NET Core xử lý như bình thường (500)
             if (statusCode is null)

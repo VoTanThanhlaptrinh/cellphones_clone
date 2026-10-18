@@ -1,5 +1,7 @@
 using System.Security.Claims;
+using cellPhoneS_backend.Constants;
 using cellphones_backend.DTOs.Responses;
+using cellPhoneS_backend.Filters;
 using cellphones_backend.Services;
 using cellPhoneS_backend.Controllers;
 using cellPhoneS_backend.DTOs.Requests;
@@ -9,6 +11,7 @@ namespace cellphones_backend.Controllers.Admin
 {
     [Route("api/admin/demands")]
     [ApiController]
+    [RequirePermission(Permissions.CatalogRead)]
     public class AdminDemandController : BaseController
     {
         private readonly DemandService _demandService;
@@ -20,6 +23,7 @@ namespace cellphones_backend.Controllers.Admin
 
         // POST: api/admin/demands
         [HttpPost]
+        [RequirePermission(Permissions.CatalogWrite)]
         public async Task<ActionResult<ApiResponse<long>>> CreateDemand([FromBody] CreateDemandRequest createDemandRequest)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -34,6 +38,7 @@ namespace cellphones_backend.Controllers.Admin
 
         // PUT: api/admin/demands/{demandId}
         [HttpPut("{demandId}")]
+        [RequirePermission(Permissions.CatalogWrite)]
         public async Task<ActionResult<ApiResponse<string>>> UpdateDemand(
             long demandId, 
             [FromBody] UpdateDemandRequest updateDemandRequest)
@@ -56,6 +61,7 @@ namespace cellphones_backend.Controllers.Admin
 
         // DELETE: api/admin/demands/{demandId}
         [HttpDelete("{demandId}")]
+        [RequirePermission(Permissions.CatalogWrite)]
         public async Task<ActionResult<ApiResponse<string>>> DeleteDemand(long demandId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

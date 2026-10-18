@@ -1,3 +1,5 @@
+using cellPhoneS_backend.Constants;
+
 namespace cellPhoneS_backend.Auth
 {
     public static class RouteConfig
@@ -36,11 +38,15 @@ namespace cellPhoneS_backend.Auth
                 // Product reviews: anyone can read; posting a review (POST /api/reviews) still requires login
                 new RoutePolicy { UrlPattern = "/api/reviews/product/*", Method = "GET", AllowAnonymous = true },
 
+                // OpenAPI document: only mapped in Development (app.MapOpenApi), so production answers 404
+                new RoutePolicy { UrlPattern = "/openapi/*", AllowAnonymous = true },
+
                 // Payment gateway callback: no login, authenticated by an HMAC signature checked in PaymentController.Callback
                 new RoutePolicy { UrlPattern = "/api/payments/callback", Method = "POST", AllowAnonymous = true },
 
-                // Admin Routes - More specific first
-                new RoutePolicy { UrlPattern = "/api/admin/*", RequiredRoles = new List<string> { "ADMIN" } },
+                // Admin Routes - More specific first. Coarse gate only (admin.access, held by ADMIN/MANAGER/STAFF);
+                // per-action permissions are declared with [RequirePermission] on the admin controllers.
+                new RoutePolicy { UrlPattern = "/api/admin/*", RequiredPermissions = new List<string> { Permissions.AdminAccess } },
 
                 // Authenticated User Routes (and Admin usually)
                 // Note: If you want Admin to access User routes, include "Admin" in the roles list
