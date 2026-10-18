@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace cellphones_backend.Controllers.Admin
 {
     /// <summary>
-    /// Danh sách chỉ-đọc cho trang quản trị (sản phẩm, người dùng, đơn hàng, giao dịch).
+    /// Danh sách chỉ-đọc cho trang quản trị (sản phẩm). Người dùng: AdminUserController; đơn hàng: AdminOrderController; giao dịch: AdminTransactionController.
     /// Cổng `admin.access` do RouteConfig chặn; từng action khai báo permission đọc riêng bằng [RequirePermission].
     /// </summary>
     [Route("api/admin")]
@@ -31,45 +31,6 @@ namespace cellphones_backend.Controllers.Admin
         {
             var result = await _adminQueryService.GetProducts(pageIndex, pageSize, search);
             return Ok(new ApiResponse<PagedResult<AdminProductView>>("Success", result));
-        }
-
-        // GET: api/admin/users?pageIndex=1&pageSize=10&search=abc
-        [HttpGet("users")]
-        [RequirePermission(Permissions.UserRead)]
-        public async Task<ActionResult<ApiResponse<PagedResult<AdminUserView>>>> GetUsers(
-            [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null)
-        {
-            var result = await _adminQueryService.GetUsers(pageIndex, pageSize, search);
-            return Ok(new ApiResponse<PagedResult<AdminUserView>>("Success", result));
-        }
-
-        // GET: api/admin/orders?pageIndex=1&pageSize=10&status=Paid
-        [HttpGet("orders")]
-        [RequirePermission(Permissions.OrderRead)]
-        public async Task<ActionResult<ApiResponse<PagedResult<AdminOrderView>>>> GetOrders(
-            [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10, [FromQuery] string? status = null)
-        {
-            var result = await _adminQueryService.GetOrders(pageIndex, pageSize, status);
-            return Ok(new ApiResponse<PagedResult<AdminOrderView>>("Success", result));
-        }
-
-        // GET: api/admin/orders/{orderId}
-        [HttpGet("orders/{orderId}")]
-        [RequirePermission(Permissions.OrderRead)]
-        public async Task<ActionResult<ApiResponse<AdminOrderView>>> GetOrder(long orderId)
-        {
-            var result = await _adminQueryService.GetOrder(orderId);
-            return Ok(new ApiResponse<AdminOrderView>("Success", result));
-        }
-
-        // GET: api/admin/transactions?pageIndex=1&pageSize=10
-        [HttpGet("transactions")]
-        [RequirePermission(Permissions.TransactionRead)]
-        public async Task<ActionResult<ApiResponse<PagedResult<AdminTransactionView>>>> GetTransactions(
-            [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 10)
-        {
-            var result = await _adminQueryService.GetTransactions(pageIndex, pageSize);
-            return Ok(new ApiResponse<PagedResult<AdminTransactionView>>("Success", result));
         }
     }
 }
