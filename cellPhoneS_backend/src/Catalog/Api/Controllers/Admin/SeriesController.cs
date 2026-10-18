@@ -5,6 +5,8 @@ using cellPhoneS_backend.Filters;
 using cellphones_backend.Services;
 using cellPhoneS_backend.Controllers;
 using cellPhoneS_backend.DTOs.Requests;
+using cellPhoneS_backend.DTOs.Responses;
+using cellPhoneS_backend.Services.Interface;
 using Microsoft.AspNetCore.Mvc;
 
 namespace cellphones_backend.Controllers.Admin
@@ -16,9 +18,37 @@ namespace cellphones_backend.Controllers.Admin
     {
         private readonly SeriesService _seriesService;
 
-        public AdminSeriesController(SeriesService seriesService)
+        private readonly IAdminCatalogQueryService _queryService;
+
+        public AdminSeriesController(SeriesService seriesService, IAdminCatalogQueryService queryService)
         {
             _seriesService = seriesService;
+            _queryService = queryService;
+        }
+
+        // GET: api/admin/series?pageIndex=1&pageSize=20&search=&status=&brandId=&categoryId=&sortBy=createDate&sortDir=desc
+        [HttpGet]
+        public async Task<ActionResult<ApiResponse<PagedResult<AdminSeriesView>>>> GetSeries([FromQuery] AdminCatalogFilter filter)
+        {
+            var result = await _queryService.GetSeries(filter);
+            return Ok(new ApiResponse<PagedResult<AdminSeriesView>>("Success", result));
+        }
+
+        // GET: api/admin/series/{seriesId}
+        [HttpGet("{seriesId:long}")]
+        public async Task<ActionResult<ApiResponse<AdminSeriesView>>> GetSeriesById(long seriesId)
+        {
+            var result = await _queryService.GetSeriesById(seriesId);
+            return Ok(new ApiResponse<AdminSeriesView>("Success", result));
+        }
+
+        // PATCH: api/admin/series/{seriesId}/restore   deleted -> active
+        [HttpPatch("{seriesId:long}/restore")]
+        [RequirePermission(Permissions.CatalogWrite)]
+        public async Task<ActionResult<ApiResponse<string>>> RestoreSeries(long seriesId)
+        {
+            await _seriesService.RestoreSeries(seriesId, CurrentUserId);
+            return Ok(new ApiResponse<string>("Series restored successfully", ""));
         }
 
         // POST: api/admin/series

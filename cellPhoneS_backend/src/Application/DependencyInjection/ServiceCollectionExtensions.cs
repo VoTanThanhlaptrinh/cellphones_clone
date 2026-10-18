@@ -45,6 +45,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPermissionService, PermissionServiceImpl>();
         services.AddScoped<IAdminRoleService, AdminRoleServiceImpl>();
         services.AddScoped<IAuditLogService, AuditLogServiceImpl>();
+        // --- Admin: Catalog ---
+        services.AddScoped<IAdminCatalogQueryService, AdminCatalogQueryServiceImpl>();
         // --- Admin: Products ---
         services.AddScoped<IAdminProductQueryService, AdminProductQueryServiceImpl>();
         // === BEGIN NEW FEATURE: PRODUCT REVIEWS ===

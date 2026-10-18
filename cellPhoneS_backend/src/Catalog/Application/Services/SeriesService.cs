@@ -9,6 +9,7 @@ public interface SeriesService
     Task<long> CreateSeries(CreateSeriesRequest request, string userId);
     Task UpdateSeries(long seriesId, UpdateSeriesRequest request, string userId);
     Task DeleteSeries(long seriesId, string userId);
+    Task RestoreSeries(long seriesId, string userId);
     
     // Public/User operations
     Task<PagedResult<SeriesResponse>> GetAllSeries(int pageIndex, int pageSize, string? status = "active");
