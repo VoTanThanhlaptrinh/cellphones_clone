@@ -2,6 +2,7 @@ using cellphones_backend.DTOs.Requests;
 using cellphones_backend.DTOs.Responses;
 using cellphones_backend.Models;
 using cellphones_backend.Repositories;
+using cellPhoneS_backend.Constants;
 using cellPhoneS_backend.Services;
 using Microsoft.AspNetCore.Identity;
 
@@ -83,7 +84,7 @@ namespace cellphones_backend.Services.Implement
 
         public async Task<double> GetAverageRatingAsync(long productId)
         {
-            var reviews = await _reviewRepository.FindAsync(r => r.ProductId == productId);
+            var reviews = await _reviewRepository.FindAsync(r => r.ProductId == productId && r.Status == ReviewStatuses.Visible);
             double avg = reviews.Any() ? reviews.Average(r => r.Rating) : 0.0;
             return Math.Round(avg, 1);
         }

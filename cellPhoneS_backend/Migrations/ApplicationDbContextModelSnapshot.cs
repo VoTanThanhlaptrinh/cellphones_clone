@@ -1288,6 +1288,11 @@ namespace cellPhoneS_backend.Migrations
                     b.Property<int>("Rating")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("text");
