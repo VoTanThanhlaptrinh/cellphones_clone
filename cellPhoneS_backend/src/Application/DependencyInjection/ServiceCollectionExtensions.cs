@@ -39,7 +39,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IStoreService, StoreServiceImpl>();
         services.AddScoped<IVietnamLocationService, VietnamLocationServiceImpl>();
         services.AddScoped<ShippingFeeService, ShippingFeeServiceImpl>();
-        services.AddScoped<IEmailService, EmailServiceImpl>();
         services.AddScoped<IAdminQueryService, AdminQueryServiceImpl>();
         // === BEGIN NEW FEATURE: PRODUCT REVIEWS ===
         services.AddScoped<IReviewService, ReviewServiceImpl>();

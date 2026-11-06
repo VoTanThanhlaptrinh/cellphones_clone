@@ -145,6 +145,19 @@ internal partial class Program
             // Gateway có thể phải gọi cổng thanh toán nên cần timeout tối thiểu 15 giây.
             client.Timeout = TimeSpan.FromSeconds(20);
         });
+        builder.Services.AddHttpClient<cellPhoneS_backend.Services.Interface.IEmailService, cellPhoneS_backend.Services.Implement.EmailServiceImpl>(client =>
+        {
+            var baseUrl = builder.Configuration["MailService:BaseUrl"] ?? "http://localhost:4000/api";
+            client.BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/");
+
+            var apiKey = builder.Configuration["MailService:ApiKey"];
+            if (!string.IsNullOrWhiteSpace(apiKey))
+            {
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
+            }
+            client.DefaultRequestHeaders.Add("X-Actor", "cellphones-backend");
+            client.Timeout = TimeSpan.FromSeconds(20);
+        });
         builder.Services.AddHttpClient("VietnamAdministrativeApi", client =>
         {
             client.BaseAddress = new Uri(builder.Configuration["VietnamAdministrativeApi:BaseUrl"] ?? "https://provinces.open-api.vn/api/");

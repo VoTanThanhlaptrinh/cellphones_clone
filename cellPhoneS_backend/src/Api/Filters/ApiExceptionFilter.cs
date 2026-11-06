@@ -27,6 +27,7 @@ namespace cellPhoneS_backend.Filters
                 ConflictException => StatusCodes.Status409Conflict,
                 UnauthorizedException or UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
                 ForbiddenException => StatusCodes.Status403Forbidden,
+                BadGatewayException => StatusCodes.Status502BadGateway,
                 InternalServerException => StatusCodes.Status500InternalServerError,
                 NotImplementedException => StatusCodes.Status501NotImplemented,
                 _ => (int?)null

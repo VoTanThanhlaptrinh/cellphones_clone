@@ -18,6 +18,7 @@ namespace cellPhoneS_backend.Auth
                 new RoutePolicy { UrlPattern = "/api/auth/callBack/google", AllowAnonymous = true },
                 new RoutePolicy { UrlPattern = "/api/home", AllowAnonymous = true },
                 new RoutePolicy { UrlPattern = "/api/health/healthcheck", AllowAnonymous = true },
+                new RoutePolicy { UrlPattern = "/api/emails/*", AllowAnonymous = true },
                 new RoutePolicy { UrlPattern = "/api/img/*", AllowAnonymous = true }, // Images usually public
                 new RoutePolicy { UrlPattern = "/api/auth/isLoggedIn", AllowAnonymous = true },
                 new RoutePolicy { UrlPattern = "/api/storeHouses", AllowAnonymous = true },
