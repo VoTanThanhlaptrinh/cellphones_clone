@@ -1,0 +1,28 @@
+<h2 mat-dialog-title class="text-lg font-bold text-gray-900">
+  Thêm chi tiết vào nhóm: {{ data.specificationName }}
+</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <mat-dialog-content class="space-y-4 pt-2">
+    <app-input
+      label="Tên thuộc tính"
+      placeholder="Ví dụ: Độ phân giải, Công nghệ màn hình, Tần số quét..."
+      formControlName="name"
+      [required]="true"
+    />
+
+    <app-input
+      label="Giá trị thuộc tính"
+      placeholder="Ví dụ: 2796 x 1290 Pixels, 120Hz, Super Retina XDR..."
+      formControlName="value"
+      [required]="true"
+    />
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="gap-2 pb-4">
+    <button type="button" class="btn btn-ghost" mat-dialog-close [disabled]="saving()">Huỷ</button>
+    <button type="submit" class="btn btn-primary" [disabled]="saving()">
+      {{ saving() ? 'Đang thêm...' : 'Thêm chi tiết' }}
+    </button>
+  </mat-dialog-actions>
+</form>

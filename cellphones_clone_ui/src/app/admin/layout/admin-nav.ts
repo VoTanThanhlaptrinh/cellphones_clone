@@ -12,4 +12,7 @@ export interface AdminNavItem {
 export const ADMIN_NAV: readonly AdminNavItem[] = [
   { label: 'Tổng quan', icon: 'grid', path: 'dashboard' },
   ...CATALOG_RESOURCES.map(({ title, icon, key }) => ({ label: title, icon, path: key })),
+  { label: 'Cam kết SP', icon: 'check-circle', path: 'commitments' },
+  { label: 'Thông số kỹ thuật', icon: 'sliders', path: 'specifications' },
+  { label: 'Thư viện ảnh', icon: 'image', path: 'images' },
 ];

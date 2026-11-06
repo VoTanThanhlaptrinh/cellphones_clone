@@ -1,0 +1,66 @@
+<h2 mat-dialog-title class="text-lg font-bold text-gray-900">Tạo nhóm thông số kỹ thuật mới</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <mat-dialog-content class="space-y-4 pt-2">
+    <app-input
+      label="Tên nhóm thông số"
+      placeholder="Ví dụ: Màn hình, Camera sau, Vi xử lý, Pin & Sạc..."
+      formControlName="name"
+      [required]="true"
+    />
+
+    <div class="space-y-3">
+      <div class="flex items-center justify-between border-t border-gray-100 pt-3">
+        <label class="text-sm font-semibold text-gray-800">Các thuộc tính chi tiết</label>
+        <button
+          type="button"
+          class="btn btn-secondary inline-flex items-center gap-1 text-xs"
+          (click)="addDetail()"
+        >
+          <app-icon name="plus" svgClass="size-3.5" />
+          <span>Thêm dòng</span>
+        </button>
+      </div>
+
+      <div formArrayName="details" class="space-y-2">
+        @for (group of detailsArray.controls; track $index) {
+          <div [formGroupName]="$index" class="flex items-center gap-2">
+            <div class="flex-1">
+              <input
+                type="text"
+                formControlName="name"
+                placeholder="Tên (vd: Kích thước)"
+                class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              />
+            </div>
+            <div class="flex-1">
+              <input
+                type="text"
+                formControlName="value"
+                placeholder="Giá trị (vd: 6.7 inch)"
+                class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              />
+            </div>
+            @if (detailsArray.length > 1) {
+              <button
+                type="button"
+                class="btn btn-ghost p-2 text-gray-400 hover:text-danger"
+                (click)="removeDetail($index)"
+                title="Xoá dòng"
+              >
+                <app-icon name="trash" svgClass="size-4" />
+              </button>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="gap-2 pb-4">
+    <button type="button" class="btn btn-ghost" mat-dialog-close [disabled]="saving()">Huỷ</button>
+    <button type="submit" class="btn btn-primary" [disabled]="saving()">
+      {{ saving() ? 'Đang tạo...' : 'Tạo nhóm thông số' }}
+    </button>
+  </mat-dialog-actions>
+</form>

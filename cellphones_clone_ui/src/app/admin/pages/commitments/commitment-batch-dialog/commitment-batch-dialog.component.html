@@ -1,0 +1,36 @@
+<h2 mat-dialog-title class="text-lg font-bold text-gray-900">Thêm cam kết hàng loạt (Batch)</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <mat-dialog-content class="space-y-4 pt-2">
+    <app-input
+      label="Mã sản phẩm (Product ID)"
+      type="number"
+      placeholder="Nhập ID sản phẩm"
+      formControlName="productId"
+      [min]="1"
+    />
+
+    <div class="space-y-1">
+      <div class="flex items-center justify-between">
+        <label class="block text-sm font-medium text-gray-700">Danh sách cam kết <span class="text-danger">*</span></label>
+        <span class="text-xs text-gray-400">Mỗi dòng một cam kết</span>
+      </div>
+      <textarea
+        formControlName="commitmentsText"
+        rows="6"
+        placeholder="Bảo hành 12 tháng chính hãng&#10;1 đổi 1 trong 30 ngày nếu có lỗi phần cứng&#10;Giao hàng hoả tốc trong 2 giờ nội thành&#10;Tặng gói dán màn hình cao cấp"
+        class="w-full rounded-xl border border-gray-300 p-3 font-mono text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      ></textarea>
+      @if (form.controls.commitmentsText.touched && form.controls.commitmentsText.errors) {
+        <p class="text-xs text-danger">Vui lòng nhập nội dung cam kết.</p>
+      }
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="gap-2 pb-4">
+    <button type="button" class="btn btn-ghost" mat-dialog-close [disabled]="saving()">Huỷ</button>
+    <button type="submit" class="btn btn-primary" [disabled]="saving()">
+      {{ saving() ? 'Đang thêm hàng loạt...' : 'Thêm danh sách' }}
+    </button>
+  </mat-dialog-actions>
+</form>

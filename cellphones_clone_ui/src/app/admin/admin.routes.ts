@@ -23,6 +23,21 @@ export const adminRoutes: Routes = [
                 data: { resource: resource.key },
                 title: `Quản lý ${resource.title.toLowerCase()}`
             })),
+            {
+                path: 'commitments',
+                loadComponent: () => import('./pages/commitments/commitments.component').then(m => m.AdminCommitmentsComponent),
+                title: 'Quản lý cam kết sản phẩm'
+            },
+            {
+                path: 'specifications',
+                loadComponent: () => import('./pages/specifications/specifications.component').then(m => m.AdminSpecificationsComponent),
+                title: 'Quản lý thông số kỹ thuật'
+            },
+            {
+                path: 'images',
+                loadComponent: () => import('./pages/images/images.component').then(m => m.AdminImagesComponent),
+                title: 'Thư viện hình ảnh'
+            },
         ]
     },
 ];

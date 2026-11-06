@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Subscription, timer } from 'rxjs';
 import { HeaderCartOrderComponent } from '@store/layout/header-cart-order/header-cart-order.component';
+import { AuthService } from '@core/auth/auth.service';
 import { CartService } from '@store/services/cart.service';
 import { PaymentService, PENDING_PAYMENT_ORDER_KEY } from '@store/services/payment.service';
 import { OnlinePayment } from '@core/models/payment.model';
@@ -33,7 +34,8 @@ export class PaymentSuccessComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private paymentService: PaymentService,
-    private cartService: CartService) { }
+    private cartService: CartService,
+    private authService: AuthService) { }
 
   ngOnInit() {
     const orderId = Number(sessionStorage.getItem(PENDING_PAYMENT_ORDER_KEY));
@@ -51,6 +53,8 @@ export class PaymentSuccessComponent implements OnInit, OnDestroy {
     if (payment.status === 'PAID') {
       sessionStorage.removeItem(PENDING_PAYMENT_ORDER_KEY);
       this.cartService.updateCartItems([]);
+      // Số trên icon giỏ hàng ở header lấy từ claim amountCart trong JWT: phải xin token mới thì mới cập nhật.
+      this.authService.refreshToken(true).subscribe({ error: () => { } });
       this.payment.set(payment);
       this.state.set('paid');
       this.startRedirectCountdown();

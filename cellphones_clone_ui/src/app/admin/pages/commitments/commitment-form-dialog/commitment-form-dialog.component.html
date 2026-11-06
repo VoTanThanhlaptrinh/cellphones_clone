@@ -1,0 +1,37 @@
+<h2 mat-dialog-title class="text-lg font-bold text-gray-900">
+  {{ isEdit ? 'Cập nhật cam kết #' + data.commitmentId : 'Thêm cam kết mới' }}
+</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <mat-dialog-content class="space-y-4 pt-2">
+    @if (!isEdit) {
+      <app-input
+        label="Mã sản phẩm (Product ID)"
+        type="number"
+        placeholder="Nhập ID sản phẩm (vd: 1)"
+        formControlName="productId"
+        [min]="1"
+      />
+    }
+
+    <div class="space-y-1">
+      <label class="block text-sm font-medium text-gray-700">Nội dung cam kết <span class="text-danger">*</span></label>
+      <textarea
+        formControlName="context"
+        rows="4"
+        placeholder="Nhập nội dung cam kết (tối thiểu 10 ký tự, vd: Bảo hành 12 tháng chính hãng tại trung tâm bảo hành Apple toàn quốc...)"
+        class="w-full rounded-xl border border-gray-300 p-3 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      ></textarea>
+      @if (form.controls.context.touched && form.controls.context.errors) {
+        <p class="text-xs text-danger">Nội dung cam kết từ 10 đến 500 ký tự.</p>
+      }
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="gap-2 pb-4">
+    <button type="button" class="btn btn-ghost" mat-dialog-close [disabled]="saving()">Huỷ</button>
+    <button type="submit" class="btn btn-primary" [disabled]="saving()">
+      {{ saving() ? 'Đang lưu...' : (isEdit ? 'Cập nhật' : 'Thêm mới') }}
+    </button>
+  </mat-dialog-actions>
+</form>
