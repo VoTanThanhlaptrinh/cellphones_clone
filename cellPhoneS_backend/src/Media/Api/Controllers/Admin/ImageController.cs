@@ -18,6 +18,15 @@ namespace cellphones_backend.Controllers.Admin
             _imageService = imageService;
         }
 
+        // GET: api/admin/images
+        // Retrieves all images for admin library
+        [HttpGet]
+        public async Task<ActionResult<ApiResponse<List<ImageDTO>>>> GetAllImages()
+        {
+            var result = await _imageService.GetAllImages();
+            return Ok(new ApiResponse<List<ImageDTO>>("Images retrieved successfully", result));
+        }
+
         // POST: api/admin/images
         // Creates an image from a URL and uploads it to Azure Blob Storage
         [HttpPost]

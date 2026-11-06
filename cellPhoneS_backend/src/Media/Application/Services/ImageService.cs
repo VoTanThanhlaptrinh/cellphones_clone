@@ -11,4 +11,5 @@ public interface ImageService
     
     // Public/User operations
     Task<ImageDTO> GetImage(long imageId);
+    Task<List<ImageDTO>> GetAllImages();
 }
