@@ -98,20 +98,24 @@ Authorization: Bearer {{token}}
 GET {{cellPhoneS_backend_HostAddress}}/api/img/1
 Accept: application/json
 
-### IMAGE UPLOAD (Needs real multipart logic later)
-POST {{cellPhoneS_backend_HostAddress}}/api/img/upload
-Content-Type: multipart/form-data; boundary=BOUNDARY
+### IMAGE UPLOAD step 1: presign (admin). Then PUT the file to data.uploadUrl (no Authorization header), then step 3.
+POST {{cellPhoneS_backend_HostAddress}}/api/admin/images/upload/presign
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "fileName": "sample.png", "mimeType": "image/png", "size": 12345 }
+
+### IMAGE UPLOAD step 3: confirm (use data.tempKey from step 1)
+POST {{cellPhoneS_backend_HostAddress}}/api/admin/images/upload/confirm
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "tempKey": "temp/public/cellphones/product-gallery/...", "name": "sample.png", "mimeType": "image/png", "alt": "Sample" }
 
 ### Search PRODUCTS) 
 GET {{cellPhoneS_backend_HostAddress}}/api/search?keyword=tivi
 Accept: application/json	
 
---BOUNDARY
-Content-Disposition: form-data; name="file"; filename="sample.png"
-Content-Type: image/png
-
-< ./sample.png
---BOUNDARY--
 
 
 ### StoreViews

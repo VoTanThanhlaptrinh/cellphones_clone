@@ -18,7 +18,7 @@ This is a full-stack e-commerce platform that clones the CellphoneS website, bui
 - **Pattern**: Clean Architecture with Repository + Service layers
 - **Auth**: JWT tokens stored in Redis, OAuth2 Google/Zalo
 - **Search**: In-memory fuzzy search with Levenshtein distance
-- **Storage**: Azure Blob Storage (Azurite for local)
+- **Storage**: Cloudflare R2 (via the shared file-service)
 - **Deployment**: Dockerized on Render
 
 **🛒 Client Storefront (`cellphones_clone_ui/`)**
@@ -53,7 +53,7 @@ This is a full-stack e-commerce platform that clones the CellphoneS website, bui
 - **Database**: PostgreSQL with Entity Framework Core
 - **Authentication**: ASP.NET Core Identity + JWT Bearer Tokens
 - **Caching**: Redis (StackExchange.Redis) for product search optimization
-- **Cloud Storage**: Azure Blob Storage (Azurite for local development)
+- **Cloud Storage**: Cloudflare R2 through the shared file-service (set `FileService:ApiKey`)
 - **API Documentation**: RESTful API with standardized response format
 - **Authorization**: Custom middleware with route-based policies
 - **Localization**: Multi-language support via resource files

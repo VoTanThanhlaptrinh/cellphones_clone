@@ -1,0 +1,45 @@
+<h2 mat-dialog-title class="text-lg font-bold text-gray-900">Upload file ảnh mới</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <mat-dialog-content class="space-y-4 pt-2">
+    <!-- File drop/picker area -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1.5">Chọn tệp hình ảnh <span class="text-danger">*</span></label>
+      <div
+        class="relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-300 p-6 text-center hover:border-primary-400 transition-colors"
+      >
+        @if (previewUrl()) {
+          <div class="relative group">
+            <img [src]="previewUrl()" alt="Preview" class="max-h-48 rounded-xl object-contain shadow-sm" />
+            <div class="mt-2 text-xs font-medium text-gray-500">{{ selectedFile()?.name }} ({{ ((selectedFile()?.size ?? 0) / 1024).toFixed(1) }} KB)</div>
+          </div>
+        } @else {
+          <div class="flex size-12 items-center justify-center rounded-full bg-gray-100 text-gray-400 mb-2">
+            <app-icon name="image" svgClass="size-6" />
+          </div>
+          <p class="text-sm font-medium text-gray-700">Kéo thả hoặc nhấp để chọn ảnh</p>
+          <p class="text-xs text-gray-400 mt-1">Hỗ trợ JPG, PNG, WEBP (Tối đa 2MB)</p>
+        }
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          (change)="onFileSelected($event)"
+          class="absolute inset-0 size-full cursor-pointer opacity-0"
+        />
+      </div>
+    </div>
+
+    <app-input
+      label="Văn bản thay thế (Alt text)"
+      placeholder="Nhập mô tả hình ảnh cho SEO và trợ năng..."
+      formControlName="alt"
+    />
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="gap-2 pb-4">
+    <button type="button" class="btn btn-ghost" mat-dialog-close [disabled]="uploading()">Huỷ</button>
+    <button type="submit" class="btn btn-primary" [disabled]="uploading() || !selectedFile()">
+      {{ uploading() ? 'Đang tải lên...' : 'Tải lên ngay' }}
+    </button>
+  </mat-dialog-actions>
+</form>

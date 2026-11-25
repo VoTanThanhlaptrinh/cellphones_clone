@@ -53,6 +53,14 @@ namespace cellphones_backend.Controllers.Admin
             return Ok(new ApiResponse<List<long>>("Commitments created successfully", result));
         }
 
+        // GET: api/admin/commitments/product/{productId}
+        [HttpGet("product/{productId}")]
+        public async Task<ActionResult<ApiResponse<List<CommitmentItemDto>>>> GetProductCommitments(long productId)
+        {
+            var result = await _commitmentService.GetProductCommitmentDetails(productId);
+            return Ok(new ApiResponse<List<CommitmentItemDto>>("Commitments retrieved successfully", result));
+        }
+
         // PUT: api/admin/commitments/{commitmentId}
         // Updates the text of a commitment
         [HttpPut("{commitmentId}")]
@@ -65,7 +73,7 @@ namespace cellphones_backend.Controllers.Admin
                 return Unauthorized(new ApiResponse<string>("User not authenticated", null!));
             }
             
-            await _commitmentService.UpdateCommitment(commitmentId, newContext, userId);
+            await _commitmentService.UpdateCommitment(commitmentId, request.Context ?? "", userId);
             return Ok(new ApiResponse<string>("Commitment updated successfully", ""));
         }
 

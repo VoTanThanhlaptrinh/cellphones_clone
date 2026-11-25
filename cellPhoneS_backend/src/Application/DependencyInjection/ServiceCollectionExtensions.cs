@@ -12,9 +12,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<AuthService, AuthServiceImpl>();
         services.AddScoped<UserService, UserServiceImpl>();
-        services.AddScoped<AzuriteService, AzuriteServiceImpl>();
         services.AddScoped<ImageDownloaderService, ImageDownloaderServiceImpl>();
-        services.AddScoped<CloneService, CloneServiceImpl>();
         services.AddScoped<JwtTokenService, JwtTokenServiceImpl>();
         services.AddScoped<InitService, InitServiceImpl>();
         services.AddScoped<ProductService, ProductServiceImpl>();
@@ -26,7 +24,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IJwtBlacklistService, JwtBlacklistServiceImpl>();
         services.AddScoped<OrderService, OrderServiceImpl>();
         services.AddScoped<CacheService>();
-        services.AddScoped<UploadImage2Cloud>();
         services.AddScoped<GhtkApiService>();
         // Domain entity services
         services.AddScoped<BrandService, BrandServiceImpl>();

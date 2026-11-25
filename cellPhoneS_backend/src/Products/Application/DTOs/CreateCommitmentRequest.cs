@@ -33,3 +33,11 @@ public class CreateMultipleCommitmentsRequest
     // Không nullable: [MinLength] trên List<string>? làm bộ sinh OpenAPI của .NET 9 ném lỗi (document /openapi trả 500).
     public List<string> Commitments { get; set; } = new();
 }
+
+public class UpdateCommitmentRequest
+{
+    [Required(ErrorMessage = "Commitment context is required. / Nội dung cam kết là bắt buộc.")]
+    [MaxLength(500, ErrorMessage = "Commitment context must not exceed 500 characters. / Nội dung cam kết không được vượt quá 500 ký tự.")]
+    [MinLength(10, ErrorMessage = "Commitment context must be at least 10 characters. / Nội dung cam kết phải có ít nhất 10 ký tự.")]
+    public string? Context { get; set; }
+}

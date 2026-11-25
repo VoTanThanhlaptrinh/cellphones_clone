@@ -1,0 +1,51 @@
+<h2 mat-dialog-title class="text-lg font-bold text-gray-900">Thêm ảnh từ đường dẫn URL</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <mat-dialog-content class="space-y-4 pt-2">
+    <app-input
+      label="URL ảnh gốc (Origin URL)"
+      placeholder="https://cdn.example.com/images/iphone-16.jpg"
+      formControlName="originUrl"
+      [required]="true"
+    />
+
+    <app-input
+      label="Tên file ảnh"
+      placeholder="iphone-16-pro-max.jpg"
+      formControlName="name"
+      [required]="true"
+    />
+
+    <app-select
+      label="Định dạng MIME"
+      formControlName="mimeType"
+      [options]="mimeOptions"
+    />
+
+    <app-input
+      label="Văn bản thay thế (Alt text)"
+      placeholder="iPhone 16 Pro Max màu titan sa mạc chính hãng"
+      formControlName="alt"
+      [required]="true"
+    />
+
+    @if (form.controls.originUrl.value) {
+      <div class="rounded-xl border border-gray-100 bg-gray-50/80 p-3 text-center">
+        <p class="text-xs font-medium text-gray-500 mb-2">Xem trước từ URL</p>
+        <img
+          [src]="form.controls.originUrl.value"
+          [alt]="form.controls.alt.value || 'Preview'"
+          class="mx-auto max-h-36 rounded-lg object-contain shadow-sm"
+          (error)="$any($event.target).style.display = 'none'"
+        />
+      </div>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="gap-2 pb-4">
+    <button type="button" class="btn btn-ghost" mat-dialog-close [disabled]="saving()">Huỷ</button>
+    <button type="submit" class="btn btn-primary" [disabled]="saving()">
+      {{ saving() ? 'Đang lưu...' : 'Thêm ảnh' }}
+    </button>
+  </mat-dialog-actions>
+</form>

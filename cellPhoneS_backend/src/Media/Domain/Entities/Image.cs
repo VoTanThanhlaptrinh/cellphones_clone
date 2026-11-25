@@ -18,6 +18,9 @@ public class Image
     public string? Name { get; set; }
     [Required]
     public string? Alt { get; set; }
+    /// <summary>Key của file trên file-service/R2 (null với ảnh cũ hoặc ảnh dùng link ngoài); dùng để xoá file.</summary>
+    [MaxLength(500)]
+    public string? StorageKey { get; set; }
     [Required]
     public string Status { get; set; } = "in-use";
     public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();

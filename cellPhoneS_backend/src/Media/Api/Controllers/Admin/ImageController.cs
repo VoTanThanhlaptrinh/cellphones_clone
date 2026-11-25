@@ -21,8 +21,17 @@ namespace cellphones_backend.Controllers.Admin
             _imageService = imageService;
         }
 
+        // GET: api/admin/images
+        // Retrieves all images for admin library
+        [HttpGet]
+        public async Task<ActionResult<ApiResponse<List<ImageDTO>>>> GetAllImages()
+        {
+            var result = await _imageService.GetAllImages();
+            return Ok(new ApiResponse<List<ImageDTO>>("Images retrieved successfully", result));
+        }
+
         // POST: api/admin/images
-        // Creates an image from a URL and uploads it to Azure Blob Storage
+        // Creates an image from a URL and stores a copy on R2 (file-service)
         [HttpPost]
         public async Task<ActionResult<ApiResponse<long>>> CreateImage([FromBody] CreateImageRequest createImageRequest)
         {
@@ -36,18 +45,27 @@ namespace cellphones_backend.Controllers.Admin
             return Ok(new ApiResponse<long>("Image created successfully", result));
         }
 
-        // POST: api/admin/images/upload
-        // Uploads an image file directly from form data
-        [HttpPost("upload")]
-        public async Task<ActionResult<ApiResponse<long>>> UploadImage([FromForm] IFormFile file, [FromForm] string? alt)
+        // POST: api/admin/images/upload/presign
+        // Step 1: get a link so the browser can PUT the file straight to R2 (via file-service)
+        [HttpPost("upload/presign")]
+        public async Task<ActionResult<ApiResponse<PresignImageUploadResponse>>> PresignUpload([FromBody] PresignImageUploadRequest request)
+        {
+            var result = await _imageService.PresignUpload(request);
+            return Ok(new ApiResponse<PresignImageUploadResponse>("Presign successfully", result));
+        }
+
+        // POST: api/admin/images/upload/confirm
+        // Step 3: after the PUT, confirm the file and save the image record
+        [HttpPost("upload/confirm")]
+        public async Task<ActionResult<ApiResponse<long>>> ConfirmUpload([FromBody] ConfirmImageUploadRequest request)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
             {
                 return Unauthorized(new ApiResponse<long>("User not authenticated", 0));
             }
-            
-            var result = await _imageService.UploadImage(file, alt, userId);
+
+            var result = await _imageService.ConfirmUpload(request, userId);
             return Ok(new ApiResponse<long>("Image uploaded successfully", result));
         }
 

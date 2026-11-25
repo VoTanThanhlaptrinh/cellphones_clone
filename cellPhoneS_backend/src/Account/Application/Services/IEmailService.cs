@@ -1,7 +1,10 @@
+using cellPhoneS_backend.DTOs.Email;
+
 namespace cellPhoneS_backend.Services.Interface
 {
     public interface IEmailService
     {
-        Task SendEmailAsync(string toEmail, string subject, string message);
+        Task<MailItemResponse> SendEmailAsync(string toEmail, string subject, string message, CancellationToken cancellationToken = default);
+        Task<BulkMailResponse> SendBulkEmailAsync(SendBulkEmailRequest request, CancellationToken cancellationToken = default);
     }
 }

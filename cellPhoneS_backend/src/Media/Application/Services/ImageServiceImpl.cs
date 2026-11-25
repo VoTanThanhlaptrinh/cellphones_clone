@@ -1,86 +1,201 @@
+using cellphones_backend.Models;
 using cellphones_backend.Repositories;
+using cellPhoneS_backend.Constants;
 using cellPhoneS_backend.DTOs;
 using cellPhoneS_backend.Services;
+using cellPhoneS_backend.Services.Interface;
 
 namespace cellphones_backend.Services.Implement;
 
 public class ImageServiceImpl : ImageService
 {
     private readonly IImageRepository _imageRepository;
-    private readonly AzuriteService _azuriteService;
+    private readonly IFileServiceClient _fileService;
     private readonly ImageDownloaderService _imageDownloaderService;
+    private readonly ILogger<ImageServiceImpl> _logger;
 
     public ImageServiceImpl(
-        IImageRepository imageRepository, 
-        AzuriteService azuriteService,
-        ImageDownloaderService imageDownloaderService)
+        IImageRepository imageRepository,
+        IFileServiceClient fileService,
+        ImageDownloaderService imageDownloaderService,
+        ILogger<ImageServiceImpl> logger)
     {
         _imageRepository = imageRepository;
-        _azuriteService = azuriteService;
+        _fileService = fileService;
         _imageDownloaderService = imageDownloaderService;
+        _logger = logger;
     }
 
     public async Task<long> CreateImage(CreateImageRequest request, string userId)
     {
-        // TODO: Implement business logic using the request and userId here
-        // 1. Download image from OriginUrl using _imageDownloaderService.DownloadImageFromUrl()
-        // 2. Generate unique filename (e.g., Guid.NewGuid() + extension)
-        // 3. Upload to Azure Blob Storage using _azuriteService.UploadImageThenGetUrl()
-        // 4. Create Image entity
-        // 5. Set OriginUrl, BlobUrl (from Azure), MimeType, Name, Alt from request
-        // 6. Set Status = "in-use"
-        // 7. Set CreateDate = UpdateDate = DateTime.UtcNow
-        // 8. Set CreateBy = UpdateBy = userId
-        // 7. Save to database using _imageRepository.AddAsync()
-        // 8. Return new Image ID
-        
-        throw new NotImplementedException();
+        if (string.IsNullOrWhiteSpace(request.OriginUrl))
+            throw new BadRequestException("URL ảnh không được để trống.");
+
+        byte[] bytes = Array.Empty<byte>();
+        try
+        {
+            bytes = await _imageDownloaderService.DownloadImageFromUrl(request.OriginUrl);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Không tải được ảnh từ {Url}, giữ link gốc", request.OriginUrl);
+        }
+
+        // Lưu bản sao lên R2 qua file-service; lỗi hoặc định dạng/dung lượng không được nhận thì dùng lại link gốc.
+        string blobUrl = request.OriginUrl;
+        string? storageKey = null;
+        var mimeType = request.MimeType ?? "image/jpeg";
+        if (bytes.Length > 0)
+        {
+            if (!FileContexts.ProductGalleryMimeTypes.Contains(mimeType) || bytes.Length > FileContexts.ProductGalleryMaxBytes)
+            {
+                _logger.LogInformation("Ảnh {Url} ({Mime}, {Size} byte) không đủ điều kiện lưu lên R2, giữ link gốc", request.OriginUrl, mimeType, bytes.Length);
+            }
+            else
+            {
+                try
+                {
+                    var fileName = $"{request.Name ?? "image"}{ExtensionOf(mimeType)}";
+                    var presign = await _fileService.PresignAsync(FileContexts.ProductGallery, fileName, mimeType, bytes.Length);
+                    await _fileService.UploadToPresignedUrlAsync(presign.UploadUrl, bytes, mimeType);
+                    var confirmed = await _fileService.ConfirmAsync(presign.TempKey);
+                    if (!string.IsNullOrEmpty(confirmed.Url))
+                    {
+                        blobUrl = confirmed.Url;
+                        storageKey = confirmed.Key;
+                    }
+                }
+                catch (AppException ex)
+                {
+                    _logger.LogWarning(ex, "Không lưu được ảnh {Url} lên file-service, giữ link gốc", request.OriginUrl);
+                }
+            }
+        }
+
+        var image = new Image
+        {
+            OriginUrl = request.OriginUrl,
+            BlobUrl = blobUrl,
+            StorageKey = storageKey,
+            MimeType = mimeType,
+            Name = request.Name ?? "image",
+            Alt = request.Alt ?? request.Name ?? "image",
+            Status = "in-use",
+            CreateDate = DateTime.UtcNow,
+            UpdateDate = DateTime.UtcNow,
+            CreateBy = userId,
+            UpdateBy = userId
+        };
+        await SaveNewImage(image);
+        return image.Id;
     }
 
-    public async Task<long> UploadImage(IFormFile file, string? alt, string userId)
+    public async Task<PresignImageUploadResponse> PresignUpload(PresignImageUploadRequest request)
     {
-        // TODO: Implement business logic using the file, alt, and userId here
-        // 1. Validate file size and MIME type
-        // 2. Read file bytes into memory
-        // 3. Generate unique file name (e.g., Guid.NewGuid() + extension)
-        // 4. Upload to Azure Blob Storage using _azuriteService.UploadImageThenGetUrl()
-        // 5. Create Image entity
-        // 6. Set BlobUrl, OriginUrl (same as BlobUrl), MimeType, Name, Alt
-        // 7. Set Status = "in-use"
-        // 8. Set CreateDate = UpdateDate = DateTime.UtcNow
-        // 9. Set CreateBy = UpdateBy = userId
-        // 9. Save to database using _imageRepository.AddAsync()
-        // 10. Return new Image ID
-        
-        throw new NotImplementedException();
+        var result = await _fileService.PresignAsync(
+            FileContexts.ProductGallery, request.FileName!, request.MimeType!, request.Size);
+        return new PresignImageUploadResponse(result.TempKey, result.UploadUrl, result.ExpiresIn, result.PreviewUrl);
+    }
+
+    public async Task<long> ConfirmUpload(ConfirmImageUploadRequest request, string userId)
+    {
+        var tempKey = request.TempKey!;
+        if (!tempKey.StartsWith(FileContexts.ProductGalleryTempPrefix, StringComparison.Ordinal) || tempKey.Contains(".."))
+            throw new BadRequestException("tempKey không hợp lệ.");
+
+        var confirmed = await _fileService.ConfirmAsync(tempKey);
+        if (string.IsNullOrEmpty(confirmed.Url))
+            throw new InternalServerException("Dịch vụ lưu trữ không trả về đường dẫn ảnh.");
+
+        var image = new Image
+        {
+            OriginUrl = confirmed.Url,
+            BlobUrl = confirmed.Url,
+            StorageKey = confirmed.Key,
+            MimeType = request.MimeType,
+            Name = request.Name,
+            Alt = string.IsNullOrWhiteSpace(request.Alt) ? request.Name : request.Alt,
+            Status = "in-use",
+            CreateDate = DateTime.UtcNow,
+            UpdateDate = DateTime.UtcNow,
+            CreateBy = userId,
+            UpdateBy = userId
+        };
+
+        try
+        {
+            await SaveNewImage(image);
+        }
+        catch
+        {
+            // Không để file mồ côi trên R2 khi lưu DB thất bại.
+            await TryDeleteFile(confirmed.Key);
+            throw;
+        }
+        return image.Id;
     }
 
     public async Task DeleteImage(long imageId, string userId)
     {
-        // TODO: Implement business logic using the imageId and userId here
-        // 1. Find image by ID using _imageRepository.GetByIdAsync()
-        // 2. If not found, throw NotFoundException
-        // 3. Check if image is in use (referenced by products, brands, colors, etc.)
-        //    You may need to add a method to check references across multiple tables
-        // 4. If in use, throw BadRequestException
-        // 5. Set Status = "deleted"
-        // 6. Optionally delete from blob storage (or keep for audit purposes)
-        // 7. Update UpdateDate = DateTime.UtcNow
-        // 8. Update UpdateBy = userId
-        // 8. Save changes using _imageRepository.UpdateAsync()
-        // 9. Return
-        
-        throw new NotImplementedException();
+        var image = await _imageRepository.GetByIdAsync(imageId);
+        if (image == null || image.Status == "deleted")
+            throw new NotFoundException($"Không tìm thấy ảnh #{imageId}.");
+
+        // Ảnh còn gắn sản phẩm/nhu cầu thì chỉ ẩn khỏi thư viện, giữ file để trang đang dùng không vỡ ảnh.
+        if (!string.IsNullOrEmpty(image.StorageKey) && !await _imageRepository.IsReferencedAsync(imageId))
+        {
+            if (await TryDeleteFile(image.StorageKey))
+                image.StorageKey = null;
+        }
+
+        image.Status = "deleted";
+        image.UpdateDate = DateTime.UtcNow;
+        image.UpdateBy = userId;
+        await _imageRepository.UpdateAsync(image);
+        await _imageRepository.SaveChangesAsync();
     }
 
     public async Task<ImageDTO> GetImage(long imageId)
     {
-        // TODO: Implement business logic here
-        // 1. Find image by ID using _imageRepository.GetByIdAsync()
-        // 2. If not found or Status = "deleted", throw NotFoundException
-        // 3. Project to ImageDTO
-        // 4. Return
-        
-        throw new NotImplementedException();
+        var image = await _imageRepository.GetByIdAsync(imageId);
+        if (image == null || image.Status == "deleted")
+            throw new NotFoundException($"Không tìm thấy ảnh #{imageId}.");
+
+        return new ImageDTO(image.OriginUrl, image.MimeType, image.Name, image.Alt, image.BlobUrl, image.Id);
     }
+
+    public async Task<List<ImageDTO>> GetAllImages()
+    {
+        var images = await _imageRepository.FindAsync(i => i.Status != "deleted");
+        return images.OrderByDescending(i => i.CreateDate)
+            .Select(i => new ImageDTO(i.OriginUrl, i.MimeType, i.Name, i.Alt, i.BlobUrl, i.Id))
+            .ToList();
+    }
+
+    private async Task SaveNewImage(Image image)
+    {
+        await _imageRepository.AddAsync(image);
+        await _imageRepository.SaveChangesAsync();
+    }
+
+    private async Task<bool> TryDeleteFile(string key)
+    {
+        try
+        {
+            await _fileService.DeleteAsync(key);
+            return true;
+        }
+        catch (AppException ex)
+        {
+            _logger.LogWarning(ex, "Không xoá được file {Key} trên file-service", key);
+            return false;
+        }
+    }
+
+    private static string ExtensionOf(string mimeType) => mimeType switch
+    {
+        "image/png" => ".png",
+        "image/webp" => ".webp",
+        _ => ".jpg"
+    };
 }

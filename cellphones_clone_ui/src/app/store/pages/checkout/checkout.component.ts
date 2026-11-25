@@ -2,6 +2,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { NgClass } from '@angular/common';
 import { HeaderCartOrderComponent } from '@store/layout/header-cart-order/header-cart-order.component';
+import { AuthService } from '@core/auth/auth.service';
 import { CartService } from '@store/services/cart.service';
 
 @Component({
@@ -17,7 +18,8 @@ export class CheckoutComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private cartService: CartService
+    private cartService: CartService,
+    private authService: AuthService
   ) { }
 
   ngOnInit() {
@@ -27,6 +29,8 @@ export class CheckoutComponent implements OnInit {
       this.orderId.set(state.orderId);
       // Clear the local cart state
       this.cartService.updateCartItems([]);
+      // Số trên icon giỏ hàng ở header lấy từ claim amountCart trong JWT: phải xin token mới thì mới cập nhật.
+      this.authService.refreshToken(true).subscribe({ error: () => { } });
     } else {
       // If accessed without proper state, redirect home
       this.router.navigate(['/home']);

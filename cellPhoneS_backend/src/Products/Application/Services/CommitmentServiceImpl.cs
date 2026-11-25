@@ -1,5 +1,7 @@
+using cellphones_backend.Models;
 using cellphones_backend.Repositories;
 using cellPhoneS_backend.DTOs;
+using cellPhoneS_backend.Services;
 
 namespace cellphones_backend.Services.Implement;
 
@@ -18,77 +20,92 @@ public class CommitmentServiceImpl : CommitmentService
 
     public async Task<long> CreateCommitment(CreateCommitmentRequest request, string userId)
     {
-        // TODO: Implement business logic using the request and userId here
-        // 1. Verify product exists using _productRepository.GetByIdAsync()
-        // 2. If not found, throw NotFoundException
-        // 3. Create Commitment entity
-        // 4. Set ProductCommitmentId = ProductId from request
-        // 5. Set Context from request
-        // 6. Set Status = "active"
-        // 7. Set CreateDate = UpdateDate = DateTime.UtcNow
-        // 8. Set CreateBy = UpdateBy = userId
-        // 8. Save using _commitmentRepository.AddAsync()
-        // 9. Return new Commitment ID
-        
-        throw new NotImplementedException();
+        var product = await _productRepository.GetByIdAsync(request.ProductId);
+        if (product == null)
+            throw new NotFoundException($"Không tìm thấy sản phẩm có mã {request.ProductId}.");
+
+        var commitment = new Commitment
+        {
+            ProductCommitmentId = request.ProductId,
+            Context = request.Context?.Trim(),
+            Status = "active",
+            CreateDate = DateTime.UtcNow,
+            UpdateDate = DateTime.UtcNow,
+            CreateBy = userId,
+            UpdateBy = userId
+        };
+        await _commitmentRepository.AddAsync(commitment);
+        await _commitmentRepository.SaveChangesAsync();
+        return commitment.Id;
     }
 
     public async Task<List<long>> CreateMultipleCommitments(CreateMultipleCommitmentsRequest request, string userId)
     {
-        // TODO: Implement business logic using the request and userId here
-        // 1. Verify product exists using _productRepository.GetByIdAsync()
-        // 2. If not found, throw NotFoundException
-        // 3. Begin transaction
-        // 4. Loop through each commitment text in the list
-        // 5. For each, create Commitment entity with ProductId and Context
-        // 6. Set Status = "active" for each
-        // 7. Set CreateDate = UpdateDate = DateTime.UtcNow
-        // 8. Set CreateBy = UpdateBy = userId
-        // 8. Save using _commitmentRepository.AddAsync() and collect IDs
-        // 9. Commit transaction
-        // 10. Return list of created Commitment IDs
-        
-        throw new NotImplementedException();
+        var product = await _productRepository.GetByIdAsync(request.ProductId);
+        if (product == null)
+            throw new NotFoundException($"Không tìm thấy sản phẩm có mã {request.ProductId}.");
+
+        if (request.Commitments == null || request.Commitments.Count == 0)
+            throw new BadRequestException("Danh sách cam kết không được để trống.");
+
+        var ids = new List<long>();
+        foreach (var text in request.Commitments.Where(c => !string.IsNullOrWhiteSpace(c)))
+        {
+            var commitment = new Commitment
+            {
+                ProductCommitmentId = request.ProductId,
+                Context = text.Trim(),
+                Status = "active",
+                CreateDate = DateTime.UtcNow,
+                UpdateDate = DateTime.UtcNow,
+                CreateBy = userId,
+                UpdateBy = userId
+            };
+            await _commitmentRepository.AddAsync(commitment);
+            await _commitmentRepository.SaveChangesAsync();
+            ids.Add(commitment.Id);
+        }
+        return ids;
     }
 
     public async Task UpdateCommitment(long commitmentId, string newContext, string userId)
     {
-        // TODO: Implement business logic using the commitmentId, newContext, and userId here
-        // 1. Find commitment by ID using _commitmentRepository.GetByIdAsync()
-        // 2. If not found, throw NotFoundException
-        // 3. Validate newContext (not empty)
-        // 4. Update Context field
-        // 5. Update UpdateDate = DateTime.UtcNow
-        // 6. Update UpdateBy = userId
-        // 6. Save changes using _commitmentRepository.UpdateAsync()
-        // 7. Return
-        
-        throw new NotImplementedException();
+        if (string.IsNullOrWhiteSpace(newContext))
+            throw new BadRequestException("Nội dung cam kết không được để trống.");
+
+        var commitment = await _commitmentRepository.GetByIdAsync(commitmentId);
+        if (commitment == null || commitment.Status == "deleted")
+            throw new NotFoundException($"Không tìm thấy cam kết #{commitmentId}.");
+
+        commitment.Context = newContext.Trim();
+        commitment.UpdateDate = DateTime.UtcNow;
+        commitment.UpdateBy = userId;
+        await _commitmentRepository.UpdateAsync(commitment);
+        await _commitmentRepository.SaveChangesAsync();
     }
 
     public async Task DeleteCommitment(long commitmentId, string userId)
     {
-        // TODO: Implement business logic using the commitmentId and userId here
-        // 1. Find commitment by ID using _commitmentRepository.GetByIdAsync()
-        // 2. If not found, throw NotFoundException
-        // 3. Set Status = "deleted"
-        // 4. Update UpdateDate = DateTime.UtcNow
-        // 5. Update UpdateBy = userId
-        // 5. Save changes using _commitmentRepository.UpdateAsync()
-        // 6. Return
-        
-        throw new NotImplementedException();
+        var commitment = await _commitmentRepository.GetByIdAsync(commitmentId);
+        if (commitment == null || commitment.Status == "deleted")
+            throw new NotFoundException($"Không tìm thấy cam kết #{commitmentId}.");
+
+        commitment.Status = "deleted";
+        commitment.UpdateDate = DateTime.UtcNow;
+        commitment.UpdateBy = userId;
+        await _commitmentRepository.UpdateAsync(commitment);
+        await _commitmentRepository.SaveChangesAsync();
     }
 
     public async Task<List<string>> GetProductCommitments(long productId)
     {
-        // TODO: Implement business logic here
-        // 1. Verify product exists using _productRepository.GetByIdAsync()
-        // 2. Query commitments for this product where Status != "deleted"
-        // 3. Select only Context strings
-        // 4. If no commitments found, return empty list
-        // 5. Return commitment text list
-        
-        throw new NotImplementedException();
+        var commitments = await _commitmentRepository.FindAsync(c => c.ProductCommitmentId == productId && c.Status != "deleted");
+        return commitments.Select(c => c.Context!).Where(c => c != null).ToList();
+    }
+
+    public async Task<List<CommitmentItemDto>> GetProductCommitmentDetails(long productId)
+    {
+        var commitments = await _commitmentRepository.FindAsync(c => c.ProductCommitmentId == productId && c.Status != "deleted");
+        return commitments.Select(c => new CommitmentItemDto(c.Id, c.ProductCommitmentId, c.Context ?? "", c.Status)).ToList();
     }
 }
