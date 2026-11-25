@@ -1,4 +1,7 @@
 using System.Net;
+using System.Security.Claims;
+using cellphones_backend.DTOs.Responses;
+using cellPhoneS_backend.Services.Interface;
 
 namespace cellPhoneS_backend.Auth
 {
@@ -36,7 +39,7 @@ namespace cellPhoneS_backend.Auth
                 if (!context.User.Identity?.IsAuthenticated ?? true)
                 {
                     context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                    await context.Response.WriteAsJsonAsync(new { message = "Unauthorized: Authentication required." });
+                    await context.Response.WriteAsJsonAsync(new ApiResponse<object?>("Unauthorized: Authentication required.", null));
                     return;
                 }
 
@@ -46,7 +49,21 @@ namespace cellPhoneS_backend.Auth
                     if (!hasRole)
                     {
                         context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                        await context.Response.WriteAsJsonAsync(new { message = "Forbidden: Insufficient permissions." });
+                        await context.Response.WriteAsJsonAsync(new ApiResponse<object?>("Forbidden: Insufficient permissions.", null));
+                        return;
+                    }
+                }
+
+                if (policy.RequiredPermissions.Count > 0)
+                {
+                    // Middleware được tạo một lần cho cả app: service scoped phải lấy từ RequestServices.
+                    var permissionService = context.RequestServices.GetRequiredService<IPermissionService>();
+                    var roles = context.User.FindAll(ClaimTypes.Role).Select(c => c.Value);
+                    var granted = await permissionService.GetPermissionsAsync(roles);
+                    if (!policy.RequiredPermissions.All(granted.Contains))
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                        await context.Response.WriteAsJsonAsync(new ApiResponse<object?>("Forbidden: Insufficient permissions.", null));
                         return;
                     }
                 }

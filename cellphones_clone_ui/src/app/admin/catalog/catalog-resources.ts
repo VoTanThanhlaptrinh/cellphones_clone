@@ -1,7 +1,7 @@
 import { VndPipe } from '@shared/pipes/vnd.pipe';
 import { BadgeTone } from '@shared/ui/badge/badge.component';
 import { ORDER_STATUSES, orderStatusLabel, orderStatusTone } from '@shared/ui/badge/order-status';
-import { CatalogResource, CatalogRow, OptionSource } from './catalog.model';
+import { CatalogColumn, CatalogResource, CatalogRow, OptionSource } from './catalog.model';
 
 const text = (key: string) => (row: CatalogRow) => String(row[key] ?? '');
 
@@ -23,6 +23,12 @@ const recordStatusLabel = (status: string) =>
 const recordStatusTone = (status: string): BadgeTone =>
   ({ active: 'success', inactive: 'neutral', deleted: 'danger' } as Record<string, BadgeTone>)[status] ?? 'neutral';
 
+const statusColumn: CatalogColumn = {
+  header: 'Trạng thái',
+  cell: row => recordStatusLabel(String(row['status'] ?? '')),
+  tone: row => recordStatusTone(String(row['status'] ?? '')),
+};
+
 const categories: OptionSource = { listUrl: 'category', label: text('name') };
 const brands: OptionSource = { listUrl: 'brands', label: text('name') };
 
@@ -32,9 +38,10 @@ const brands: OptionSource = { listUrl: 'brands', label: text('name') };
  * sản phẩm, người dùng) chỉ có bảng, bộ lọc và phân trang.
  *
  * Lưu ý theo API hiện tại:
- * - Danh sách chỉ trả các bản ghi `active`, nên xoá (xoá mềm) là biến mất khỏi bảng.
- * - Danh sách thương hiệu/nhu cầu không trả `categoryId`, danh mục không trả `parentCategoryId`;
- *   các trường đó chỉ nhập khi tạo (`createOnly`).
+ * - Danh mục, thương hiệu, dòng, nhu cầu và kho lấy danh sách từ `admin/<res>`: có cả bản ghi `inactive`, ẩn `deleted`
+ *   (xoá mềm là biến mất khỏi bảng; `?status=deleted` xem thùng rác, `PATCH /{id}/restore` khôi phục, chưa có giao diện).
+ *   Danh sách trả `categoryId`/`parentCategoryId`/`brandId` nên form sửa điền sẵn được các trường quan hệ.
+ * - Ô chọn (`optionsFrom`) vẫn gọi API công khai vì API admin giới hạn 100 dòng/trang.
  * - Cam kết, thông số và hình ảnh gắn với từng sản phẩm nên sẽ làm cùng trang quản lý sản phẩm.
  */
 export const CATALOG_RESOURCES: readonly CatalogResource[] = [
@@ -147,15 +154,18 @@ export const CATALOG_RESOURCES: readonly CatalogResource[] = [
     icon: 'folder',
     title: 'Danh mục',
     singular: 'danh mục',
-    listUrl: 'category',
+    listUrl: 'admin/categories',
     adminUrl: 'categories',
     columns: [
       { header: 'Tên', cell: text('name') },
+      { header: 'Danh mục cha', cell: text('parentCategoryName') },
       { header: 'Đường dẫn', cell: text('slugName') },
+      { header: 'Sản phẩm', cell: text('productCount'), alignRight: true },
+      statusColumn,
     ],
     fields: [
       { key: 'name', label: 'Tên danh mục', type: 'text', required: true, maxLength: 255 },
-      { key: 'parentCategoryId', label: 'Danh mục cha', type: 'select', optionsFrom: categories, createOnly: true },
+      { key: 'parentCategoryId', label: 'Danh mục cha', type: 'select', optionsFrom: categories },
     ],
   },
   {
@@ -163,14 +173,17 @@ export const CATALOG_RESOURCES: readonly CatalogResource[] = [
     icon: 'tag',
     title: 'Thương hiệu',
     singular: 'thương hiệu',
-    listUrl: 'brands',
+    listUrl: 'admin/brands',
     adminUrl: 'brands',
     columns: [
       { header: 'Tên', cell: text('name') },
+      { header: 'Danh mục', cell: text('categoryName') },
       { header: 'Đường dẫn', cell: text('slugName') },
+      { header: 'Dòng sản phẩm', cell: text('seriesCount'), alignRight: true },
+      statusColumn,
     ],
     fields: [
-      { key: 'categoryId', label: 'Danh mục', type: 'select', required: true, optionsFrom: categories, createOnly: true },
+      { key: 'categoryId', label: 'Danh mục', type: 'select', required: true, optionsFrom: categories },
       { key: 'name', label: 'Tên thương hiệu', type: 'text', required: true, maxLength: 255 },
     ],
   },
@@ -179,11 +192,12 @@ export const CATALOG_RESOURCES: readonly CatalogResource[] = [
     icon: 'layers',
     title: 'Dòng sản phẩm',
     singular: 'dòng sản phẩm',
-    listUrl: 'series',
+    listUrl: 'admin/series',
     adminUrl: 'series',
     columns: [
       { header: 'Tên', cell: text('name') },
       { header: 'Thương hiệu', cell: text('brandName') },
+      statusColumn,
     ],
     fields: [
       { key: 'brandId', label: 'Thương hiệu', type: 'select', required: true, optionsFrom: brands },
@@ -195,14 +209,16 @@ export const CATALOG_RESOURCES: readonly CatalogResource[] = [
     icon: 'sliders',
     title: 'Nhu cầu',
     singular: 'nhu cầu',
-    listUrl: 'demands',
+    listUrl: 'admin/demands',
     adminUrl: 'demands',
     columns: [
       { header: 'Tên', cell: text('name') },
+      { header: 'Danh mục', cell: text('categoryName') },
       { header: 'Đường dẫn', cell: text('slugName') },
+      statusColumn,
     ],
     fields: [
-      { key: 'categoryId', label: 'Danh mục', type: 'select', required: true, optionsFrom: categories, createOnly: true },
+      { key: 'categoryId', label: 'Danh mục', type: 'select', required: true, optionsFrom: categories },
       { key: 'name', label: 'Tên nhu cầu', type: 'text', required: true, maxLength: 255 },
     ],
   },
@@ -211,12 +227,14 @@ export const CATALOG_RESOURCES: readonly CatalogResource[] = [
     icon: 'store',
     title: 'Cửa hàng / kho',
     singular: 'cửa hàng',
-    listUrl: 'storeHouses',
+    listUrl: 'admin/storehouses',
     adminUrl: 'storehouses',
     columns: [
       { header: 'Địa chỉ', cell: text('street') },
       { header: 'Quận/Huyện', cell: text('district') },
       { header: 'Tỉnh/Thành phố', cell: text('city') },
+      { header: 'Tổng tồn', cell: text('totalStock'), alignRight: true },
+      statusColumn,
     ],
     fields: [
       { key: 'street', label: 'Số nhà, tên đường', type: 'text', required: true, maxLength: 255 },

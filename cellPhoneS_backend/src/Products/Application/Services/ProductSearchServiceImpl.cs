@@ -14,15 +14,19 @@ public class ProductSearchServiceImpl : ProductSearchService
     private readonly IMemoryCache _cache;
     private const string CACHE_KEY = "PRODUCTS_SEARCH_CACHE";
     private static readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
-    public ProductSearchServiceImpl(ApplicationDbContext context, IMemoryCache cache)
+    private readonly ILogger<ProductSearchServiceImpl> _logger;
+    public ProductSearchServiceImpl(ApplicationDbContext context, IMemoryCache cache, ILogger<ProductSearchServiceImpl> logger)
     {
         _context = context;
         _cache = cache;
+        _logger = logger;
     }
     public async Task<List<ProductSearchResult>> InitializeAsync()
     {
         // Query DB (Nặng)
+        // mv_ProductSearch không có cột trạng thái nên lọc qua bảng Products: sản phẩm đã xoá/ẩn không được gợi ý.
         var data = await _context.ProductSearchResults
+            .Where(p => _context.Products.Any(x => x.Id == p.Id && x.Status != "deleted" && x.Status != "inactive"))
             .Select(p => new ProductSearchResult
             {
                 Id = p.Id,
@@ -102,6 +106,20 @@ public class ProductSearchServiceImpl : ProductSearchService
             .ToList();
 
         return results;
+    }
+
+    // Admin ghi sản phẩm: làm mới mv_ProductSearch (tên/giá/sản phẩm mới) rồi xoá cache. Lỗi refresh chỉ log.
+    public async Task RefreshAsync()
+    {
+        try
+        {
+            await _context.Database.ExecuteSqlRawAsync("REFRESH MATERIALIZED VIEW \"mv_ProductSearch\"");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Không làm mới được mv_ProductSearch");
+        }
+        RefreshCache();
     }
 
     // Hàm Refresh dùng cho Admin khi thêm/sửa sản phẩm

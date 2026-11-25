@@ -8,7 +8,10 @@ public interface OrderService
     public Task<string> GetOrderByUserId(string userId);
     public Task<string> GetOrderById(string orderId);
     public Task<string> GetOrders(int page, int pageSize);
+    /// <summary>Khách huỷ đơn của chính mình: hoàn tồn kho và huỷ link thanh toán còn mở.</summary>
     public Task DeleteOrder(string userId, long orderId);
+    /// <summary>Admin huỷ đơn bất kỳ (cùng luật hoàn kho với <see cref="DeleteOrder"/>). Trả trạng thái của đơn trước khi huỷ; Completed/Cancelled → <see cref="ConflictException"/>.</summary>
+    Task<string> AdminCancelOrder(long orderId, string adminId);
     public Task Checkout(string userId, long orderId);
     Task MarkOrderPaid(long orderId, PaymentConfirmation confirmation);
     Task<OnlinePaymentView> StartOnlinePayment(string userId, long orderId, string provider);

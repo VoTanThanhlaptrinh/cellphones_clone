@@ -1,4 +1,3 @@
-using System.Text;
 using cellphones_backend.Data;
 using cellphones_backend.Models;
 using cellphones_backend.Repositories;
@@ -407,40 +406,20 @@ public class OrderServiceImpl : OrderService
         if (!order.CanBeCancelled)
             throw new BadRequestException($"Không thể hủy đơn hàng đang ở trạng thái: {order.Status}");
 
-        using var transaction = await _context.Database.BeginTransactionAsync();
-        try
-        {
-            if (order.OrderDetails != null && order.OrderDetails.Any())
-            {
-                await RestoreInventoryAsync(order.OrderDetails.ToList());
-            }
+        await CancelWithRestockAsync(order, userId);
+    }
 
-            bool isRefundSuccessful = await ProcessRefundIfNecessaryAsync(order);
-            if (!isRefundSuccessful)
-            {
-                throw new Exception("Quá trình hoàn tiền thất bại. Hệ thống tự động hủy thao tác.");
-            }
+    public async Task<string> AdminCancelOrder(long orderId, string adminId)
+    {
+        var order = await GetOrderWithDetailsAsync(orderId);
+        if (order == null) throw new NotFoundException("Không tìm thấy đơn hàng.");
 
-            order.Cancel(userId);
+        if (!order.CanBeCancelled)
+            throw new ConflictException($"Không thể hủy đơn hàng đang ở trạng thái: {order.Status}");
 
-            await _orderRepository.UpdateAsync(order);
-
-            await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
-        }
-        catch (AppException)
-        {
-            await transaction.RollbackAsync();
-            throw;
-        }
-        catch (Exception ex)
-        {
-            await transaction.RollbackAsync();
-            throw new InternalServerException($"Lỗi khi hủy đơn hàng: {ex.Message}");
-        }
-
-        // Sau khi đơn đã huỷ thì link thanh toán cũ không được phép nhận tiền nữa.
-        await CancelOnlinePaymentQuietlyAsync(order);
+        var previousStatus = order.Status;
+        await CancelWithRestockAsync(order, adminId);
+        return previousStatus;
     }
 
     #endregion
@@ -703,34 +682,81 @@ public class OrderServiceImpl : OrderService
         return await _shippingFeeService.CalculateAccurateShippingFee(packagesToShip, destProvince, destDistrict);
     }
 
-    private async Task RestoreInventoryAsync(List<OrderDetail> orderDetails)
+    /// <summary>
+    /// Huỷ đơn và hoàn tồn kho trong cùng một transaction; dùng chung cho khách huỷ (<see cref="DeleteOrder"/>) và admin huỷ.
+    /// Trạng thái đơn được "chiếm" bằng một UPDATE có điều kiện (Status còn như lúc đọc), nên hai yêu cầu huỷ đồng thời
+    /// chỉ có một yêu cầu thắng và kho chỉ được hoàn một lần; yêu cầu thua nhận 409.
+    /// </summary>
+    private async Task CancelWithRestockAsync(Order order, string actorId)
     {
-        if (orderDetails == null || !orderDetails.Any()) return;
-
-        const int chunkSize = 50; // Mỗi đợt ta chỉ gửi 50 câu lệnh UPDATE
-
-        for (int i = 0; i < orderDetails.Count; i += chunkSize)
+        var previousStatus = order.Status;
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try
         {
-            // Cắt ra một "lát" (chunk) gồm tối đa 50 phần tử
-            var currentChunk = orderDetails.Skip(i).Take(chunkSize).ToList();
-
-            var sqlBatch = new StringBuilder();
-            var currentTime = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
-
-            foreach (var od in currentChunk)
+            if (!await ProcessRefundIfNecessaryAsync(order))
             {
-                sqlBatch.Append($@"
-                    UPDATE ""Stores"" 
-                    SET ""Quantity"" = ""Quantity"" + {od.Quantity}, 
-                        ""UpdateDate"" = '{currentTime}'
-                    WHERE ""StoreHouseId"" = {od.StoreHouseId} 
-                      AND ""ProductId"" = {od.ProductOrderDetailId} 
-                      AND ""ColorId"" = {od.ColorId};
-                ");
+                throw new Exception("Quá trình hoàn tiền thất bại. Hệ thống tự động hủy thao tác.");
             }
 
-            // Gửi từng đợt xuống Database
-            await _context.Database.ExecuteSqlRawAsync(sqlBatch.ToString());
+            order.Cancel(actorId); // luật trạng thái nằm trên entity (ném InvalidOperationException nếu sai)
+
+            var claimed = await _context.Orders
+                .Where(o => o.Id == order.Id && o.Status == previousStatus)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(o => o.Status, OrderStatuses.Cancelled)
+                    .SetProperty(o => o.UpdateDate, order.UpdateDate)
+                    .SetProperty(o => o.UpdateBy, actorId));
+            // Entity trong bộ nhớ đã mang đúng giá trị vừa ghi nên không cần SaveChanges lần nữa.
+            _context.Entry(order).State = EntityState.Unchanged;
+            if (claimed == 0)
+                throw new ConflictException("Trạng thái đơn hàng vừa thay đổi, vui lòng tải lại và thử lại.");
+
+            await RestoreInventoryAsync(order.OrderDetails, actorId);
+            await transaction.CommitAsync();
+        }
+        catch (AppException)
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+        catch (InvalidOperationException ex)
+        {
+            await transaction.RollbackAsync();
+            throw new ConflictException(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            throw new InternalServerException($"Lỗi khi hủy đơn hàng: {ex.Message}");
+        }
+
+        // Sau khi đơn đã huỷ thì link thanh toán cũ không được phép nhận tiền nữa.
+        await CancelOnlinePaymentQuietlyAsync(order);
+    }
+
+    /// <summary>
+    /// Cộng lại <c>Store.Quantity</c> theo từng dòng đơn (kho × sản phẩm × màu), bằng UPDATE cộng dồn nguyên tử để không
+    /// đè lên đặt hàng / điều chỉnh tồn diễn ra cùng lúc. Phải chạy trong transaction của lần huỷ.
+    /// </summary>
+    private async Task RestoreInventoryAsync(IEnumerable<OrderDetail> orderDetails, string actorId)
+    {
+        var now = DateTime.UtcNow;
+        var groups = orderDetails.GroupBy(d => new { d.StoreHouseId, ProductId = d.ProductOrderDetailId, d.ColorId });
+        foreach (var group in groups)
+        {
+            var key = group.Key;
+            var quantity = group.Sum(d => d.Quantity);
+            var updated = await _context.Stores
+                .Where(s => s.StoreHouseId == key.StoreHouseId && s.ProductId == key.ProductId && s.ColorId == key.ColorId)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(x => x.Quantity, x => x.Quantity + quantity)
+                    .SetProperty(x => x.UpdateDate, now)
+                    .SetProperty(x => x.UpdateBy, actorId));
+            if (updated == 0)
+            {
+                _logger.LogWarning("Không hoàn được tồn kho {Quantity} cho kho {StoreHouseId}, sản phẩm {ProductId}, màu {ColorId}: không còn dòng tồn kho",
+                    quantity, key.StoreHouseId, key.ProductId, key.ColorId);
+            }
         }
     }
 

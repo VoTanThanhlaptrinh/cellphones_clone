@@ -1,4 +1,5 @@
 using cellphones_backend.Models;
+using cellPhoneS_backend.Constants;
 using cellphones_backend.Repositories;
 using cellphones_backend.Services.Interface;
 using cellPhoneS_backend.DTOs.Requests;
@@ -18,6 +19,7 @@ public class StoreHouseServiceImpl : StoreHouseService
 
     public async Task<long> CreateStoreHouse(CreateStoreHouseRequest request, string userId)
     {
+        RecordStatuses.EnsureWritable(request.Status);
         var existingStore = await _storeHouseRepository.FindAsync(s => 
             s.Street == request.Street && 
             s.District == request.District && 
@@ -33,8 +35,8 @@ public class StoreHouseServiceImpl : StoreHouseService
             District = request.District,
             City = request.City,
             Status = request.Status ?? "active",
-            CreateDate = DateTime.Now,
-            UpdateDate = DateTime.Now,
+            CreateDate = DateTime.UtcNow,
+            UpdateDate = DateTime.UtcNow,
             CreateBy = userId,
             UpdateBy = userId
         };
@@ -47,6 +49,7 @@ public class StoreHouseServiceImpl : StoreHouseService
 
     public async Task UpdateStoreHouse(long storeHouseId, UpdateStoreHouseRequest request, string userId)
     {
+        RecordStatuses.EnsureWritable(request.Status);
         var storeHouse = await _storeHouseRepository.GetByIdAsync(storeHouseId);
         if (storeHouse == null || storeHouse.Status == "deleted")
             throw new NotFoundException("Storehouse not found");
@@ -70,7 +73,7 @@ public class StoreHouseServiceImpl : StoreHouseService
             storeHouse.Status = request.Status;
         }
 
-        storeHouse.UpdateDate = DateTime.Now;
+        storeHouse.UpdateDate = DateTime.UtcNow;
         storeHouse.UpdateBy = userId;
 
         await _storeHouseRepository.UpdateAsync(storeHouse);
@@ -84,7 +87,7 @@ public class StoreHouseServiceImpl : StoreHouseService
             throw new NotFoundException("Storehouse not found");
 
         storeHouse.Status = "deleted";
-        storeHouse.UpdateDate = DateTime.Now;
+        storeHouse.UpdateDate = DateTime.UtcNow;
         storeHouse.UpdateBy = userId;
 
         await _storeHouseRepository.UpdateAsync(storeHouse);

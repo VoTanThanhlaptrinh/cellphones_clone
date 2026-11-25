@@ -378,4 +378,7 @@
   <data name="ShippingFeeInvalid" xml:space="preserve">
     <value>Shipping fee is invalid.</value>
   </data>
+  <data name="ProvinceMaxLength" xml:space="preserve">
+    <value>Province or city must not exceed 255 characters.</value>
+  </data>
 </root>

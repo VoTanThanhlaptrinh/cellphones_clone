@@ -1,0 +1,63 @@
+@host = http://localhost:5169
+@token = <access token của tài khoản quản trị (login rồi lấy data)>
+
+### Quy ước chung (catalog.read cho GET, catalog.write cho ghi/restore)
+### status bỏ trống = active+inactive, deleted = thùng rác; sortBy: createDate | updateDate | name | id
+### POST/PUT chỉ nhận status active | inactive; xoá và khôi phục đi qua DELETE và PATCH restore
+
+### ---------- Danh mục ----------
+### parentCategoryId=0 -> chỉ danh mục gốc
+GET {{host}}/api/admin/categories?pageIndex=1&pageSize=20&search=&status=&parentCategoryId=&sortBy=name&sortDir=asc
+Authorization: Bearer {{token}}
+
+###
+GET {{host}}/api/admin/categories/10
+Authorization: Bearer {{token}}
+
+### Xoá danh mục còn danh mục con / thương hiệu / nhu cầu / sản phẩm active -> 409
+DELETE {{host}}/api/admin/categories/10
+Authorization: Bearer {{token}}
+
+### Khôi phục: cha phải còn sống, tên không được trùng -> 409
+PATCH {{host}}/api/admin/categories/10/restore
+Authorization: Bearer {{token}}
+
+### ---------- Thương hiệu ----------
+GET {{host}}/api/admin/brands?categoryId=10&status=deleted
+Authorization: Bearer {{token}}
+
+###
+GET {{host}}/api/admin/brands/129
+Authorization: Bearer {{token}}
+
+### Xoá thương hiệu còn dòng sản phẩm -> 409
+DELETE {{host}}/api/admin/brands/129
+Authorization: Bearer {{token}}
+
+###
+PATCH {{host}}/api/admin/brands/129/restore
+Authorization: Bearer {{token}}
+
+### ---------- Dòng sản phẩm ----------
+GET {{host}}/api/admin/series?brandId=129&categoryId=
+Authorization: Bearer {{token}}
+
+###
+GET {{host}}/api/admin/series/1
+Authorization: Bearer {{token}}
+
+###
+PATCH {{host}}/api/admin/series/1/restore
+Authorization: Bearer {{token}}
+
+### ---------- Nhu cầu ----------
+GET {{host}}/api/admin/demands?categoryId=11
+Authorization: Bearer {{token}}
+
+###
+GET {{host}}/api/admin/demands/60
+Authorization: Bearer {{token}}
+
+###
+PATCH {{host}}/api/admin/demands/60/restore
+Authorization: Bearer {{token}}

@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using cellphones_backend.Models;
+using cellPhoneS_backend.Constants;
 using cellPhoneS_backend.Models;
 using cellPhoneS_backend.Services;
 using Microsoft.AspNetCore.Identity;
@@ -13,6 +14,9 @@ namespace cellphones_backend.Services.Implement;
 
 public class JwtTokenServiceImpl : JwtTokenService
 {
+    /// <summary>Thời sống của access token; cũng là TTL của mốc thu hồi phiên <c>user-revoked:{userId}</c>.</summary>
+    public static readonly TimeSpan AccessTokenLifetime = TimeSpan.FromMinutes(15);
+
     private readonly IConfiguration _configuration;
     private readonly UserService _userService;
     private readonly IDatabase _redisDb;
@@ -39,11 +43,14 @@ public class JwtTokenServiceImpl : JwtTokenService
 
         // Thêm JTI (Token ID) để quản lý Blacklist
         var jti = Guid.NewGuid().ToString();
+        var issuedAt = DateTimeOffset.UtcNow;
         var amountCart = await _cartService.GetAmountCart(user.Id);
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id),
             new Claim(JwtRegisteredClaimNames.Jti, jti),
+            // iat để OnTokenValidated so với mốc thu hồi phiên của user (khoá tài khoản / đổi role).
+            new Claim(JwtRegisteredClaimNames.Iat, issuedAt.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
             new Claim(ClaimTypes.Name, user.Fullname ?? ""),
             new Claim("amountCart", amountCart.ToString())
         };
@@ -58,7 +65,7 @@ public class JwtTokenServiceImpl : JwtTokenService
             issuer: _configuration["Jwt:Issuer"],
             audience: _configuration["Jwt:Audience"],
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(15), // Access Token chỉ nên sống ngắn (15-30p)
+            expires: issuedAt.UtcDateTime.Add(AccessTokenLifetime), // Access Token chỉ nên sống ngắn (15-30p)
             signingCredentials: creds
         );
 
@@ -131,6 +138,15 @@ public class JwtTokenServiceImpl : JwtTokenService
         var refreshToken = GetRefreshTokenFromCookie(request);
         var storedToken = await ValidateRefreshTokenAsync(refreshToken, request);
 
+        // Kiểm tra user trước khi xoay vòng token: tài khoản bị xoá/khoá không được cấp refresh token mới
+        var user = await _userManager.FindByIdAsync(storedToken.UserId);
+        if (user == null || user.Status != UserStatuses.Active)
+        {
+            await _redisDb.KeyDeleteAsync($"rt:{refreshToken}");
+            request.HttpContext.Response.Cookies.Delete("refreshToken");
+            throw new UnauthorizedException(user == null ? "User no longer exists." : "Tài khoản đã bị khoá");
+        }
+
         storedToken.IsUsed = true;
         await SaveRefreshTokenToRedisAsync(refreshToken, storedToken, TimeSpan.FromMinutes(2));
 
@@ -157,14 +173,6 @@ public class JwtTokenServiceImpl : JwtTokenService
             Expires = DateTime.UtcNow.AddDays(7)
         };
         request.HttpContext.Response.Cookies.Append("refreshToken", newRefreshTokenGuid, cookieOptions);
-
-        var user = await _userManager.FindByIdAsync(storedToken.UserId);
-        if (user == null)
-        {
-            await _redisDb.KeyDeleteAsync($"rt:{refreshToken}");
-            await _redisDb.KeyDeleteAsync($"rt:{newRefreshTokenGuid}");
-            throw new UnauthorizedException("User no longer exists.");
-        }
 
         var newAccessToken = await GenerateJwtToken(user);
         return newAccessToken;

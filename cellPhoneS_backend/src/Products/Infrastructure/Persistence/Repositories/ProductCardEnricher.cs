@@ -1,4 +1,5 @@
 using cellphones_backend.Data;
+using cellPhoneS_backend.Constants;
 using cellPhoneS_backend.DTOs;
 using cellPhoneS_backend.DTOs.Responses;
 using Microsoft.EntityFrameworkCore;
@@ -51,7 +52,7 @@ public static class ProductCardEnricher
             .ToDictionary(g => g.Key, g => g.OrderByDescending(r => r.Quantity).First().ColorId);
 
         var reviews = await context.Reviews
-            .Where(r => ids.Contains(r.ProductId))
+            .Where(r => ids.Contains(r.ProductId) && r.Status == ReviewStatuses.Visible)
             .GroupBy(r => r.ProductId)
             .Select(g => new { ProductId = g.Key, Average = g.Average(r => r.Rating), Count = g.Count() })
             .ToDictionaryAsync(x => x.ProductId);

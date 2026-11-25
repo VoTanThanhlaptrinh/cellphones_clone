@@ -380,4 +380,7 @@
   <data name="ShippingFeeInvalid" xml:space="preserve">
     <value>Phí vận chuyển không hợp lệ.</value>
   </data>
+  <data name="ProvinceMaxLength" xml:space="preserve">
+    <value>Tỉnh/Thành phố không được vượt quá 255 ký tự.</value>
+  </data>
 </root>

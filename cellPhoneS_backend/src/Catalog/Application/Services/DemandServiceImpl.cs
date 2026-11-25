@@ -1,4 +1,5 @@
 using cellphones_backend.Repositories;
+using cellPhoneS_backend.Constants;
 using cellPhoneS_backend.DTOs.Requests;
 using cellPhoneS_backend.DTOs.Responses;
 using cellPhoneS_backend.Models;
@@ -21,6 +22,7 @@ public class DemandServiceImpl : DemandService
 
     public async Task<long> CreateDemand(CreateDemandRequest request, string userId)
     {
+        RecordStatuses.EnsureWritable(request.Status);
         var category = await _categoryRepository.GetByIdAsync(request.CategoryId);
         if (category == null)
             throw new NotFoundException("Category not found");
@@ -35,8 +37,8 @@ public class DemandServiceImpl : DemandService
             Name = request.Name,
             SlugName = SlugHelper.GenerateSlug(request.Name),
             Status = request.Status ?? "active",
-            CreateDate = DateTime.Now,
-            UpdateDate = DateTime.Now,
+            CreateDate = DateTime.UtcNow,
+            UpdateDate = DateTime.UtcNow,
             CreateBy = userId,
             UpdateBy = userId
         };
@@ -49,6 +51,7 @@ public class DemandServiceImpl : DemandService
 
     public async Task UpdateDemand(long demandId, UpdateDemandRequest request, string userId)
     {
+        RecordStatuses.EnsureWritable(request.Status);
         var demand = await _demandRepository.GetByIdAsync(demandId);
         if (demand == null || demand.Status == "deleted")
             throw new NotFoundException("Demand not found");
@@ -76,7 +79,7 @@ public class DemandServiceImpl : DemandService
             demand.Status = request.Status;
         }
 
-        demand.UpdateDate = DateTime.Now;
+        demand.UpdateDate = DateTime.UtcNow;
         demand.UpdateBy = userId;
 
         await _demandRepository.UpdateAsync(demand);
@@ -90,7 +93,30 @@ public class DemandServiceImpl : DemandService
             throw new NotFoundException("Demand not found");
 
         demand.Status = "deleted";
-        demand.UpdateDate = DateTime.Now;
+        demand.UpdateDate = DateTime.UtcNow;
+        demand.UpdateBy = userId;
+
+        await _demandRepository.UpdateAsync(demand);
+        await _demandRepository.SaveChangesAsync();
+    }
+
+    public async Task RestoreDemand(long demandId, string userId)
+    {
+        var demand = await _demandRepository.GetByIdAsync(demandId);
+        if (demand == null)
+            throw new NotFoundException("Demand not found");
+        if (demand.Status != RecordStatuses.Deleted)
+            throw new ConflictException("Nhu cầu không nằm trong thùng rác.");
+
+        var category = await _categoryRepository.GetByIdAsync(demand.CategoryId);
+        if (category == null || category.Status == RecordStatuses.Deleted)
+            throw new ConflictException("Danh mục của nhu cầu đã bị xoá, hãy khôi phục danh mục trước.");
+        var sameName = await _demandRepository.FindAsync(d => d.Name == demand.Name && d.CategoryId == demand.CategoryId && d.Id != demandId && d.Status != RecordStatuses.Deleted);
+        if (sameName.Any())
+            throw new ConflictException("Đã có nhu cầu khác trùng tên trong danh mục, không thể khôi phục.");
+
+        demand.Status = RecordStatuses.Active;
+        demand.UpdateDate = DateTime.UtcNow;
         demand.UpdateBy = userId;
 
         await _demandRepository.UpdateAsync(demand);

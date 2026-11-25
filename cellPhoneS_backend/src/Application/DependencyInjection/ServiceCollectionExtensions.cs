@@ -36,7 +36,26 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IStoreService, StoreServiceImpl>();
         services.AddScoped<IVietnamLocationService, VietnamLocationServiceImpl>();
         services.AddScoped<ShippingFeeService, ShippingFeeServiceImpl>();
-        services.AddScoped<IAdminQueryService, AdminQueryServiceImpl>();
+        services.AddScoped<IEmailService, EmailServiceImpl>();
+        // --- Admin: cross-module (permissions, roles, audit) ---
+        services.AddScoped<IPermissionService, PermissionServiceImpl>();
+        services.AddScoped<IAdminRoleService, AdminRoleServiceImpl>();
+        services.AddScoped<IAuditLogService, AuditLogServiceImpl>();
+        // --- Admin: Account (users) ---
+        services.AddScoped<IAdminUserService, AdminUserServiceImpl>();
+        // --- Admin: Orders & Payments ---
+        services.AddScoped<IAdminOrderService, AdminOrderServiceImpl>();
+        services.AddScoped<IAdminTransactionService, AdminTransactionServiceImpl>();
+        // --- Admin: Inventory ---
+        services.AddScoped<IAdminInventoryService, AdminInventoryServiceImpl>();
+        // --- Admin: Catalog ---
+        services.AddScoped<IAdminCatalogQueryService, AdminCatalogQueryServiceImpl>();
+        // --- Admin: Products ---
+        services.AddScoped<IAdminProductQueryService, AdminProductQueryServiceImpl>();
+        // --- Admin: Statistics ---
+        services.AddScoped<IAdminStatisticsService, AdminStatisticsServiceImpl>();
+        // --- Admin: Reviews ---
+        services.AddScoped<IAdminReviewService, AdminReviewServiceImpl>();
         // === BEGIN NEW FEATURE: PRODUCT REVIEWS ===
         services.AddScoped<IReviewService, ReviewServiceImpl>();
         // === END NEW FEATURE: PRODUCT REVIEWS ===

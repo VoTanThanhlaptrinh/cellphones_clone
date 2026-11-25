@@ -1,25 +1,42 @@
 using System.Security.Claims;
+using cellPhoneS_backend.Constants;
 using cellphones_backend.DTOs.Responses;
+using cellPhoneS_backend.Filters;
 using cellphones_backend.Services.Interface;
 using cellPhoneS_backend.Controllers;
 using cellPhoneS_backend.DTOs.Requests;
+using cellPhoneS_backend.DTOs.Responses;
+using cellPhoneS_backend.Services.Interface;
 using Microsoft.AspNetCore.Mvc;
 
 namespace cellphones_backend.Controllers.Admin
 {
     [Route("api/admin/storehouses")]
     [ApiController]
+    [RequirePermission(Permissions.InventoryRead)]
     public class AdminStoreHouseController : BaseController
     {
         private readonly StoreHouseService _storeHouseService;
 
-        public AdminStoreHouseController(StoreHouseService storeHouseService)
+        private readonly IAdminInventoryService _inventoryService;
+
+        public AdminStoreHouseController(StoreHouseService storeHouseService, IAdminInventoryService inventoryService)
         {
             _storeHouseService = storeHouseService;
+            _inventoryService = inventoryService;
+        }
+
+        // GET: api/admin/storehouses?pageIndex=1&pageSize=20&search=&status=&province=&sortBy=createDate&sortDir=desc
+        [HttpGet]
+        public async Task<ActionResult<ApiResponse<PagedResult<AdminStoreHouseView>>>> GetStoreHouses([FromQuery] AdminStoreHouseFilter filter)
+        {
+            var result = await _inventoryService.GetStoreHouses(filter);
+            return Ok(new ApiResponse<PagedResult<AdminStoreHouseView>>("Success", result));
         }
 
         // POST: api/admin/storehouses
         [HttpPost]
+        [RequirePermission(Permissions.InventoryWrite)]
         public async Task<ActionResult<ApiResponse<long>>> CreateStoreHouse([FromBody] CreateStoreHouseRequest createStoreHouseRequest)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -34,6 +51,7 @@ namespace cellphones_backend.Controllers.Admin
 
         // PUT: api/admin/storehouses/{storeHouseId}
         [HttpPut("{storeHouseId}")]
+        [RequirePermission(Permissions.InventoryWrite)]
         public async Task<ActionResult<ApiResponse<string>>> UpdateStoreHouse(
             long storeHouseId, 
             [FromBody] UpdateStoreHouseRequest updateStoreHouseRequest)
@@ -56,6 +74,7 @@ namespace cellphones_backend.Controllers.Admin
 
         // DELETE: api/admin/storehouses/{storeHouseId}
         [HttpDelete("{storeHouseId}")]
+        [RequirePermission(Permissions.InventoryWrite)]
         public async Task<ActionResult<ApiResponse<string>>> DeleteStoreHouse(long storeHouseId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

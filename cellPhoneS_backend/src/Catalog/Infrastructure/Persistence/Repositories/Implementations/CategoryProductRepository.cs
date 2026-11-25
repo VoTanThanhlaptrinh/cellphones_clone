@@ -13,7 +13,7 @@ public class CategoryProductRepository : BaseRepository<CategoryProduct>, ICateg
     {
         var products = await _context.CategoryProducts
             .Where(cp => cp.Category!.Brands.Where(b => b.Id == brandId).Any())
-            .Where(cp => cp.Product!.Status != "deleted")
+            .Where(cp => cp.Product!.Status != "deleted" && cp.Product!.Status != "inactive")
             .Select(cp => cp.Product)
             .OrderByDescending(p => p!.CreateDate)
             .Select(p => new ProductView(p!.Id, p.ImageUrl, p.Name,
@@ -27,7 +27,7 @@ public class CategoryProductRepository : BaseRepository<CategoryProduct>, ICateg
     {
         var products = await _context.CategoryProducts
             .Where(cp => cp.CategoryId == categoryId)
-            .Where(cp => cp.Product!.Status != "deleted")
+            .Where(cp => cp.Product!.Status != "deleted" && cp.Product!.Status != "inactive")
             .Select(cp => cp.Product)
             .OrderByDescending(p => p!.CreateDate)
             .Select(p => new ProductView(p!.Id, p.ImageUrl, p.Name,
@@ -42,7 +42,7 @@ public class CategoryProductRepository : BaseRepository<CategoryProduct>, ICateg
         var query = _context.CategoryProducts
         .OrderBy(cp => cp.Product!.Id)
         .Where(cp => cp.Category!.SlugName == slugName)
-        .Where(cp => cp.Product!.Status != "deleted");
+        .Where(cp => cp.Product!.Status != "deleted" && cp.Product!.Status != "inactive");
         if (cursor == null)
         {
             query = query.Where(cp => cp.Product!.Id > 0);
@@ -65,7 +65,7 @@ public class CategoryProductRepository : BaseRepository<CategoryProduct>, ICateg
     {
         var products = await _context.CategoryProducts
             .Where(cp => cp.Category!.Brands.Where(b => b.Series.Where(s => s.Id == seriesId).Any()).Any())
-            .Where(cp => cp.Product!.Status != "deleted")
+            .Where(cp => cp.Product!.Status != "deleted" && cp.Product!.Status != "inactive")
             .Select(cp => cp.Product)
             .OrderByDescending(p => p!.CreateDate)
             .Select(p => new ProductView(p!.Id, p.ImageUrl, p.Name,

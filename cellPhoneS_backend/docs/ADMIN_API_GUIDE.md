@@ -7,6 +7,11 @@ làm sau, dựa trên các hợp đồng API ở đây.
 
 Đọc kèm `cell_phones/CLAUDE.md` (kiến trúc module, namespace, luồng request, auth tập trung).
 
+> **Trạng thái:** Phase 0 (vá bảo mật) và Phase 1 (nền tảng: permission, role API, audit log, paging, OpenAPI, validator)
+> **đã làm xong**; các mục 2, 3.2–3.4, 4.1 và 6 bước 2 bên dưới mô tả đúng code hiện có (chỗ nào lệch so với thiết kế
+> ban đầu thì có ghi chú "Thực tế"). Phase 3 (thống kê, mục 5) và Phase 2C (đánh giá, mục 4.7) **đã làm xong** ở nhánh
+> `admin-p3-stats`; phần còn lại của Phase 2 (users, orders/transactions, products, catalog, inventory) làm ở các nhánh khác.
+
 Mục lục
 
 0. [Hiện trạng và phạm vi](#0-hiện-trạng-và-phạm-vi)
@@ -32,7 +37,7 @@ Mục lục
 | Stores | `POST/PUT/DELETE /api/admin/storehouses` | Chưa có API tồn kho (`Store`: kho × sản phẩm × màu × số lượng) |
 | Products | `POST /api/admin/commitments`, `POST /batch`, `PUT/DELETE /{id}`; `POST /api/admin/specifications`, `POST /{id}/details`, `DELETE /{id}` | CRUD sản phẩm lại nằm ở controller **User** (xem 0.2) |
 | Media | `POST /api/admin/images`, `POST /upload`, `DELETE /{id}` | |
-| Auth | `RouteConfig`: `/api/admin/*` yêu cầu role `ADMIN`; `AdminSeeder` tạo tài khoản ADMIN từ `AdminSeed:Email|Password` | Chỉ có 2 role `ADMIN`, `USER`; không có permission |
+| Auth | `RouteConfig`: `/api/admin/*` yêu cầu permission `admin.access`; `[RequirePermission]` trên từng action; `AdminSeeder` seed 4 role + permission (luôn chạy) và tài khoản ADMIN từ `AdminSeed:Email|Password` | (Trước Phase 1: chỉ có 2 role `ADMIN`, `USER`; không có permission) |
 
 ### 0.2 Lỗ hổng phải vá trước (Phase 0)
 
@@ -130,6 +135,12 @@ src/Orders/
   }
   ```
   `/openapi/*` phải được thêm vào `RouteConfig` dạng `AllowAnonymous` (chỉ map ở Development nên production trả 404).
+
+  **Thực tế (Phase 1):** document `v1` chỉ chứa các route `/api/admin/*` (`AddOpenApi(options => options.ShouldInclude = ...)`).
+  Lý do: một số action storefront nhận/trả thẳng entity EF (vòng tham chiếu `Order → User → …`) làm bộ sinh schema vượt
+  `MaxDepth` và cả document trả 500. Hai lưu ý khi viết DTO admin để document không vỡ (.NET 9, `Microsoft.AspNetCore.OpenApi` 9.0.10):
+  không đặt `[MinLength]`/`[MaxLength]` lên collection **nullable** (`List<T>?` → khai báo `List<T> X { get; set; } = new();`),
+  và không dùng entity làm kiểu request/response.
 - Mỗi resource admin có file `http/admin/<resource>.http` (theo mẫu `http/brand.http`) để test tay và làm tài liệu sống.
 - Khi bắt đầu một tính năng admin: viết DTO + chữ ký controller trước (trả `NotImplementedException` → 501), merge
   sớm để frontend dựng giao diện theo `/openapi/v1.json`, rồi mới làm service.
@@ -314,6 +325,10 @@ private static async Task SeedPermissionsAsync(RoleManager<Role> roleManager)
 `AdminSeeder` hiện chỉ chạy khi có `AdminSeed:Email|Password`. Tách phần seed role + permission ra chạy **luôn**
 (không phụ thuộc cấu hình), phần tạo tài khoản admin giữ điều kiện cũ.
 
+**Thực tế:** đã làm đúng như trên (`SeedRolesAsync` + `SeedPermissionsAsync` chạy luôn, phần tài khoản vẫn cần cấu hình).
+Hệ quả cần nhớ: permission **mới** thêm vào `Permissions.All` sau này chỉ tự vào role `ADMIN`; MANAGER/STAFF đã có permission
+nên không bị ghi đè, phải gán qua `PUT /roles/{id}/permissions`. Role `USER` không bao giờ có permission quản trị.
+
 ### 2.4 Tra permission: `IPermissionService`
 
 ```csharp
@@ -436,9 +451,9 @@ namespace cellPhoneS_backend.Filters;
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
 public sealed class RequirePermissionAttribute : Attribute, IAsyncAuthorizationFilter
 {
-    public IReadOnlyList<string> Permissions { get; }
+    public IReadOnlyList<string> RequiredPermissions { get; }
 
-    public RequirePermissionAttribute(params string[] permissions) => Permissions = permissions;
+    public RequirePermissionAttribute(params string[] permissions) => RequiredPermissions = permissions;
 
     public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
@@ -451,7 +466,7 @@ public sealed class RequirePermissionAttribute : Attribute, IAsyncAuthorizationF
 
         var service = context.HttpContext.RequestServices.GetRequiredService<IPermissionService>();
         var granted = await service.GetPermissionsAsync(user.FindAll(ClaimTypes.Role).Select(c => c.Value));
-        if (!Permissions.All(granted.Contains))
+        if (!RequiredPermissions.All(granted.Contains))
         {
             context.Result = new ObjectResult(new ApiResponse<object?>("Forbidden: Insufficient permissions.", null))
             {
@@ -476,6 +491,8 @@ public class AdminBrandController : BaseController
 }
 ```
 
+(Thực tế: thuộc tính tên `RequiredPermissions` thay vì `Permissions` để không che lớp tĩnh `Permissions`.)
+
 **Fail-closed:** quên gắn attribute thì endpoint chỉ còn được bảo vệ bởi `admin.access` (STAFF gọi được API ghi).
 Thêm kiểm tra lúc khởi động trong Development để phát hiện sớm:
 
@@ -493,6 +510,11 @@ if (app.Environment.IsDevelopment())
         app.Logger.LogWarning("Admin endpoint thiếu [RequirePermission]: {Action}", name);
 }
 ```
+
+Đã có trong `Program.cs` và đã thử (gỡ attribute của `AdminMeController.GetMe` → log đúng một cảnh báo cho action đó). Hiện tại
+mọi endpoint admin đã có attribute: Catalog/Stores/Products — controller gắn `*Read`, action ghi gắn thêm `*Write` hoặc
+`product.delete`; Media — `media.write` cho cả controller; `AdminQueryController` gắn theo từng GET (`product.read`, `user.read`,
+`order.read`, `transaction.read`).
 
 ### 2.6 `GET /api/admin/me`
 
@@ -637,6 +659,13 @@ public class AuditLog
 - Lỗi khi ghi audit chỉ log, không làm hỏng request.
 - Migration `Admin_AuditLog`, index `(CreateDate)`, `(UserId, CreateDate)`.
 
+**Thực tế (Phase 1):** `AdminAuditFilter` (`src/Api/Filters`) có `Order = -3000` để bọc cả `ValidationActionFilter` (nên 400 do
+FluentValidation vẫn được ghi); status lấy từ `ActionExecutedContext` (exception nghiệp vụ → `ApiExceptionFilter.MapStatusCode`).
+Ghi bằng scope/`DbContext` riêng để không dính state lỗi của request; `UserEmail` tra từ bảng `AspNetUsers` (JWT không có email);
+`Resource` là segment sau `/api/admin/`, `ResourceId` là segment kế tiếp nếu là số hoặc GUID; che key chứa `password|token|secret`
+ở mọi cấp. **Không ghi** các request bị chặn *trước* action: 401/403 từ middleware hoặc `[RequirePermission]` và 400 tự động của
+`[ApiController]` (DataAnnotations). Đọc log qua `GET /api/admin/audit-logs` (`audit.read`; `status` là mã HTTP).
+
 ---
 
 ## 4. Danh mục endpoint
@@ -648,27 +677,50 @@ Mọi route dưới đây có prefix `/api/admin`, response bọc trong `ApiResp
 
 | Method | Route | Permission | Request | Response | TT |
 |---|---|---|---|---|---|
-| GET | `/me` | `admin.access` | | `AdminMeView` (2.6) | Mới |
-| GET | `/permissions` | `role.manage` | | `List<PermissionView>` (`code`, `group`, `description`) | Mới |
-| GET | `/roles` | `role.manage` | | `List<RoleView>` (`id`, `name`, `status`, `isSystem`, `userCount`, `permissions`) | Mới |
-| GET | `/roles/{id}` | `role.manage` | | `RoleView` | Mới |
-| POST | `/roles` | `role.manage` | `{ name, permissions[] }` | id | Mới |
-| PUT | `/roles/{id}` | `role.manage` | `{ id, name }` (role hệ thống không đổi tên) | | Mới |
-| PUT | `/roles/{id}/permissions` | `role.manage` | `{ permissions[] }` (thay toàn bộ; ADMIN → 403) | | Mới |
-| DELETE | `/roles/{id}` | `role.manage` | (role hệ thống hoặc còn user → 409) | | Mới |
-| GET | `/audit-logs` | `audit.read` | `AdminListQuery` + `userId`, `resource` | `PagedResult<AuditLogView>` | Mới |
+| GET | `/me` | `admin.access` | | `AdminMeView` (2.6) | **Có** |
+| GET | `/permissions` | `role.manage` | | `List<PermissionView>` (`code`, `group`, `description`) | **Có** |
+| GET | `/roles` | `role.manage` | | `List<RoleView>` (`id`, `name`, `status`, `isSystem`, `userCount`, `permissions`) | **Có** |
+| GET | `/roles/{id}` | `role.manage` | | `RoleView` | **Có** |
+| POST | `/roles` | `role.manage` | `{ name, permissions[] }` | id | **Có** |
+| PUT | `/roles/{id}` | `role.manage` | `{ id, name }` (role hệ thống → 409) | | **Có** |
+| PUT | `/roles/{id}/permissions` | `role.manage` | `{ permissions[] }` (thay toàn bộ; ADMIN và USER → 403) | | **Có** |
+| DELETE | `/roles/{id}` | `role.manage` | (role hệ thống hoặc còn user → 409) | | **Có** |
+| GET | `/audit-logs` | `audit.read` | `AuditLogFilter` (= `AdminListQuery` + `userId`, `resource`; `status` = mã HTTP; `search` khớp path/email) | `PagedResult<AuditLogView>` | **Có** |
 
 Sau mọi thao tác ghi role: `IPermissionService.Invalidate(roleName)`. Permission gửi lên không có trong
 `Permissions.All` → 400. Tên role chuẩn hoá chữ hoa (JWT/`RouteConfig` so đúng chữ hoa, xem `AdminSeeder`).
+
+**Thực tế (Phase 1)** — `IAdminRoleService` (`src/Admin/Application/Services`), controller `AdminMeController` / `AdminRoleController` /
+`AdminAuditLogController`:
+- Tên role: 2–50 ký tự `[A-Za-z0-9_-]`, lưu chữ hoa; trùng → 409. `POST /roles` bỏ `permissions` thì tạo role không có permission.
+- Role hệ thống (`RoleNames.System`): đổi tên/xoá → 409. Sửa permission của `ADMIN` → 403 (luôn bằng `Permissions.All`).
+  **Lệch tài liệu:** sửa permission của `USER` cũng → 403 (khách hàng không được có `admin.access`); MANAGER/STAFF sửa được.
+- Đổi tên role gọi `Invalidate` cả tên cũ lẫn mới. JWT cũ vẫn mang tên role cũ tới khi hết hạn/refresh.
+- "ADMIN cuối cùng": ADMIN không sửa/xoá/đổi tên được qua API role nên không thể mất qua đây. Quy tắc còn lại thuộc API user (Phase 2):
+  `IAdminRoleService.EnsureNotLastAdmin(userId)` đã có sẵn để gọi trước khi khoá user / bỏ role ADMIN.
+- `GET /me` lấy id từ `BaseController.CurrentUserId`; `roles` và `permissions` sắp xếp theo tên.
 
 ### 4.2 Người dùng (module Account)
 
 | Method | Route | Permission | Request | Response | TT |
 |---|---|---|---|---|---|
-| GET | `/users` | `user.read` | `AdminListQuery` + `role` | `PagedResult<AdminUserView>` | Sửa (thêm lọc status/role, sort) |
-| GET | `/users/{id}` | `user.read` | | `AdminUserDetail`: thông tin, roles, `orderCount`, `totalSpent`, 5 đơn gần nhất, ngày đăng nhập gần nhất (nếu lưu) | Mới |
-| PATCH | `/users/{id}/status` | `user.lock` | `{ status: "active" \| "locked", reason }` | | Mới |
-| PUT | `/users/{id}/roles` | `user.assign-role` | `{ roles[] }` | | Mới |
+| GET | `/users` | `user.read` | `AdminListQuery` + `role` | `PagedResult<AdminUserView>` | **Có** (lọc status/role, sort) |
+| GET | `/users/{id}` | `user.read` | | `AdminUserDetail`: thông tin, roles, `orderCount`, `totalSpent`, 5 đơn gần nhất, ngày đăng nhập gần nhất (nếu lưu) | **Có** |
+| PATCH | `/users/{id}/status` | `user.lock` | `{ status: "active" \| "locked", reason }` | | **Có** |
+| PUT | `/users/{id}/roles` | `user.assign-role` | `{ roles[] }` | `List<string>` (role mới) | **Có** |
+
+**Thực tế (Phase 2A)** — `IAdminUserService` (`src/Account/Application/Services/Admin`), `AdminUserController`:
+- `GET /users` chuyển từ `AdminQueryController` sang `AdminUserController` (`AdminListQuery` + `role`). `status` bỏ trống = trừ `deleted`;
+  `role` là tên role (không tồn tại → danh sách rỗng); `sortBy` whitelist `createDate|email|fullName|status`; `search` khớp email/tên/số điện thoại.
+- `GET /users/{id}`: `orderCount` tính mọi đơn, `totalSpent` chỉ đơn Paid/Shipping/Completed (cả phí ship). Hệ thống không lưu ngày đăng nhập gần nhất nên không có trường đó.
+- `PATCH /users/{id}/status`: `locked` thu hồi phiên bằng Redis `user-revoked:{userId}` (giá trị = unix giây, TTL 15 phút = `JwtTokenServiceImpl.AccessTokenLifetime`).
+  Access token giờ có claim `iat`; `OnTokenValidated` (Program.cs) từ chối token có `iat` < mốc, hoặc không có `iat` khi tồn tại mốc
+  (`IJwtBlacklistService.RevokeUserSessionsAsync/IsUserSessionRevokedAsync`). `iat` chỉ chính xác tới giây nên token cấp **cùng giây** với mốc vẫn được chấp nhận.
+  Không tự khoá mình (403); khoá ADMIN cuối cùng → 409 (`EnsureNotLastAdmin`); chỉ ADMIN khoá/mở khoá được tài khoản ADMIN (403). User `deleted` → 404.
+- `PUT /users/{id}/roles`: thay toàn bộ role, tên không phân biệt hoa thường, role không tồn tại/không `active` → 400, **USER luôn được giữ**. Gán *hoặc gỡ* `ADMIN` chỉ ADMIN làm được (403);
+  không tự bỏ ADMIN của mình (403); bỏ ADMIN cuối cùng → 409. Chạy trong một transaction. **Lệch tài liệu:** đổi role cũng thu hồi phiên của user đó (cùng cơ chế `user-revoked`)
+  để role mới có hiệu lực ngay ở lần refresh; response trả `List<string>` role mới.
+- Các rule "tự làm" trả 403 (không phải 409) vì là điều không được phép chứ không phải xung đột trạng thái.
 
 Phía user (sửa `UserController`, `/api/user/*`): bỏ `list/{page}/{pageSize}`, `GET/DELETE {userId}`; thêm
 `GET /api/user/me`, `PUT /api/user/me` (tên, ngày sinh, số điện thoại) trả `UserResponse`.
@@ -688,13 +740,13 @@ và `active`; luôn giữ role `USER` cho tài khoản khách (các route `/api/
 
 | Method | Route | Permission | Request | Response | TT |
 |---|---|---|---|---|---|
-| GET | `/products` | `product.read` | `AdminListQuery` + `categoryId`, `brandId`, `lowStock` | `PagedResult<AdminProductView>` | Sửa (thêm lọc) |
-| GET | `/products/{id}` | `product.read` | | `AdminProductDetail` (đủ dữ liệu cho form sửa: ảnh, màu, thông số, cam kết, danh mục, tồn kho theo kho) | Mới |
-| POST | `/products` | `product.write` | `AddProductRequest` (đã có) | id | Sửa (dời từ `POST /api/products`) |
-| PUT | `/products/{id}` | `product.write` | `UpdateProductRequest` (đã có) | | Sửa (dời từ `PUT /api/products/{id}`) |
-| PATCH | `/products/{id}/status` | `product.write` | `{ status: "active" \| "inactive" }` | | Mới |
-| DELETE | `/products/{id}` | `product.delete` | | | Sửa (dời từ `DELETE /api/products/{id}`) |
-| PATCH | `/products/{id}/restore` | `product.delete` | | | Mới |
+| GET | `/products` | `product.read` | `AdminListQuery` + `categoryId`, `brandId`, `lowStock` | `PagedResult<AdminProductView>` | **Có** |
+| GET | `/products/{id}` | `product.read` | | `AdminProductDetail` (đủ dữ liệu cho form sửa: ảnh, màu, thông số, cam kết, danh mục, tồn kho theo kho) | **Có** |
+| POST | `/products` | `product.write` | `AddProductRequest` (đã có) | id | **Có** (dời từ `POST /api/products`; xem ghi chú: service chưa cài) |
+| PUT | `/products/{id}` | `product.write` | `UpdateProductRequest` (đã có) | | **Có** (dời từ `PUT /api/products/{id}`; xem ghi chú: service chưa cài) |
+| PATCH | `/products/{id}/status` | `product.write` | `{ status: "active" \| "inactive" }` | | **Có** |
+| DELETE | `/products/{id}` | `product.delete` | | | **Có** (dời từ `DELETE /api/products/{id}`) |
+| PATCH | `/products/{id}/restore` | `product.delete` | | | **Có** |
 | POST/PUT/DELETE | `/commitments`, `/commitments/batch`, `/commitments/{id}` | `product.write` | (đã có) | | Có |
 | POST/DELETE | `/specifications`, `/specifications/{id}/details`, `/specifications/{id}` | `product.write` | (đã có) | | Có |
 
@@ -702,42 +754,86 @@ Dời `CreateProduct/UpdateProduct/DeleteProduct` khỏi `src/Products/Api/Contr
 `src/Products/Api/Controllers/Admin/AdminProductController.cs`; service `ProductService` giữ nguyên. Sau khi ghi,
 làm mới `ProductSearchService` (tìm kiếm in-memory) để storefront thấy thay đổi.
 
+**Thực tế (Phase 2B)** — `AdminProductController` (`GET` list/detail, `PATCH status|restore`), `IAdminProductQueryService`
+(`src/Products/Application/Services/Admin`), DTO ở `Products/Application/DTOs/Admin`:
+- `GET /products`: `status` bỏ trống = active + inactive, `deleted` = thùng rác, giá trị khác → 400. `sortBy` ∈ `createDate` (mặc định), `updateDate`,
+  `name`, `salePrice`, `basePrice`, `stock`, `id`; sai → 400. `from/to` **không dùng**. `lowStock=N` là ngưỡng: tổng tồn ≤ N (`0` = hết hàng).
+  `AdminProductView` thêm `categories[]`, `updateDate`. Đã chuyển khỏi `AdminQueryController` (route trùng).
+- **`brandId` lọc theo danh mục của thương hiệu**: `Product` không có khoá tới `Brand`/`Series` (thương hiệu chỉ nối với sản phẩm qua `Category`,
+  đúng cách storefront `GET /api/products/brand/...` đang làm), nên sản phẩm cùng danh mục với thương hiệu đều khớp.
+- `AdminProductDetail`: ảnh (không `deleted`), màu (lấy từ các dòng tồn kho của sản phẩm), thông số + chi tiết, cam kết, danh mục, `stocks[]` (kho × màu × số lượng).
+- `PATCH status` chỉ nhận `active|inactive` (sản phẩm `deleted` → 409, phải `restore` trước); `restore` chỉ cho sản phẩm `deleted` (khác → 409).
+  Logic nằm ở `ProductService.SetProductStatus/RestoreProduct`.
+- **Lỗi tìm thấy và đã sửa:** `ProductServiceImpl.DeleteProduct` gọi `UpdateAsync` nhưng không `SaveChangesAsync` (repo không tự lưu) nên xoá mềm sản phẩm không có hiệu lực.
+- **Chưa cài:** `ProductServiceImpl.CreateProduct`/`UpdateProduct` vẫn là TODO ném `NotImplementedException` (POST/PUT trả 500 dù đã qua validator và `product.write`);
+  controller và quyền đã đúng, việc còn lại là phần service.
+- **Storefront thấy gì:** danh sách (`/api/products/list|brand|series|category`), trang danh mục, chi tiết `/api/products/{id}` và gợi ý tìm kiếm loại sản phẩm `deleted` **và `inactive`**
+  (commit riêng "hide inactive products": trước đó chỉ lọc `deleted` ở một số truy vấn, trang chủ/trang danh mục/chi tiết không lọc gì).
+- Tìm kiếm: `mv_ProductSearch` là materialized view tạo tay (không có trong migration, không có cột trạng thái). `ProductSearchService.RefreshAsync()` chạy
+  `REFRESH MATERIALIZED VIEW` rồi xoá cache sau mỗi thao tác ghi; `InitializeAsync` lọc thêm theo `Products.Status`. Refresh lỗi chỉ ghi log.
+
 ### 4.4 Danh mục (module Catalog)
 
 | Method | Route | Permission | TT |
 |---|---|---|---|
-| GET | `/categories`, `/brands`, `/series`, `/demands` | `catalog.read` | Mới — danh sách admin: mọi trạng thái, có `parentCategoryId`/`categoryId`/`brandId`, `productCount`, lọc + phân trang |
-| GET | `/categories/{id}` … `/demands/{id}` | `catalog.read` | Mới |
+| GET | `/categories`, `/brands`, `/series`, `/demands` | `catalog.read` | **Có** — danh sách admin: mọi trạng thái, có `parentCategoryId`/`categoryId`/`brandId`, `productCount`, lọc + phân trang |
+| GET | `/categories/{id}` … `/demands/{id}` | `catalog.read` | **Có** |
 | POST/PUT/DELETE | `/categories`, `/brands`, `/series`, `/demands` (+`/{id}`) | `catalog.write` | Có |
-| PATCH | `/<res>/{id}/restore` | `catalog.write` | Mới |
+| PATCH | `/<res>/{id}/restore` | `catalog.write` | **Có** |
 
 Sau khi có list admin, frontend đổi `listUrl` trong `catalog-resources.ts` từ API public sang `admin/<res>` và bỏ
 `createOnly` cho các trường quan hệ. Xoá danh mục còn sản phẩm/con đang `active` → 409.
+
+**Thực tế (Phase 2B)** — GET/restore nằm trong 4 controller admin sẵn có (`AdminCategoryController`…), đọc qua `IAdminCatalogQueryService`
+(`src/Catalog/Application/Services/Admin`), một `AdminCatalogFilter` dùng chung (`parentCategoryId` — `0` = gốc —, `categoryId`, `brandId`; series nhận cả `categoryId` của thương hiệu):
+- Mặc định ẩn `deleted`; `status=deleted` xem thùng rác; `sortBy` ∈ `createDate` (mặc định), `updateDate`, `name`, `id`; `from/to` không dùng.
+  `GET /{id}` trả cùng View, mọi trạng thái.
+- View: `AdminCategoryView` (cha, `childCount`, `brandCount`, `demandCount`, `productCount` = sản phẩm `active` gắn trực tiếp), `AdminBrandView` (danh mục, ảnh, `seriesCount`), `AdminSeriesView` (thương hiệu + danh mục),
+  `AdminDemandView`. **`productCount` của brand/series là số sản phẩm active của danh mục chứa thương hiệu** (không có liên kết trực tiếp, xem 4.3); demand không có sản phẩm nên không có số này.
+- Xoá → 409 khi: danh mục còn danh mục con / thương hiệu / nhu cầu chưa xoá hoặc sản phẩm `active`; thương hiệu còn dòng sản phẩm chưa xoá.
+  **Không áp "sản phẩm active" cho thương hiệu/dòng** (sẽ chặn nhầm theo danh mục) và demand/series không có con nên không bị chặn.
+- `restore`: chỉ cho bản ghi `deleted` (khác → 409); cha phải còn sống (danh mục cha / danh mục của brand, demand / thương hiệu của series, nếu không → 409) và tên không được trùng bản ghi sống cùng cha (409).
+- `POST/PUT` chỉ nhận `status` ∈ `active|inactive` (trước đây có thể gửi `deleted` qua PUT và lách các kiểm tra trên). `DateTime.Now` → `UtcNow` trong 4 service catalog và `StoreHouseServiceImpl`
+  (sửa lỗi 500 của `POST /api/admin/storehouses` và các thao tác ghi catalog ghi nhận ở "Việc còn lại").
+- Cột `SlugName` của `Categories` có unique index tính cả bản ghi `deleted`: tạo danh mục trùng tên với một danh mục đã xoá sẽ vi phạm index (500), chưa xử lý.
 
 ### 4.5 Kho và tồn kho (module Stores)
 
 | Method | Route | Permission | Request | Response | TT |
 |---|---|---|---|---|---|
-| GET | `/storehouses` | `inventory.read` | `AdminListQuery` + `province` | `PagedResult<AdminStoreHouseView>` (kèm tổng tồn) | Mới |
+| GET | `/storehouses` | `inventory.read` | `AdminListQuery` + `province` | `PagedResult<AdminStoreHouseView>` (kèm tổng tồn) | **Có** |
 | POST/PUT/DELETE | `/storehouses`, `/storehouses/{id}` | `inventory.write` | (đã có) | | Có |
-| GET | `/inventory` | `inventory.read` | `productId`, `storeHouseId`, `colorId`, `lowStock` (ngưỡng), phân trang | `PagedResult<InventoryRowView>` (`storeHouse`, `product`, `color`, `quantity`, `updateDate`) | Mới |
-| PUT | `/inventory` | `inventory.write` | `{ storeHouseId, productId, colorId, quantity }` (đặt tuyệt đối, tạo dòng nếu chưa có) | | Mới |
-| POST | `/inventory/adjust` | `inventory.write` | `{ storeHouseId, productId, colorId, delta, reason }` (kết quả < 0 → 400) | số lượng mới | Mới |
+| GET | `/inventory` | `inventory.read` | `productId`, `storeHouseId`, `colorId`, `lowStock` (ngưỡng), phân trang | `PagedResult<InventoryRowView>` (`storeHouse`, `product`, `color`, `quantity`, `updateDate`) | **Có** |
+| PUT | `/inventory` | `inventory.write` | `{ storeHouseId, productId, colorId, quantity }` (đặt tuyệt đối, tạo dòng nếu chưa có) | | **Có** |
+| POST | `/inventory/adjust` | `inventory.write` | `{ storeHouseId, productId, colorId, delta, reason }` (kết quả < 0 → 400) | số lượng mới | **Có** |
 
 Khoá chính `Store` là (`StoreHouseId`, `ProductId`, `ColorId`). Điều chỉnh tồn có thể đụng độ với đặt hàng
 (`OrderServiceImpl` trừ kho trong transaction): dùng `UPDATE ... SET "Quantity" = "Quantity" + @delta WHERE ... AND "Quantity" + @delta >= 0`
 (`ExecuteUpdateAsync`) thay vì đọc–sửa–ghi. `reason` được lưu qua audit log.
 
+**Thực tế (Phase 2B)** — `AdminInventoryController` (`api/admin/inventory`), `GET /storehouses` thêm vào `AdminStoreHouseController` (POST/PUT/DELETE vốn đã dùng `inventory.write`),
+`IAdminInventoryService` (`src/Stores/Application/Services/Admin`):
+- `GET /storehouses`: `province` khớp **chứa**, không phân biệt hoa thường, trên `City` (entity không có cột province); `search` khớp địa chỉ; `AdminStoreHouseView` có `totalStock`, `productCount`.
+  `sortBy` ∈ `createDate` (mặc định), `updateDate`, `city`, `totalStock`, `id`.
+- `GET /inventory`: `lowStock=N` là ngưỡng `quantity ≤ N`; `search` khớp tên sản phẩm; `sortBy` ∈ `updateDate` (mặc định), `createDate`, `quantity`, `productName`.
+  Dòng của sản phẩm hoặc kho đã `deleted` bị ẩn. `storeHouse.name` là địa chỉ đầy đủ.
+- `PUT` là một câu `INSERT … ON CONFLICT (StoreHouseId, ProductId, ColorId) DO UPDATE`; `adjust` cộng bằng upsert cộng dồn, trừ bằng
+  `UPDATE … SET Quantity = Quantity + @delta … AND Quantity + @delta >= 0 RETURNING Quantity` (một câu duy nhất, nên song song với đặt hàng không trừ lố; thử 30 request −1 song song trên tồn 20 → 20 thành công, 10 trả 400, tồn cuối 0).
+  `PUT` đặt tuyệt đối nên vẫn có thể ghi đè một lần trừ kho của đơn đang chạy; sửa tồn đang bán nên dùng `adjust`.
+- Kho/sản phẩm/màu không tồn tại (hoặc `deleted`) → 404; trừ tồn của tổ hợp chưa có dòng → 400; `delta` ≠ 0 và |delta|, `quantity` ≤ 1.000.000.
+- STAFF có `inventory.write` (bảng 2.3) nên PUT/adjust/POST storehouse được phép với STAFF; chỉ USER và role không có `inventory.write` bị 403.
+- Xoá kho vẫn không kiểm tra tồn còn lại (chưa làm).
+
 ### 4.6 Đơn hàng và giao dịch (modules Orders, Payments)
 
 | Method | Route | Permission | Request | Response | TT |
 |---|---|---|---|---|---|
-| GET | `/orders` | `order.read` | `AdminOrderFilter`: `status`, `type`, `from`, `to`, `search` (mã đơn/email/tên) | `PagedResult<AdminOrderView>` | Sửa (thêm lọc) |
-| GET | `/orders/{id}` | `order.read` | | `AdminOrderView` + địa chỉ/kho nhận, `paymentAttempt`, giao dịch | Sửa |
-| PATCH | `/orders/{id}/status` | `order.update-status` | `{ status: "Shipping" \| "Completed", note }` | `AdminOrderView` | Mới (mẫu ở mục 6) |
-| POST | `/orders/{id}/cancel` | `order.cancel` | `{ reason }` | | Mới |
-| POST | `/orders/{id}/sync-payment` | `order.update-status` | | trạng thái mới | Mới |
-| GET | `/transactions` | `transaction.read` | `provider`, `status`, `from`, `to`, `orderId` | `PagedResult<AdminTransactionView>` | Sửa (thêm lọc) |
+| GET | `/orders` | `order.read` | `AdminOrderFilter`: `status`, `type`, `from`, `to`, `search` (mã đơn/email/tên) | `PagedResult<AdminOrderView>` | **Có** |
+| GET | `/orders/{id}` | `order.read` | | `AdminOrderDetail` (= `AdminOrderView` + kho xuất hàng, `paymentAttempt`, phí, giao dịch) | **Có** |
+| PATCH | `/orders/{id}/status` | `order.update-status` | `{ status: "Shipping" \| "Completed", note }` | `AdminOrderDetail` | **Có** (mẫu ở mục 6) |
+| POST | `/orders/{id}/cancel` | `order.cancel` | `{ reason }` (không bắt buộc) | `"Cancelled"` | **Có** |
+| POST | `/orders/{id}/sync-payment` | `order.update-status` | | trạng thái mới | **Có** |
+| GET | `/transactions` | `transaction.read` | `provider`, `status`, `from`, `to`, `orderId` | `PagedResult<AdminTransactionView>` | **Có** |
 
 Luật trạng thái (đặt trên `Order`, cạnh `MarkPaid/Cancel`; hằng số trong `OrderStatuses`):
 
@@ -757,16 +853,44 @@ Pending ──MarkPaid()──► Paid ──Ship()──► Shipping ──Comp
   hàm hoàn kho dùng chung (cộng lại theo từng `OrderDetail`, cùng transaction với `Cancel`) cho cả huỷ phía khách và
   phía admin.
 
+**Thực tế (Phase 2A)** — `IAdminOrderService` (`src/Orders/Application/Services/Admin`), `AdminOrderController`; giao dịch: `IAdminTransactionService` + `AdminTransactionController` (module Payments).
+`GET /orders`, `/orders/{id}`, `/transactions` đã chuyển khỏi `AdminQueryController` (chỉ còn `GET /products`).
+- `Order.Ship/Complete` đúng như mục 6: Ship = Paid → Shipping (chỉ delivery); Complete = Shipping → Completed (delivery), Paid/Pending → Completed (pickup). Sai trạng thái → `ConflictException` (409).
+  `PATCH /status` chỉ nhận Shipping/Completed (khác → 400, huỷ dùng `/cancel`).
+- `GET /orders`: `status` (không phân biệt hoa thường; giá trị lạ → 400), `type` pickup/delivery, `from/to` (ngày giờ VN, `AdminDateRange`), `search` (mã đơn nếu là số, email, tên), `sortBy` `createDate|id|status|totalAmount`.
+- `GET /orders/{id}` trả `AdminOrderDetail`: khách (id, email, tên, SĐT), `updateDate`/`updatedByEmail`, `paymentAttempt`, `fees`, `storeHouses` (kho xuất kèm số lượng từng sản phẩm/màu) và `transactions`.
+  **Đơn không lưu địa chỉ giao hàng của khách** (địa chỉ chỉ dùng để tính phí lúc đặt), nên chỉ có kho xuất/nhận.
+- `POST /cancel` (`order.cancel`): body tuỳ chọn; Completed/Cancelled → 409; đơn đã có giao dịch thành công → message cảnh báo cần hoàn tiền thủ công (gateway chưa có refund).
+- **Hoàn tồn kho khi huỷ:** hiện trạng khi làm Phase 2A là `DeleteOrder` *đã* hoàn kho (bằng SQL ghép chuỗi, không nguyên tử với trạng thái đơn) — đoạn "huỷ không hoàn" ở trên đã lỗi thời. Đã thay bằng một đường chung
+  `OrderServiceImpl.CancelWithRestockAsync` cho cả khách (`DeleteOrder`) và admin (`AdminCancelOrder`): một transaction gồm (1) `UPDATE Orders ... WHERE Id AND Status = <trạng thái đã đọc>` (`ExecuteUpdateAsync`, chiếm trạng thái;
+  0 dòng → 409) rồi (2) cộng `Store.Quantity` theo từng nhóm (kho, sản phẩm, màu) bằng `ExecuteUpdateAsync`. Hai yêu cầu huỷ đồng thời chỉ một bên thắng nên kho chỉ hoàn một lần.
+- `POST /sync-payment`: 404 nếu không có đơn; đơn chưa từng thử thanh toán online (`PaymentAttempt = 0`) thì không gọi gateway, chỉ trả trạng thái hiện tại; gateway lỗi → 500 như callback.
+- `GET /transactions`: `provider` (PAYOS/VNPAY, so với tên hiển thị đã lưu), `status`, `orderId`, `from/to` (theo `CreateDate`), `search` (mã tham chiếu, link thanh toán, email), `sortBy` `createDate|amount`.
+
 ### 4.7 Đánh giá (module Products)
 
 | Method | Route | Permission | Request | Response | TT |
 |---|---|---|---|---|---|
-| GET | `/reviews` | `review.moderate` | `productId`, `rating`, `status`, `search`, phân trang | `PagedResult<AdminReviewView>` (sản phẩm, người viết, sao, nội dung, ngày) | Mới |
-| PATCH | `/reviews/{id}/status` | `review.moderate` | `{ status: "visible" \| "hidden" }` | | Mới |
-| DELETE | `/reviews/{id}` | `review.moderate` | | | Mới |
+| GET | `/reviews` | `review.moderate` | `productId`, `rating`, `status`, `search`, phân trang | `PagedResult<AdminReviewView>` (sản phẩm, người viết, sao, nội dung, ngày) | **Có** |
+| PATCH | `/reviews/{id}/status` | `review.moderate` | `{ status: "visible" \| "hidden" }` | | **Có** |
+| DELETE | `/reviews/{id}` | `review.moderate` | | | **Có** |
 
 `Review` chưa có cột trạng thái: thêm `Status` (mặc định `"visible"`) bằng migration `Admin_ReviewStatus`; API public
 `GET /api/reviews/product/*` và điểm trung bình chỉ tính review `visible`.
+
+**Thực tế (Phase 2C)** — `IAdminReviewService` (`src/Products/Application/Services/Admin`), `AdminReviewController`, DTO ở
+`Application/DTOs/Admin`, validator ở `Application/Validation/Admin`; cả controller gắn `review.moderate` (MANAGER và ADMIN có, STAFF → 403):
+- `Review.Status` (`ReviewStatuses.Visible|Hidden`, `varchar(16)`, mặc định `visible`); migration `Admin_ReviewStatus` (đã sửa tay
+  `defaultValue: "visible"` vì EF sinh `""`, nên review cũ vẫn hiện). Review chỉ có hai trạng thái, **không có `deleted`**.
+- Phần "chỉ tính `visible`" nằm ở ba chỗ: `ReviewRepository.GetReviewsWithUserByProductIdAsync`, `ReviewServiceImpl.GetAverageRatingAsync`
+  và (**ngoài tài liệu gốc**) `ProductCardEnricher` — điểm sao/số đánh giá trên thẻ sản phẩm; thiếu chỗ này review ẩn vẫn tính vào thẻ.
+  `POST /api/reviews` không đổi (review mới luôn `visible`, chưa có duyệt trước).
+- `GET /reviews`: `status` bỏ trống = cả `visible` và `hidden` (khác 3.2 vì không có `deleted`); `search` (ILIKE) khớp nội dung, email,
+  username người viết hoặc tên sản phẩm; `from/to` theo ngày viết giờ VN; `sortBy` = `createdDate` (mặc định) | `rating`.
+  `AdminReviewView`: `id, productId, productName, userId, userEmail, userName, rating, comment, status, createdDate`.
+- `PATCH /{id}/status` idempotent; id không có → 404; `status` ngoài `visible|hidden` → 400. `DELETE /{id}` **xoá hẳn** (không khôi
+  phục được; dấu vết chỉ còn trong audit log) — lệch quy ước xoá mềm ở 3.3 vì không có trạng thái `deleted`.
+- Route dùng `{id:int}` (`Review.Id` là `int`).
 
 ### 4.8 Media
 
@@ -805,6 +929,26 @@ Controller `AdminStatisticsController` (`src/Admin/Api/Controllers/`), route `ap
 | `GET /stats/new-users` | `from`, `to`, `groupBy` | `[{ period, count }]` |
 | `GET /stats/low-stock` | `threshold` (mặc định 5), `limit` | `[{ productId, name, colorId, colorName, totalQuantity }]` (tổng mọi kho, sản phẩm `active`) |
 | `GET /stats/reviews` | `from`, `to` | `{ total, average, distribution: { "1": n, …, "5": n }, lowestRated: [{ productId, name, average, count }] }` |
+
+**Thực tế (Phase 3)** — `IAdminStatisticsService` / `AdminStatisticsServiceImpl` (`src/Admin/Application/Services`), `AdminStatisticsController`,
+tham số là các class `[FromQuery]` (`StatsRangeQuery`, `StatsPeriodQuery`, `TopProductsQuery`, `LowStockQuery`, `src/Admin/Application/DTOs`) có validator
+(`StatsRangeValidatorBase<T>`…), nên lỗi tham số trả 400 `ApiResponse` ngay ở filter; service kiểm tra lại (phòng khi gọi nơi khác). Mã mẫu 5.3–5.5 được dùng gần như
+nguyên văn, chỉ khác các điểm sau (đều đã đối chiếu với `ApplicationDbContextModelSnapshot`):
+- `OrderStatuses.Revenue` là `string[]`; helper `VietnamTime` (`src/Shared/Utilities`: `ToUtc(DateOnly)`, `Today()`, tìm timezone `Asia/Ho_Chi_Minh`, fallback `SE Asia Standard Time` trên Windows).
+- Khoảng ngày: bỏ trống `to` = hôm nay (giờ VN), bỏ trống `from` = `to` − 29 ngày; `from > to` hoặc quá 366 ngày → 400. Kỳ so sánh ở `overview` = cùng số ngày, liền trước `from`.
+- Số tiền làm tròn VND (`Math.Round`); `%` làm tròn 1 chữ số, `prev = 0` → `null`; `cancelledRate` là tỉ lệ 0–1 (4 chữ số thập phân). `orders` = mọi đơn tạo trong kỳ (mọi trạng thái), `paidOrders` = đơn tính doanh thu, `averageOrderValue = revenue / paidOrders`.
+  Phí ship cộng **mọi** `FeeDetail` của đơn (giống `Order.GetTotalAmount()`, không lọc `Status` của `FeeDetail`). `newCustomers` đếm mọi tài khoản mới (cả tài khoản quản trị).
+- `revenue` / `new-users`: SQL thuần `date_trunc(@groupBy, "CreateDate" AT TIME ZONE 'Asia/Ho_Chi_Minh')` với `groupBy` là tham số đã qua whitelist; kết quả thô đọc bằng `SqlQuery<…Row>` (class nội bộ), rồi lấp kỳ trống.
+  Với `week`/`month` kỳ đầu bắt đầu từ thứ Hai / mùng 1 **trước hoặc bằng `from`** (có thể trước `from`) nhưng chỉ chứa dữ liệu từ `from`; kỳ cuối chứa dữ liệu đến hết `to`.
+- `orders-by-status` luôn trả đủ 5 trạng thái theo vòng đời (Pending, Paid, Shipping, Completed, Cancelled), kể cả 0.
+- `top-products`: sắp xếp phụ theo chỉ số còn lại rồi `productId`; `limit` ngoài 1–50 → 400 (không tự kẹp). `revenue-by-category`: bỏ liên kết `CategoryProduct` hoặc danh mục `deleted`, doanh thu hàng hoá (không phí ship).
+- `payment-providers` nhóm theo `PaymentTransaction.Provider` (giá trị lưu là tên hiển thị `PayOS` / `VNPay`), chỉ `Status = success`, theo `CreateDate` của giao dịch (không phải của đơn).
+- `order-types`: chỉ đơn tính doanh thu; luôn có cả `pickup` và `delivery`.
+- `low-stock`: tổng tồn mọi kho theo (sản phẩm, màu) **≤ `threshold`** (gồm hết hàng), chỉ sản phẩm `active` và dòng `Store` không `deleted`; `limit` mặc định 20, tối đa 100.
+  Cặp sản phẩm–màu chưa từng có dòng `Stores` thì không xuất hiện. `reviews`: chỉ `visible`, theo ngày viết; `lowestRated` là 5 sản phẩm điểm thấp nhất trong kỳ.
+- Cache `IMemoryCache` 5 phút theo endpoint + khoảng ngày đã chuẩn hoá + tham số; ẩn review hay đơn mới **không** hiện ngay trong thống kê (chờ hết TTL hoặc restart).
+- Migration `Admin_StatsIndexes` khai báo bằng Fluent API trong `ApplicationDbContext` (khối "Admin: Statistics"), không dùng `[Index]` để không đụng entity `Order` của nhánh khác.
+- Còn lại: `from=abc` (không parse được ngày) vẫn trả `ValidationProblemDetails` của `[ApiController]`, chưa phải `ApiResponse` (cùng việc tồn đọng ở mục 7).
 
 ### 5.3 Mẫu: `overview`
 
@@ -1000,12 +1144,21 @@ public class UpdateOrderStatusRequestValidator : AbstractValidator<UpdateOrderSt
 }
 ```
 
-Hiện **không validator nào được chạy**: project chỉ tham chiếu gói `FluentValidation` (không có tích hợp ASP.NET),
-không đăng ký validator vào DI và không gọi `Validate` ở đâu. Phase 1 thêm gói
-`FluentValidation.DependencyInjectionExtensions`, `services.AddValidatorsFromAssemblyContaining<LoginDTOValidator>()`
-và một action filter global: với mỗi argument có `IValidator<T>` thì `ValidateAsync`, lỗi → 400
-`ApiResponse<object?>(<lỗi đầu tiên>, <danh sách lỗi>)`. Bật cho cả validator storefront đang có thì cần thử lại các
-form đăng ký/đặt hàng.
+Trước Phase 1 **không validator nào được chạy**: project chỉ tham chiếu gói `FluentValidation` (không có tích hợp ASP.NET),
+không đăng ký validator vào DI và không gọi `Validate` ở đâu.
+
+**Thực tế (Phase 1):** đã thêm gói `FluentValidation.DependencyInjectionExtensions`, `AddValidatorsFromAssemblyContaining<LoginDTOValidator>()`
+(lifetime Scoped) và `ValidationActionFilter` (global, `src/Api/Filters`): với mỗi argument của action có `IValidator<T>` thì
+`ValidateAsync`; lỗi → 400 `ApiResponse<object?>(<lỗi đầu tiên>, [{ field, message }])`. Frontend (`error.interceptor`) hiển thị
+đúng `message`. Các validator storefront đã đối chiếu với payload của UI (đăng ký, đăng nhập, thêm giỏ, đặt hàng pickup/delivery)
+và khớp. Các thay đổi kèm theo vì validator bắt đầu chạy:
+- `AddLocalization(options => options.ResourcesPath = "Resources")` làm `IStringLocalizer<ShareResource>` không tìm thấy resx
+  (resx nhúng tên `cellphones_backend.Resources.ShareResource`), mọi message trả về nguyên khoá như `EmailInvalid`. Đã bỏ `ResourcesPath`;
+  message tiếng Việt mặc định, `?culture=en` ra tiếng Anh. Thêm khoá thiếu `ProvinceMaxLength` vào hai file resx.
+- Validator mới áp dụng cho `POST /api/admin/products` (`AddProductRequestValidator`: ảnh phải có `OriginUrl` tuyệt đối, `MimeType`,
+  `Name`, `Alt`; ít nhất một màu và một dòng tồn kho) và các request Catalog/Stores có sẵn validator.
+- Lỗi DataAnnotations của `[ApiController]` (vd. `CreateCommitmentRequest`, `UpdateMeRequest`) vẫn trả `ValidationProblemDetails`
+  chứ chưa phải `ApiResponse` — chưa đổi để không đụng response storefront (việc còn lại, xem mục 7).
 
 **3. Service** (`src/Orders/Application/Services/Admin/`):
 
@@ -1131,11 +1284,15 @@ route `/api/admin/*`; đơn `Pending` delivery → `Shipping` trả 409; bảng 
 
 | Phase | Nội dung | Phụ thuộc | Song song |
 |---|---|---|---|
-| **0. Vá bảo mật** | Dời product write sang `AdminProductController`; khoá `/api/user/*` (chỉ còn `me`), không trả entity `User`; login/refresh chặn user không `active`; kiểm tra blacklist trong `OnTokenValidated` | — | Làm ngay, một PR nhỏ. Frontend admin phải đổi URL sản phẩm (`POST/PUT/DELETE admin/products`) cùng lúc |
-| **1. Nền tảng** | `Permissions`, `RoleNames`, seed role + permission, `IPermissionService`, `RequirePermission`, sửa `RoutePolicy`/middleware, `GET /me`, API roles/permissions, `AuditLog` + filter, `PagingExtensions`/`AdminListQuery`, `BaseController.CurrentUserId`, OpenAPI dev, chạy validator FluentValidation (mục 6 bước 2), gắn `[RequirePermission]` cho mọi controller admin đang có | Phase 0 | Một người làm (đụng file chung). Có thể tách: (a) permission + roles, (b) audit + paging + OpenAPI |
-| **2. CRUD đầy đủ** | 4.2 Users · 4.3 Products · 4.4 Catalog list admin · 4.5 Inventory · 4.6 Orders/Transactions · 4.7 Reviews | Phase 1 | **Mỗi module một nhánh**, độc lập nhau (chỉ chạm DI + migration riêng) |
-| **3. Thống kê** | `AdminStatisticsController` + service (mục 5), index migration, cache | Phase 1 (permission). Không cần Phase 2 | Song song với Phase 2 |
+| **0. Vá bảo mật** (✅ xong) | Dời product write sang `AdminProductController`; khoá `/api/user/*` (chỉ còn `me`), không trả entity `User`; login/refresh chặn user không `active`; kiểm tra blacklist trong `OnTokenValidated` | — | Làm ngay, một PR nhỏ. Frontend admin phải đổi URL sản phẩm (`POST/PUT/DELETE admin/products`) cùng lúc |
+| **1. Nền tảng** (✅ xong, nhánh `admin-phase1-foundation`) | `Permissions`, `RoleNames`, seed role + permission, `IPermissionService`, `RequirePermission`, sửa `RoutePolicy`/middleware, `GET /me`, API roles/permissions, `AuditLog` + filter, `PagingExtensions`/`AdminListQuery`, `BaseController.CurrentUserId`, OpenAPI dev, chạy validator FluentValidation (mục 6 bước 2), gắn `[RequirePermission]` cho mọi controller admin đang có | Phase 0 | Một người làm (đụng file chung). Có thể tách: (a) permission + roles, (b) audit + paging + OpenAPI |
+| **2. CRUD đầy đủ** (4.7 Reviews ✅ xong ở nhánh `admin-p3-stats`; các phần còn lại ở nhánh riêng) | 4.2 Users · 4.3 Products · 4.4 Catalog list admin · 4.5 Inventory · 4.6 Orders/Transactions · 4.7 Reviews | Phase 1 | **Mỗi module một nhánh**, độc lập nhau (chỉ chạm DI + migration riêng) |
+| **3. Thống kê** (✅ xong, nhánh `admin-p3-stats`) | `AdminStatisticsController` + service (mục 5), index migration, cache | Phase 1 (permission). Không cần Phase 2 | Song song với Phase 2 |
 | **4. Hoàn thiện** | Xuất CSV (`GET /orders/export`, `/stats/revenue/export`), dự án test `cellPhoneS_backend.Tests` (xUnit + `WebApplicationFactory` + Postgres Testcontainers) cho phân quyền và luật trạng thái, rollup job nếu cần | Phase 2–3 | |
+
+Việc còn lại ghi nhận sau Phase 1 (chưa thuộc phase nào): đổi lỗi ModelState của `[ApiController]` sang `ApiResponse`
+(`InvalidModelStateResponseFactory`); `DateTime.Now` (Kind=Local) bị Npgsql từ chối ở các service ghi, vd. `POST /api/admin/storehouses`
+trả 500 (cần `DateTime.UtcNow`); `user-revoked:{userId}` (4.2) và blacklist JTI khi logout (Phase 0 chưa làm).
 
 Song song với frontend: sau Phase 1, frontend làm `/api/admin/me` + guard theo permission; mỗi tính năng Phase 2–3
 chỉ cần hợp đồng (DTO + route, mục 1.3) đã merge là dựng được giao diện.
@@ -1146,7 +1303,7 @@ chỉ cần hợp đồng (DTO + route, mục 1.3) đã merge là dựng đượ
 
 - [ ] Route bắt đầu `api/admin/`, controller `Admin<Name>Controller` trong `src/<Module>/Api/Controllers/Admin/`.
 - [ ] `[RequirePermission]` trên controller (quyền đọc) và trên từng action ghi; permission mới thì thêm vào `Permissions` + `All` + bảng 2.3 + seed.
-- [ ] DTO riêng trong `Application/DTOs/Admin/`, không trả entity; request có validator.
+- [ ] DTO riêng trong `Application/DTOs/Admin/`, không trả entity; request có validator. Collection có `[MinLength]`/`[MaxLength]` phải không nullable (`List<T> X { get; set; } = new();`), nếu không `/openapi/v1.json` trả 500.
 - [ ] Luật trạng thái trên entity; service ném exception nghiệp vụ, không trả `null`/`bool` để báo lỗi.
 - [ ] List dùng `AdminListQuery` + `ToPagedResultAsync`, sort theo whitelist, `pageSize ≤ 100`.
 - [ ] Ghi đủ `UpdateBy/UpdateDate`; xoá là xoá mềm; làm mới cache liên quan.

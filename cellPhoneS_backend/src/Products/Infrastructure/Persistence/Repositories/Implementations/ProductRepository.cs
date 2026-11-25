@@ -12,7 +12,7 @@ public class ProductRepository : BaseRepository<Product>, IProductRepository
 
     public async Task<IEnumerable<ProductView>> GetAllAsync(int page, int pageSize)
     {
-        var products = await _context.Products.Where(p => !"deleted".Equals(p.Status)).Skip(page * pageSize).Take(pageSize).Select(p => new ProductView(p.Id, p.ImageUrl, p.Name, p.BasePrice, p.SalePrice)).ToListAsync();
+        var products = await _context.Products.Where(p => p.Status != "deleted" && p.Status != "inactive").Skip(page * pageSize).Take(pageSize).Select(p => new ProductView(p.Id, p.ImageUrl, p.Name, p.BasePrice, p.SalePrice)).ToListAsync();
         return await ProductCardEnricher.EnrichAsync(_context, products);
     }
 
@@ -20,7 +20,7 @@ public class ProductRepository : BaseRepository<Product>, IProductRepository
     {
 
         return await _context.Products
-            .Where(p => p.Id == id)
+            .Where(p => p.Id == id && p.Status != "deleted" && p.Status != "inactive")
             .AsNoTracking()
             .AsSplitQuery()
             .Select(p => new ProductViewDetail(

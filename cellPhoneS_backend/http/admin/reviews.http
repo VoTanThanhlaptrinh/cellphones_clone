@@ -1,0 +1,25 @@
+@host = http://localhost:5169
+@token = <access token của tài khoản có review.moderate (ADMIN, MANAGER)>
+@reviewId = <id lấy từ GET /reviews>
+
+### Danh sách đánh giá (mọi trạng thái). Lọc: productId, rating (1-5), status (visible|hidden), search (nội dung/email/tên người viết/tên sản phẩm), from/to (yyyy-MM-dd, giờ VN). sortBy = createdDate|rating
+GET {{host}}/api/admin/reviews?pageIndex=1&pageSize=20&status=visible&sortBy=createdDate&sortDir=desc
+Authorization: Bearer {{token}}
+
+### Ẩn đánh giá (khỏi storefront và điểm trung bình)
+PATCH {{host}}/api/admin/reviews/{{reviewId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "status": "hidden" }
+
+### Hiện lại
+PATCH {{host}}/api/admin/reviews/{{reviewId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "status": "visible" }
+
+### Xoá hẳn đánh giá (không khôi phục được; có ghi audit log)
+DELETE {{host}}/api/admin/reviews/{{reviewId}}
+Authorization: Bearer {{token}}

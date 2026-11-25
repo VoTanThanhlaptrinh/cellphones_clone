@@ -1,5 +1,7 @@
 using System.Security.Claims;
+using cellPhoneS_backend.Constants;
 using cellphones_backend.DTOs.Responses;
+using cellPhoneS_backend.Filters;
 using cellphones_backend.Services;
 using cellPhoneS_backend.Controllers;
 using cellPhoneS_backend.DTOs;
@@ -9,6 +11,7 @@ namespace cellphones_backend.Controllers.Admin
 {
     [Route("api/admin/specifications")]
     [ApiController]
+    [RequirePermission(Permissions.ProductRead)]
     public class AdminSpecificationController : BaseController
     {
         private readonly SpecificationService _specificationService;
@@ -21,6 +24,7 @@ namespace cellphones_backend.Controllers.Admin
         // POST: api/admin/specifications
         // Creates a new specification category (e.g., "Display", "Camera") with optional initial details
         [HttpPost]
+        [RequirePermission(Permissions.ProductWrite)]
         public async Task<ActionResult<ApiResponse<long>>> CreateSpecification([FromBody] CreateSpecificationRequest createSpecificationRequest)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -36,6 +40,7 @@ namespace cellphones_backend.Controllers.Admin
         // POST: api/admin/specifications/{specificationId}/details
         // Adds a new detail to an existing specification
         [HttpPost("{specificationId}/details")]
+        [RequirePermission(Permissions.ProductWrite)]
         public async Task<ActionResult<ApiResponse<long>>> AddSpecificationDetail(
             long specificationId, 
             [FromBody] CreateSpecificationDetailRequest createDetailRequest)
@@ -53,6 +58,7 @@ namespace cellphones_backend.Controllers.Admin
         // DELETE: api/admin/specifications/{specificationId}
         // Soft deletes a specification (sets status to "deleted")
         [HttpDelete("{specificationId}")]
+        [RequirePermission(Permissions.ProductWrite)]
         public async Task<ActionResult<ApiResponse<string>>> DeleteSpecification(long specificationId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

@@ -1,12 +1,4 @@
 namespace cellPhoneS_backend.DTOs.Account;
 
-public record UserResponse
-{
-    public string? Fullname { get; set; }
-    public string? Phone { get; set; }
-    public UserResponse(string Fullname, string Phone)
-    {
-        this.Fullname = Fullname;
-        this.Phone = Phone;
-    }
-}
+// Thông tin tài khoản trả cho chính người dùng (không bao giờ trả entity User: lộ PasswordHash, SecurityStamp...)
+public record UserResponse(string Id, string? Email, string? Fullname, string? Phone, DateOnly Birth);

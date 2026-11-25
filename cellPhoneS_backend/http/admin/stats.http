@@ -1,0 +1,45 @@
+@host = http://localhost:5169
+@token = <access token của tài khoản có stats.view (ADMIN, MANAGER)>
+
+# Chung: from/to = yyyy-MM-dd theo giờ Việt Nam (gồm cả ngày to). Bỏ trống = 30 ngày gần nhất, tối đa 366 ngày.
+# Doanh thu chỉ tính đơn Paid/Shipping/Completed. Kết quả cache 5 phút. STAFF -> 403.
+
+### Thẻ tổng quan (kèm % thay đổi so với kỳ liền trước cùng độ dài)
+GET {{host}}/api/admin/stats/overview?from=2026-10-01&to=2026-10-18
+Authorization: Bearer {{token}}
+
+### Doanh thu theo kỳ (groupBy = day | week | month), đủ mọi kỳ, kỳ trống = 0
+GET {{host}}/api/admin/stats/revenue?from=2026-10-01&to=2026-10-18&groupBy=day
+Authorization: Bearer {{token}}
+
+### Số đơn theo trạng thái (đủ 5 trạng thái)
+GET {{host}}/api/admin/stats/orders-by-status?from=2026-10-01&to=2026-10-18
+Authorization: Bearer {{token}}
+
+### Top sản phẩm (orderBy = quantity | revenue, limit <= 50)
+GET {{host}}/api/admin/stats/top-products?from=2026-10-01&to=2026-10-18&limit=10&orderBy=revenue
+Authorization: Bearer {{token}}
+
+### Doanh thu hàng hoá theo danh mục (sản phẩm nhiều danh mục được tính cho từng danh mục)
+GET {{host}}/api/admin/stats/revenue-by-category?from=2026-10-01&to=2026-10-18
+Authorization: Bearer {{token}}
+
+### Giao dịch thanh toán thành công theo cổng
+GET {{host}}/api/admin/stats/payment-providers?from=2026-10-01&to=2026-10-18
+Authorization: Bearer {{token}}
+
+### Đơn pickup / delivery (chỉ đơn tính doanh thu)
+GET {{host}}/api/admin/stats/order-types?from=2026-10-01&to=2026-10-18
+Authorization: Bearer {{token}}
+
+### Người dùng mới theo kỳ
+GET {{host}}/api/admin/stats/new-users?from=2026-10-01&to=2026-10-18&groupBy=week
+Authorization: Bearer {{token}}
+
+### Sản phẩm/màu sắp hết hàng (tổng tồn mọi kho <= threshold, sản phẩm active)
+GET {{host}}/api/admin/stats/low-stock?threshold=5&limit=20
+Authorization: Bearer {{token}}
+
+### Thống kê đánh giá (chỉ review visible)
+GET {{host}}/api/admin/stats/reviews?from=2026-10-01&to=2026-10-18
+Authorization: Bearer {{token}}

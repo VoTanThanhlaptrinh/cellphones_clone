@@ -6,6 +6,7 @@ using cellphones_backend.Repositories;
 using cellphones_backend.Resources;
 using cellPhoneS_backend.Services;
 using cellPhoneS_backend.Services.Interface;
+using FluentValidation;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -110,6 +111,29 @@ internal partial class Program
                     ValidIssuer = builder.Configuration["Jwt:Issuer"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
                 };
+                jwtOptions.Events = new JwtBearerEvents
+                {
+                    // Token hợp lệ về chữ ký/thời hạn nhưng JTI đã bị thu hồi (Redis blacklist), hoặc cấp trước mốc
+                    // thu hồi phiên của user (khoá tài khoản / đổi role: Redis user-revoked:{userId}) thì từ chối
+                    OnTokenValidated = async context =>
+                    {
+                        var blacklist = context.HttpContext.RequestServices.GetRequiredService<IJwtBlacklistService>();
+                        var jti = context.SecurityToken?.Id;
+                        if (!string.IsNullOrEmpty(jti) && await blacklist.IsTokenBlacklistedAsync(jti))
+                        {
+                            context.Fail("Token has been revoked.");
+                            return;
+                        }
+
+                        var userId = context.Principal?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                        if (string.IsNullOrEmpty(userId)) return;
+                        long? issuedAt = long.TryParse(context.Principal!.FindFirst("iat")?.Value, out var iat) ? iat : null;
+                        if (await blacklist.IsUserSessionRevokedAsync(userId, issuedAt))
+                        {
+                            context.Fail("User session has been revoked.");
+                        }
+                    }
+                };
             })
             .AddGoogle(googleOptions =>
             {
@@ -126,9 +150,26 @@ internal partial class Program
                 };
             });
 
-        builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+        var cs = builder.Configuration.GetConnectionString("StorageAccount");
+        builder.Services.AddAzureClients(clientBuilder => clientBuilder.AddBlobServiceClient(cs));
+        // Không đặt ResourcesPath: resx được nhúng với tên "cellphones_backend.Resources.ShareResource" (namespace của class ShareResource),
+        // đúng tên mà IStringLocalizer<ShareResource> tìm. Có ResourcesPath thì nó tìm "cellPhoneS_backend.Resources.cellphones_backend.Resources..."
+        // và mọi thông báo của validator trả về nguyên khoá (vd. "EmailInvalid").
+        builder.Services.AddLocalization();
         builder.Services.AddScoped<IResourceLocalizer, ResourceLocalizer>();
-        builder.Services.AddControllers(options => options.Filters.Add<cellPhoneS_backend.Filters.ApiExceptionFilter>());
+        builder.Services.AddControllers(options =>
+        {
+            options.Filters.Add<cellPhoneS_backend.Filters.ApiExceptionFilter>();
+            options.Filters.Add<cellPhoneS_backend.Filters.AdminAuditFilter>();        // ghi AuditLog cho request ghi dưới /api/admin
+            options.Filters.Add<cellPhoneS_backend.Filters.ValidationActionFilter>();   // chạy validator FluentValidation, lỗi -> 400 ApiResponse
+        });
+        // Validator FluentValidation (Scoped): quét assembly chứa LoginDTOValidator; ValidationActionFilter tìm validator theo kiểu argument của action.
+        builder.Services.AddValidatorsFromAssemblyContaining<cellphones_backend.Validation.Account.LoginDTOValidator>();
+        // OpenAPI chỉ mô tả khu admin (hợp đồng cho frontend admin). Một số action storefront nhận/trả thẳng entity EF
+        // (vòng tham chiếu Order -> User -> ...) làm bộ sinh schema vượt MaxDepth và cả document trả 500, nên không đưa vào.
+        builder.Services.AddOpenApi(options =>
+            options.ShouldInclude = description =>
+                description.RelativePath?.StartsWith("api/admin", StringComparison.OrdinalIgnoreCase) == true);
         builder.Services.AddCustomServices();
         // Payment gateway (payment-module): khoá API chỉ nằm ở backend, cấu hình qua PaymentGateway:BaseUrl|ApiKey (user-secrets/biến môi trường).
         builder.Services.AddHttpClient<cellPhoneS_backend.Services.Interface.IPaymentGatewayClient, cellPhoneS_backend.Services.Implement.PaymentGatewayClientImpl>(client =>
@@ -192,7 +233,7 @@ internal partial class Program
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Loi seed tai khoan ADMIN: " + ex.Message);
+                Console.WriteLine("Loi seed role/permission/tai khoan ADMIN: " + ex.Message);
             }
 
             try
@@ -229,6 +270,23 @@ internal partial class Program
         app.UseHangfireDashboard("/hangfire");
         app.UseRequestLocalization(app.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<RequestLocalizationOptions>>().Value);
         app.MapControllers();
+
+        if (app.Environment.IsDevelopment())
+        {
+            app.MapOpenApi(); // GET /openapi/v1.json (RouteConfig: /openapi/* AllowAnonymous)
+
+            // Fail-closed: endpoint admin quên [RequirePermission] chỉ còn được bảo vệ bởi admin.access (STAFF gọi được API ghi).
+            var missingPermission = app.Services
+                .GetRequiredService<Microsoft.AspNetCore.Mvc.Infrastructure.IActionDescriptorCollectionProvider>()
+                .ActionDescriptors.Items
+                .Where(a => a.AttributeRouteInfo?.Template?.StartsWith("api/admin", StringComparison.OrdinalIgnoreCase) == true)
+                .Where(a => !a.EndpointMetadata.OfType<cellPhoneS_backend.Filters.RequirePermissionAttribute>().Any())
+                .Select(a => a.DisplayName);
+            foreach (var name in missingPermission)
+            {
+                app.Logger.LogWarning("Admin endpoint thiếu [RequirePermission]: {Action}", name);
+            }
+        }
 
         // Dự phòng khi khách trả tiền rồi đóng trang: định kỳ hỏi gateway các thanh toán online còn chờ.
         try

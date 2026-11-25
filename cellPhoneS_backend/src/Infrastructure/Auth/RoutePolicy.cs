@@ -6,6 +6,8 @@ namespace cellPhoneS_backend.Auth
         public string Method { get; set; } = "*"; // "GET", "POST", etc., or "*" for all
         public bool AllowAnonymous { get; set; } = false;
         public List<string> RequiredRoles { get; set; } = new List<string>();
+        /// <summary>Permission (AspNetRoleClaims, tra qua role trong JWT) mà user phải có đủ; rỗng = không yêu cầu.</summary>
+        public List<string> RequiredPermissions { get; set; } = new List<string>();
 
         // Precompiled regex for performance if needed, or simple prefix match
         // For Spring Security AntPathMatcher style, meaningful implementation is needed.

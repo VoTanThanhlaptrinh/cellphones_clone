@@ -379,6 +379,64 @@ namespace cellPhoneS_backend.Migrations
                     b.ToView("mv_ProductSearch", (string)null);
                 });
 
+            modelBuilder.Entity("cellphones_backend.Models.AuditLog", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Ip")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Payload")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<string>("Resource")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("ResourceId")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<int>("StatusCode")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreateDate");
+
+                    b.HasIndex("UserId", "CreateDate");
+
+                    b.ToTable("AuditLogs");
+                });
+
             modelBuilder.Entity("cellphones_backend.Models.Brand", b =>
                 {
                     b.Property<long>("Id")
@@ -965,9 +1023,13 @@ namespace cellPhoneS_backend.Migrations
 
                     b.HasIndex("CreateBy");
 
+                    b.HasIndex("CreateDate");
+
                     b.HasIndex("FeeId");
 
                     b.HasIndex("UpdateBy");
+
+                    b.HasIndex("Status", "CreateDate");
 
                     b.ToTable("Orders");
                 });
@@ -1122,6 +1184,8 @@ namespace cellPhoneS_backend.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreateDate");
+
                     b.HasIndex("OrderId");
 
                     b.ToTable("PaymentTransactions");
@@ -1233,6 +1297,11 @@ namespace cellPhoneS_backend.Migrations
 
                     b.Property<int>("Rating")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -1719,6 +1788,8 @@ namespace cellPhoneS_backend.Migrations
                         .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreateDate");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");

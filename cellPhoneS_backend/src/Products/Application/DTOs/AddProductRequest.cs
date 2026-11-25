@@ -59,15 +59,16 @@ public record AddProductRequest
 
     // Ensures color variants are defined for inventory tracking and customer selection
     // Products without colors cannot be added to cart or tracked in inventory
+    // Không nullable: [MinLength] trên List<T>? làm bộ sinh OpenAPI của .NET 9 ném lỗi (document /openapi trả 500).
     [Required(ErrorMessage = "At least one color is required. / Ít nhất một màu sắc là bắt buộc.")]
     [MinLength(1, ErrorMessage = "At least one color must be provided. / Phải cung cấp ít nhất một màu sắc.")]
-    public List<ColorRequest>? Colors { get; set; }
+    public List<ColorRequest> Colors { get; set; } = new();
 
     // Ensures initial inventory is set up for fulfillment
     // Without inventory data, the product cannot be sold even if it exists in the catalog
     [Required(ErrorMessage = "Initial inventory is required. / Tồn kho ban đầu là bắt buộc.")]
     [MinLength(1, ErrorMessage = "At least one inventory entry must be provided. / Phải cung cấp ít nhất một bản ghi tồn kho.")]
-    public List<StoreDTO>? InitialInventory { get; set; }
+    public List<StoreDTO> InitialInventory { get; set; } = new();
 
     // Allows manual status override during product creation
     // Default is "active" but admin may want to create as "draft" for review

@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using cellphones_backend.DTOs.Account;
 using cellphones_backend.Models;
+using cellPhoneS_backend.Constants;
 using cellPhoneS_backend.Models;
 using cellPhoneS_backend.Services;
 using Microsoft.AspNetCore.Identity;
@@ -37,6 +38,15 @@ public class AuthServiceImpl : AuthService
         return user;
     }
 
+    // Tài khoản bị khoá/xoá không được cấp token (cả đăng nhập mật khẩu lẫn Google)
+    private static void EnsureActive(User user)
+    {
+        if (user.Status != UserStatuses.Active)
+        {
+            throw new UnauthorizedException("Tài khoản đã bị khoá");
+        }
+    }
+
     public async Task<string> GenerateJwtToken(User user)
     {
         // JwtTokenService reverted to string return
@@ -55,6 +65,8 @@ public class AuthServiceImpl : AuthService
         {
             throw new UnauthorizedException("Incorrect password");
         }
+
+        EnsureActive(user);
 
         var userAgent = context.Request.Headers["User-Agent"].ToString();
         var ipAddress = context.Connection.RemoteIpAddress?.ToString();
@@ -169,6 +181,7 @@ public class AuthServiceImpl : AuthService
             await this._userManager.AddToRoleAsync(newUser, "USER");
             userLogin = newUser;
         }
+        EnsureActive(userLogin);
         var userAgent = context.Request.Headers["User-Agent"].ToString();
         var ipAddress = context.Connection.RemoteIpAddress?.ToString();
         var refreshToken = Guid.NewGuid().ToString();

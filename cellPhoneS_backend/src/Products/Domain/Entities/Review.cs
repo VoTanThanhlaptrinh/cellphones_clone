@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using cellPhoneS_backend.Constants;
 
 namespace cellphones_backend.Models
 {
@@ -27,6 +28,11 @@ namespace cellphones_backend.Models
         public string? Comment { get; set; }
 
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+
+        /// <summary>visible (mặc định) hoặc hidden do admin ẩn đi; xem <c>ReviewStatuses</c>.</summary>
+        [Required]
+        [MaxLength(16)]
+        public string Status { get; set; } = ReviewStatuses.Visible;
         // === END NEW FEATURE: PRODUCT REVIEWS ===
     }
 }

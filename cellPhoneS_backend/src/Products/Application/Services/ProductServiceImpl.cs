@@ -1,4 +1,5 @@
 using cellphones_backend.Repositories;
+using cellPhoneS_backend.Constants;
 using cellPhoneS_backend.DTOs;
 using cellPhoneS_backend.J2O;
 using cellPhoneS_backend.Services;
@@ -242,14 +243,55 @@ public class ProductServiceImpl : ProductService
     public async Task DeleteProduct(long id, string userId)
     {
         var product = await _productDBcontext.GetByIdAsync(id);
+        if (product == null || product.Status == RecordStatuses.Deleted)
+        {
+            throw new NotFoundException("Product not found");
+        }
+        product.Status = RecordStatuses.Deleted;
+        product.UpdateDate = DateTime.UtcNow;
+        product.UpdateBy = userId;
+        await _productDBcontext.UpdateAsync(product);
+        await _productDBcontext.SaveChangesAsync();
+    }
+
+    public async Task SetProductStatus(long id, string status, string userId)
+    {
+        if (status != RecordStatuses.Active && status != RecordStatuses.Inactive)
+        {
+            throw new BadRequestException("Trạng thái chỉ nhận active hoặc inactive (xoá/khôi phục dùng DELETE và restore).");
+        }
+        var product = await _productDBcontext.GetByIdAsync(id);
         if (product == null)
         {
             throw new NotFoundException("Product not found");
         }
-        product.Status = "deleted";
+        if (product.Status == RecordStatuses.Deleted)
+        {
+            throw new ConflictException("Sản phẩm đã bị xoá, hãy khôi phục trước khi đổi trạng thái.");
+        }
+        product.Status = status;
         product.UpdateDate = DateTime.UtcNow;
         product.UpdateBy = userId;
         await _productDBcontext.UpdateAsync(product);
+        await _productDBcontext.SaveChangesAsync();
+    }
+
+    public async Task RestoreProduct(long id, string userId)
+    {
+        var product = await _productDBcontext.GetByIdAsync(id);
+        if (product == null)
+        {
+            throw new NotFoundException("Product not found");
+        }
+        if (product.Status != RecordStatuses.Deleted)
+        {
+            throw new ConflictException("Sản phẩm không nằm trong thùng rác.");
+        }
+        product.Status = RecordStatuses.Active;
+        product.UpdateDate = DateTime.UtcNow;
+        product.UpdateBy = userId;
+        await _productDBcontext.UpdateAsync(product);
+        await _productDBcontext.SaveChangesAsync();
     }
 
     public async Task<ProductViewDetail> GetProductDetails(long id)

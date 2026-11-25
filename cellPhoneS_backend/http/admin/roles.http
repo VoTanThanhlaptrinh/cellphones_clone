@@ -1,0 +1,48 @@
+@host = http://localhost:5169
+@token = <access token của tài khoản có role.manage (mặc định chỉ ADMIN)>
+@roleId = <id role lấy từ GET /roles>
+
+### Danh mục permission (code, group, description)
+GET {{host}}/api/admin/permissions
+Authorization: Bearer {{token}}
+
+### Danh sách role (kèm userCount, permissions, isSystem)
+GET {{host}}/api/admin/roles
+Authorization: Bearer {{token}}
+
+### Chi tiết một role
+GET {{host}}/api/admin/roles/{{roleId}}
+Authorization: Bearer {{token}}
+
+### Tạo role tuỳ chỉnh (tên được chuẩn hoá chữ hoa; permission phải có trong /permissions)
+POST {{host}}/api/admin/roles
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "CONTENT_EDITOR",
+  "permissions": ["admin.access", "catalog.read", "product.read", "product.write", "media.write"]
+}
+
+### Đổi tên role (role hệ thống ADMIN/MANAGER/STAFF/USER -> 409)
+PUT {{host}}/api/admin/roles/{{roleId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "id": "{{roleId}}",
+  "name": "CONTENT_MANAGER"
+}
+
+### Thay toàn bộ permission của role (ADMIN và USER -> 403)
+PUT {{host}}/api/admin/roles/{{roleId}}/permissions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "permissions": ["admin.access", "catalog.read", "product.read"]
+}
+
+### Xoá role (role hệ thống hoặc còn người dùng -> 409)
+DELETE {{host}}/api/admin/roles/{{roleId}}
+Authorization: Bearer {{token}}
