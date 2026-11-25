@@ -18,7 +18,6 @@ namespace cellPhoneS_backend.Auth
                 new RoutePolicy { UrlPattern = "/api/auth/callBack/google", AllowAnonymous = true },
                 new RoutePolicy { UrlPattern = "/api/home", AllowAnonymous = true },
                 new RoutePolicy { UrlPattern = "/api/health/healthcheck", AllowAnonymous = true },
-                new RoutePolicy { UrlPattern = "/api/emails/*", AllowAnonymous = true },
                 new RoutePolicy { UrlPattern = "/api/img/*", AllowAnonymous = true }, // Images usually public
                 new RoutePolicy { UrlPattern = "/api/auth/isLoggedIn", AllowAnonymous = true },
                 new RoutePolicy { UrlPattern = "/api/storeHouses", AllowAnonymous = true },
@@ -42,6 +41,8 @@ namespace cellPhoneS_backend.Auth
 
                 // Admin Routes - More specific first
                 new RoutePolicy { UrlPattern = "/api/admin/*", RequiredRoles = new List<string> { "ADMIN" } },
+                // Sends mail through the shared mail-service with the backend's API key, so it must not be callable anonymously
+                new RoutePolicy { UrlPattern = "/api/emails/*", RequiredRoles = new List<string> { "ADMIN" } },
 
                 // Authenticated User Routes (and Admin usually)
                 // Note: If you want Admin to access User routes, include "Admin" in the roles list

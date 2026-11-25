@@ -4,7 +4,10 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { NotifyService } from '@core/services/notify.service';
 import { InputComponent } from '@shared/form/input/input.component';
 import { IconComponent } from '@shared/ui/icon/icon.component';
-import { AdminFeaturesService } from '../../../services/admin-features.service';
+import { AdminFeaturesService, UploadStorageError } from '../../../services/admin-features.service';
+
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const MAX_SIZE = 2 * 1024 * 1024; // khớp luật context product-gallery của file-service
 
 @Component({
   selector: 'app-image-upload-dialog',
@@ -29,6 +32,16 @@ export class ImageUploadDialogComponent {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        this.notify.error('Chỉ hỗ trợ ảnh JPG, PNG hoặc WEBP');
+        input.value = '';
+        return;
+      }
+      if (file.size > MAX_SIZE) {
+        this.notify.error('Ảnh không được vượt quá 2MB');
+        input.value = '';
+        return;
+      }
       this.selectedFile.set(file);
 
       // Create object URL for preview
@@ -53,7 +66,11 @@ export class ImageUploadDialogComponent {
         this.notify.success(`Đã upload ảnh thành công (ID: #${id})`);
         this.dialogRef.close(true);
       },
-      error: () => this.uploading.set(false),
+      error: (err: unknown) => {
+        // Lỗi gọi backend đã được errorInterceptor báo; riêng lỗi PUT lên R2 thì tự báo ở đây.
+        if (err instanceof UploadStorageError) this.notify.error(err.message);
+        this.uploading.set(false);
+      },
     });
   }
 }

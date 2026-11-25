@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Azure;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
 
@@ -127,8 +126,6 @@ internal partial class Program
                 };
             });
 
-        var cs = builder.Configuration.GetConnectionString("StorageAccount");
-        builder.Services.AddAzureClients(clientBuilder => clientBuilder.AddBlobServiceClient(cs));
         builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
         builder.Services.AddScoped<IResourceLocalizer, ResourceLocalizer>();
         builder.Services.AddControllers(options => options.Filters.Add<cellPhoneS_backend.Filters.ApiExceptionFilter>());
@@ -143,6 +140,14 @@ internal partial class Program
             }
             client.DefaultRequestHeaders.Add("x-api-key", builder.Configuration["PaymentGateway:ApiKey"] ?? "");
             // Gateway có thể phải gọi cổng thanh toán nên cần timeout tối thiểu 15 giây.
+            client.Timeout = TimeSpan.FromSeconds(20);
+        });
+        // file-service (upload ảnh lên R2): khoá API chỉ nằm ở backend, cấu hình qua FileService:BaseUrl|ApiKey.
+        builder.Services.AddHttpClient<cellPhoneS_backend.Services.Interface.IFileServiceClient, cellPhoneS_backend.Services.Implement.FileServiceClientImpl>(client =>
+        {
+            var baseUrl = builder.Configuration[cellPhoneS_backend.Constants.FileServiceConfigKeys.BaseUrl];
+            if (string.IsNullOrWhiteSpace(baseUrl)) baseUrl = cellPhoneS_backend.Constants.FileServiceConfigKeys.DefaultBaseUrl;
+            client.BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/");
             client.Timeout = TimeSpan.FromSeconds(20);
         });
         builder.Services.AddHttpClient<cellPhoneS_backend.Services.Interface.IEmailService, cellPhoneS_backend.Services.Implement.EmailServiceImpl>(client =>

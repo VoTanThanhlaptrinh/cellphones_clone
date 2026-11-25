@@ -1,9 +1,19 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { from, map, Observable, switchMap } from 'rxjs';
 import { ApiResponse } from '@core/models/api.model';
 import { environment } from '../../../environments/environment';
 import { CommitmentItem, ImageItem, SpecificationDetailItem, SpecificationItem } from '../models/product-details.model';
+
+interface PresignedUpload {
+  tempKey: string;
+  uploadUrl: string;
+  expiresIn: number;
+  previewUrl?: string | null;
+}
+
+/** Lỗi ở bước PUT lên R2 (không đi qua errorInterceptor nên nơi gọi phải tự báo cho người dùng). */
+export class UploadStorageError extends Error {}
 
 @Injectable({ providedIn: 'root' })
 export class AdminFeaturesService {
@@ -92,16 +102,58 @@ export class AdminFeaturesService {
       .pipe(map(res => res.data));
   }
 
-  /** POST /api/admin/images/upload: Upload file ảnh trực tiếp qua FormData */
+  /**
+   * Upload file ảnh lên R2 qua file-service, 3 bước:
+   * 1) POST /api/admin/images/upload/presign: backend xin link upload tạm
+   * 2) PUT file thẳng lên R2 (không đi qua backend)
+   * 3) POST /api/admin/images/upload/confirm: backend xác nhận rồi lưu bản ghi ảnh, trả về id
+   */
   uploadImage(file: File, alt?: string): Observable<number> {
-    const formData = new FormData();
-    formData.append('file', file);
-    if (alt && alt.trim() !== '') {
-      formData.append('alt', alt.trim());
-    }
     return this.http
-      .post<ApiResponse<number>>(`${this.baseUrl}/admin/images/upload`, formData)
-      .pipe(map(res => res.data));
+      .post<ApiResponse<PresignedUpload>>(`${this.baseUrl}/admin/images/upload/presign`, {
+        fileName: file.name,
+        mimeType: file.type,
+        size: file.size,
+      })
+      .pipe(
+        map(res => res.data),
+        switchMap(presigned =>
+          from(this.putToStorage(presigned.uploadUrl, file)).pipe(map(() => presigned.tempKey)),
+        ),
+        switchMap(tempKey =>
+          this.http.post<ApiResponse<number>>(`${this.baseUrl}/admin/images/upload/confirm`, {
+            tempKey,
+            name: file.name,
+            mimeType: file.type,
+            alt: alt?.trim() || undefined,
+          }),
+        ),
+        map(res => res.data),
+      );
+  }
+
+  /**
+   * Dùng fetch thay vì HttpClient: authInterceptor gắn "Authorization: Bearer ..." vào mọi request HttpClient,
+   * còn link presigned của R2 đã được ký sẵn và sẽ từ chối header lạ.
+   */
+  private async putToStorage(uploadUrl: string, file: File): Promise<void> {
+    let res: Response;
+    try {
+      res = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type },
+        body: file,
+      });
+    } catch {
+      throw new UploadStorageError('Không kết nối được kho lưu trữ ảnh. Kiểm tra mạng hoặc cấu hình CORS của bucket.');
+    }
+    if (!res.ok) {
+      throw new UploadStorageError(
+        res.status === 403
+          ? 'Link upload đã hết hạn hoặc file không khớp, vui lòng thử lại.'
+          : `Upload lên kho lưu trữ thất bại (mã ${res.status}).`,
+      );
+    }
   }
 
   /** POST /api/admin/images: Tạo bản ghi ảnh từ URL bên ngoài */

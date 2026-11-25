@@ -18,11 +18,11 @@
             <app-icon name="image" svgClass="size-6" />
           </div>
           <p class="text-sm font-medium text-gray-700">Kéo thả hoặc nhấp để chọn ảnh</p>
-          <p class="text-xs text-gray-400 mt-1">Hỗ trợ JPG, PNG, WEBP, GIF (Tối đa 10MB)</p>
+          <p class="text-xs text-gray-400 mt-1">Hỗ trợ JPG, PNG, WEBP (Tối đa 2MB)</p>
         }
         <input
           type="file"
-          accept="image/*"
+          accept="image/jpeg,image/png,image/webp"
           (change)="onFileSelected($event)"
           class="absolute inset-0 size-full cursor-pointer opacity-0"
         />
@@ -39,7 +39,7 @@
   <mat-dialog-actions align="end" class="gap-2 pb-4">
     <button type="button" class="btn btn-ghost" mat-dialog-close [disabled]="uploading()">Huỷ</button>
     <button type="submit" class="btn btn-primary" [disabled]="uploading() || !selectedFile()">
-      {{ uploading() ? 'Đang upload lên Azure...' : 'Tải lên ngay' }}
+      {{ uploading() ? 'Đang tải lên...' : 'Tải lên ngay' }}
     </button>
   </mat-dialog-actions>
 </form>
